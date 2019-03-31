@@ -1,0 +1,1 @@
+// Original: BareMetal/src/control/attitude.h
