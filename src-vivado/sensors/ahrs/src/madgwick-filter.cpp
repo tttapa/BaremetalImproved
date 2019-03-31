@@ -212,6 +212,7 @@ Quat32 MadgwickAHRSUpdate(Quat32 orientation, IMUMeasurement imu) {
 }
 
 
+// TODO: always use instability_fix
 int instability_fix = 1;
 
 //---------------------------------------------------------------------------------------------------

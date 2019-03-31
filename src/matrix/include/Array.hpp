@@ -5,8 +5,8 @@
 
 #include <algorithm>  // copy
 #include <cmath>      // isfinite
-#include <cstddef>
-#include <numeric>  // accumulate
+#include <cstddef>    // size_t
+#include <numeric>    // accumulate
 #include <type_traits>
 #ifdef SAFE_ARRAY_INDICES
 #include <cassert>

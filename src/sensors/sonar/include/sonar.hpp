@@ -1,1 +1,0 @@
-// Original: BareMetal/src/sonar/sonar.h
