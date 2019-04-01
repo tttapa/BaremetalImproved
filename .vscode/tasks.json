@@ -166,7 +166,7 @@
         {
             "label": "Generate Documentation",
             "type": "shell",
-            "command": "doxygen",
+            "command": "rm -rf html && doxygen && sensible-browser html/index.html",
             "options": {
                 "cwd": "${workspaceFolder}/doc"
             },
