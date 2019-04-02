@@ -1,0 +1,5 @@
+add_subdirectory(altitude)
+add_subdirectory(attitude)
+add_subdirectory(autonomous)
+add_subdirectory(motors)
+add_subdirectory(position)
