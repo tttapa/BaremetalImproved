@@ -9,7 +9,7 @@
  ******************************************************************************/
 
 /**
- * Set up the interrupt system and the IIC driver.
+ * Set up the interrupt system (master, IIC, IMU).
  *
  * @return  true 
  *          if setup was successful 
@@ -18,17 +18,6 @@
  */
 bool initInterrupt();
 
-/**
- * This function setups the interrupt system such that interrupts can occur for
- * the IMU.  This function is application specific since the actual system may 
- * or may not have an interrupt controller.
- *
- * @return  true
- *          if setup was successful
- * @return  false
- *          otherwise
- */
-bool setupIMUInterruptSystem();
 
 /*******************************************************************************
  *   Integrated Integrated Circuit device driver header file

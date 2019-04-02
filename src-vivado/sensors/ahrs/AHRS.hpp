@@ -32,6 +32,6 @@ Quat32 updateAHRS(IMUMeasurement imu);
  * Initialize the attitude and heading reference system
  * Calculate starting orientation quaternion referenced at inertial axes
  */
-void initializeAHRS();
+void initAHRS();
 
 #endif // AHRS_H

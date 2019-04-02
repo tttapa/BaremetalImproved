@@ -1,4 +1,7 @@
-void updateLEDs(bool isInterruptActive,
+#include "AxiGpio.hpp"
+
+
+void updateLEDs(bool isInterruptRunning,
                 bool isControllerArmed,
                 bool isAutonomous,
                 bool isWPTActive)
@@ -7,8 +10,7 @@ void updateLEDs(bool isInterruptActive,
     int ledOutput = 0x0;
 
     /* LED 0 is lit when the interrupts are running too slowly. */
-    /* Otherwise, if interrupt is fast enough, the main loop will set this to false before this function is called. */
-    if (isInterruptActive)
+    if (isInterruptRunning)
         ledOutput += 0x1;
 
     /* LED 1 is lit when the controller is armed. */
@@ -24,5 +26,5 @@ void updateLEDs(bool isInterruptActive,
         ledOutput += 0x8;
 
     /* Write value to LEDs. */
-    XGpio_DiscreteWrite(&axi_gpio_1, LED_CHANNEL, LED_CHECK);
+    writeValueToLEDs(ledOutput);
 }

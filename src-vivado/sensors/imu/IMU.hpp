@@ -1,6 +1,8 @@
 // Original: BareMetal/src/IMU/IMU.h
 // Original: BareMetal/src/IMU/LSM9DS1_Registers.h
 
+// TODO: unglobal
+
 /*******************************************************************************
  *   IMU device driver header
  *   This file contains all functions required to use the IMU.

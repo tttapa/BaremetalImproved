@@ -62,30 +62,3 @@ void cleanupPlatform();
  *   This file should NEVER be changed by the students.
  *   Author: r. theunis
  ******************************************************************************/
-
-/*******************************************************************************
- *   Other functions used in BareMetal.
- *   These are moved to platform.hpp for abstraction of the platform.
- *   Inter-Integrated Circuit device driver source code.
- *
- *   This file should NEVER be changed by the students.
- *   Author: /
- *******************************************************************************/
-
-/**
- * Generate a heartbeat by writing 0, then 1 to the heartbeat channel.
- */
-void generateHeartbeat();
-
-/**
- * Write 1 to the test pin to probe the length of an interrupt.
- */
-void testpinHigh();
-
-/**
- * Write the given value to the four LEDs on the Zybo.
- *
- * @param   value
- *          A four bit value that will be written to the four LEDs respectively.
- */
-void writeValueToLEDs(int value);

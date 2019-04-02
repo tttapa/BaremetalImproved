@@ -2,6 +2,8 @@
 #include "median-filter.hpp"
 #include "math.h"
 
+// TODO: make this a class
+
 /*******************************************************************************
  * Median filter source code
  *

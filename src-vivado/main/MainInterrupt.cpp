@@ -1,10 +1,11 @@
-#include <Time.hpp>
-#include <main-FSM.hpp>
-#include <main-interrupt.hpp>
-#include <IMU.hpp>
-#include <AHRS.hpp>
+#include "MainInterrupt.hpp"
+#include "../sensors/ahrs/AHRS.hpp"
+#include "../sensors/imu/IMU.hpp"
+#include "../time/Time.hpp"
+#include <MainFSM.hpp>  // Update control system
 
-void updateInterrupt() {
+void update() {
+
     // Keep the clock/timer up-to-date
     incrementTickCount();
 
@@ -19,7 +20,7 @@ void updateInterrupt() {
     }
     // Phase 2: Initialize AHRS. */
     else if (!isAHRSInitialized) {
-        initializeAHRS();
+        initAHRS();
         isAHRSInitialized = true;
     }
     // Phase 3: main operation

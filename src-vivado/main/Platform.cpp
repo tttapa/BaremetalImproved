@@ -59,6 +59,7 @@
     #define UART_BAUD 9600
 #endif
 
+
 void enableCaches() {
     #ifdef __PPC__
         Xil_ICacheEnableRegion(CACHEABLE_REGION_MASK);
@@ -73,10 +74,12 @@ void enableCaches() {
     #endif
 }
 
+
 void disableCaches() {
     Xil_DCacheDisable();
     Xil_ICacheDisable();
 }
+
 
 void initUART() {
     #ifdef STDOUT_IS_16550
@@ -87,6 +90,7 @@ void initUART() {
         /* Bootrom/BSP configures PS7 UART to 115200 bps */
     #endif
 }
+
 
 void initXilinxPlatform() {
     /*
@@ -99,6 +103,7 @@ void initXilinxPlatform() {
     enableCaches();
     initUART();
 }
+
 
 void cleanupPlatform() {
     disableCaches();
@@ -116,22 +121,12 @@ void cleanupPlatform() {
 
 extern u32 MMUTable;
 
-void eagleSetupIPC(void){
-	eagleSetTLBAttributes(0xFFFF0000, 0x04de2);
-}
-
-void eagleSetupClock(void) {
-	uint32_t* amba_clock_control = (uint32_t*)0xF800012C;
-	*amba_clock_control |= (1<<23); //Enable QSPI
-	*amba_clock_control |= (1<<22); //Enable GPIO
-	*amba_clock_control |= (1<<18); //Enable I2C0
-	*amba_clock_control |= (1<<19); //Enable I2C1
-}
 
 void eagleDCacheFlush(void) {
 	Xil_L1DCacheFlush();
 	//Xil_L2CacheFlush();
 }
+
 
 void eagleSetTLBAttributes(u32 addr, u32 attrib) {
 	u32 *ptr;
@@ -150,6 +145,21 @@ void eagleSetTLBAttributes(u32 addr, u32 attrib) {
 	dsb();
 }
 
+
+void eagleSetupIPC(void){
+	eagleSetTLBAttributes(0xFFFF0000, 0x04de2);
+}
+
+
+void eagleSetupClock(void) {
+	uint32_t* amba_clock_control = (uint32_t*)0xF800012C;
+	*amba_clock_control |= (1<<23); //Enable QSPI
+	*amba_clock_control |= (1<<22); //Enable GPIO
+	*amba_clock_control |= (1<<18); //Enable I2C0
+	*amba_clock_control |= (1<<19); //Enable I2C1
+}
+
+
 void initPlatform() {
 
 	/* Configure inter-processor communication (only needed in AMP mode). */
@@ -160,27 +170,4 @@ void initPlatform() {
 
 	/* Setup clock control. */
 	eagleSetupClock();
-}
-
-
-
-// TODO: author
-/**********************************************************************************************************************
-*   Other functions used in BareMetal. These are moved to platform.hpp for abstraction of the platform. in tIntegrated Integrated Circuit device driver source code
-*
-*   This file should NEVER be changed by the students.
-*   Author: /
-***********************************************************************************************************************/
-
-void generateHeartbeat() {
-    XGpio_DiscreteWrite(&axi_gpio_1, HEARTBEAT_CHANNEL, 0);
-    XGpio_DiscreteWrite(&axi_gpio_1, HEARTBEAT_CHANNEL, 1);
-}
-
-void testpinHigh() {
-    XGpio_DiscreteWrite(&axi_gpio_2, 1, 0x1);
-}
-
-void writeValueToLEDs(int value) {
-    XGpio_DiscreteWrite(&axi_gpio_1, LED_CHANNEL, value);
 }
