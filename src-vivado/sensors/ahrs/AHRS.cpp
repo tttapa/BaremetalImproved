@@ -12,13 +12,13 @@
 Vec32 ahrs_av_imu = {0, 0, 0};
 
 // TODO: better quaternion
-static Quat32 orientation;
+static Quaternion orientation;
 
 // Given 
 void initAHRS() {
 	xil_printf("AHRS_INIT\r\n");
 
-	Quat32 rot, temp;
+	Quaternion rot, temp;
 	orientation.w = 1;
 	orientation.x = 0;
 	orientation.y = 0;

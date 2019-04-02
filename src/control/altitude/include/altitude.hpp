@@ -1,80 +1,49 @@
+// Original: BareMetal/src/control/altitude.h
+#include <real_t.h>
+
 struct AltitudeReference {
-    float z;    // Height (m)
+    real_t ref;  // Height (m)
 };
 
 struct AltitudeState {
-    float nt;   // Common motor marginal angular velocity (rad/s)
-    float z;    // Height (m)
-    float vz;   // Velocity (m/s)
+    real_t nt;  // Common motor marginal angular velocity (rad/s)
+    real_t z;   // Height (m)
+    real_t vz;  // Velocity (m/s)
 };
 
 struct AltitudeControlSignal {
-    float ut;   // Common motor marginal signal (/)
-}
+    real_t ut;  // Common motor marginal signal (/)
+};
 
-// Original: BareMetal/src/control/altitude.h
+struct AltitudeIntegralAction {
+    real_t y_int;
+};
 
-/**********************************************************************************************************************
-*   Altitude controller header file
-*   this script contains functions used to generate inputs to the drone
-*   that allow it to fly at a constant height
-*   author: p. coppens
-***********************************************************************************************************************/
-#ifndef ALTITUDE_H
-#define ALTITUDE_H
+struct AltitudeMeasurement {
+	real_t y;
+};
 
-// Header Files
-// ====================================================================================================================
-#include <main.h>
-#include <math.h>
+class Altitude {
 
-// Constant definitions
-// ====================================================================================================================
-#define C2NH	116.55 		/* Constant ratio between hovering thrust c_h and hovering propeller rotation speed n_h */
-#define THRUST_CLIP 0.1		/* Clamp parameter for u_thrust */
+  private:
+    AltitudeReference z;
+    AltitudeState x_hat;
+    AltitudeControlSignal u;
+    AltitudeIntegralAction y_int;
+	AltitudeMeasurement y;
+    void clampAltitudeControllerOutput(AltitudeControlSignal,
+                                       AltitudeIntegralAction);
+	//void updateReference();
+    real_t ut_clamp;
+	real_t rc_throttle_increase_threshold;
+	real_t rc_throttle_decrease_threshold;
+	real_t sonar_hz;
+	real_t rc_throttle_max_cm_per_second;
+	real_t z_min;
+	real_t z_max;
 
-// Prototype definitions
-// ====================================================================================================================
-void altitude_flying(float rz);
-void altitude_init();
-void correct_tilt_height();
-void thrust_out();
-
-
-// Macros
-// ====================================================================================================================
-
-/**
- * Used to restrict a variable to a certain interval.
- *
- * parameters:
- *  	x:      the variable to restrict to an interval
- *  	lo:     the lower boundary
- *  	hi:     the higher boundary
- */
-#define CLAMP_INPLACE(x, lo, hi) { \
-	if((x) < ((lo))) \
-		(x) = (lo); \
-	if((x) > ((hi))) \
-		(x) = (hi); \
-}
-
-// Global Variables
-// ====================================================================================================================
-/* controller inputs */
-float target_z;			/* The target height of the drone, initialized by altitude_init() */
-float pz;				/* The current measurement of the height after tilt correction (if implemented).
-						 * See sonar.c for calculation of variable 'sonar' (=before tilt correction) */
-
-/* Controller output */
-float u_thrust;			/* The thrust with the hovering bias removed */
-
-/* altitude output */
-float alt_thrust; 		/* The value for thrust calculated by the altitude controller, equal to u_thrust + c_h (when not clamped)
-						 * This value will overwrite the thrust value from the RC while in altitude and navigation mode. */
-
-// TODO: prevent sonar from firing two measurements back to back... this messes up the KF
-// int alt_ticksPassed;
-// int alt_minTicksPassed;
-
-#endif // ALTITUDE_H
+  public:
+    void updateController();
+    void updateReference();
+    void initializeController();
+};

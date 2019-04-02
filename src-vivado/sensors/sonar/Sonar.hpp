@@ -24,14 +24,14 @@ static bool readSonar();
 /**
  * Returns the latest filtered sonar measurement.
  */
-static float geFilteredtSonarMeasurement();
+static real_t geFilteredtSonarMeasurement();
 
 /**
  * Calculates the median of the entire sonar measurement buffer.
  * 
  * @return   Median of entire sonar measurement buffer.
  */
-static float getFilteredSonarMeasurementAccurate();
+static real_t getFilteredSonarMeasurementAccurate();
 
 /**
  * Initialise the median filter of the sonar.
