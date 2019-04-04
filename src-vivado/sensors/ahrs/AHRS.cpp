@@ -14,7 +14,7 @@ void AHRS::initAHRS() {
 	/* Reset orientation. */
 	orientation = Quaternion();
 
-	Quat32 rot, temp;
+	Quaternion rot, temp;
 	orientation.w = 1;
 	orientation.x = 0;
 	orientation.y = 0;

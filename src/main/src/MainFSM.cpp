@@ -1,5 +1,6 @@
 
 // TODO: remember last mode & check for mode switching
+#include<attitude.hpp>
 
 void updateMainFSM() {
 
@@ -7,7 +8,7 @@ void updateMainFSM() {
 
     // ! CASE ( flightMode == MANUAL )
         // TODO: arming check
-        // TODO: u_att = att.updateCtrl(getRCManualReference())
+        // TODO: u_att = att.updateCtrl()
         // TODO: u_thr = getRCThrust()
 
     // ! CASE ( flightMode == ALTITDUE_HOLD )

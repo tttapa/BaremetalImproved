@@ -6,7 +6,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/src/quaternion/include",
-                "${workspaceFolder}/src/control/attitude/include"
+                "${workspaceFolder}/src/control/attitude/include",
+                "${workspaceFolder}/src/matrix/include"
             ],
             "defines": [],
             "cStandard": "c11",
