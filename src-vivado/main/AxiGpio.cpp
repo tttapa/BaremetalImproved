@@ -18,26 +18,26 @@ bool initAxiGpio() {
     int status;
 
 	/* Initialise AXI GPIO used for LEDs and heartbeat. */
-	status = XGpio_Initialize(&axi_gpio_1, HARDWARE_ADDRESSES::GPIO_DEVICE_LED);
+	status = XGpio_Initialize(&axi_gpio_1, AXI_GPIO::GPIO_DEVICE_LED);
 	if (status != XST_SUCCESS) {
 		xil_printf("GPIO init to the LEDs failed!\r\n");
 		return false;
 	}
 
 	/* Initialise AXI GPIO used to measure the interrupt-looplength. */
-	status = XGpio_Initialize(&axi_gpio_2, HARDWARE_ADDRESSES::GPIO_DEVICE_TESTPIN);
+	status = XGpio_Initialize(&axi_gpio_2, AXI_GPIO::GPIO_DEVICE_TESTPIN);
 	if (status != XST_SUCCESS) {
 		xil_printf("GPIO init to the testpin failed!\r\n");
 		return false;
 	}
 
 	/* Set the direction for the channels to output. */
-	XGpio_SetDataDirection(&axi_gpio_1, AXI_GPIO_CHANNELS::LED_CHANNEL, 0x00);
-	XGpio_SetDataDirection(&axi_gpio_1, AXI_GPIO_CHANNELS::HEARTBEAT_CHANNEL, 0x00);
-	XGpio_SetDataDirection(&axi_gpio_2, AXI_GPIO_CHANNELS::TESTPIN_CHANNEL, 0x00);
+	XGpio_SetDataDirection(&axi_gpio_1, AXI_GPIO::LED_CHANNEL, 0x00);
+	XGpio_SetDataDirection(&axi_gpio_1, AXI_GPIO::HEARTBEAT_CHANNEL, 0x00);
+	XGpio_SetDataDirection(&axi_gpio_2, AXI_GPIO::TESTPIN_CHANNEL, 0x00);
 
 	/* Start heartbeat. */
-	XGpio_DiscreteWrite(&axi_gpio_1, AXI_GPIO_CHANNELS::HEARTBEAT_CHANNEL, 1);
+	XGpio_DiscreteWrite(&axi_gpio_1, AXI_GPIO::HEARTBEAT_CHANNEL, 1);
 
     /* Setup successful. */
     xil_printf("AXI GPIO initialization successful.");
@@ -46,8 +46,8 @@ bool initAxiGpio() {
 
 
 void generateHeartbeat() {
-    XGpio_DiscreteWrite(&axi_gpio_1, AXI_GPIO_CHANNELS::HEARTBEAT_CHANNEL, 0);
-    XGpio_DiscreteWrite(&axi_gpio_1, AXI_GPIO_CHANNELS::HEARTBEAT_CHANNEL, 1);
+    XGpio_DiscreteWrite(&axi_gpio_1, AXI_GPIO::HEARTBEAT_CHANNEL, 0);
+    XGpio_DiscreteWrite(&axi_gpio_1, AXI_GPIO::HEARTBEAT_CHANNEL, 1);
 }
 
 
@@ -57,5 +57,5 @@ void testpinHigh() {
 
 
 void writeValueToLEDs(int value) {
-    XGpio_DiscreteWrite(&axi_gpio_1, AXI_GPIO_CHANNELS::LED_CHANNEL, value);
+    XGpio_DiscreteWrite(&axi_gpio_1, AXI_GPIO::LED_CHANNEL, value);
 }
