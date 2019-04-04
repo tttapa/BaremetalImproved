@@ -8,12 +8,19 @@
 ********************************************************************************/
 #include "AHRS.hpp"
 
-// Given 
-void AHRS::initAHRS() {
 
-	/* Reset orientation. */
-	orientation = Quaternion();
+// TODO: is this signature correct? These should act as "globals" within this cpp file.
+/* Orientation of the drone, updated by Madgwick's algorithm. */
+Quat32 orientation;
 
+
+Quat32 getOrientation() {
+	return orientation;
+}
+
+void initAHRS() {
+
+	// TODO: use new quaternion functions instead of Quat32, Vec32, ...
 	Quaternion rot, temp;
 	orientation.w = 1;
 	orientation.x = 0;
@@ -50,7 +57,7 @@ void AHRS::initAHRS() {
 }
 
 // Given, replaced by Madgwick
-Quat32 updateAHRS(IMUMeasurement imu) {
+Quaternion updateAHRS(IMUMeasurement imu) {
 
     orientation = MadgwickAHRSupdateIMU(orientation, imu);
 	return orientation;

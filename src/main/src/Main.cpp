@@ -6,11 +6,11 @@
 *   all of the components on the Zybo, starts the interrupts and runs a loop
 *   that logs data.
 ******************************************************************************/
-#include "Platform.hpp"
-#include "Interrupt.hpp"
-#include "../sensors/sonar/Sonar.hpp"
-#include "../sensors/imu/IMU.hpp"
-#include "../sensors/ahrs/AHRS.hpp"
+#include "../../../src-vivado/main/Platform.hpp"
+#include "../../../src-vivado/main/Interrupt.hpp"
+#include "../../../src-vivado/sensors/imu/IMU.hpp"
+#include "../../../src-vivado/sensors/sonar/Sonar.hpp"
+
 
 /**
  * Entry point to BareMetal program.

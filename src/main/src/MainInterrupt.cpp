@@ -1,7 +1,11 @@
+#include "MainInterrupt.hpp"
+#include "../sensors/ahrs/AHRS.hpp"
+#include "../sensors/imu/IMU.hpp"
+#include "../time/Time.hpp"
+#include <MainFSM.hpp>  // Update control system
 
-// TODO: remember last mode & check for mode switching
-#include<attitude.hpp>
 
+// Called by src-vivado every 238 Hz after initialization/calibration is complete.
 void updateMainFSM() {
 
     // ! switch
@@ -36,4 +40,31 @@ void updateMainFSM() {
     // TODO: alt.updateObserver()
     // TODO: pos.updateObserver()
     
+}
+
+
+
+void update() {
+
+    // Keep the clock/timer up-to-date
+    incrementTickCount();
+
+    // IMU bias should be calculated before use.
+    static bool isIMUCalibrated = false;
+    // AHRS should calibrate with accelerometer before use.
+    static bool isAHRSInitialized = false;
+
+    // Phase 1: Calibrate IMU.
+    if (!isIMUCalibrated) {
+        isIMUCalibrated = calibrateIMU();
+    }
+    // Phase 2: Initialize AHRS. */
+    else if (!isAHRSInitialized) {
+        initAHRS();
+        isAHRSInitialized = true;
+    }
+    // Phase 3: main operation
+    else {
+        updateMainFSM();
+    }
 }

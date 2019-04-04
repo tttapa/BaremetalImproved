@@ -7,68 +7,27 @@
  *   Author: p. coppens
 ***********************************************************************************************************************/
 #include "MadgwickFilter.hpp"
-#include "Quaternion.hpp"
+#include "quaternion.hpp"   // TODO: use new Quaternion
 
 
-class AHRS {
-
-    public:
-        
-        /**
-         * Get the Attitude and Heading Reference System's orientation.
-         */
-        Quaternion getOrientation() {
-            return orientation;
-        }
-
-        
-        /**
-         * Initialize the Attitude and Heading Reference System using the initial IMU measurement.
-         */
-        void init(IMUMeasurement imu);
+/**
+ * Get the Attitude and Heading Reference System's orientation.
+ */
+Quat32 getOrientation();
 
 
-        /**
-         * Update the Attitude and Heading Reference System using the new IMU measurement.
-         * 
-         * @param   imu
-         *          new IMU measurement
-         */
-        void update(IMUMeasurement imu) {
-            MadgwickAHRSupdateIMU(orientation, imu);
-        }
+/**
+ * Initialize the Attitude and Heading Reference System using the initial IMU measurement.
+ */
+void init(IMUMeasurement imu);
 
 
-
-    private:
-        Quaternion orientation;
-
+/**
+ * Update the Attitude and Heading Reference System using the new IMU measurement.
+ * 
+ * @param   imu
+ *          new IMU measurement
+ */
+void update(IMUMeasurement imu) {
+    MadgwickAHRSupdateIMU(orientation, imu);
 }
-
-// Header Files
-// ====================================================================================================================
-#include "../comm/iic.h"
-#include "../intc/intc.h"
-#include "../utils/quaternion.h"
-#include "xtime_l.h"
-
-// Prototype definitions
-// ====================================================================================================================
-
-/**
- *  ahrs_tick updates the orientation with the current accelerometer and gyroscope readings.
- *  computes quaternions to give attitude and heading reference system
- *  input is previous estimation quaternion and IMU measured quaternion
- * 	output is estimated quaternion
- * 	TIME = �7.5 us or 4900 clock cycles
- */
-Quat32
-updateAHRS(IMUMeasurement imu);
-
-/**
- * Initialize the attitude and heading reference system
- * Calculate starting orientation quaternion referenced at inertial axes
- */
-void initAHRS();
-
-#endif  // AHRS_H
