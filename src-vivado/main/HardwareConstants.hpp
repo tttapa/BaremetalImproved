@@ -50,6 +50,30 @@ namespace HARDWARE_ADDRESSES {
 
 }
 
+/**
+ * Constants used by the IMU.
+ */
+namespace IMU {
+    
+    /* Amount of samples to take to determine bias. */
+	const int CALIBRATION_SAMPLES = 512;
+	
+    /* Amount of samples to remove at the start of calibration. */
+	const int INVALID_SAMPLES = 16;
+
+    /* Number of u8s used to construct the 3 raw measurements (signed 16-bit) for the gyroscope. */
+    const int GYRO_DATA_SIZE = 6;
+
+    /* Number of u8s used to construct the 3 raw measurements (signed 16-bit) for the accelerometer. */
+    const int ACCEL_DATA_SIZE = 6;
+
+    /* Maximum measurable angular velocity in degree/s. */
+    const float MAX_GYRO_VALUE = 2000.0;
+
+    /* Maximum measurable acceleration in g. */
+    const float MAX_ACCEL_VALUE = 16.0;
+}
+
 
 /**
  * Constants used by the interrupt system.

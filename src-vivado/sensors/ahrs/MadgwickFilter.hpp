@@ -18,20 +18,6 @@ extern volatile float beta;
 
 
 /**
- * Apply Madgwick's algorithm using all available measurement data (gyroscope,
- * accelerometer, magnetometer) and the given orientation.
- * 
- * @param   orientation
- *          last orientation of the drone
- * @param   imu
- *          current measurement of the IMU (gyro+accel+mag)
- * 
- * @return updated drone orientation, according to Madgwick's algorithm.
- */
-Quat32 MadgwickAHRSUpdateFull(Quat32 orientation, FullIMUMeasurement imu);
-
-
-/**
  * Apply Madgwick's algorithm using only the measurement data from the gyroscope
  * and the accelerometer (and the given orientation).
  * 

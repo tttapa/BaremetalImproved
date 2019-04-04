@@ -7,366 +7,308 @@
 *   Author: w. devries
 ***********************************************************************************************************************/
 #include "IMU.hpp"
+#include "LSM9DS1_Registers.h"
+#include "../../main/AxiGpio.hpp"
+#include "../../main/Platform.hpp"
+#include "xtime_l.h"	// TODO: is usleep() necessary?
 
-float magSensitivity[4] = {0.00014, 0.00029, 0.00043, 0.00058};
+/* Bias of the gyroscope, set on last step of calibration. */
+GyroMeasurement gyroBias;
 
-/* Hold current LED value. Initialize to LED definition */
-int led = LED;
+/* Bias of the accelerometer, set on last step of calibration. */
+AccelMeasurement accelBias;
 
-bool IMU::init() {
+/* Sum of the raw gyroscope measurements, used to calculate bias. */
+long gyroRawSum[3];
 
-	/* Check both WHO_AM_I to see if the IMU is connected. */
-	xil_printf("init IMU started \r\n");
-	u8 sensor_data[1] = {0x00}; //ACCEL_GYRO_READ_SIZE
-	IicReadReg(sensor_data, WHO_AM_I_XG,1,1);
-	usleep(100);
+/* Sum of the raw accelerometer measurements, used to calculate bias. */
+long accelRawSum[3];
 
-	xil_printf("received: 0x%02x\r\n", *sensor_data );
-	u8 sensor_data2[1] = {0x00}; //ACCEL_GYRO_READ_SIZE
-	IicReadReg(sensor_data2, WHO_AM_I_M,0,1);
-	xil_printf("received: 0x%02x\r\n", *sensor_data2 );
-	if((*sensor_data != WHO_AM_I_AG_RSP)| (*sensor_data2 != WHO_AM_I_M_RSP)) {
-		xil_printf("WHO_AM_I FAILED\r\n");
-		return XST_FAILURE;
-	}
-	else xil_printf("WHO_AM_I CORRECT\r\n");
+/* Number of calibration steps taken. */
+int calibrationStepCounter;
 
 
-	// Initialize IMU biases to make sure that we are on flat ground
-	// ----------------------------------------------------------------------
-	accBiasRaw[0] = -160;	//229; 	// values calculated and printed in calibrate function
-	accBiasRaw[1] = -45;	//316;	// we use them to make sure we are basing the inertia axes on flat ground
-	accBiasRaw[2] = 15952;	//-268;
+/**
+ * Convert the raw gyroscope reading to rad/s.
+ * 
+ * @param	rawGyro
+ * 			signed 16-bit gyroscope measurement
+ * @return	the raw gyroscope measurement converted to rad/s.
+ */
+float calcGyro(int rawGyro) {
 
-	// Initialize IMU registers and variables (see more details in data sheet of LSM9DS1)
-	// ----------------------------------------------------------------------
-	/* GYROSCOPE + ACCELEROMETER registers and how to initialize them
-	 * CTRL_REG1_G 	= 11000000 0xC0 	==> 238 Hz ODR, 245dps scale, BW cutoff 76Hz
-	 * CTRL_REG3_G 	= 00000000 0x00 	==> no low power, no HPF, HPF CF = 15Hz
-	 * ORIENT_CFG_G = 000000000 0x00 	==> pitch (x), roll(y), yaw (z) angular sign positive, orientation 0
-	 * CTRL_REG4 	= 00111010 0x3A		==> gyr outputs enabled, latched interrupt enabled, 4d not
-	 * CTRL_REG5_XL = 11111000 0xF8		==> update every 8 samples, all outputs enabled
-	 * CTRL_REG6_XL = 110000xx 0xC0		==> 476Hz, scale +-2000g, BW=408Hz
-	 * CTRL_REG7_XL	= 00000000 0x00
-	 * INT1_CTRL 	= 00000010 0x02		==> Gyr interrupt enable on INT1 pin, gyr data ready enable (do this at the end)
-	*/
-
-	ax = 0; ay = 0; az = 0;
-	gx = 0; gy = 0; gz = 0;
-
-	acc_x = 0; acc_y = 0; acc_z = 0;
-	gyr_x = 0; gyr_y = 0; gyr_z = 0;
-
-	/*IicWriteToReg(INT_GEN_CFG_XL,0xFF,1);
-	IicWriteToReg(INT_GEN_CFG_G,0xFF,1);*/
-	//IicWriteToReg(CTRL_REG8, 0x84,1);
-	IicWriteToReg(CTRL_REG1_G, 0b10011000, 1);
-	IicWriteToReg(CTRL_REG3_G, 0x00, 1);
-	IicWriteToReg(ORIENT_CFG_G, 0x00, 1);
-	IicWriteToReg(CTRL_REG4, 0x3A, 1);
-	IicWriteToReg(CTRL_REG5_XL, 0b00111000, 1);
-	IicWriteToReg(CTRL_REG6_XL, 0b10001000, 1); //+-8g
-	IicWriteToReg(CTRL_REG7_XL, 0x00, 1);
-
-	IicWriteToReg(FIFO_CTRL, 0xC2, 1);
-
-	//IicWriteToReg(INT_GEN_DUR_G,0x83, 1);
-	//IicWriteToReg(INT_GEN_CFG_G,0x80, 1);
-
-	gyr_data[0]=0;
-	gyr_data[1]=0;
-	gyr_data[2]=0;
-	gyr_data[3]=0;
-	gyr_data[4]=0;
-	gyr_data[5]=0;
-
-	/* MAGNETOMETER registers and how to initialize them
-	 * CTRL_REG1_M = 11111100 0x7C	==> no temp comp, XY-axis Ultra high performance mode, 80 Hz, no self test
-	 * CTRL_REG4_M = 00001100 0x0C	==> Z-axis Ultra-high performance
-	 * CTRL_REG2_M = 00000000 0x00	==> �4 gauss scaling
-	 * CTRL_REG3_M = 00000000 0x00	==> continuous-conversion mode
-	*/
-	scale_m=4;
-	IicWriteToReg(CTRL_REG1_M, 0xFC, 0);
-	IicWriteToReg(CTRL_REG2_M, 0x00, 0);
-	IicWriteToReg(CTRL_REG3_M, 0x00, 0);
-	IicWriteToReg(CTRL_REG4_M, 0x0C, 0);
-
-	// TEMPERATURE SENSOR
-	// settings.temp.enabled = TRUE;
-
-	// Initialize the biases
-	int i;
-	for (i=0; i<3; i++) {
-		gBias[i] = 0;
-		aBias[i] = 0;
-		mBias[i] = 0;
-		gBiasRaw[i] = 0;
-		aBiasRaw[i] = 0;
-		mBiasRaw[i] = 0;
-		aBiasRawTemp[i] = 0;
-		gBiasRawTemp[i]= 0;
-	}
-
-	// We do not use the biases, before calibration is finished
-	_autoCalc = FALSE;
-	isIMUCalibrated = false;
-
-	// Callibrate the magnetometer
-	calcmRes();
-	calibrateMag(TRUE);
-
-	// Initialize variables for callibration
-	ii=0;	// no samples have been made yet for callibration
-	ahrs=0;	// ahrs still needs to be initiated (see gyro interrupt)
-
-	// We don't know what the current state of the FIFO in the IMU is, so clear it (we do this by reading them out)
-	for(i=0;i<5;i++) {
-		readAcc();
-		readGyro();
-	}
-
-	beep_initiated();
-	xil_printf("IMU initiated\r\n");
-
-	// Give output
-	xil_printf("starting interrupts\r\n");
-	// enable Gyr interrupt
-	IicWriteToReg(INT1_CTRL, 0x01, 1);
-	// enable IMU interrupt handling
-	SetupIMUInterruptSystem();
-	return 0;
+	/* Calculate the resolution of the gyroscope in degree/s. */
+	const float gyroResolution = (float)IMU::MAX_GYRO_VALUE / (2^15);
+	
+	/* Convert the raw gyro value to rad/s. */
+	return gyroResolution*(M_PI/180.0)*(float)rawGyro;
 }
 
-IMUMeasurement readIMU() {
-	/* GYROSCOPE*/
-	GryoMeasurement gyroMeas = readGyro();
-	
-	/*ACCELEROMETER*/
-	AccMeasurement accMeas = readAcc();
+/**
+ * Convert the raw accelerometer reading to g.
+ * 
+ * @param	rawAccel
+ * 			signed 16-bit accelerometer measurement
+ * @return	the raw accelerometer measurement converted to g.
+ */
+float calcAccel(int rawAccel) {
 
-	return IMUMeasurement {	gyroMeas.gx, gyroMeas.gy, gyroMeas.gz,
-							accMeas.ax, accMeas.ay, accMeas.az };
-	
+	/* Calculate the resolution of the accelerometer in g. */
+	const float accelResolution = (float)IMU::MAX_ACCEL_VALUE / (2^15);
 
-	/*MAGNETOMETER*/
-	//	readMag();
-
-	/*Calculate AHRS */
-	//calcAttitude(ax, ay, az, mag_x, mag_y, mag_z);//acc_x, acc_y, acc_z, mag_x, mag_y, mag_z);
-	// return XST_SUCCESS;
+	/* Convert the raw accel value to g. */
+	return accelResolution*(float)rawAccel;
 }
 
-GyroMeasurement readGyro() {
-	IicReadReg(gyr_data,OUT_X_L_G,1,6);
 
-	float gx, gy, gz;
+/**
+ * Read six uint8s from the gyroscope and construct the three raw measurements
+ * for the gyroscope (signed 16-bit).
+ * 
+ * @return	raw gyroscope measurement.
+ */
+RawGyroMeasurement readGyro() {
 
-	gyr_x = (gyr_data[1]<<8)+gyr_data[0];
-	gyr_y = (gyr_data[3]<<8)+gyr_data[2];
-	gyr_z = (gyr_data[5]<<8)+gyr_data[4];
+	/* Read data from gyroscope.*/
+	static u8 gyroData[IMU::GYRO_DATA_SIZE];
+	iicReadReg(gyroData, OUT_X_L_G, 1, IMU::GYRO_DATA_SIZE);
 
-	if (_autoCalc==TRUE) {
-		gx = calcGyro(-((float) gyr_x - gBiasRaw[0]));
-		gy = calcGyro(+((float) gyr_y - gBiasRaw[1]));
-		gz = calcGyro(-((float) gyr_z - gBiasRaw[2]));
-	}
-	usleep(100); //sleep necessary otherwise timing corrupt of calculation...
+	/* Raw 16-bit signed data from readings. */
+	int gxInt = (gyroData[1]<<8) + gyroData[0];
+	int gyInt = (gyroData[3]<<8) + gyroData[2];
+	int gzInt = (gyroData[5]<<8) + gyroData[4];
 
+	/* Return raw measurement. */
+	return RawGyroMeasurement {gxInt, gyInt, gzInt};
+}
+
+
+/**
+ * Convert raw gyroscope measurement to rad/s and remove bias.
+ * 
+ * @param	raw
+ * 			raw gyroscope measurement
+ * @param	bias
+ * 			bias of the gyroscope, calculated during calibration of IMU
+ * @return	unbiased gyroscope measurement in rad/s.
+ */
+GyroMeasurement getGyroMeasurement(RawGyroMeasurement raw, GyroMeasurement bias) {
+
+	/* Gyroscope measurements with bias removed in rad/s. */
+	float gx = -calcGyro((float)raw.gxInt - bias.gx);
+	float gy = +calcGyro((float)raw.gyInt - bias.gy);
+	float gz = -calcGyro((float)raw.gzInt - bias.gz);
+
+	/* Return measurement. */
 	return GryoMeasurement {gx, gy, gz};
 }
 
-AccMeasurement readAcc() {
-	IicReadReg(acc_data,OUT_X_L_XL,1,6);
 
-	float ax, ay, az;
+/**
+ * Read six uint8s from the accelerometer and construct the three raw
+ * measurements for the accelerometer (signed 16-bit).
+ * 
+ * @return	raw accelerometer measurement.
+ */
+RawAccelMeasurement readAccel() {
 
-	acc_x = (acc_data[1]<<8)+acc_data[0];
-	acc_y = (acc_data[3]<<8)+acc_data[2];
-	acc_z = (acc_data[5]<<8)+acc_data[4];
+	/* Read data from accelerometer. */
+	static u8 accelData[IMU::ACCEL_DATA_SIZE];
+	iicReadReg(accelData, OUT_X_L_XL, 1, IMU::ACCEL_DATA_SIZE);
 
-	if (_autoCalc==TRUE) {
-		ax = -calcAccel((float) acc_x - aBiasRaw[0]);
-		ay = +calcAccel((float) acc_y - aBiasRaw[1]);
-		az = -calcAccel((float) acc_z - aBiasRaw[2]);
-		az = az + 1.0;
-	}
+	/* Raw 16-bit signed data from readings. */
+	int axInt = (accelData[1]<<8) + accelData[0];
+	int ayInt = (accelData[3]<<8) + accelData[2];
+	int azInt = (accelData[5]<<8) + accelData[4];
 
-	//usleep(100);//sleep necessary otherwise timing corrupt of calculation...
-
-	return AccMeasurement {ax, ay, az};
+	/* Return raw measurement. */
+	return RawAccelMeasurement {axInt, ayInt, azInt};
 }
 
-void readMag() {
-	IicReadReg(mag_data,OUT_X_L_M,0,6);
-	mag_x = (mag_data[1]<<8)+mag_data[0];
-	mag_y = (mag_data[3]<<8)+mag_data[2];
-	mag_z = (mag_data[5]<<8)+mag_data[4];
+
+/**
+ * Convert raw accelerometer measurement to g and remove bias.
+ * 
+ * @param	raw
+ * 			raw accelerometer measurement
+ * @param	bias
+ * 			bias of the accelerometer, calculated during calibration of IMU
+ * @return	unbiased accelerometer measurement in g.
+ */
+AccelMeasurement getAccelMeasurement(RawAccelMeasurement raw, AccelMeasurement bias) {
+
+	// TODO: this isn't correct if gyroscope is not upward
+	/* Accelerometer measurements with bias removed in g. */
+	float ax = -calcAccel((float)raw.axInt - bias.ax);
+	float ay = +calcAccel((float)raw.ayInt - bias.ay);
+	float az = -calcAccel((float)raw.azInt - bias.az);
+	az = az + 1.0;
+
+	/* Return measurement. */
+	return AccelMeasurement {ax, ay, az};
 }
 
-void calcAttitude(float ax, float ay, float az, float mx, float my, float mz) {
-  float roll = atan2(ay, az);
-  float pitch = atan2(ax, sqrt(ay * ay + az * az));
 
-  /*float heading;
-  if (my == 0)
-    heading = (mx < 0) ? 180.0 : 0;
-  else
-    heading = atan2(mx, my);
+/**
+ * Execute one step of the IMU calibration. If this step is one of the first
+ * `IMU::INVALID_SAMPLES` steps, then the data will be ignored. Otherwise the
+ * current gyroscope and accelerometer measurements will be added to the running
+ * sum. If this step is the last step in the calibration, then the bias will be
+ * calculated from this sum.
+ * 
+ * @return	true
+ * 			if calibration has reached its final step
+ * @return	false
+ * 			otherwise
+ */
+bool calibrateIMUStep() {
 
-  heading = heading - DECLINATION * M_PI / 180;
+	/* Log start of calibration. */
+	if (calibrationStepCounter == 0)
+		xil_printf("calibrating IMU, reading %i samples \r\n", IMU::CALIBRATION_SAMPLES);
 
-  if (heading > M_PI) heading = heading - (2 * M_PI);
-  else if (heading < -M_PI) heading += (2 * M_PI);
-  else if (heading < 0) heading += 2 * M_PI;
+	/* Have the LEDs blink: slow down by factor 2^4, cycle through 8 states. */
+	int ledIndex = (calibrationStepCounter>>4) % 8;
+	int ledValue = 0x0;
+	ledValue += (ledIndex >= 1 ? 0x1 : 0);
+	ledValue += (ledIndex >= 2 && ledIndex <= 6 ? 0x2 : 0);
+	ledValue += (ledIndex >= 3 && ledIndex <= 5 ? 0x4 : 0);
+	ledValue += (ledIndex == 4 ? 0x8 : 0);
+	writeValueToLEDs(ledValue);
 
-  // Convert everything from radians to degrees:
-  heading = heading * 180.0 / M_PI;*/
-  pitch = pitch * 180.0 / M_PI;
-  roll  = roll * 180.0 / M_PI;
-}
+	/* Increment counter. */
+	calibrationStepCounter++;
 
-bool calibrateIMU() {
-	// Amount of samples taking to calculate bias
-	int samples = 512;
-	
-	// Amount of samples to remove at the start of calibration
-	int invalid_count = 16;
+	/* Read raw sensor data. */
+	RawGyroMeasurement rawGyro = readGyro();
+	usleep(100);	// TODO: sleep to prevent corruption?
+	RawAccelMeasurement rawAccel = readAccel();
 
-	// Log start of calibration
-	if (ii == 0) {
-		xil_printf("calibrating IMU, reading %i samples \r\n", samples);
-	}
-
-	// Loop blinking the LED.
-	// Write output to the LEDs.
-	XGpio_DiscreteWrite(&axi_gpio_1, LED_CHANNEL, led);
-	// alter LEDs.
-	if(led<15) { led++; } else { led=0; }
-
-	// Read the gyro data stored in the FIFO
-	readGyro();
-	
-	// first reads contain invalid parameters: G:before [ 26624,    192,      0]  A: before [  -180,   -143,  15816]
-	if(ii >= invalid_count) {
-		gBiasRawTemp[0] += gyr_x;
-		gBiasRawTemp[1] += gyr_y;
-		gBiasRawTemp[2] += gyr_z; // GYR_Z mostly negative so easier to subtract
-	}
-
-	// Read the accelerometer data stored in the FIFO
-	readAcc();
-	
-	// first reads contain invalid parameters
-	if(ii >= invalid_count) {
-		aBiasRawTemp[0] += acc_x;
-		aBiasRawTemp[1] += acc_y;
-		aBiasRawTemp[2] += acc_z;// - (int16_t)(1./aRes); // Assumes sensor facing up!
+	/* First measurementes contain invalid parameters. */
+	if(calibrationStepCounter > IMU::INVALID_SAMPLES) {
+		gyroRawSum[0] += rawGyro.gxInt;
+		gyroRawSum[1] += rawGyro.gyInt;
+		gyroRawSum[2] += rawGyro.gzInt;
+		accelRawSum[0] += rawAccel.axInt;
+		accelRawSum[1] += rawAccel.ayInt;
+		accelRawSum[2] += rawAccel.azInt;	// TODO: what if IMU is not facing upward?
 	}
 	
-	// an extra sample has been added
-	ii++;
-	
-	// got all of the required samples
-	if(ii == samples + invalid_count - 1) {
-		for (ii = 0; ii < 3; ii++) {
-			gBiasRaw[ii] = (float)(gBiasRawTemp[ii]) / (float)(samples);
-			gBias[ii] = calcGyro(gBiasRaw[ii]);
+	/* Final calibration step reached. */
+	if(calibrationStepCounter == IMU::CALIBRATION_SAMPLES + IMU::INVALID_SAMPLES) {
 
-			aBiasRaw[ii] = (float)(aBiasRawTemp[ii]) / (float)(samples);
-			aBias[ii] = calcAccel(aBiasRaw[ii]);
-		}
-		_autoCalc = TRUE;
-		isIMUCalibrated = true;
+		float averageRawBias[3];
+		float factor = 1.0 / (float)(IMU::CALIBRATION_SAMPLES);
 
-		// Turn off all of the LED's
-		XGpio_DiscreteWrite(&axi_gpio_1, LED_CHANNEL, 0x0);
+		/* Calculate gyroscope bias. */
+		gyroBias.gx = calcGyro((float)gyroRawSum[0] * factor);
+		gyroBias.gy = calcGyro((float)gyroRawSum[1] * factor);
+		gyroBias.gz = calcGyro((float)gyroRawSum[2] * factor);
+		
+		/* Calculate accelerometer bias. */
+		accelBias.ax = calcAccel((float)accelRawSum[0] * factor); 
+		accelBias.ay = calcAccel((float)accelRawSum[1] * factor); 
+		accelBias.az = calcAccel((float)accelRawSum[2] * factor); 
 
+		/* Turn off all LEDs. */
+		writeValueToLEDs(0);
 		xil_printf("calibrated IMU \r\n");
-	} else {
-		_autoCalc = FALSE;
-		isIMUCalibrated = false;
 	}
 }
 
-void calibrateMag(char loadIn) {
-	int i, j;
-	readMag();
-	int16_t magMin[3] = {mag_x, mag_y, mag_z}; //{0,0,0}
-	int16_t magMax[3] = {mag_x, mag_y, mag_z}; // The road warrior
 
-	for (i=0; i<128; i++)
-	{
-		while (MagDataAvailable()!=0x08);
-		readMag();
-		int16_t magTemp[3];// = {0, 0, 0};
-		magTemp[0] = mag_x;
-		magTemp[1] = mag_y;
-		magTemp[2] = mag_z;
-		for (j = 0; j < 3; j++)
-		{
-			if (magTemp[j] > magMax[j]) magMax[j] = magTemp[j];
-			if (magTemp[j] < magMin[j]) magMin[j] = magTemp[j];
-		}
+/**
+ * Initialize the IMU. Verify that it is connected, initialize the calibration
+ * variables and flush the FIFO.
+ * 
+ * @return	true
+ * 			if initialization was successful
+ * @return	false
+ * 			otherwise
+ */
+bool initIMU() {
+
+	/* Temporary array to store initialization readings. */
+	u8 temp[1];
+
+	xil_printf("init IMU started \r\n");
+
+	/* Check WHO_AM_I to see if the IMU is connected. */
+	iicReadReg(temp, WHO_AM_I_XG,1,1);
+	usleep(100);
+	xil_printf("received: 0x%02x\r\n", *temp);
+	if(*temp != WHO_AM_I_AG_RSP) {
+		xil_printf("WHO_AM_I FAILED\r\n");
+		return false;
 	}
-	for (j = 0; j < 3; j++)
-	{
-		mBiasRaw[j] = (magMax[j] + magMin[j]) / 2;
-		//xil_printf("mBiasRaw = (%d+%d)/2 =  %d \n", magMax[j] ,magMin[j],mBiasRaw[j]);
-		mBias[j] = calcMag(mBiasRaw[j]);
-		if (loadIn)
-			{magOffset(j, mBias[j]);}//mBiasRaw
-		//xil_printf("biasing mag\n");}
+	iicReadReg(temp, WHO_AM_I_M,0,1);
+	usleep(100);
+	xil_printf("received: 0x%02x\r\n", *temp);
+	if(*temp != WHO_AM_I_M_RSP) {
+		xil_printf("WHO_AM_I FAILED\r\n");
+		return false;
 	}
+	xil_printf("WHO_AM_I CORRECT\r\n");
+
+
+	// TODO: max 2000 deg/s, max 16 g? isn't this a bit overboard?
+	// TODO: we can increase the IMU clock speed to up to 952 Hz
+	/* See https://www.st.com/resource/en/datasheet/DM00103319.pdf */
+	iicWriteToReg(CTRL_REG1_G, 	0b10011000, 1);	// 238 Hz gyro output data rate (ODR), max 2000 degrees/s,  14 Hz cutoff
+	iicWriteToReg(CTRL_REG3_G, 	0b00000000, 1);	// low-power mode disabled, high-pass filter disabled, 15 Hz cutoff
+	iicWriteToReg(ORIENT_CFG_G, 0b00000000, 1);	// positive signs for pitch (x), roll(y) and yaw (z), standard orientation
+	iicWriteToReg(CTRL_REG4,	0b00111010, 1);	// enable pitch, roll, yaw output, interrupt request latched, interrupt generator uses 6D for position recognition
+	iicWriteToReg(CTRL_REG5_XL, 0b00111000, 1);	// no data decimation, enable ax, ay, az output
+	iicWriteToReg(CTRL_REG6_XL, 0b10001000, 1); // 238 Hz accel output data rate (ODR), max +/- 16 g, 105 Hz bandwith
+	iicWriteToReg(CTRL_REG7_XL, 0b00000000, 1);	// accel high-resolution mode disabled, (238/50) Hz low-pass cutoff frequency (bypassed), high-pass filter bypassed for interrupt
+	iicWriteToReg(FIFO_CTRL,	0b11000010, 1);	// continuous FIFO mode: if FIFO is full, the new sample overwrites the older samples, flag=1 if FIFO contains at least 2 elements (unused)
+
+	/* Initialize calibration variables. */
+	calibrationStepCounter = 0;
+	gyroBias = {0.0};
+	accelBias = {0.0};
+	gyroRawSum = {0};
+	accelRawSum = 0;
+
+	/* Clear data in IMU's FIFO. */
+	for(int i=0; i<5; i++) {
+		readAcc();
+		readGyro();
+		usleep(100);	// TODO: sleep to prevent corruption?
+	}
+
+	/* IMU is initiated. */
+	beep_initiated();
+	xil_printf("IMU initiated\r\n");
+	xil_printf("Starting interrupts\r\n");
+	iicWriteToReg(INT1_CTRL, 0x01, 1);	// enable interrupts when accelerometer has a measurement
+
+	/* Set up interrupt system. */`
+	setupIMUInterruptSystem();
+
+	/* Initialization successful. */
+	return true;
 }
 
-void magOffset(uint8_t axis, int16_t offset) {
-	if (axis > 2)
-		return;
-	uint8_t msb, lsb;
-	msb = (offset & 0xFF00) >> 8;
-	lsb = offset & 0x00FF;
-	IicWriteToReg(OFFSET_X_REG_L_M+ (2 * axis), lsb, 0);
-	IicWriteToReg(OFFSET_X_REG_H_M+ (2 * axis), msb, 0);
-}
 
-float calcGyro(int gyro) {
-	// Return the gyro raw reading times our pre-calculated radPS / (ADC tick):
-	return (float) (0.070*M_PI/180.0) * (float) gyro;//70mDPS/LSB
-}
+/**
+ * Read the gyroscope measurement (rad/s) and acceleration measurement (g) from the IMU.
+ * 
+ * @return	most recent IMU measurement.
+ */
+IMUMeasurement readIMU() {
 
-float calcAccel(int accel) {
-	// Return the accel raw reading times our pre-calculated g's / (ADC tick):
-	return 0.000732 * accel; //0.732 mg/LSB
-}
+	/* Read gyroscope and convert to rad/s. */
+	RawGyroMeasurement gyroRaw = readGyro();
+	GyroMeasurement gyro = getGyroMeasurement(gyroRaw, gyroBias);
+	usleep(100);	// TODO: sleep to prevent corruption?
 
-float calcMag(int mag) {
-	// Return the mag raw reading times our pre-calculated Gs / (ADC tick):
-	//printf("mRes = %f \n",mRes );
-	return mRes * mag;
-}
+	/* Read accelerometer and convert to g. */
+	RawAccelMeasurement accelRaw = readAccel();
+	AccelMeasurement accel = getAccelMeasurement(accelRaw, accelBias);
 
-void calcmRes() {
-	mRes = magSensitivity[0];
-}
+	/* Return IMU measurement (gyro+accel). */
+	return IMUMeasurement {gyro.gx, gyro.gy, gyro.gz,
+						   accel.ax,accel.ay,accel.az};
 
-int AccDataAvailable() {
-	IicReadReg(temp, STATUS_REG_0, 1,1);
-	return temp[0] & 0x01;
 }
-
-int GyrDataAvailable() {
-	IicReadReg(temp, STATUS_REG_0, 1,1);
-	return (temp[0] & 0x02);
-}
-
-int TempDataAvailable() {
-	IicReadReg(temp, STATUS_REG_0, 1,1);
-	return temp[0] & 0x04;
-}
-
-int MagDataAvailable() {
-	IicReadReg(temp, STATUS_REG_M, 0,1);
-	return temp[0] & 0x08;
-}
-
