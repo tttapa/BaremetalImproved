@@ -3,6 +3,101 @@
 
 // TODO: unglobal
 
+/* Measured IMU angular velocity (gx,gy,gz). */
+struct GyroMeasurement {
+    float gx;
+    float gy;
+    float gz;
+}
+
+/* Measured IMU angular acceleration (ax,ay,az). */
+struct AccMeasurement {
+    float ax;
+    float ay;
+    float az;
+}
+
+/* Measured IMU magnetometer (mx,my,mz). */
+struct MagMeasurement {
+    float mx;
+    float my;
+    float mz;
+}
+
+/* Measured IMU angular velocity (gx,gy,gz) and acceleration (ax,ay,az). */
+struct IMUMeasurement {
+    float gx;
+    float gy;
+    float gz;
+    float ax;
+    float ay;
+    float az;
+};
+
+/* Measured IMU angular velocity (gx,gy,gz), acceleration (ax,ay,az) and magnetometer (mx,my,mz). */
+struct FullIMUMeasurement {
+    float gx;
+    float gy;
+    float gz;
+    float ax;
+    float ay;
+    float az;
+    float mx;
+    float my;
+    float mz;
+}
+
+
+class IMU_ {
+
+  public:
+
+    /**
+     * Execute a step in the calibration of the IMU. Returns whether calibration is
+     * complete.
+     * 
+     * @return  true
+     *          if IMU has finished calibrating
+     * @return  false
+     *          otherwise
+     */
+    bool calibrateIMUStep();
+
+
+    /**
+     * Initialize the IMU.
+     * 
+     * @return  true
+     *          if setup was successful
+     * @return  false
+     *          otherwise
+     */
+    bool initIMU();
+
+
+    /**
+     * Read the measurement from the IMU and store it locally.
+     */
+    void read();
+
+    
+    /**
+     * Get the last IMU measurement.
+     */
+    IMUMeasurement getMeasurement() {
+      return measurement;
+    }
+    
+
+  private:
+    IMUMeasurement measurement;
+
+}
+
+
+
+
+
 /*******************************************************************************
  *   IMU device driver header
  *   This file contains all functions required to use the IMU.
@@ -34,61 +129,16 @@
 #define FIFO_CONT 5
 
 // IMU States
-#define IMU_OFF 0   // The IMU has not been initialized yet
-#define IMU_INIT 1  // The IMU has been initialized
-#define IMU_CLEAN 2 // The IMU buffer has been cleared
-#define IMU_READY 3 // The IMU is ready for taking measurements
+#define IMU_OFF 0    // The IMU has not been initialized yet
+#define IMU_INIT 1   // The IMU has been initialized
+#define IMU_CLEAN 2  // The IMU buffer has been cleared
+#define IMU_READY 3  // The IMU is ready for taking measurements
 
 // Earth's magnetic field varies by location. Add or subtract
 // a declination to get a more accurate heading. Calculate
 // your's here:
 // http://www.ngdc.noaa.gov/geomag-web/#declination
-#define DECLINATION -0.48 // Declination (degrees) in Brussels.
-
-/* Measured IMU angular velocity (gx,gy,gz). */
-struct GyroMeasurement {
-  float gx;
-  float gy;
-  float gz;
-}
-
-/* Measured IMU angular acceleration (ax,ay,az). */
-struct AccMeasurement {
-  float ax;
-  float ay;
-  float az;
-}
-
-/* Measured IMU magnetometer (mx,my,mz). */
-struct MagMeasurement {
-  float mx;
-  float my;
-  float mz;
-}
-
-/* Measured IMU angular velocity (gx,gy,gz) and acceleration (ax,ay,az). */
-struct IMUMeasurement {
-  float gx;
-  float gy;
-  float gz;
-  float ax;
-  float ay;
-  float az;
-};
-
-/* Measured IMU angular velocity (gx,gy,gz), acceleration (ax,ay,az) and
- * magnetometer (mx,my,mz). */
-struct FullIMUMeasurement {
-  float gx;
-  float gy;
-  float gz;
-  float ax;
-  float ay;
-  float az;
-  float mx;
-  float my;
-  float mz;
-}
+#define DECLINATION -0.48  // Declination (degrees) in Brussels.
 
 /******************************************************************************
 LSM9DS1_Registers.h
@@ -327,7 +377,7 @@ float mx, my, mz;
 // This value is calculated as (sensor scale) / (2^15).
 float gRes, aRes, mRes;
 int scale_a, scale_g, scale_m;
-int16_t temperature; // Chip temperature
+int16_t temperature;  // Chip temperature
 
 // Measurement bias
 float gBias[3], aBias[3], mBias[3];

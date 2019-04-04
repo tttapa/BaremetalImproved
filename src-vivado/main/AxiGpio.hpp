@@ -1,21 +1,17 @@
-#include "xparameters.h"
-
-// TODO: should these be "static const int" in implementation file?
-/* Address of GPIO that LEDs are connected to. */
-#define GPIO_DEVICE_LED  	(XPAR_AXI_GPIO_LED_DEVICE_ID)	
-
-/* Address of GPIO that the TESTPINs are connected to. */
-#define GPIO_DEVICE_TESTPIN (XPAR_AXI_GPIO_TESTPINS_DEVICE_ID)
-
-/* Port used for LEDs in LED GPIO. */
-#define LED_CHANNEL 		1
-
-/* Port used for heartbeat in LED GPIO. */
-#define HEARTBEAT_CHANNEL 	2
-
-/* Port used for testpin in TESTPIN GPIO. */
-#define TESTPIN_CHANNEL 	1
-
+// TODO: should the files be commented like this?
+// TODO: see https://developer.lsst.io/v/DM-5063/docs/cpp_docs.html
+/**
+ * @file ExampleClass.cc
+ *
+ * @brief This message displayed in Doxygen Files index
+ *
+ * @ingroup PackageName
+ * (Note: this needs exactly one @defgroup somewhere)
+ *
+ * @author Joe Smith
+ * Contact: js@lsst.org
+ *
+ */
 
 /**
  * Initialise AXI GPIO pins.

@@ -6,8 +6,44 @@
  *  This file should NEVER be changed by the students
  *   Author: p. coppens
 ***********************************************************************************************************************/
-#ifndef AHRS_H
-#define AHRS_H
+#include "MadgwickFilter.hpp"
+#include "Quaternion.hpp"
+
+
+class AHRS {
+
+    public:
+        
+        /**
+         * Get the Attitude and Heading Reference System's orientation.
+         */
+        Quaternion getOrientation() {
+            return orientation;
+        }
+
+        
+        /**
+         * Initialize the Attitude and Heading Reference System using the initial IMU measurement.
+         */
+        void init(IMUMeasurement imu);
+
+
+        /**
+         * Update the Attitude and Heading Reference System using the new IMU measurement.
+         * 
+         * @param   imu
+         *          new IMU measurement
+         */
+        void update(IMUMeasurement imu) {
+            MadgwickAHRSupdateIMU(orientation, imu);
+        }
+
+
+
+    private:
+        Quaternion orientation;
+
+}
 
 // Header Files
 // ====================================================================================================================
@@ -26,7 +62,8 @@
  * 	output is estimated quaternion
  * 	TIME = �7.5 us or 4900 clock cycles
  */
-Quat32 updateAHRS(IMUMeasurement imu);
+Quat32
+updateAHRS(IMUMeasurement imu);
 
 /**
  * Initialize the attitude and heading reference system
@@ -34,4 +71,4 @@ Quat32 updateAHRS(IMUMeasurement imu);
  */
 void initAHRS();
 
-#endif // AHRS_H
+#endif  // AHRS_H

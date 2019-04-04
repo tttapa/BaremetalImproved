@@ -6,16 +6,16 @@
 *   This file should normally not be changed by the students.
 *   Author: w. devries
 ***********************************************************************************************************************/
-#include "IMU.h"
+#include "IMU.hpp"
 
 float magSensitivity[4] = {0.00014, 0.00029, 0.00043, 0.00058};
 
 /* Hold current LED value. Initialize to LED definition */
 int led = LED;
 
-int initIMU() {
-	// Check both WHO_AM_I to see if the IMU is connected
-	// ----------------------------------------------------------------------
+bool IMU::init() {
+
+	/* Check both WHO_AM_I to see if the IMU is connected. */
 	xil_printf("init IMU started \r\n");
 	u8 sensor_data[1] = {0x00}; //ACCEL_GYRO_READ_SIZE
 	IicReadReg(sensor_data, WHO_AM_I_XG,1,1);

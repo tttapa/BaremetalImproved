@@ -36,7 +36,6 @@ int main(void) {
 	/* Reset PWM output. */
 	pwmOutput(0,0,0,0);
 
-	// TODO: IMUInit thing
 	/* Initialize interrupt system. */
 	if(initInterrupt() == false)
 		return 1;

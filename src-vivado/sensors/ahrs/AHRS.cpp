@@ -6,17 +6,13 @@
  *  This file should NEVER be changed by the students
  *  Author: p. coppens
 ********************************************************************************/
-#include "ahrs.h"
-#include "../utils/MadgwickAHRS.h"
-
-Vec32 ahrs_av_imu = {0, 0, 0};
-
-// TODO: better quaternion
-static Quat32 orientation;
+#include "AHRS.hpp"
 
 // Given 
-void initAHRS() {
-	xil_printf("AHRS_INIT\r\n");
+void AHRS::initAHRS() {
+
+	/* Reset orientation. */
+	orientation = Quaternion();
 
 	Quat32 rot, temp;
 	orientation.w = 1;
