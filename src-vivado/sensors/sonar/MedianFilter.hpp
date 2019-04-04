@@ -19,7 +19,7 @@
  * @param   measurement
  *          Element to fill the buffer with
  */
-static void initMF(float* measurements, int size, float measurement);
+void initMF(float* measurements, int size, float measurement);
 
 /**
  * Add an element to the measurement buffer.
@@ -31,7 +31,7 @@ static void initMF(float* measurements, int size, float measurement);
  * @param   measurement
  *          Element to add
  */
-static void addMFMeasurement(float* measurements, int size, float measurement);
+void addMFMeasurement(float* measurements, int size, float measurement);
 
 /**
  * Get the median of the last bufferSize values currently stored in the 
@@ -44,4 +44,4 @@ static void addMFMeasurement(float* measurements, int size, float measurement);
  * @param   bufferSize
  *          The amount of elements that will be sorted to find the median
  */
-static float getMedian(float* measurements, int size, int bufferSize);
+float getMedian(float* measurements, int size, int bufferSize);

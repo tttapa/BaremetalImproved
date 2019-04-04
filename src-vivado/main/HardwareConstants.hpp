@@ -122,5 +122,33 @@ namespace RC {
 }
 
 
+namespace SONAR {
+
+    /** Conversion factor to meters. */
+    const float PWM_TO_HEIGHT = 0.005787;
+
+    /** Size of the median filter buffer during flight. */
+    const int MF_BUFFER_SIZE_SMALL = 5;
+
+    /** 
+     * Total number of measurements stored in the sonar measurement buffer. This is 
+     * the maximum median filter window size. 
+     */
+    const int MAX_MF_LENGTH = 15;
+
+    /** 
+     * Maximum amount of subsequent iterations where the peak filter is allowed to
+     * discard a measurement. 
+     */
+    const int MAX_JUMP_COUNT = 3;
+
+    /** 
+     * Maximum amount of meters the height can change in 1 iteration 
+     * (after applying median filter). 
+     */
+    const float MAX_JUMP = 0.5;
+
+}
+
 
 

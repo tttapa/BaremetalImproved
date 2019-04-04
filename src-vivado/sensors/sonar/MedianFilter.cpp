@@ -13,7 +13,7 @@
  * author: p. coppens
  ******************************************************************************/
 
-static void initMF(float *measurements, int size, float measurement) {
+void initMF(float *measurements, int size, float measurement) {
 
     // Fill the array with the given measurement value.
     int i;
@@ -21,7 +21,7 @@ static void initMF(float *measurements, int size, float measurement) {
         measurements[i] = measurement;
 }
 
-static void addMFMeasurement(float *measurements, int size, float measurement) {
+void addMFMeasurement(float *measurements, int size, float measurement) {
 
     // Shift all of the previous measurements (dropping the oldest one).
     int i;
@@ -32,7 +32,7 @@ static void addMFMeasurement(float *measurements, int size, float measurement) {
     measurements[size - 1] = measurement;
 }
 
-static float getMedian(float *measurements, int size, int bufferSize) {
+float getMedian(float *measurements, int size, int bufferSize) {
 
     // We only need to order the first half of the window to determine the
     // median.

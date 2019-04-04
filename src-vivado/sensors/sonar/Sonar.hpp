@@ -1,4 +1,5 @@
 // Original: BareMetal/src/sonar/sonar.h
+#include "../../../src/utilities/include/real_t.h"
 
 // TODO: append author
 /*******************************************************************************
@@ -7,8 +8,6 @@
 *   and to apply a median filter and a peak filter on these measurements.
 *   author: w. devries, p. coppens
 *******************************************************************************/
-
-// TODO: why static?
 
 /**
  * Read the raw measurement from the sonar, apply the median/peak filters and
@@ -19,19 +18,19 @@
  * @return  false
  *          otherwise
  */
-static bool readSonar();
+bool readSonar();
 
 /**
  * Returns the latest filtered sonar measurement.
  */
-static real_t geFilteredtSonarMeasurement();
+real_t geFilteredSonarMeasurement();
 
 /**
  * Calculates the median of the entire sonar measurement buffer.
  * 
  * @return   Median of entire sonar measurement buffer.
  */
-static real_t getFilteredSonarMeasurementAccurate();
+real_t getFilteredSonarMeasurementAccurate();
 
 /**
  * Initialise the median filter of the sonar.
