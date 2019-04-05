@@ -4,7 +4,7 @@
 #include <cmath>
 
 constexpr bool isAlmostEqual(double valuelhs, double valuerhs, double epsilon) {
-    return std::abs(valuelhs - valuerhs) < epsilon;
+    return std::abs(valuelhs - valuerhs) <= epsilon;
 }
 
 template <class T, size_t N, class U>

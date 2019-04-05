@@ -8,23 +8,23 @@ class Quaternion {
     ColVector<4> q;
 
   public:
-    Quaternion() : Quaternion{unit()} {}
-    Quaternion(const ColVector<4> &q) : q(q) {}
-    Quaternion(real_t q0, real_t q1, real_t q2, real_t q3)
+    constexpr Quaternion() : Quaternion{unit()} {}
+    constexpr Quaternion(const ColVector<4> &q) : q{q} {}
+    constexpr Quaternion(real_t q0, real_t q1, real_t q2, real_t q3)
         : q{q0, q1, q2, q3} {}
 
-    ColVector<4> &asColVector() { return q; }
-    const ColVector<4> &asColVector() const { return q; }
+    constexpr ColVector<4> &asColVector() { return q; }
+    constexpr const ColVector<4> &asColVector() const { return q; }
 
-    Quaternion normalize() const { return {q / norm(q)}; }
+    constexpr Quaternion normalize() const { return {q / norm(q)}; }
 
-    Quaternion conjugate() const {
+    constexpr Quaternion conjugate() const {
         return {{q[0], -q[1], -q[2], -q[3]}};
     }
 
-    Quaternion operator-() const { return conjugate(); }
+    constexpr Quaternion operator-() const { return conjugate(); }
 
-    static Quaternion quatmultiply(const Quaternion &q,
+    constexpr static Quaternion quatmultiply(const Quaternion &q,
                                              const Quaternion &r) {
         return {
             r[0] * q[0] - r[1] * q[1] - r[2] * q[2] - r[3] * q[3],
@@ -34,21 +34,21 @@ class Quaternion {
         };
     }
 
-    Quaternion operator+(const Quaternion &r) const {
+    constexpr Quaternion operator+(const Quaternion &r) const {
         return quatmultiply(*this, r);
     }
 
-    static Quaternion quatdifference(const Quaternion &q,
+    constexpr static Quaternion quatdifference(const Quaternion &q,
                                                const Quaternion &r) {
         return q + (-r);
     }
 
-    Quaternion operator-(const Quaternion &r) const {
+    constexpr Quaternion operator-(const Quaternion &r) const {
         return quatdifference(*this, r);
     }
 
     template <size_t C>
-    Matrix<3, C> rotate(const Matrix<3, C> &v) {
+    constexpr Matrix<3, C> rotate(const Matrix<3, C> &v) {
         Matrix<3, 3> M = {{
             {
                 1 - 2 * sq(q[2]) - 2 * sq(q[3]),
@@ -69,24 +69,29 @@ class Quaternion {
         return M * v;
     }
 
-    real_t &operator[](size_t index) { return q[index]; }
-    const real_t &operator[](size_t index) const { return q[index]; }
+    constexpr real_t &operator[](size_t index) { return q[index]; }
+    constexpr const real_t &operator[](size_t index) const { return q[index]; }
 
-    bool operator==(const Quaternion &other) const {
+    constexpr bool operator==(const Quaternion &other) const {
         return this->q == other.q;
     }
 
-    bool operator!=(const Quaternion &other) const {
+    constexpr bool operator!=(const Quaternion &other) const {
         return this->q != other.q;
     }
 
-    operator ColVector<4> &() { return q; }
-    operator const ColVector<4> &() const { return q; }
+    constexpr operator ColVector<4> &() { return q; }
+    constexpr operator const ColVector<4> &() const { return q; }
 
-    static Quaternion unit() { return {1, 0, 0, 0}; }
+    constexpr static Quaternion unit() { return {1, 0, 0, 0}; }
 
-    static Quaternion quatFromVec(ColVector<3> vec) {
-
+    /**
+     * Calculate the quaternion that results in vector when rotating (0 0 1) by
+     * this quaterion.
+     * 
+     * If (0 0 1) is rotated by this quaternion, it results in the given vector.
+     */
+    constexpr static Quaternion fromDirection(ColVector<3> vec) {
     	/*
     	 * q = cos(ϑ / 2) + sin(ϑ / 2)·(x·i + y·j + z·k)
     	 * where (x y z) is a unit vector representing the axis about which

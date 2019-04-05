@@ -7,7 +7,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/src/quaternion/include",
                 "${workspaceFolder}/src/control/attitude/include",
-                "${workspaceFolder}/src/matrix/include"
+                "${workspaceFolder}/src/matrix/include",
+                "${workspaceFolder}/build/googletest/googletest-src/googletest/include"
             ],
             "defines": [],
             "cStandard": "c11",

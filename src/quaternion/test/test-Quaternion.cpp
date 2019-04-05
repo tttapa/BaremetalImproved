@@ -39,9 +39,30 @@ TEST(Quaternion, conjugate) {
     ASSERT_EQ(result, expected);
 }
 
-// -------------------------------------------------------------------------- //
-
 #include <AnglePrinter.hpp>
+#include <Degrees.hpp>
+
+TEST(Quaternion, fromDirectionSimple) {
+    ColVector<3> vector = {0.0, 1.0, sqrt(3.0)};
+    Quaternion result   = Quaternion::fromDirection(vector);
+    Quaternion expected = EulerAngles{0, 0, 30_deg};
+    ASSERT_TRUE(isAlmostEqual(result.asColVector(), expected.asColVector(),
+                              std::numeric_limits<real_t>::epsilon()));
+}
+
+TEST(Quaternion, fromDirectionHard) {
+    ColVector<3> vector = {
+        -0.414578098794425,
+        0.829156197588850,
+        0.375000000000000,
+    };
+    Quaternion result   = Quaternion::fromDirection(vector);
+    Quaternion expected = {0.829156197588850, 0.5, 0.25, 0.0};
+    ASSERT_TRUE(isAlmostEqual(result.asColVector(), expected.asColVector(),
+                              std::numeric_limits<real_t>::epsilon()));
+}
+
+// -------------------------------------------------------------------------- //
 
 TEST(Quaternion, eul2quat) {
     EulerAngles e       = {2, 3, 5};

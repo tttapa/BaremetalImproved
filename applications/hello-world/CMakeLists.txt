@@ -2,4 +2,4 @@
 add_executable(hello-world main.cpp)
 
 # Link the necessary libraries to the application
-target_link_libraries(hello-world greet)
+target_link_libraries(hello-world test-vivado)
