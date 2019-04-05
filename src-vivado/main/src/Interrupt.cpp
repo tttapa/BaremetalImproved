@@ -243,7 +243,7 @@ unsigned char iicConfig(unsigned int DeviceIdPS, XIicPs* iic_ptr) {
 
 
 	// Set the IIC serial clock rate.
-	status = XIicPs_SetSClk(&Iic0, 400000); // TODO: should use INTERRUPT_SYSTEM::IIC_SCLK_RATE
+	status = XIicPs_SetSClk(&Iic0, INTERRUPT_SYSTEM::IIC_SCLK_RATE);
 	if (status != XST_SUCCESS) {
 			xil_printf("IIC setClock FAILED \r\n");
 			return XST_FAILURE;

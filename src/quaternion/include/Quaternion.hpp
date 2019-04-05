@@ -9,7 +9,7 @@ class Quaternion {
 
   public:
     USE_CONSTEXPR Quaternion() : Quaternion{unit()} {}
-    USE_CONSTEXPR Quaternion(const ColVector<4> &q) : q{q} {}
+    USE_CONSTEXPR Quaternion(const ColVector<4> &q) : q(q) {}
     USE_CONSTEXPR Quaternion(real_t q0, real_t q1, real_t q2, real_t q3)
         : q{q0, q1, q2, q3} {}
 

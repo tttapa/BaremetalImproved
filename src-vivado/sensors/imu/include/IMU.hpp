@@ -16,7 +16,6 @@ struct RawGyroMeasurement {
     int gzInt;
 };
 
-
 /* Angular velocity measurement in rad/s. */
 struct GyroMeasurement {
     float gx;

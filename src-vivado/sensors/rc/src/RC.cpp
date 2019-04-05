@@ -14,7 +14,6 @@
 int lastMode = 0;
 int lastInductive = 0;
 
-// TODO: is this necessary
 int newModeCounter = 0;
 int newInductiveCounter = 0;
 
@@ -33,9 +32,7 @@ int getMode(float mode) {
 	else
         newMode = MODE::AUTONOMOUS; 
 
-    // TODO: is this necessary?
-    // TODO: -> maybe bad measurement rejection  
-    // TODO: -> maybe preventing switching too fast?  
+    // TODO: can this be smaller
     #define MODE_DELAY 50
 	// Add the delay for a mode switch
 	if (newMode != lastMode) {
@@ -60,7 +57,7 @@ int getInductive(float inductive) {
 	else
 		newInductive =  INDUCTIVE::ON;
 
-    // TODO: is this necessary
+    // TODO: can this be smaller
     #define MODE_DELAY 50
 	// Add the delay for a mode switch
 	if (newInductive != lastInductive) {
@@ -98,7 +95,6 @@ float clamp(float x) {
  *  @return clamped value.
  */
 float clampMid(float x) {
-    // TODO: why is the deadzone margin here?
     if(x < RC::RC_LOW - RC::RC_MARGIN || x > RC::RC_HIGH + RC::RC_MARGIN)
         return RC::RC_MID;
     return x;

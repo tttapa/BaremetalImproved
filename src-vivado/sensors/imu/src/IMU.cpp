@@ -6,6 +6,7 @@
 *   This file should normally not be changed by the students.
 *   Author: w. devries
 ***********************************************************************************************************************/
+#include <Quaternion.hpp>
 #include "../include/IMU.hpp"
 #include "LSM9DS1_Registers.h"
 #include "../../../main/include/AxiGpio.hpp"
@@ -14,7 +15,6 @@
 #include "../../../main/src/HardwareConstants.hpp"
 #include <sleep.h>	// TODO: is usleep() necessary?
 #include <xil_io.h>
-#include <Quaternion.hpp>
 
 /* Bias of the gyroscope, set on last step of calibration. */
 GyroMeasurement gyroBias;
@@ -145,10 +145,11 @@ RawAccelMeasurement readAccel() {
  * @param	bias
  * 			bias of the accelerometer, calculated during calibration of IMU
  * @return	unbiased accelerometer measurement in g.
+ * @todo	Test this function.
  */
 ColVector<3> getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat, real_t biasNorm) {
 	/* Accelerometer measurements with bias removed in g. */
-	ColVector<3> correctedAccel = (-biasQuat).rotate({
+	ColVector<3> correctedAccel = (-biasQuat).rotate(ColVector<3>{
 				-calcAccel(raw.axInt), // TODO: check signs
 				+calcAccel(raw.ayInt),
 				-calcAccel(raw.azInt),
@@ -200,7 +201,7 @@ bool calibrateIMUStep() {
 		gyroRawSum[2] += rawGyro.gzInt;
 		accelRawSum[0] += rawAccel.axInt;
 		accelRawSum[1] += rawAccel.ayInt;
-		accelRawSum[2] += rawAccel.azInt;	// TODO: what if IMU is not facing upward?
+		accelRawSum[2] += rawAccel.azInt;
 	}
 	
 	/* Final calibration step reached. */
@@ -280,8 +281,9 @@ bool initIMU() {
 
 	/* Initialize calibration variables. */
 	calibrationStepCounter = 0;
-	gyroBias = {0.0};
-	accelBias = {0.0};
+	gyroBias = {};
+	accelBiasQuat = Quaternion::unit();
+	accelBiasNorm = 1;
 	for(int i = 0; i < 3; i++) {
 		gyroRawSum[i] = 0;
 		accelRawSum[i] = 0;
@@ -300,10 +302,6 @@ bool initIMU() {
 	xil_printf("IMU initiated\r\n");
 	xil_printf("Starting interrupts\r\n");
 	iicWriteToReg(INT1_CTRL, 0x01, 1);	// enable interrupts when accelerometer has a measurement
-
-	// TODO: check if this is called in MainInterrupt.cpp
-	/* Set up interrupt system. */
-	//setupIMUInterruptSystem();
 
 	/* Initialization successful. */
 	return true;
@@ -328,5 +326,5 @@ IMUMeasurement readIMU() {
 
 	/* Return IMU measurement (gyro+accel). */
 	return IMUMeasurement {gyro.gx, gyro.gy, gyro.gz,
-						   accel[0][0], accel[1][0], accel[2][0] };
+						   accel[0], accel[1], accel[2] };
 }

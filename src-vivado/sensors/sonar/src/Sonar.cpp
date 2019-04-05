@@ -36,7 +36,6 @@ bool readSonar() {
     // Previous raw sonar value, initialize to -1 when function is first called.
     static real_t oldSonarRaw = -1;
 
-    // TODO: seriously?
     // Check if there is a new measurement available.
     newSonarRaw = (real_t) Xil_In32(SONAR::SONAR_ADDR) / (MEASURE_FREQ * SONAR::PWM_TO_HEIGHT);
     if (fabs(newSonarRaw - oldSonarRaw) <= 0.00000001)
