@@ -32,6 +32,8 @@ target_compile_features(greet PUBLIC cxx_std_17)
 #         other-library
 # )
 
-# Run CMake again in the `test` folder, to discover the CMakeLists.txt file that
-# adds the tests.
-add_subdirectory(test) 
+if(NOT CMAKE_CROSSCOMPILING)
+    # Run CMake again in the `test` folder, to discover the CMakeLists.txt file 
+    # that adds the tests.
+    add_subdirectory(test) 
+endif()

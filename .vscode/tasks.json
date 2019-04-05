@@ -5,9 +5,9 @@
         {
             "label": "Start Docker Container",
             "type": "shell",
-            "command": "docker-compose -f compose.yml run --service-ports --name devenv dev-image bash",
+            "command": "docker-compose -f compose.yml run --service-ports --name baremetal-devenv dev-image bash",
             "windows": {
-                "command": "docker-compose -f compose.win.yml run --service-ports --name devenv dev-image bash",
+                "command": "docker-compose -f compose.win.yml run --service-ports --name baremetal-devenv dev-image bash",
             },
             "problemMatcher": [],
             "dependsOn": "Stop Docker Container", // Restart if already running
@@ -41,11 +41,20 @@
             }
         },
         {
+            "label": "Run CMake ZYBO Baremetal (Docker)",
+            "type": "shell",
+            "command": "docker exec -it -w  ${workspaceFolder}/build baremetal-devenv cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-ZYBO-Baremetal.cmake ..",
+            "windows": {
+                "command": "docker exec -it -w  /home/develop/eagle/build baremetal-devenv cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-ZYBO-Baremetal.cmake ..",
+            },
+            "problemMatcher": [],
+        },
+        {
             "label": "Run CMake (Docker)",
             "type": "shell",
-            "command": "docker exec -it -w  ${workspaceFolder}/build devenv cmake ..",
+            "command": "docker exec -it -w  ${workspaceFolder}/build baremetal-devenv cmake ..",
             "windows": {
-                "command": "docker exec -it -w  /home/develop/eagle/build devenv cmake ..",
+                "command": "docker exec -it -w  /home/develop/eagle/build baremetal-devenv cmake ..",
             },
             "problemMatcher": [],
         },
@@ -65,9 +74,9 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "command": "docker exec -it -w  ${workspaceFolder}/build devenv make -j$(nproc)",
+            "command": "docker exec -it -w  ${workspaceFolder}/build baremetal-devenv make -j$(nproc)",
             "windows": {
-                "command": "docker exec -it -w /home/develop/eagle/build devenv sh -c 'make -j $(nproc)'",
+                "command": "docker exec -it -w /home/develop/eagle/build baremetal-devenv sh -c 'make -j $(nproc)'",
             },
             "problemMatcher": "$gcc"
         },
@@ -87,9 +96,9 @@
                 "kind": "test",
                 "isDefault": true
             },
-            "command": "docker exec -it -w ${workspaceFolder}/build devenv sh -c 'make -j$(nproc) && make test'",
+            "command": "docker exec -it -w ${workspaceFolder}/build baremetal-devenv sh -c 'make -j$(nproc) && make test'",
             "windows": {
-                "command": "docker exec -it -w /home/develop/eagle/build devenv sh -c 'make -j$(nproc) && make test'",
+                "command": "docker exec -it -w /home/develop/eagle/build baremetal-devenv sh -c 'make -j$(nproc) && make test'",
             },
             "problemMatcher": "$gcc"
         },
@@ -105,9 +114,9 @@
         {
             "label": "Make Clean (Docker)",
             "type": "shell",
-            "command": "docker exec -it -w ${workspaceFolder}/build devenv make clean",
+            "command": "docker exec -it -w ${workspaceFolder}/build baremetal-devenv make clean",
             "windows": {
-                "command": "docker exec -it -w /home/develop/eagle/build devenv make clean",
+                "command": "docker exec -it -w /home/develop/eagle/build baremetal-devenv make clean",
             },
             "problemMatcher": "$gcc"
         },
@@ -124,9 +133,9 @@
             "label": "Start GDB Server",
             "type": "shell",
             // not using -it so that it can be a preLaunchTask
-            "command": "docker exec -d devenv gdbserver localhost:2000  ${workspaceRoot}/build/bin/hello-world",
+            "command": "docker exec -d baremetal-devenv gdbserver localhost:2000  ${workspaceRoot}/build/bin/hello-world",
             "windows": {
-                "command": "docker exec -d devenv gdbserver localhost:2000  /home/develop/eagle/build/bin/hello-world",
+                "command": "docker exec -d baremetal-devenv gdbserver localhost:2000  /home/develop/eagle/build/bin/hello-world",
             },
             "problemMatcher": []
         },
@@ -142,9 +151,9 @@
         {
             "label": "Run Application (Docker)",
             "type": "shell",
-            "command": "docker exec -it devenv ${workspaceFolder}/build/bin/hello-world",
+            "command": "docker exec -it baremetal-devenv ${workspaceFolder}/build/bin/hello-world",
             "windows": {
-                "command": "docker exec -it devenv /home/develop/eagle/build/bin/hello-world",
+                "command": "docker exec -it baremetal-devenv /home/develop/eagle/build/bin/hello-world",
             },
             "problemMatcher": []
         },
@@ -160,7 +169,7 @@
         {
             "label": "Stop Application (Docker)",
             "type": "shell",
-            "command": "docker exec -d devenv pkill hello-world",
+            "command": "docker exec -d baremetal-devenv pkill hello-world",
             "problemMatcher": []
         },
         {

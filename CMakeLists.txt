@@ -51,8 +51,10 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest/googletest-src
                  EXCLUDE_FROM_ALL)
 # </copy>
 
-include(GoogleTest)
-enable_testing()
+if(NOT CMAKE_CROSSCOMPILING)
+    include(GoogleTest)
+    enable_testing()
+endif()
 
 ################################################################################
 #############################   COMPILER OPTIONS   #############################
@@ -65,7 +67,7 @@ set (CMAKE_CXX_STANDARD 17)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) # LTO
 
 # Allow linking the compiled code into a shared library (for Python modules)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Compiler flags for C++
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
