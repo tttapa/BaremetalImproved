@@ -9,3 +9,5 @@ ColVector<3> getCorrectedPositionFull(ColVector<2> rawPosition,
 /// Correct the measured location
 ColVector<2> getCorrectedPosition(ColVector<2> locationMeasurement,
                                   real_t heightMeasurement, Quaternion q);
+
+// TODO: add getCorrectedHeight() for altitude

@@ -6,10 +6,11 @@
 *   all of the components on the Zybo, starts the interrupts and runs a loop
 *   that logs data.
 ******************************************************************************/
-#include "../../../src-vivado/main/Platform.hpp"
-#include "../../../src-vivado/main/Interrupt.hpp"
-#include "../../../src-vivado/sensors/imu/IMU.hpp"
-#include "../../../src-vivado/sensors/sonar/Sonar.hpp"
+#include "../../../src-vivado/main/include/Platform.hpp"
+#include "../../../src-vivado/main/include/Interrupt.hpp"
+#include "../../../src-vivado/sensors/imu/include/IMU.hpp"
+#include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
+#include "../../init/include/Init.hpp"
 
 
 /**
@@ -35,6 +36,9 @@ int main(void) {
 
 	/* Reset PWM output. */
 	pwmOutput(0,0,0,0);
+
+	/* Initialize files in src. */
+	init();
 
 	/* Initialize interrupt system. */
 	if(initInterrupt() == false)

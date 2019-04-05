@@ -26,3 +26,5 @@ ColVector<2> getCorrectedPosition(ColVector<2> locationMeasurement,
     // Calculate the position of the drone
     return locationMeasurement - heightMeasurement * down_vector;
 }
+
+// TODO: add getCorrectedHeight() for altitude
