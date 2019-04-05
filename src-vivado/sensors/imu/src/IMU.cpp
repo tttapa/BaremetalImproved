@@ -14,13 +14,16 @@
 #include "../../../main/src/HardwareConstants.hpp"
 #include <sleep.h>	// TODO: is usleep() necessary?
 #include <xil_io.h>
-
+#include <Quaternion.hpp>
 
 /* Bias of the gyroscope, set on last step of calibration. */
 GyroMeasurement gyroBias;
 
-/* Bias of the accelerometer, set on last step of calibration. */
-AccelMeasurement accelBias;
+/* Bias of the accelerometer as a quaternion, set on last step of calibration. */
+Quaternion accelBiasQuat;
+
+/* Norm of the accelerometer quaternion bias. */
+real_t accelBiasNorm;
 
 /* Sum of the raw gyroscope measurements, used to calculate bias. */
 long gyroRawSum[3];
@@ -143,17 +146,15 @@ RawAccelMeasurement readAccel() {
  * 			bias of the accelerometer, calculated during calibration of IMU
  * @return	unbiased accelerometer measurement in g.
  */
-AccelMeasurement getAccelMeasurement(RawAccelMeasurement raw, AccelMeasurement bias) {
-
-	// TODO: this isn't correct if gyroscope is not upward
+ColVector<3> getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat, real_t biasNorm) {
 	/* Accelerometer measurements with bias removed in g. */
-	float ax = -(calcAccel(raw.axInt) - bias.ax);
-	float ay = +(calcAccel(raw.ayInt) - bias.ay);
-	float az = -(calcAccel(raw.azInt) - bias.az);
-	az = az + 1.0;
-
-	/* Return measurement. */
-	return AccelMeasurement {ax, ay, az};
+	ColVector<3> correctedAccel = (-biasQuat).rotate({
+				-calcAccel(raw.axInt), // TODO: check signs
+				+calcAccel(raw.ayInt),
+				-calcAccel(raw.azInt),
+	});
+	correctedAccel /= biasNorm;
+	return correctedAccel;
 }
 
 
@@ -208,14 +209,18 @@ bool calibrateIMUStep() {
 		float factor = 1.0 / (float)(IMU::CALIBRATION_SAMPLES);
 
 		/* Calculate gyroscope bias. */
-		gyroBias.gx = calcGyro((float)gyroRawSum[0] * factor);
-		gyroBias.gy = calcGyro((float)gyroRawSum[1] * factor);
-		gyroBias.gz = calcGyro((float)gyroRawSum[2] * factor);
+		gyroBias.gx = calcGyro(gyroRawSum[0] * factor);
+		gyroBias.gy = calcGyro(gyroRawSum[1] * factor);
+		gyroBias.gz = calcGyro(gyroRawSum[2] * factor);
 		
-		/* Calculate accelerometer bias. */
-		accelBias.ax = calcAccel((float)accelRawSum[0] * factor); 
-		accelBias.ay = calcAccel((float)accelRawSum[1] * factor); 
-		accelBias.az = calcAccel((float)accelRawSum[2] * factor); 
+		/* Calculate accelerometer bias quaternion. */
+		ColVector<3> accelBiasAverage = {
+		    calcAccel(accelRawSum[0] * factor),
+		    calcAccel(accelRawSum[1] * factor),
+		    calcAccel(accelRawSum[2] * factor),
+		};
+		accelBiasQuat = Quaternion::fromDirection(accelBiasAverage);
+		accelBiasNorm = norm(accelBiasAverage);
 
 		/* Turn off all LEDs. */
 		writeValueToLEDs(0);
@@ -319,10 +324,9 @@ IMUMeasurement readIMU() {
 
 	/* Read accelerometer and convert to g. */
 	RawAccelMeasurement accelRaw = readAccel();
-	AccelMeasurement accel = getAccelMeasurement(accelRaw, accelBias);
+	ColVector<3> accel = getAccelMeasurement(accelRaw, accelBiasQuat, accelBiasNorm);
 
 	/* Return IMU measurement (gyro+accel). */
 	return IMUMeasurement {gyro.gx, gyro.gy, gyro.gz,
-						   accel.ax,accel.ay,accel.az};
-
+						   accel[0][0], accel[1][0], accel[2][0] };
 }
