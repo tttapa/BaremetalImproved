@@ -1,8 +1,8 @@
 # https://medium.com/@aharon.amir/develop-c-on-docker-with-vscode-98fb85b818b2
 FROM ubuntu:latest
 
-RUN apt-get update
-RUN apt-get install -y git wget gcc-8 g++-8 cmake gdb gdbserver  && \
+RUN apt-get update && \
+    apt-get install -y git wget gcc-8 g++-8 cmake gdb gdbserver  && \
     apt-get clean autoclean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
