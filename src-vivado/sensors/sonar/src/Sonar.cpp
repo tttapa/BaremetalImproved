@@ -1,7 +1,9 @@
 // Original: BareMetal/src/sonar/sonar.c
-#include "Sonar.hpp"
-#include "HardwareConstants.hpp"
+#include "../include/Sonar.hpp"
+#include "../../../main/src/HardwareConstants.hpp"
 #include "MedianFilter.hpp"
+#include  <xil_io.h>
+#include <cmath>
 
 // TODO: append author
 /*******************************************************************************
@@ -14,7 +16,7 @@
 
 
 /** Last 15 raw measurements of the sonar. */
-real_t measurements[Sonar::MAX_MF_LENGTH];
+real_t measurements[SONAR::MAX_MF_LENGTH];
 
 /** Latest measurement of the sonar after median/peak filters. */
 real_t filteredSonarMeasurement;
@@ -36,7 +38,7 @@ bool readSonar() {
 
     // TODO: seriously?
     // Check if there is a new measurement available.
-    newSonarRaw = (real_t) Xil_In32(SONAR_REG) / (CLK_MEASURE * PWM_TO_HEIGHT);
+    newSonarRaw = (real_t) Xil_In32(SONAR::SONAR_ADDR) / (MEASURE_FREQ * SONAR::PWM_TO_HEIGHT);
     if (fabs(newSonarRaw - oldSonarRaw) <= 0.00000001)
         return false;
 
@@ -44,15 +46,15 @@ bool readSonar() {
     oldSonarRaw = newSonarRaw;
 
     // Add the measurement to the median filter.
-    addMFMeasurement(measurements, newSonarRaw);
-    newSonarRaw = getMedian(MF_BUFFER_SIZE_SMALL);
+    addMFMeasurement(measurements, SONAR::MAX_MF_LENGTH, newSonarRaw);
+    newSonarRaw = getMedian(measurements, SONAR::MAX_MF_LENGTH, SONAR::MF_BUFFER_SIZE_SMALL);
 
     // Apply peak filter.
     real_t diff = fabs(newSonarRaw - filteredSonarMeasurement);
-    if (diff > MAX_JUMP && jumpCounter < MAX_JUMP_COUNT) {
+    if (diff > SONAR::MAX_JUMP && jumpCounter < SONAR::MAX_JUMP_COUNT) {
         jumpCounter++;
     } else {
-        filteredSonarMeasurement = sonar_new;
+        filteredSonarMeasurement = newSonarRaw;
         jumpCounter = 0;
     }
 
@@ -66,7 +68,7 @@ real_t getFilteredSonarMeasurement() {
 
 
 real_t getFilteredSonarMeasurementAccurate() {
-    return getMedian(measurements, MAX_MF_LENGTH, MAX_MF_LENGTH);
+    return getMedian(measurements, SONAR::MAX_MF_LENGTH, SONAR::MAX_MF_LENGTH);
 }
 
 
@@ -79,5 +81,5 @@ void initSonar() {
      * Fill the sonar measurement buffer with the current measurement value so
      * that the median filter functions properly.
      */
-    initMF(measurements, MAX_MF_LENGTH, getSonarMeasurement());
+    initMF(measurements, SONAR::MAX_MF_LENGTH, getFilteredSonarMeasurement());
 }

@@ -6,44 +6,38 @@
  *  This file should NEVER be changed by the students
  *  Author: p. coppens
 ********************************************************************************/
-#include "AHRS.hpp"
+#include "../include/AHRS.hpp"
+#include "../src/MadgwickFilter.hpp"
+#include <xil_io.h>
 
 
 // TODO: is this signature correct? These should act as "globals" within this cpp file.
 /* Orientation of the drone, updated by Madgwick's algorithm. */
-static Quat32 orientation;
+static Quaternion orientation;
 
 
-void initAHRS() {
+void initAHRS(IMUMeasurement imu) {
 
 	// TODO: use new quaternion functions instead of Quat32, Vec32, ...
-	Quaternion rot, temp;
-	orientation.w = 1;
-	orientation.x = 0;
-	orientation.y = 0;
-	orientation.z = 0;
+	orientation = Quaternion::unit();
 
 	/*
 	 * use accelerometer values to ensure that the initial quaternion is oriented correctly
 	 */
-	readAcc();
-	Vec32 accel = {ax, ay, az};
-	vec32_normalize_32f16(&accel, &accel);
+	ColVector<3> accel = {imu.ax, imu.ay, imu.az};
+	accel = normalize(accel);
 
 	/*
 	 * calculate angle (based on direction of acceleration
 	 * theoretically we need arcsin here, but we know that angle is relatively small so the error is acceptable
 	 */
-	Vec32 angle = {  asin(accel.y),
-	                 asin(-accel.x),
-	                 0};
+	ColVector<3> angle = { std::asin(accel[1][0]), std::asin(-(real_t)accel[0][0]), 0};
 
 	/*
 	 * update orientation (initial error is the actual measured orientation after all
 	 */
-	quat32_from_vector(&rot, &angle);           /* q_IMU = build a quaternion from angle vector */
-	quat32_multiply(&temp, &orientation, &rot); /* q_error = calculate quat error and assign to temp */
-	quat32_normalize(&orientation, &temp);      /* assign normalised temp to IMU */
+	Quaternion rot = Quaternion::quatFromVec(angle);
+	orientation = (orientation + rot).normalize();
 
 	/*
 	 * AHRS is now initialized
@@ -51,10 +45,10 @@ void initAHRS() {
 	xil_printf("AHRS init ok\r\n");
 }
 
-// Given, replaced by Madgwick
+
 Quaternion updateAHRS(IMUMeasurement imu) {
 
-    orientation = MadgwickAHRSupdateIMU(orientation, imu);
+    orientation = MadgwickAHRSUpdate(orientation, imu);
 	return orientation;
 
 }

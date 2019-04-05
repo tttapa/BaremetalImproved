@@ -7,7 +7,7 @@ struct RawAccelMeasurement {
     int axInt;
     int ayInt;
     int azInt;
-}
+};
 
 
 /* Acceleration measurement in g. */
@@ -15,7 +15,7 @@ struct AccelMeasurement {
     float ax;
     float ay;
     float az;
-}
+};
 
 
 /* Raw 16-bit signed data from the gyroscope. */
@@ -23,7 +23,7 @@ struct RawGyroMeasurement {
     int gxInt;
     int gyInt;
     int gzInt;
-}
+};
 
 
 /* Angular velocity measurement in rad/s. */
@@ -31,7 +31,7 @@ struct GyroMeasurement {
     float gx;
     float gy;
     float gz;
-}
+};
 
 
 /* Measured IMU angular velocity (gx,gy,gz) and acceleration (ax,ay,az). */

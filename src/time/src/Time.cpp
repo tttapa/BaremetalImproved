@@ -1,4 +1,4 @@
-#include <Time.hpp>
+#include "Time.hpp"
 
 /* Clock is updated when interrupts occur at 238 Hz. */
 static constexpr float ticksPerSecond = 1.0 / 238.0;
@@ -15,5 +15,5 @@ int getTickCount() {
 }
 
 float getTime() {
-    ticksPerSecond * getTickCount();
+    return ticksPerSecond * getTickCount();
 }

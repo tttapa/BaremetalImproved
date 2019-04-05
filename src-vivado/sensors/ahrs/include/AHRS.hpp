@@ -6,20 +6,15 @@
  *  This file should NEVER be changed by the students
  *   Author: p. coppens
 ***********************************************************************************************************************/
-#include "MadgwickFilter.hpp"
-#include "quaternion.hpp"   // TODO: use new Quaternion
+#include <Quaternion.hpp>
+#include "../../imu/include/IMU.hpp"
 #pragma once
-
-/**
- * Get the Attitude and Heading Reference System's orientation.
- */
-Quat32 getOrientation();
 
 
 /**
  * Initialize the Attitude and Heading Reference System using the initial IMU measurement.
  */
-void init(IMUMeasurement imu);
+void initAHRS(IMUMeasurement imu);
 
 
 /**
@@ -28,6 +23,4 @@ void init(IMUMeasurement imu);
  * @param   imu
  *          new IMU measurement
  */
-void update(IMUMeasurement imu) {
-    MadgwickAHRSupdateIMU(orientation, imu);
-}
+Quaternion updateAHRS(IMUMeasurement imu);

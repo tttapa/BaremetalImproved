@@ -1,5 +1,5 @@
 // Original: BareMetal/src/utils/median_filter.c
-#include "median-filter.hpp"
+#include "MedianFilter.hpp"
 #include "math.h"
 
 // TODO: make this a class

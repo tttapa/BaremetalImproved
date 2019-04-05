@@ -1,17 +1,10 @@
 #include <xparameters.h>
 #pragma once
 
-/**
- * Anonymous namespace containing frequency of measurement clock connected to
- * AXI bus.
- */
-namespace {
 
-    // TODO: is this an int or a float?
-    /* Frequency of measure clock connected to AXI BUS on FCLK_CLK0. */
-    const int MEASURE_FREQ = XPAR_PS7_UART_1_UART_CLK_FREQ_HZ;
-
-}
+// TODO: is this an int or a float?
+/* Frequency of measure clock connected to AXI BUS on FCLK_CLK0. */
+const int MEASURE_FREQ = XPAR_PS7_UART_1_UART_CLK_FREQ_HZ;
 
 
 /**
@@ -44,8 +37,6 @@ namespace HARDWARE_ADDRESSES {
 
 
 
-    /* Address of the sonar : // TODO: what pin? */
-    const int SONAR = XPAR_RC_1_S00_AXI_BASEADDR + 0x04;    // TODO: this was SONAR_REG
 
 
 }
@@ -147,6 +138,10 @@ namespace RC {
 
 
 namespace SONAR {
+
+	/** Address of the sonar : // TODO: what pin? */
+	const int SONAR_ADDR = XPAR_RC_1_S00_AXI_BASEADDR + 0x04;
+
 
     /** Conversion factor to meters. */
     const float PWM_TO_HEIGHT = 0.005787;

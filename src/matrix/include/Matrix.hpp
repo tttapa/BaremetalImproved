@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <ostream>
 #include <real_t.h>
+#include <array>
 
 template <class T, size_t R, size_t C>
 using TMatrix = Array<Array<T, C>, R>;

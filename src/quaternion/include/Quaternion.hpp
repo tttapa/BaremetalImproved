@@ -19,7 +19,7 @@ class Quaternion {
     constexpr Quaternion normalize() const { return {q / norm(q)}; }
 
     constexpr Quaternion conjugate() const {
-        return {q[0], -q[1], -q[2], -q[3]};
+        return {{q[0], -q[1], -q[2], -q[3]}};
     }
 
     constexpr Quaternion operator-() const { return conjugate(); }
@@ -84,4 +84,11 @@ class Quaternion {
     constexpr operator const ColVector<4> &() const { return q; }
 
     constexpr static Quaternion unit() { return {1, 0, 0, 0}; }
+
+    constexpr static Quaternion quatFromVec(ColVector<3> vec) {
+    	real_t d = norm(vec);
+    	real_t c = cos(d/2);
+    	real_t s = d == 0 ? 0.0 : sin(d/2)/d;
+    	return { c, s*vec[0], s*vec[1], s*vec[2] };
+    }
 };

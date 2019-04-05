@@ -5,8 +5,9 @@
 *   This file should normally not be changed by the students.
 *   Author: w. devries, p. coppens
 ***********************************************************************************************************************/
-#include "RC.hpp"
-#include "../../main/HardwareConstants.hpp"
+#include "../include/RC.hpp"
+#include "../../../main/src/HardwareConstants.hpp"
+#include <xil_io.h>
 
 
 //The last mode that the drone was in at the last interrupt.
@@ -62,7 +63,7 @@ int getInductive(float inductive) {
     // TODO: is this necessary
     #define MODE_DELAY 50
 	// Add the delay for a mode switch
-	if (newInductive != last_rc_ind) {
+	if (newInductive != lastInductive) {
 		newInductiveCounter++;
 		if (newInductiveCounter > MODE_DELAY) {
 			newInductiveCounter = 0;
@@ -81,7 +82,7 @@ int getInductive(float inductive) {
  * 
  *  @return clamped value.
  */
-float clamp(x) {
+float clamp(float x) {
     if(x < RC::RC_LOW)
         return RC::RC_LOW;
     if(x > RC::RC_HIGH)
@@ -96,9 +97,9 @@ float clamp(x) {
  * 
  *  @return clamped value.
  */
-float clampMid(x) {
+float clampMid(float x) {
     // TODO: why is the deadzone margin here?
-    if(x < RC::RC_LOW - RC::RC_MARGIN || x > RC::RC_HIGH + RC:RC::RC_MARGIN)
+    if(x < RC::RC_LOW - RC::RC_MARGIN || x > RC::RC_HIGH + RC::RC_MARGIN)
         return RC::RC_MID;
     return x;
 }
@@ -109,7 +110,7 @@ float clampMid(x) {
  * 
  *  @return rescaled value.
  */
-float rescale(x) {
+float rescale(float x) {
 
     /* Upper edge of deadzone. */
     float low = RC::RC_LOW + RC::RC_MARGIN;
@@ -130,11 +131,11 @@ float rescale(x) {
  * 
  *  @return rescaled value.
  */
-float rescaleMid(x) {
+float rescaleMid(float x) {
 
     /* Edges of deadzone. */
-    float midlow = RC_MID - RC::RC_MARGIN;
-    float midhigh = RC_MID + RC::RC_MARGIN;
+    float midlow = RC::RC_MID - RC::RC_MARGIN;
+    float midhigh = RC::RC_MID + RC::RC_MARGIN;
 
     /* Out of range. */
     if(x < RC::RC_LOW)
@@ -157,13 +158,13 @@ float rescaleMid(x) {
 RCInput readRC() {
 
 	// Get all of the rc controls
-	float thrust    = rescale(   clamp(   (float)Xil_In32(RC::THROTTLE_ADDR)/CLK_MEASURE);
-	float pitch     = rescaleMid(clampMid((float)Xil_In32(RC::PITCH_ADDR)/CLK_MEASURE);
-	float roll      = rescaleMid(clampMid((float)Xil_In32(RC::ROLL_ADDR)/CLK_MEASURE);
-	float yaw       = rescaleMid(clampMid((float)Xil_In32(RC::YAW_ADDR)/CLK_MEASURE);
-	float tuner     = rescaleMid(clampMid((float)Xil_In32(RC::TUNER_ADDR)/CLK_MEASURE));
-	float mode      = rescale(   clamp(   (float)Xil_In32(RC::MODE_ADDR)/CLK_MEASURE);
-	float inductive = rescale(   clamp(   (float)Xil_In32(RC::INDUCTIVE_ADDR)/CLK_MEASURE));
+	float thrust    = rescale(   clamp(   (float)Xil_In32(RC::THROTTLE_ADDR)/MEASURE_FREQ));
+	float pitch     = rescaleMid(clampMid((float)Xil_In32(RC::PITCH_ADDR)/MEASURE_FREQ));
+	float roll      = rescaleMid(clampMid((float)Xil_In32(RC::ROLL_ADDR)/MEASURE_FREQ));
+	float yaw       = rescaleMid(clampMid((float)Xil_In32(RC::YAW_ADDR)/MEASURE_FREQ));
+	float tuner     = rescaleMid(clampMid((float)Xil_In32(RC::TUNER_ADDR)/MEASURE_FREQ));
+	float mode      = rescale(   clamp(   (float)Xil_In32(RC::MODE_ADDR)/MEASURE_FREQ));
+	float inductive = rescale(   clamp(   (float)Xil_In32(RC::INDUCTIVE_ADDR)/MEASURE_FREQ));
 
     return RCInput {thrust, pitch, roll, yaw, tuner, getMode(mode), getInductive(inductive)};
 

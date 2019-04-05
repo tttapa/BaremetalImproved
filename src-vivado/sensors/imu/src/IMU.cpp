@@ -6,11 +6,16 @@
 *   This file should normally not be changed by the students.
 *   Author: w. devries
 ***********************************************************************************************************************/
-#include "IMU.hpp"
+#include "../include/IMU.hpp"
 #include "LSM9DS1_Registers.h"
-#include "../../main/AxiGpio.hpp"
-#include "../../main/Platform.hpp"
-#include "xtime_l.h"	// TODO: is usleep() necessary?
+#include "../../../main/include/AxiGpio.hpp"
+#include "../../../main/include/Interrupt.hpp"
+#include "../../../main/src/IIC.hpp"
+#include "../../../main/src/HardwareConstants.hpp"
+#include <math.h>
+#include <sleep.h>	// TODO: is usleep() necessary?
+#include <xil_io.h>
+
 
 /* Bias of the gyroscope, set on last step of calibration. */
 GyroMeasurement gyroBias;
@@ -28,6 +33,10 @@ long accelRawSum[3];
 int calibrationStepCounter;
 
 
+const float PI = 3.14159265358979323846;
+
+
+
 /**
  * Convert the raw gyroscope reading to rad/s.
  * 
@@ -41,7 +50,7 @@ float calcGyro(int rawGyro) {
 	const float gyroResolution = (float)IMU::MAX_GYRO_VALUE / (2^15);
 	
 	/* Convert the raw gyro value to rad/s. */
-	return gyroResolution*(M_PI/180.0)*(float)rawGyro;
+	return gyroResolution*(PI/180.0)*(float)rawGyro;
 }
 
 /**
@@ -100,7 +109,7 @@ GyroMeasurement getGyroMeasurement(RawGyroMeasurement raw, GyroMeasurement bias)
 	float gz = -(calcGyro(raw.gzInt) - bias.gz);
 
 	/* Return measurement. */
-	return GryoMeasurement {gx, gy, gz};
+	return GyroMeasurement {gx, gy, gz};
 }
 
 
@@ -197,7 +206,6 @@ bool calibrateIMUStep() {
 	/* Final calibration step reached. */
 	if(calibrationStepCounter == IMU::CALIBRATION_SAMPLES + IMU::INVALID_SAMPLES) {
 
-		float averageRawBias[3];
 		float factor = 1.0 / (float)(IMU::CALIBRATION_SAMPLES);
 
 		/* Calculate gyroscope bias. */
@@ -214,6 +222,9 @@ bool calibrateIMUStep() {
 		writeValueToLEDs(0);
 		xil_printf("calibrated IMU \r\n");
 	}
+
+	/* Initialization successful. */
+	return true;
 }
 
 
@@ -267,24 +278,28 @@ bool initIMU() {
 	calibrationStepCounter = 0;
 	gyroBias = {0.0};
 	accelBias = {0.0};
-	gyroRawSum = {0};
-	accelRawSum = 0;
+	for(int i = 0; i < 3; i++) {
+		gyroRawSum[i] = 0;
+		accelRawSum[i] = 0;
+	}
 
 	/* Clear data in IMU's FIFO. */
 	for(int i=0; i<5; i++) {
-		readAcc();
+		readAccel();
 		readGyro();
 		usleep(100);	// TODO: sleep to prevent corruption?
 	}
 
 	/* IMU is initiated. */
-	beep_initiated();
+	// TODO: beep_initiated() here
+	//beep_initiated();
 	xil_printf("IMU initiated\r\n");
 	xil_printf("Starting interrupts\r\n");
 	iicWriteToReg(INT1_CTRL, 0x01, 1);	// enable interrupts when accelerometer has a measurement
 
-	/* Set up interrupt system. */`
-	setupIMUInterruptSystem();
+	// TODO: check if this is called in MainInterrupt.cpp
+	/* Set up interrupt system. */
+	//setupIMUInterruptSystem();
 
 	/* Initialization successful. */
 	return true;

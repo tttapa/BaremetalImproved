@@ -1,5 +1,6 @@
 // Original: BareMetal/src/utils/MadgwickAHRS.h
-#include "quaternion.h"
+#include <Quaternion.hpp>
+#include "../../imu/include/IMU.hpp"
 #pragma once
 
 //
@@ -28,4 +29,4 @@ extern volatile float beta;
  * 
  * @return updated drone orientation, according to Madgwick's algorithm.
  */
-Quat32 MadgwickAHRSUpdate(Quat32 orientation, IMUMeasurement imu);
+Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu);
