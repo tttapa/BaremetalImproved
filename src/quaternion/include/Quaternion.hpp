@@ -86,9 +86,30 @@ class Quaternion {
     static Quaternion unit() { return {1, 0, 0, 0}; }
 
     static Quaternion quatFromVec(ColVector<3> vec) {
-    	real_t d = norm(vec);
-    	real_t c = cos(d/2);
-    	real_t s = d == 0 ? 0.0 : sin(d/2)/d;
-    	return { c, s*vec[0], s*vec[1], s*vec[2] };
+
+    	/*
+    	 * q = cos(ϑ / 2) + sin(ϑ / 2)·(x·i + y·j + z·k)
+    	 * where (x y z) is a unit vector representing the axis about which
+    	 * the body is rotated; ϑ is the angle by which it is rotated.
+    	 *
+    	 * (x y z) is the cross product between a vector pointing upwards (0 0 1)
+    	 * and the given vector; ϑ can be found using A×B = |A||B|·sin(ϑ).
+    	 */
+
+    	/* First check the edge case vec ~ (0 0 1). */
+    	real_t eps = std::numeric_limits<real_t>::epsilon();
+    	if (abs(vec[0]) <= eps && abs(vec[1]) <= eps)
+    		return Quaternion::unit();
+
+    	/* Calculate the cross product and its norm. */
+    	ColVector<3> cross = {vec[1], -vec[0], 0};
+    	real_t crossNorm = norm(cross);
+    	cross /= crossNorm;
+
+    	/* Calculate the angle ϑ. */
+    	real_t angle = std::asin(crossNorm / norm(vec));
+
+    	/* Calculate the resulting quaternion. */
+    	return vcat(std::cos(angle / 2), std::sin(angle / 2) * cross);
     }
 };
