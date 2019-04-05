@@ -11,7 +11,6 @@
 #include <xil_io.h>
 
 
-// TODO: is this signature correct? These should act as "globals" within this cpp file.
 /* Orientation of the drone, updated by Madgwick's algorithm. */
 static Quaternion orientation;
 

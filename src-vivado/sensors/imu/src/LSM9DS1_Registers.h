@@ -19,6 +19,13 @@ Distributed as-is; no warranty is given.
 
 #ifndef __LSM9DS1_Registers_H__
 #define __LSM9DS1_Registers_H__
+
+///////////////////////////////
+// Slave address for the IMU //
+///////////////////////////////
+#define LSM9DS1_GX_ADDR    0x6B
+#define LSM9DS1_M_ADDR     0x1E
+
 /////////////////////////////////////////
 // LSM9DS1 Sizes Registers //
 /////////////////////////////////////////

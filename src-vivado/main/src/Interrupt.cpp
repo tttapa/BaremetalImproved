@@ -6,27 +6,36 @@
 *   This file should NEVER be changed by the students.
 *   Author: w. devries
 *******************************************************************/
-#include "Interrupt.hpp"
-#include "MainInterrupt.hpp"	/* update() is called at 238 Hz. */
+#include "../include/Interrupt.hpp"
+#include "IIC.hpp"
 #include "HardwareConstants.hpp"
+#include "../../sensors/imu/src/LSM9DS1_Registers.h"
+#include "../../../src/main/include/MainInterrupt.hpp"	/* update() is called at 238 Hz. */
 
-// TODO: how many of these are necessary?
-#include "xiicps.h"
-#include "xil_exception.h"
-#include "xparameters.h"
-#include "xscugic.h"
-#include "xttcps.h"
-#include <stdio.h>
-#include "stdlib.h"
-#include "sleep.h"
+#include <xiicps.h>
+#include <xscugic.h>
+#include <iostream>
 
 
-// TODO: is this signature correct? These should act as "globals" within this cpp file.
 /* Instance of the interrupt controller. */
 static XScuGic InterruptController;
 
 /* Instance of the IIC driver. */
 static XIicPs Iic0;
+
+
+/**
+ *
+ * This function is the handler which is used when the Gyro generates an interrupt.
+ * It does this at 238Hz. This method then updates the EAGLE FSM.
+ *
+ * @param InstancePtr is a pointer to the XIicPs instance.
+ */
+void int_gyr(void *InstancePtr) {
+	/* update the FSM */
+    std::cout << "update" << std::endl;
+	// update();
+}
 
 
 /**
@@ -147,38 +156,27 @@ int setupIMUInterruptSystem() {
  *        this case it is the instance pointer for the IIC driver.
  * @param Event contains the specific kind of event that has occurred.
  */
+// TODO: handler does nothing
+/*
 void handler(void *CallBackRef, u32 Event) {
 
-	/* The following counters are used to determine when the entire buffer has been sent and received. */
+	// The following counters are used to determine when the entire buffer has been sent and received.
 	// TODO: these were declared like this in the header file... what should they be now?
 	volatile u32 SendComplete;
 	volatile u32 RecvComplete;
 	volatile u32 TotalErrorCount;
 
-	/* All of the data transfer has been finished. */
+	// All of the data transfer has been finished.
 	if (0 != (Event & XIICPS_EVENT_COMPLETE_RECV))
 		RecvComplete = TRUE;
 	else if (0 != (Event & XIICPS_EVENT_COMPLETE_SEND))
 		SendComplete = TRUE;
 	else if (0 == (Event & XIICPS_EVENT_SLAVE_RDY))
-		/* If it is other interrupt but not slave ready interrupt, it is an error. */
+		// If it is other interrupt but not slave ready interrupt, it is an error.
 		TotalErrorCount++;
 
 }
-
-
-/**
- *
- * This function is the handler which is used when the Gyro generates an interrupt.
- * It does this at 238Hz. This method then updates the EAGLE FSM.
- *
- * @param InstancePtr is a pointer to the XIicPs instance.
- */
-void int_gyr(void *InstancePtr) {
-
-	/* update the FSM */
-	update();
-}
+*/
 
 
 
@@ -239,7 +237,8 @@ unsigned char iicConfig(unsigned int DeviceIdPS, XIicPs* iic_ptr) {
 	 * pointer to the IIC driver instance as the callback reference so
 	 * the handlers are able to access the instance data.
 	 */
-	XIicPs_SetStatusHandler(iic_ptr, (void *) iic_ptr, handler);
+	// TODO: handler does nothing
+	// XIicPs_SetStatusHandler(iic_ptr, (void *) iic_ptr, handler);
 
 
 	// Set the IIC serial clock rate.
@@ -279,4 +278,54 @@ bool initInterrupt() {
 
 	/* Setup successul. */
 	return true;
+}
+
+
+
+
+void iicWriteToReg(u8 register_addr, u8 u8Data, int device) {
+	// Wait for the I2C to end the last operation
+	while(XIicPs_BusIsBusy(&Iic0));
+	//xil_printf("waiting for bus (writing task)\n");
+
+	// Get the device address
+	u16 device_addr;
+	if(device)
+		device_addr = LSM9DS1_GX_ADDR;
+	else
+		device_addr = LSM9DS1_M_ADDR;
+
+	//Set up the required bits (2 bytes)
+	u8 buf[] = { register_addr, u8Data };
+
+	// Execute read procedure
+	int status = XIicPs_MasterSendPolled(&Iic0, buf, 2, device_addr);
+	if(status != XST_SUCCESS)
+		xil_printf("error in master send polled\r\n");
+
+	//xil_printf("done writing data 0x%x to: 0x%x \n", u8Data, register_addr);
+}
+
+void iicReadReg(u8* recv_buffer, u8 register_addr, int device, int size) {
+	//while(XIicPs_BusIsBusy(&Iic0))
+	//	xil_printf("waiting for bus (reading task)\n");
+	u16 device_addr;
+	if(device)
+		device_addr = LSM9DS1_GX_ADDR;
+	else
+		device_addr = LSM9DS1_M_ADDR;
+	u8 buf[] = {register_addr};
+
+	// Check if within register range
+	if(register_addr < 0x05 || register_addr > 0x37)
+		xil_printf("ERROR: Cannot register address, 0x%x, out of bounds\r\n", register_addr);
+
+	int status;
+	status = XIicPs_MasterSendPolled(&Iic0, buf, 1, device_addr);
+	if(status != XST_SUCCESS)
+		xil_printf("Send failed %d\r\n", status);
+
+	status = XIicPs_MasterRecvPolled(&Iic0, recv_buffer, size, device_addr);
+	if(status != XST_SUCCESS)
+		xil_printf("Receive failed %d\r\n", status);
 }

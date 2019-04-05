@@ -9,7 +9,6 @@ struct RawAccelMeasurement {
     int azInt;
 };
 
-
 /* Acceleration measurement in g. */
 struct AccelMeasurement {
     float ax;

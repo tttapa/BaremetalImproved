@@ -1,11 +1,10 @@
-#include "AxiGpio.hpp"				/* Header file */
+#include "../include/AxiGpio.hpp"	/* Header file */
 #include "HardwareConstants.hpp"	/* Registers & channels */
 #include "xgpio.h"					/* AXI GPIO functions */
 #include "xscugic.h"				/* Xilinx functions */
 #include "xparameters.h"			/* Project parameters */
 
 
-// TODO: is this signature correct? These should act as "globals" within this cpp file.
 /* GPIO Device driver instance for LEDs and heartbeat. */
 static XGpio axi_gpio_1;
 

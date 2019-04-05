@@ -109,6 +109,8 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 	orientation[1] *= recipNorm;
 	orientation[2] *= recipNorm;
 	orientation[3] *= recipNorm;
+
+	return orientation;
 }
 
 

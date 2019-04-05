@@ -12,7 +12,6 @@
 #include "../../../main/include/Interrupt.hpp"
 #include "../../../main/src/IIC.hpp"
 #include "../../../main/src/HardwareConstants.hpp"
-#include <math.h>
 #include <sleep.h>	// TODO: is usleep() necessary?
 #include <xil_io.h>
 

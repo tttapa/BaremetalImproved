@@ -31,17 +31,6 @@ namespace AXI_GPIO {
 
 
 /**
- * Addresses used by the AXI GPIOs.
- */
-namespace HARDWARE_ADDRESSES {
-
-
-
-
-
-}
-
-/**
  * Constants used by the IMU.
  */
 namespace IMU {

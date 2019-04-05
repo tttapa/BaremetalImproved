@@ -295,7 +295,7 @@ constexpr real_t norm(const TRowVector<T, R> &rowvector) {
 }
 
 template <class T, size_t C>
-constexpr real_t normsq(const TColVector<T, C> &colvector) {
+real_t normsq(const TColVector<T, C> &colvector) {
     real_t sumsq = 0;
     for (size_t c = 0; c < C; ++c)
         sumsq += colvector[c] * colvector[c];
