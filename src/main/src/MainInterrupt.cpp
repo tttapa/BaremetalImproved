@@ -46,6 +46,9 @@ void updateMainFSM() {
 
 void update() {
 
+    // Test pin high to probe length of interrupt.
+    writeValueToTestPin(true);
+
     // Keep the clock/timer up-to-date
     incrementTickCount();
 
@@ -67,4 +70,8 @@ void update() {
     else {
         updateMainFSM();
     }
+
+    // Test pin low to probe length of interrupt.
+    writeValueToTestPin(false);
+
 }

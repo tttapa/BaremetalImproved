@@ -1,4 +1,5 @@
 // Original: BareMetal/src/utils/median_filter.h
+#pragma once
 
 /*******************************************************************************
 *   Median filter header file

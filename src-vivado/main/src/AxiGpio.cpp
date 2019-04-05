@@ -51,8 +51,8 @@ void generateHeartbeat() {
 }
 
 
-void testpinHigh() {
-    XGpio_DiscreteWrite(&axi_gpio_2, 1, 0x1);
+void writeValueToTestPin(bool value) {
+    XGpio_DiscreteWrite(&axi_gpio_2, AXI_GPIO::TESTPIN_CHANNEL, value);
 }
 
 

@@ -2,7 +2,6 @@
 // Original: BareMetal/src/platform/platform_config.h
 // Original: BareMetal/src/platform/eagle_ipc.h
 // Original: BareMetal/src/comm/iic.h
-
 #pragma once
 
 // TODO: the comment blocks about the files are wrong

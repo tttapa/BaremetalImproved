@@ -12,6 +12,7 @@
  * Contact: js@lsst.org
  *
  */
+#pragma once
 
 /**
  * Initialise AXI GPIO pins.
@@ -26,9 +27,12 @@ void generateHeartbeat();
 
 
 /**
- * Write 1 to the test pin to probe the length of an interrupt.
+ * Write the given value to the test pin to probe the length of an interrupt.
+ * 
+ * @param   value
+ *          the value to write to the test pin (on/off)
  */
-void testpinHigh();
+void writeValueToTestPin(bool value);
 
 
 /**

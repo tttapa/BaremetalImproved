@@ -1,6 +1,6 @@
 // Original: BareMetal/src/utils/MadgwickAHRS.h
 #include "quaternion.h"
-
+#pragma once
 
 //
 // Implementation of Madgwick's IMU and AHRS algorithms.

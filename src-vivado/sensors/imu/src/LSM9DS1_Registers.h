@@ -15,6 +15,7 @@ Development environment specifics:
 
 Distributed as-is; no warranty is given.
 ******************************************************************************/
+#pragma once
 
 #ifndef __LSM9DS1_Registers_H__
 #define __LSM9DS1_Registers_H__

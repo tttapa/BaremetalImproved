@@ -8,7 +8,7 @@
 ***********************************************************************************************************************/
 #include "MadgwickFilter.hpp"
 #include "quaternion.hpp"   // TODO: use new Quaternion
-
+#pragma once
 
 /**
  * Get the Attitude and Heading Reference System's orientation.

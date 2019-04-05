@@ -1,5 +1,5 @@
 #include <xparameters.h>
-
+#pragma once
 
 /**
  * Anonymous namespace containing frequency of measurement clock connected to

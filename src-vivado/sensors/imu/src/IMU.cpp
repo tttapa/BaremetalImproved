@@ -95,9 +95,9 @@ RawGyroMeasurement readGyro() {
 GyroMeasurement getGyroMeasurement(RawGyroMeasurement raw, GyroMeasurement bias) {
 
 	/* Gyroscope measurements with bias removed in rad/s. */
-	float gx = -calcGyro((float)raw.gxInt - bias.gx);
-	float gy = +calcGyro((float)raw.gyInt - bias.gy);
-	float gz = -calcGyro((float)raw.gzInt - bias.gz);
+	float gx = -(calcGyro(raw.gxInt) - bias.gx);
+	float gy = +(calcGyro(raw.gyInt) - bias.gy);
+	float gz = -(calcGyro(raw.gzInt) - bias.gz);
 
 	/* Return measurement. */
 	return GryoMeasurement {gx, gy, gz};
@@ -139,9 +139,9 @@ AccelMeasurement getAccelMeasurement(RawAccelMeasurement raw, AccelMeasurement b
 
 	// TODO: this isn't correct if gyroscope is not upward
 	/* Accelerometer measurements with bias removed in g. */
-	float ax = -calcAccel((float)raw.axInt - bias.ax);
-	float ay = +calcAccel((float)raw.ayInt - bias.ay);
-	float az = -calcAccel((float)raw.azInt - bias.az);
+	float ax = -(calcAccel(raw.axInt) - bias.ax);
+	float ay = +(calcAccel(raw.ayInt) - bias.ay);
+	float az = -(calcAccel(raw.azInt) - bias.az);
 	az = az + 1.0;
 
 	/* Return measurement. */

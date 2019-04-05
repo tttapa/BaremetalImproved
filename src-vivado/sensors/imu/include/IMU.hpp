@@ -1,6 +1,6 @@
 // Original: BareMetal/src/IMU/IMU.h
 // Original: BareMetal/src/IMU/LSM9DS1_Registers.h
-
+#pragma once
 
 /* Raw 16-bit signed data from the accelerometer. */
 struct RawAccelMeasurement {
