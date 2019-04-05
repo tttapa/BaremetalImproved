@@ -8,15 +8,15 @@ struct EulerAngles {
     real_t roll;   ///< X"
 
     /** Convert a quaternion to Euler angles. */
-    constexpr EulerAngles(Quaternion q) : EulerAngles{quat2eul(q)} {}
+    USE_CONSTEXPR EulerAngles(Quaternion q) : EulerAngles{quat2eul(q)} {}
     /** Initialize Euler Angles. */
-    constexpr EulerAngles(real_t yaw, real_t pitch, real_t roll)
+    USE_CONSTEXPR EulerAngles(real_t yaw, real_t pitch, real_t roll)
         : yaw{yaw}, pitch{pitch}, roll{roll} {}
 
     /** 
      * Convert a quaternion to Euler angles.
      */
-    constexpr static EulerAngles quat2eul(const Quaternion &q) {
+    USE_CONSTEXPR static EulerAngles quat2eul(const Quaternion &q) {
         const real_t phi   = atan2(2.0 * (q[0] * q[1] + q[2] * q[3]),
                                  1.0 - 2.0 * (q[1] * q[1] + q[2] * q[2]));
         const real_t theta = asin(2.0 * (q[0] * q[2] - q[3] * q[1]));
@@ -28,7 +28,7 @@ struct EulerAngles {
     /** 
      * Convert Euler angles to a quaternion.
      */
-    constexpr static Quaternion eul2quat(const EulerAngles &eulerAngles) {
+    USE_CONSTEXPR static Quaternion eul2quat(const EulerAngles &eulerAngles) {
         real_t cy = std::cos(eulerAngles.yaw / 2);
         real_t sy = std::sin(eulerAngles.yaw / 2);
         real_t cp = std::cos(eulerAngles.pitch / 2);
@@ -47,7 +47,9 @@ struct EulerAngles {
     /**
      * Convert Euler angles to a quaternion.
      */
-    constexpr operator Quaternion() const { return eul2quat(*this); }
+    USE_CONSTEXPR operator Quaternion() const { return eul2quat(*this); }
 
-    constexpr ColVector<3> asColVector() const { return {roll, pitch, yaw}; }
+    USE_CONSTEXPR ColVector<3> asColVector() const {
+        return {roll, pitch, yaw};
+    }
 };
