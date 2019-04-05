@@ -161,12 +161,9 @@ RCInput readRC() {
 	float pitch     = rescaleMid(clampMid((float)Xil_In32(RC::PITCH_ADDR)/CLK_MEASURE);
 	float roll      = rescaleMid(clampMid((float)Xil_In32(RC::ROLL_ADDR)/CLK_MEASURE);
 	float yaw       = rescaleMid(clampMid((float)Xil_In32(RC::YAW_ADDR)/CLK_MEASURE);
-
-	float tuner     = rescaleMid(clampMid((float)Xil_In32(RC_TUNE)/CLK_MEASURE));
-
-	float mode      = rescale(   clamp(   (float)Xil_In32(RC_MODE)/CLK_MEASURE);
-	float inductive = rescale(   clamp(   (float)Xil_In32(RC_IND)/CLK_MEASURE));
-
+	float tuner     = rescaleMid(clampMid((float)Xil_In32(RC::TUNER_ADDR)/CLK_MEASURE));
+	float mode      = rescale(   clamp(   (float)Xil_In32(RC::MODE_ADDR)/CLK_MEASURE);
+	float inductive = rescale(   clamp(   (float)Xil_In32(RC::INDUCTIVE_ADDR)/CLK_MEASURE));
 
     return RCInput {thrust, pitch, roll, yaw, tuner, getMode(mode), getInductive(inductive)};
 

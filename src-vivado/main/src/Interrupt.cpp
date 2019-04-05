@@ -23,10 +23,10 @@
 
 // TODO: is this signature correct? These should act as "globals" within this cpp file.
 /* Instance of the interrupt controller. */
-XScuGic InterruptController;
+static XScuGic InterruptController;
 
 /* Instance of the IIC driver. */
-XIicPs Iic0;
+static XIicPs Iic0;
 
 
 /**

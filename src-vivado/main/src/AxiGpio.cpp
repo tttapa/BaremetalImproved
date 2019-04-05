@@ -7,10 +7,10 @@
 
 // TODO: is this signature correct? These should act as "globals" within this cpp file.
 /* GPIO Device driver instance for LEDs and heartbeat. */
-XGpio axi_gpio_1;
+static XGpio axi_gpio_1;
 
 /*  GPIO Device driver instance for testpin. */
-XGpio axi_gpio_2;
+static XGpio axi_gpio_2;
 
 
 bool initAxiGpio() {

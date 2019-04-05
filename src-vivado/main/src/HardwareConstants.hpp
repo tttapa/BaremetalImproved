@@ -9,7 +9,7 @@ namespace {
 
     // TODO: is this an int or a float?
     /* Frequency of measure clock connected to AXI BUS on FCLK_CLK0. */
-    const int MEASURE_FREQ XPAR_PS7_UART_1_UART_CLK_FREQ_HZ
+    const int MEASURE_FREQ = XPAR_PS7_UART_1_UART_CLK_FREQ_HZ;
 
 }
 

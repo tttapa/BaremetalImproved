@@ -11,12 +11,8 @@
 
 // TODO: is this signature correct? These should act as "globals" within this cpp file.
 /* Orientation of the drone, updated by Madgwick's algorithm. */
-Quat32 orientation;
+static Quat32 orientation;
 
-
-Quat32 getOrientation() {
-	return orientation;
-}
 
 void initAHRS() {
 
@@ -52,7 +48,6 @@ void initAHRS() {
 	/*
 	 * AHRS is now initialized
 	 */
-	ahrs=1;
 	xil_printf("AHRS init ok\r\n");
 }
 

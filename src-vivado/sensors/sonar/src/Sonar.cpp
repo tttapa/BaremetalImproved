@@ -25,6 +25,7 @@ real_t filteredSonarMeasurement;
  */
 int jumpCounter = 0;
 
+
 bool readSonar() {
 
     // Latest raw sonar value.
@@ -58,13 +59,16 @@ bool readSonar() {
     return true;
 }
 
+
 real_t getFilteredSonarMeasurement() {
     return filteredSonarMeasurement;
 }
 
+
 real_t getFilteredSonarMeasurementAccurate() {
     return getMedian(measurements, MAX_MF_LENGTH, MAX_MF_LENGTH);
 }
+
 
 void initSonar() {
 
