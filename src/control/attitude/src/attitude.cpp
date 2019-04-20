@@ -16,7 +16,7 @@ void Attitude::updateController() {
     //TODO: replace zeros with currentDroneConfig, ..
 
     // Clamp u_k
-    clampAttitudeControllerOutput(u, thrust);
+    clampAttitudeControllerOutput(Attitude::u, thrust);
 }
 
 void Attitude::clampAttitudeControllerOutput(AttitudeControlSignal u,
