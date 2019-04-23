@@ -101,12 +101,42 @@ class PositionController {
      */
     //bool hasNewMeasurement;
 
-    void updatePositionObserver(PositionState, PositionMeasurement,
-                                AttitudeState, real_t);
+    /**
+     * Update the given position estimate using the code generator.
+     * 
+     * @param   stateEstimate
+     *          estimate of the last position state, determined last cycle
+     * @param   measurement
+     *          current measurement from the Image Processing team
+     * @param   orientation
+     *          current orientation of the drone
+     * @param   droneConfiguration
+     *          configuration of the drone
+     */
+    void updateObserverCodegen(PositionState stateEstimate,
+                               PositionMeasurement measurement,
+                               AttitudeState orientation,
+                               int droneConfiguration);
 
-    void getPositionControllerOutput(PositionState, PositionReference,
-                                     PositionControlSignal,
-                                     PositionIntegralWindup, int, real_t);
+    /**
+     * Update the given position control signal using the code generator.
+     * 
+     * @param   stateEstimate
+     *          estimate of the current position state, determined last cycle
+     * @param   reference
+     *          height reference to track
+     * @param   controlSignal
+     *          control signal to update
+     * @param   integralWindup
+     *          integral windup to update
+     * @param   droneConfiguration
+     *          configuration of the drone
+     */
+    void updateControlSignalCodegen(PositionState stateEstimate,
+                                    PositionReference reference,
+                                    PositionControlSignal controlSignal,
+                                    PositionIntegralWindup integralWindup,
+                                    int droneConfiguration);
 
     // TODO: clamp where?
     void clampPositionControllerOutput(PositionControlSignal,

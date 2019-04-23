@@ -10,27 +10,24 @@ void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
     //TODO: measurement flags
     if (*NEW_HEIGHT_MEASUREMENT_FLAG == 1) {
 
-        int currentDroneConfiguration = getDroneConfiguration();
+        updateObserverCodegen(AltitudeController::stateEstimate, 
+                              AltitudeController::controlSignal,
+                              measurement,
+                              getCurrentDroneConfiguration());
 
-        updateAltitudeKFEstimate(AltitudeController::stateEstimate,
-                                 AltitudeController::controlSignal, measurement,
-                                 currentDroneConfiguration);
     }
 }
 
-AltitudeControlSignal AltitudeController::updateControlSignal() {
+AltitudeControlSignal AltitudeController::updateControlSignal(AltitudeReference reference) {
 
     if (*NEW_HEIGHT_MEASUREMENT_FLAG == 1) {
 
-        int currentDroneConfiguration = getDroneConfiguration();
-        real_t currentRCTuner         = getRCTuner();
-
         // Calculate u_k (unclamped)
-        getAltitudeControllerOutput(AltitudeController::stateEstimate,
-                                    AltitudeController::reference,
-                                    AltitudeController::controlSignal,
-                                    AltitudeController::integralWindup,
-                                    currentDroneConfiguration, currentRCTuner);
+        updateControlSignalCodegen(AltitudeController::stateEstimate,
+                                   reference,
+                                   AltitudeController::controlSignal,
+                                   AltitudeController::integralWindup,
+                                   getCurrentDroneConfiguration());
 
         // Clamp u_k
         clampAltitudeControllerOutput(AltitudeController::controlSignal,
