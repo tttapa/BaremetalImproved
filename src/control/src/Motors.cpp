@@ -1,8 +1,11 @@
-// Original: BareMetal/src/control/attitude.c
-// Original: BareMetal/src/PWM/PWM.c
+#include <motors.h>
 
-#include <motors.hpp>
 
+MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSignal, real_t commonThrust) {
+
+
+
+}
 /**
  * @brief   Transform the given three attitude control signals `u`, together with
  *			the given thrust `thrust` to get the motor signals. This is the case

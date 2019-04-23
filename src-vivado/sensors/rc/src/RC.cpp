@@ -162,7 +162,7 @@ float rescaleMid(float x) {
 RCInput readRC() {
 
 	// Get all of the rc controls
-	float thrust    = rescale(   clamp(   (float)Xil_In32(RC::THROTTLE_ADDR)/MEASURE_FREQ));
+	float throttle  = rescale(   clamp(   (float)Xil_In32(RC::THROTTLE_ADDR)/MEASURE_FREQ));
 	float pitch     = rescaleMid(clampMid((float)Xil_In32(RC::PITCH_ADDR)/MEASURE_FREQ));
 	float roll      = rescaleMid(clampMid((float)Xil_In32(RC::ROLL_ADDR)/MEASURE_FREQ));
 	float yaw       = rescaleMid(clampMid((float)Xil_In32(RC::YAW_ADDR)/MEASURE_FREQ));
@@ -170,7 +170,12 @@ RCInput readRC() {
 	float mode      = rescale(   clamp(   (float)Xil_In32(RC::MODE_ADDR)/MEASURE_FREQ));
 	float inductive = rescale(   clamp(   (float)Xil_In32(RC::INDUCTIVE_ADDR)/MEASURE_FREQ));
 
-    return RCInput {thrust, pitch, roll, yaw, tuner, getMode(mode), getInductive(inductive)};
+    // Scale throttle to [0.00, 0.80] so that we can still make attitude adjustments when throttle
+    // reaches its highest value
+    float MAX_THROTTLE = 0.80;
+    throttle = throttle * MAX_THROTTLE;
+
+    return RCInput {throttle, pitch, roll, yaw, tuner, getMode(mode), getInductive(inductive)};
 
 }
 
