@@ -14,23 +14,8 @@
 // xparameters.h file. They are only defined here such that a user can easily
 // change all the needed parameters in one place
 
-
 // Prototype definitions
 // ====================================================================================================================
-
-
-namespace INDUCTIVE {
-    const int ON = 1;
-    const int OFF = 2;
-}
-
-
-namespace MODE {
-    const int MANUAL = 1;
-    const int ALTITUDE_HOLD = 2;
-    const int AUTONOMOUS = 3;
-}
-
 
 struct RCInput {
     float throttle;
@@ -42,8 +27,18 @@ struct RCInput {
     int inductive;
 };
 
+namespace INDUCTIVE {
+const int ON  = 1;
+const int OFF = 2;
+}  // namespace INDUCTIVE
+
+namespace MODE {
+const int MANUAL        = 1;
+const int ALTITUDE_HOLD = 2;
+const int AUTONOMOUS    = 3;
+}  // namespace MODE
+
 /**
  * Read the RC voltages from the registers and assign them to the correct instances
  */
 RCInput readRC();
-

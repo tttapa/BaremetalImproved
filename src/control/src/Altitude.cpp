@@ -3,6 +3,7 @@
 #include <Altitude.hpp>
 #include <Matrix.hpp>
 #include <TiltCorrection.hpp>
+#include <configuration.hpp>
 
 void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
 
