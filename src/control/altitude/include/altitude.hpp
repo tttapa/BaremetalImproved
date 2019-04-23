@@ -15,7 +15,7 @@ struct AltitudeControlSignal {
     real_t ut;  // Common motor marginal signal (/)
 };
 
-struct AltitudeIntegralAction {
+struct AltitudeIntegralWindup {
     real_t y_int;
 };
 
@@ -26,10 +26,10 @@ struct AltitudeMeasurement {
 class Altitude {
 
   private:
-    AltitudeReference z;
+    AltitudeReference reference;
     AltitudeState x_hat;
     AltitudeControlSignal u;
-    AltitudeIntegralAction y_int;
+    AltitudeIntegralWindup y_int;
 	AltitudeMeasurement y;
     void clampAltitudeControllerOutput(AltitudeControlSignal,
                                        AltitudeIntegralAction);

@@ -33,9 +33,13 @@ void updateMainFSM() {
     // ! end switch
 
 
+    
     // TODO: if isDroneKilled, then setMotors(0,0,0,0)
     // TODO: elseif gtc_busy, then setMotors(u_att, gtc_thrust)
     // TODO: else setMotors(u_att, u_thr)
+
+    /* Try updating the observers at 238 Hz. */
+    
     // TODO: att.updateObserver()
     // TODO: alt.updateObserver()
     // TODO: pos.updateObserver()

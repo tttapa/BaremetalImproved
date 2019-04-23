@@ -38,7 +38,7 @@ int main(void) {
 	pwmOutput(0,0,0,0);
 
 	/* Initialize files in src. */
-	init();
+	createControllers(attitudeController, altitudeController, positionController);
 
 	/* Initialize interrupt system. */
 	if(initInterrupt() == false)
