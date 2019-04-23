@@ -1,77 +1,85 @@
 // Original: BareMetal/src/control/altitude.c
 
-#include <Matrix.hpp>
-#include <Quaternion.hpp>
 #include <Altitude.hpp>
-#include <AltitudeCodegen.h>
-#include <sonar.hpp>
+#include <Matrix.hpp>
+#include <TiltCorrection.hpp> 
+
+//TODO: implement
+void AltitudeController::checkForNewMeasurement() {
+
+}
+
+void AltitudeController::resetNewMeasurementFlag() {
+    AltitudeController::hasNewMeasurement = false;
+}
+
+void AltitudeController::updateObserver() {
+
+    AltitudeController::checkForNewMeasurement();
+    if (AltitudeController::hasNewMeasurement) {
+
+        //TODO: droneConfiguration
+        int currentDroneConfiguration = getDroneConfiguration();
+
+        updateAltitudeKFEstimate(
+            AltitudeController::stateEstimate, AltitudeController::controlSignal,
+            AltitudeController::measurement, currentDroneConfiguration);
+    }
+}
 
 AltitudeControlSignal AltitudeController::updateControlSignal() {
 
-    //TODO: droneConfiguration & RCTuner
-    int currentDroneConfiguration = getDroneConfiguration();
-    real_t currentRCTuner         = getRCTuner();
+    AltitudeController::checkForNewMeasurement();
+    if (AltitudeController::hasNewMeasurement) {
 
-    // Calculate u_k (unclamped)
-    getAltitudeControllerOutput(
-        AltitudeController::stateEstimate, AltitudeController::reference,
-        AltitudeController::controlSignal, AltitudeController::integralWindup,
-        currentDroneConfiguration, currentRCTuner);
+        //TODO: RCTuner
+        int currentDroneConfiguration = getDroneConfiguration();
+        real_t currentRCTuner         = getRCTuner();
 
-    // Clamp u_k
-    clampAltitudeControllerOutput(AltitudeController::controlSignal,
-                                  AltitudeController::integralWindup);
+        // Calculate u_k (unclamped)
+        getAltitudeControllerOutput(
+            AltitudeController::stateEstimate, AltitudeController::reference,
+            AltitudeController::controlSignal, AltitudeController::integralWindup,
+            currentDroneConfiguration, currentRCTuner);
+
+        // Clamp u_k
+        clampAltitudeControllerOutput(AltitudeController::controlSignal,
+                                    AltitudeController::integralWindup);
+
+    }
+
+    return AltitudeController::controlSignal;
 }
 
 void AltitudeController::clampAltitudeControllerOutput(
     AltitudeControlSignal controlSignal,
     AltitudeIntegralWindup integralWindup) {
-    if (u.ut > Altitude::ut_clamp)
-        u.ut = Altitude::ut_clamp;
-    else if (u.ut < -Altitude::ut_clamp)
-        u.ut = -Altitude::ut_clamp;
+    if (AltitudeController::controlSignal.ut > AltitudeController::utClamp)
+        AltitudeController::controlSignal.ut = AltitudeController::utClamp;
+    else if (AltitudeController::controlSignal.ut <
+             -AltitudeController::utClamp)
+        AltitudeController::controlSignal.ut = -AltitudeController::utClamp;
 }
 
-void Altitude::updateReference() {
-    //TODO: implement RC functions
-    real_t thrust = getRCThrust();
-
-    real_t target_increase;
-    if (thrust > Altitude::rc_throttle_increase_threshold) {
-        target_increase = (thrust - Altitude::rc_throttle_increase_threshold) *
-                          Altitude::rc_throttle_max_cm_per_second / 100.0 /
-                          Altitude::sonar_hz;
-        z.ref += target_increase;
-    } else if (thrust < Altitude::rc_throttle_decrease_threshold) {
-        target_increase = (thrust - Altitude::rc_throttle_decrease_threshold) *
-                          Altitude::rc_throttle_max_cm_per_second / 100.0 /
-                          Altitude::sonar_hz;
-        z.ref += target_increase;
-    }
-    if (z.ref < Altitude::z_min) {
-        z.ref = Altitude::z_min;
-    }
-    if (z.ref > Altitude::z_max) {
-        z.ref = Altitude::z_max;
-    }
-}
-
-void Altitude::initializeController() {
+void AltitudeController::initializeController(Quaternion quaternion) {
     // From now on, attempt to stay at the height we were at on altitude switch
     // (initialized only when going from manual to altitude)
-    real_t pz = getFilteredSonarMeasurementAccurate();
-    //TODO: correct_tilt_height nog maken
-    correct_tilt_height(pz);
-    z.ref = pz;
-    if (z.ref < Altitude::z_min)
-        z.ref = Altitude::z_min;
-    if (z.ref > Altitude::z_max)
-        z.ref = Altitude::z_max;
 
-    x_hat   = {};
-    x_hat.z = pz;
-    u       = {};
-    y_int   = {};
+    //TODO: sonar
+    real_t heightMeasurement = getSonarHeightMeasurement();
+
+    real_t correctedHeight = getCorrectedHeight(heightMeasurement, quaternion);
+
+    AltitudeController::reference.z = heightMeasurement;
+    if (AltitudeController::reference.z < AltitudeController::zMin)
+        AltitudeController::reference.z = AltitudeController::zMin;
+    if (AltitudeController::reference.z > AltitudeController::zMin)
+        AltitudeController::reference.z = AltitudeController::zMin;
+
+    AltitudeController::stateEstimate   = {};
+    AltitudeController::stateEstimate.z = heightMeasurement;
+    AltitudeController::controlSignal   = {};
+    AltitudeController::integralWindup  = {};
 
     //TODO: rest nog aanpassen
     // Reset final descent timer
@@ -79,4 +87,36 @@ void Altitude::initializeController() {
 
     // INITIALIZE ALT_THRUST SO THAT WE DON'T START FALLING WHILE WAITING FOR FIRST SONAR MEASUREMENT
     //thrust_out();
+}
+
+void AltitudeController::updateReference() {
+
+    //TODO: implement RC functions
+    real_t thrust             = getRCThrust();
+    real_t maxSpeedRCThrottle = getMaxSpeedRCThrottle();  // in cm/s
+
+    //TODO: implement sonar functions
+    real_t sonarFrequency = getSonarFrequency();
+
+    real_t target_increase;
+    if (thrust > AltitudeController::RCThrottleReferenceIncreaseTreshold) {
+        target_increase =
+            (thrust - AltitudeController::RCThrottleReferenceIncreaseTreshold) *
+            maxSpeedRCThrottle / 100.0 / sonarFrequency;
+        AltitudeController::reference.z += target_increase;
+    } else if (thrust <
+               AltitudeController::RCThrottleReferenceDecreaseTreshold) {
+        target_increase =
+            (thrust - AltitudeController::RCThrottleReferenceDecreaseTreshold) *
+            maxSpeedRCThrottle / 100.0 / sonarFrequency;
+        AltitudeController::reference.z += target_increase;
+    }
+
+    if (AltitudeController::reference.z < AltitudeController::zMin) {
+        AltitudeController::reference.z = AltitudeController::zMin;
+    }
+
+    if (AltitudeController::reference.z > AltitudeController::zMax) {
+        AltitudeController::reference.z = AltitudeController::zMax;
+    }
 }

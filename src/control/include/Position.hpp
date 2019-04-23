@@ -1,3 +1,4 @@
+#include <Attitude.hpp>
 #include <real_t.h>
 
 /**
@@ -5,8 +6,8 @@
  * is measured in meters.
  */
 struct PositionReference {
-    real_t x;        // X position (m)
-    real_t y;        // Y position (m)
+    real_t x;  // X position (m)
+    real_t y;  // Y position (m)
 };
 
 /**
@@ -14,8 +15,8 @@ struct PositionReference {
  * representing the corrected global position in meters.
  */
 struct PositionMeasurement {
-    real_t x;        // X position (m)
-    real_t y;        // Y position (m)
+    real_t x;  // X position (m)
+    real_t y;  // Y position (m)
 };
 
 /**
@@ -25,20 +26,20 @@ struct PositionMeasurement {
  * Finally two floats represent the horizontal velocity of the drone in m/s.
  */
 struct PositionState {
-    float q1;       // Orientation q1 component (/)
-    float q2;       // Orientation q2 component (/)
-    float x;        // X position (m)
-    float y;        // Y position (m)
-    float vx;       // X velocity (m/s)
-    float vy;       // Y velocity (m/s)
+    float q1;  // Orientation q1 component (/)
+    float q2;  // Orientation q2 component (/)
+    float x;   // X position (m)
+    float y;   // Y position (m)
+    float vx;  // X velocity (m/s)
+    float vy;  // Y velocity (m/s)
 };
 
 /**
  * Integral of the error of the corrected global position of the drone.
  */
 struct PositionIntegralWindup {
-    real_t x;        // X position (m)
-    real_t y;        // Y position (m)
+    real_t x;  // X position (m)
+    real_t y;  // Y position (m)
 };
 
 /**
@@ -46,10 +47,9 @@ struct PositionIntegralWindup {
  * attitude controller.
  */
 struct PositionControlSignal {
-    float q1ref;    // Reference orientation q1 component (/)
-    float q2ref;    // Reference orientation q2 component (/)
+    float q1ref;  // Reference orientation q1 component (/)
+    float q2ref;  // Reference orientation q2 component (/)
 };
-
 
 /**
  * Class to control the position of the drone. The first part is an observer to
@@ -64,7 +64,6 @@ struct PositionControlSignal {
 class PositionController {
 
   private:
-
     /**
      * Position reference to track, consisting of a two floats.
      */
@@ -75,7 +74,7 @@ class PositionController {
      * representing the corrected global position in meters.
      */
     PositionMeasurement measurement;
- 
+
     /**
      * Estimate of the state of the drone's position, consisting six components.
      * The first two floats are the quaternion components q1 and q2. The next two
@@ -88,7 +87,7 @@ class PositionController {
      * Integral of the error of the corrected global position of the drone.
      */
     PositionIntegralWindup integralWindup;
- 
+
     /**
      * Reference quaternion components q1 and q2 that will be sent to the
      * attitude controller.
@@ -101,27 +100,37 @@ class PositionController {
      */
     bool hasNewMeasurement;
 
-    // TODO: clamp where?
-    // void clampPositionControllerOutput(PositionControlSignal,
-    //                                    PositionIntegralAction);
+    void updatePositionObserver(PositionState, PositionMeasurement,
+                                AttitudeState, real_t);
 
+    void getPositionControllerOutput(PositionState, PositionReference,
+                                     PositionControlSignal,
+                                     PositionIntegralWindup, int, real_t);
+
+    // TODO: clamp where?
+    void clampPositionControllerOutput(PositionControlSignal,
+                                       PositionIntegralWindup);
+
+    real_t qRefClamp;
+    real_t blocksToMeters;
 
   public:
-
     /**
      * Check if the Image Processing team has sent a new measurement. The observer
      * and controller will only update this cycle (238 Hz) if there is a new
      * measurement. Therefore function should be called before trying to update the
      * observer or the controller.
      */
-    void checkForNewMeasurement();  
+    void checkForNewMeasurement();
+
+    void resetNewMeasurementFlag();
 
     /**
      * Try updating the position observer (called at 238 Hz). This function will only
      * change the position estimate if there is a new measurement from the Image
      * Processing team. See PositionController::checkForNewMeasurement().
      */
-    void updateObserver();
+    void updateObserver(AttitudeState);
 
     /**
      * Try updating the position controller at 238 Hz. This function will only change
@@ -135,6 +144,5 @@ class PositionController {
      */
     PositionControlSignal updateControlSignal();
 
-    // TODO: init
-    // void initializeController();
+    void initializeController(AttitudeState);
 };

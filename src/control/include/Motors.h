@@ -11,7 +11,7 @@ struct MotorDutyCycles {
   real_t v1;  /* Front-right motor duty cycle. */
   real_t v2;  /* Back-left motor duty cycle. */
   real_t v3;  /* Back-right motor duty cycle. */
-}
+};
 
 /**
  * Transform the given attitude control signal to the duty cycles to be sent to
