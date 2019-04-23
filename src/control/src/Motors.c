@@ -1,11 +1,51 @@
 #include <motors.h>
 
 
-MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSignal, real_t commonThrust) {
+void outputPWM(MotorDutyCycles dutyCycles, float clampLow, float clampHigh) {
 
+	float frontLeft, frontRight, backLeft, backRight;
 
+	/* Clamp the outputs. */
+    if(dutyCycles.v0 > PWM_OUT_HIGH)
+        frontLeft=PWM_OUT_HIGH;
+    if(Xhigh_timeFR>PWM_OUT_HIGH){frontRight=PWM_OUT_HIGH;}
+	if(Xhigh_timeBL>PWM_OUT_HIGH){backLeft=PWM_OUT_HIGH;}
+	if(Xhigh_timeBR>PWM_OUT_HIGH){backRight=PWM_OUT_HIGH;}
+	if(Xhigh_timeFL<PWM_OUT_LOW){frontLeft=PWM_OUT_LOW;}
+	if(Xhigh_timeFR<PWM_OUT_LOW){frontRight=PWM_OUT_LOW;}
+	if(Xhigh_timeBL<PWM_OUT_LOW){backLeft=PWM_OUT_LOW;}
+	if(Xhigh_timeBR<PWM_OUT_LOW){backRight=PWM_OUT_LOW;}
+
+	// Different period address, because different GPIO block for motor br
+	*baseaddr_period0 = CLK_AXI/(float)XPERIOD; // = Clockfreq / wanted freq
+	*baseaddr_period3 = CLK_AXI/(float)XPERIOD; // = Clockfreq / wanted freq
+
+	// Assign the PWM
+	*baseaddr_high_fl = (float)frontLeft/100.0 * *baseaddr_period0; // % * period
+	*baseaddr_high_fr = (float)frontRight/100.0 * *baseaddr_period0; // % * period
+	*baseaddr_high_bl = (float)backLeft/100.0 * *baseaddr_period0; // % * period
+	*baseaddr_high_br = (float)backRight/100.0 * *baseaddr_period3; // % * period
+
+	// Turn off the inductive
+	*inductive_period 	= 0.0;
+	*inductive_high 	= 0.0;
+
+	return XST_SUCCESS;
+}
 
 }
+
+
+MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSignal, real_t commonThrust) {
+    return MotorDutyCycles {
+        commonThrust + controlSignal.ux + controlSignal.uy - controlSignal.uz,
+        commonThrust + controlSignal.ux - controlSignal.uy + controlSignal.uz,
+        commonThrust - controlSignal.ux + controlSignal.uy + controlSignal.uz,
+        commonThrust - controlSignal.ux - controlSignal.uy - controlSignal.uz;
+    };
+}
+
+
 /**
  * @brief   Transform the given three attitude control signals `u`, together with
  *			the given thrust `thrust` to get the motor signals. This is the case

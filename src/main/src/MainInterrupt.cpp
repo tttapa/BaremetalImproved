@@ -16,13 +16,16 @@ void updateMainFSM() {
         // TODO: u_thr = getRCThrust()
 
     // ! CASE ( flightMode == ALTITDUE_HOLD )
-        // TODO: u_att = att.updateCtrl(getRCManualReference())
-        // TODO: z_ref = altref.updateZRef(getRCThrust())   // Use throttle to move zref up or down
-        // TODO: u_thr = alt.updateCtrl(z_ref)
+        // TODO: if(*NEW_LOCATION_MEASUREMENT == 1) {
+            // TODO: set PositionController::measurement
+            // TODO: u_att = att.updateCtrl(getRCManualReference())
+            // TODO: z_ref = altref.updateZRef(getRCThrust())   // Use throttle to move zref up or down
+            // TODO: u_thr = alt.updateCtrl(z_ref)
+        // TODO: }
 
     // ! CASE ( flightMode == AUTONOMOUS )
         // TODO: posref, altref = updateAutoFSM(getRCThrust(), getRCInductive())  // Call these as globals
-        // TODO: qref = pos.updateCtrl(posref)
+        // TODO: qref = pos.updateCtrl(posref, measurement)
         // TODO: u_att = att.updateCtrl(qref)
         // TODO: if altref.bypass, then u_thr = altref.thrust
         // TODO: else u_thr = alt.updateCtrl(altref.z_ref)
@@ -43,6 +46,10 @@ void updateMainFSM() {
     // TODO: att.updateObserver()
     // TODO: alt.updateObserver()
     // TODO: pos.updateObserver()
+    
+    // TODO: reset new measurement flags
+    // TODO: *NEW_LOCATION_MEASUREMENT == 0
+
     
 }
 
