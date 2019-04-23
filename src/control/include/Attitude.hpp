@@ -1,11 +1,10 @@
 #include <Quaternion.hpp>
-#include <attitude-controller.hpp>
 
 /**
  * Attitude reference to track, consisting of a single quaternion.
  */
 struct AttitudeReference {
-    Quaternion q = Quaternion(1,0,0,0);   // Orientation
+    Quaternion q = Quaternion(1, 0, 0, 0);  // Orientation
 };
 
 /**
@@ -15,9 +14,9 @@ struct AttitudeReference {
  */
 struct AttitudeMeasurement {
     Quaternion q;
-    real_t wx;     // X angular velocity (rad/s)
-    real_t wy;     // Y angular velocity (rad/s)
-    real_t wz;     // Z angular velocity (rad/s)
+    real_t wx;  // X angular velocity (rad/s)
+    real_t wy;  // Y angular velocity (rad/s)
+    real_t wz;  // Z angular velocity (rad/s)
 };
 
 /**
@@ -27,13 +26,13 @@ struct AttitudeMeasurement {
  * ny, nz).
  */
 struct AttitudeState {
-    Quaternion q = Quaternion(1,0,0,0);  // Orientation
-    real_t wx;     // X angular velocity (rad/s)
-    real_t wy;     // Y angular velocity (rad/s)
-    real_t wz;     // Z angular velocity (rad/s)
-    real_t nx;     // X motor angular velocity (rad/s)
-    real_t ny;     // Y motor angular velocity (rad/s)
-    real_t nz;     // Z motor angular velocity (rad/s)
+    Quaternion q = Quaternion(1, 0, 0, 0);  // Orientation
+    real_t wx;                              // X angular velocity (rad/s)
+    real_t wy;                              // Y angular velocity (rad/s)
+    real_t wz;                              // Z angular velocity (rad/s)
+    real_t nx;                              // X motor angular velocity (rad/s)
+    real_t ny;                              // Y motor angular velocity (rad/s)
+    real_t nz;                              // Z motor angular velocity (rad/s)
 };
 
 /**
@@ -49,9 +48,9 @@ struct AttitudeIntegralWindup {
  * PWM control signals sent to the torque motors (3 components: ux, uy, uz).
  */
 struct AttitudeControlSignal {
-    real_t ux;   // X motor signal (/)
-    real_t uy;   // Y motor signal (/)
-    real_t uz;   // Z motor signal (/)
+    real_t ux;  // X motor signal (/)
+    real_t uy;  // Y motor signal (/)
+    real_t uz;  // Z motor signal (/)
 };
 
 /**
@@ -64,7 +63,7 @@ struct MotorDutyCycles {
   real_t v1;  /* Front-right motor duty cycle. */
   real_t v2;  /* Back-left motor duty cycle. */
   real_t v3;  /* Back-right motor duty cycle. */
-}
+};
 
 /**
  * Transform the given attitude control signal to the duty cycles to be sent to
@@ -93,7 +92,6 @@ MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSign
 class AttitudeController {
 
   private:
-
     /**
      * Attitude quaternion reference to track. Naturally the equilibrium point
      * will have an angular velocity of zero and no torque motor angular
@@ -135,8 +133,14 @@ class AttitudeController {
     // TODO: clamp where?
     void clampAttitudeControllerOutput(AttitudeControlSignal, real_t);
 
-  public: 
-    
+    void updateAttitudeKFEstimate(AttitudeState, AttitudeControlSignal,
+                                  AttitudeMeasurement, int);
+
+    void getAttitudeControllerOutput(AttitudeState, AttitudeReference,
+                                     AttitudeControlSignal,
+                                     AttitudeIntegralWindup, int, real_t);
+
+  public:
     /**
      * Try updating the attitude observer at 238 Hz. Because the attitude
      * control system is directly coupled to the IMU measurements, which updates
@@ -152,7 +156,7 @@ class AttitudeController {
      * is called.
      */
     AttitudeControlSignal updateControlSignal();
-    
+
     // TODO: init & idle
     void initializeController();
     void idleController();

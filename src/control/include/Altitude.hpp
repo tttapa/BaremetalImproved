@@ -1,10 +1,11 @@
 #include <real_t.h>
+#include <Quaternion.hpp>
 
 /**
  * Altitude height reference to track, consisting of a single float.
  */
 struct AltitudeReference {
-    real_t z;   // Height (m)
+    real_t z;  // Height (m)
 };
 
 /**
@@ -12,7 +13,7 @@ struct AltitudeReference {
  * corrected height of the drone, measured in meters.
  */
 struct AltitudeMeasurement {
-    real_t z;   // Height (m)
+    real_t z;  // Height (m)
 };
 
 /**
@@ -43,7 +44,6 @@ struct AltitudeControlSignal {
     real_t ut;  // Common motor marginal signal (/)
 };
 
-
 /**
  * Class to control the altitude of the drone. The first part is an observer to
  * estimate the drone's "common motor" marginal angular velocity, corrected
@@ -57,7 +57,6 @@ struct AltitudeControlSignal {
 class AltitudeController {
 
   private:
-
     /**
      * Altitude height reference to track, consisting of a single float.
      */
@@ -68,7 +67,7 @@ class AltitudeController {
      * corrected height of the drone, measured in meters.
      */
     AltitudeMeasurement measurement;
- 
+
     /**
      * Estimate of the state of the drone's altitude, consisting three components.
      * First is a float representing the marginal angular velocity of the "common
@@ -83,7 +82,7 @@ class AltitudeController {
      * Integral of the error of the corrected height of the drone.
      */
     AltitudeIntegralWindup integralWindup;
- 
+
     /**
      * PWM control signal sent to the common motor.
      */
@@ -95,24 +94,36 @@ class AltitudeController {
      */
     bool hasNewMeasurement;
 
+    void updateAltitudeKFEstimate(AltitudeState, AltitudeControlSignal,
+                                  AltitudeMeasurement, int);
+
+    void getAltitudeControllerOutput(AltitudeState, AltitudeReference,
+                                     AltitudeControlSignal,
+                                     AltitudeIntegralWindup, int, real_t);
 
     // TODO: clamp where?
-    // void clampAltitudeControllerOutput(AltitudeControlSignal,
-    //                                    AltitudeIntegralAction);
-
+    void clampAltitudeControllerOutput(AltitudeControlSignal,
+                                       AltitudeIntegralWindup);
 
     // TODO: has new measurement - gets hasNewMeasurement
     // void hasNewMeasurement();
 
-  public:
+    real_t utClamp;
+    real_t zMin;
+    real_t zMax;
+    real_t RCThrottleReferenceIncreaseTreshold;
+    real_t RCThrottleReferenceDecreaseTreshold;
 
+  public:
     /**
      * Check if the sonar has sent a new measurement. The observer and controller
      * will only update this cycle (238 Hz) if there is a new measurement. Therefore
      * this function should be called before trying to update the observer or the
      * controller.
      */
-    void checkForNewMeasurement();  
+    void checkForNewMeasurement();
+
+    void resetNewMeasurementFlag();
 
     /**
      * Try updating the altitude observer (called at 238 Hz). This function will only
@@ -130,6 +141,8 @@ class AltitudeController {
      */
     AltitudeControlSignal updateControlSignal();
 
-    // TODO: init
-    // void initializeController();
+    void initializeController(Quaternion);
+
+    void updateReference();
+
 };

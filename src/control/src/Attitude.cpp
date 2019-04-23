@@ -5,7 +5,7 @@
 void AttitudeController::updateObserver() {
 
     // TODO: droneConfiguration
-    int currentDroneConfiguation = getDroneConfiguration();
+    int currentDroneConfiguration = getDroneConfiguration();
 
     updateAttitudeKFEstimate(
         AttitudeController::stateEstimate, AttitudeController::controlSignal,
@@ -21,8 +21,8 @@ AttitudeControlSignal AttitudeController::updateControlSignal() {
     real_t yaw    = getRCYaw();
 
     // TODO: RCTuner
-    int currentDroneConfiguation = getDroneConfiguration();
-    real_t currentRCTuner        = getRCtuner();
+    int currentDroneConfiguration = getDroneConfiguration();
+    real_t currentRCTuner         = getRCtuner();
 
     // Calculate u_k (unclamped)
     getAttitudeControllerOutput(
@@ -39,15 +39,15 @@ AttitudeControlSignal AttitudeController::updateControlSignal() {
 void AttitudeController::clampAttitudeControllerOutput(AttitudeControlSignal u,
                                                        real_t thrust) {
     // If definition is not negative, then clamp
-    if (0 <= AttitudeController::uz_clamp) {
-        if (u.uz > AttitudeController::uz_clamp)
-            u.uz = AttitudeController::uz_clamp;
-        if (-u.uz > AttitudeController::uz_clamp)
-            u.uz = -AttitudeController::uz_clamp;
+    if (0 <= AttitudeController::uzClamp) {
+        if (u.uz > AttitudeController::uzClamp)
+            u.uz = AttitudeController::uzClamp;
+        if (-u.uz > AttitudeController::uzClamp)
+            u.uz = -AttitudeController::uzClamp;
     }
 
     //TODO: thrust clamp in de afstandsbediening zelf doen.
-    using namespace AttitudeController;
+
     // Clamp [ux;uy;uz] such that for all motor inputs vi: 0 <= vi <= 1.
     // TODO: divide by e = epsilon + 1?
     float other_max;
