@@ -10,24 +10,22 @@ void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
     //TODO: measurement flags
     if (*NEW_HEIGHT_MEASUREMENT_FLAG == 1) {
 
-        updateObserverCodegen(AltitudeController::stateEstimate, 
-                              AltitudeController::controlSignal,
-                              measurement,
-                              getCurrentDroneConfiguration());
-
+        updateObserverCodegen(AltitudeController::stateEstimate,
+                              AltitudeController::controlSignal, measurement,
+                              getDroneConfiguration());
     }
 }
 
-AltitudeControlSignal AltitudeController::updateControlSignal(AltitudeReference reference) {
+AltitudeControlSignal
+AltitudeController::updateControlSignal(AltitudeReference reference) {
 
     if (*NEW_HEIGHT_MEASUREMENT_FLAG == 1) {
 
         // Calculate u_k (unclamped)
-        updateControlSignalCodegen(AltitudeController::stateEstimate,
-                                   reference,
+        updateControlSignalCodegen(AltitudeController::stateEstimate, reference,
                                    AltitudeController::controlSignal,
                                    AltitudeController::integralWindup,
-                                   getCurrentDroneConfiguration());
+                                   getDroneConfiguration());
 
         // Clamp u_k
         clampAltitudeControllerOutput(AltitudeController::controlSignal,
@@ -40,26 +38,29 @@ AltitudeControlSignal AltitudeController::updateControlSignal(AltitudeReference 
 void AltitudeController::clampAltitudeControllerOutput(
     AltitudeControlSignal controlSignal,
     AltitudeIntegralWindup integralWindup) {
-    if (AltitudeController::controlSignal.ut > AltitudeController::utClamp)
-        AltitudeController::controlSignal.ut = AltitudeController::utClamp;
-    else if (AltitudeController::controlSignal.ut <
-             -AltitudeController::utClamp)
-        AltitudeController::controlSignal.ut = -AltitudeController::utClamp;
+
+    real_t ut = AltitudeController::controlSignal.ut;
+    if (ut > AltitudeController::utClamp)
+        ut = AltitudeController::utClamp;
+    else if (ut < -AltitudeController::utClamp)
+        ut = -AltitudeController::utClamp;
+    AltitudeController::controlSignal.ut = ut;
 }
 
 void AltitudeController::initializeController(
-    AttitudeState attitudeState, AltitudeMeasurement altitudeMeasurement) {
+    Quaternion quaternion, AltitudeMeasurement altitudeMeasurement,
+    AltitudeReference reference) {
     // From now on, attempt to stay at the height we were at on altitude switch
     // (initialized only when going from manual to altitude)
 
     real_t correctedHeight =
-        getCorrectedHeight(altitudeMeasurement.z, attitudeState.q);
+        getCorrectedHeight(altitudeMeasurement.z, quaternion);
 
-    AltitudeController::reference.z = altitudeMeasurement.z;
-    if (AltitudeController::reference.z < AltitudeController::zMin)
-        AltitudeController::reference.z = AltitudeController::zMin;
-    if (AltitudeController::reference.z > AltitudeController::zMin)
-        AltitudeController::reference.z = AltitudeController::zMin;
+    reference.z = altitudeMeasurement.z;
+    if (reference.z < AltitudeController::zMin)
+        reference.z = AltitudeController::zMin;
+    if (reference.z > AltitudeController::zMin)
+        reference.z = AltitudeController::zMin;
 
     AltitudeController::stateEstimate   = {};
     AltitudeController::stateEstimate.z = altitudeMeasurement.z;
@@ -74,7 +75,7 @@ void AltitudeController::initializeController(
     //thrust_out();
 }
 
-void AltitudeController::updateReference() {
+void AltitudeController::updateReference(AltitudeReference reference) {
 
     //TODO: getMaxRCThrottle()
     real_t thrust             = getRCThrottle();
@@ -88,20 +89,20 @@ void AltitudeController::updateReference() {
         target_increase =
             (thrust - AltitudeController::RCThrottleReferenceIncreaseTreshold) *
             maxSpeedRCThrottle / 100.0 / sonarFrequency;
-        AltitudeController::reference.z += target_increase;
+        reference.z += target_increase;
     } else if (thrust <
                AltitudeController::RCThrottleReferenceDecreaseTreshold) {
         target_increase =
             (thrust - AltitudeController::RCThrottleReferenceDecreaseTreshold) *
             maxSpeedRCThrottle / 100.0 / sonarFrequency;
-        AltitudeController::reference.z += target_increase;
+        reference.z += target_increase;
     }
 
-    if (AltitudeController::reference.z < AltitudeController::zMin) {
-        AltitudeController::reference.z = AltitudeController::zMin;
+    if (reference.z < AltitudeController::zMin) {
+        reference.z = AltitudeController::zMin;
     }
 
-    if (AltitudeController::reference.z > AltitudeController::zMax) {
-        AltitudeController::reference.z = AltitudeController::zMax;
+    if (reference.z > AltitudeController::zMax) {
+        reference.z = AltitudeController::zMax;
     }
 }

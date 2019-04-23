@@ -94,12 +94,6 @@ MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSign
 class AttitudeController {
 
   private:
-    /**
-     * Attitude quaternion reference to track. Naturally the equilibrium point
-     * will have an angular velocity of zero and no torque motor angular
-     * velocity.
-     */
-    AttitudeReference reference;
 
     /**
      * Most recent measurement from the IMU, consisting of one quaternion for

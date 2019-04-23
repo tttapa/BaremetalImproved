@@ -5,17 +5,15 @@
 void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
 
     updateObserverCodegen(AttitudeController::stateEstimate,
-                          AttitudeController::controlSignal,
-                          measurement,
+                          AttitudeController::controlSignal, measurement,
                           getDroneConfiguration());
-
 }
 
-AttitudeControlSignal AttitudeController::updateControlSignal(AttitudeReference reference) {
+AttitudeControlSignal
+AttitudeController::updateControlSignal(AttitudeReference reference) {
 
     // Calculate u_k (unclamped)
-    updateControlSignalCodegen(AttitudeController::stateEstimate,
-                               reference,
+    updateControlSignalCodegen(AttitudeController::stateEstimate, reference,
                                AttitudeController::controlSignal,
                                AttitudeController::integralWindup,
                                getDroneConfiguration());
@@ -41,31 +39,29 @@ void AttitudeController::clampAttitudeControllerOutput(AttitudeControlSignal u,
 
     // Clamp [ux;uy;uz] such that for all motor inputs vi: 0 <= vi <= 1.
     // TODO: divide by e = epsilon + 1?
+    real_t ux = AttitudeController::controlSignal.ux;
+    real_t uy = AttitudeController::controlSignal.uy;
+    real_t uz = AttitudeController::controlSignal.uz;
+
     float other_max;
     float other_actual;
     other_max    = 1 - fabs(thrust);
-    other_actual = fabs(AttitudeController::controlSignal.ux) +
-                   fabs(AttitudeController::controlSignal.uy) +
-                   fabs(AttitudeController::controlSignal.uz);
+    other_actual = fabs(ux) + fabs(uy) + fabs(uz);
     if (other_actual > other_max) {
-        controlSignal.ux =
-            other_max / other_actual * AttitudeController::controlSignal.ux;
-        AttitudeController::controlSignal.uy =
-            other_max / other_actual * AttitudeController::controlSignal.uy;
-        AttitudeController::controlSignal.uz =
-            other_max / other_actual * AttitudeController::controlSignal.uz;
-        other_actual = fabs(AttitudeController::controlSignal.ux) +
-                       fabs(AttitudeController::controlSignal.uy) +
-                       fabs(AttitudeController::controlSignal.uz);
+        ux           = other_max / other_actual * ux;
+        uy           = other_max / other_actual * uy;
+        uz           = other_max / other_actual * uz;
+        other_actual = fabs(ux) + fabs(uy) + fabs(uz);
     }
     if (other_actual > thrust) {
-        AttitudeController::controlSignal.ux =
-            thrust / other_actual * AttitudeController::controlSignal.ux;
-        AttitudeController::controlSignal.uy =
-            thrust / other_actual * AttitudeController::controlSignal.uy;
-        AttitudeController::controlSignal.uz =
-            thrust / other_actual * AttitudeController::controlSignal.uz;
+        ux = thrust / other_actual * ux;
+        uy = thrust / other_actual * uy;
+        uz = thrust / other_actual * uz;
     }
+
+    AttitudeController::controlSignal.ux = ux;
+    AttitudeController::controlSignal.uy = uy;
+    AttitudeController::controlSignal.uz = uz;
 }
 
 void AttitudeController::initializeController() {
@@ -76,8 +72,6 @@ void AttitudeController::initializeController() {
     AttitudeController::controlSignal = {};
     // reset Attitude integralWindup
     AttitudeController::integralWindup = {};
-    // reset Attitude reference
-    AttitudeController::reference = {};
 
     //TODO: dit nog steeds hier?
     // Also reset the yaw counters here
@@ -98,13 +92,13 @@ void AttitudeController::initializeController() {
 //TODO: PWMOutput
 void AttitudeController::idleController() { PWMoutput(0, 0, 0, 0); }
 
-
-// TODO: 
-MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSignal, real_t commonThrust) {
-    return MotorDutyCycles {
+// TODO:
+MotorDutyCycles
+transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
+                               real_t commonThrust) {
+    return MotorDutyCycles{
         commonThrust + controlSignal.ux + controlSignal.uy - controlSignal.uz,
         commonThrust + controlSignal.ux - controlSignal.uy + controlSignal.uz,
         commonThrust - controlSignal.ux + controlSignal.uy + controlSignal.uz,
-        commonThrust - controlSignal.ux - controlSignal.uy - controlSignal.uz
-    };
+        commonThrust - controlSignal.ux - controlSignal.uy - controlSignal.uz};
 }

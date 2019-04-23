@@ -1,7 +1,7 @@
-#include <real_t.h>
-#include <Quaternion.hpp>
-#include <Globals.h>
 #include <Attitude.hpp>
+#include <Globals.h>
+#include <Quaternion.hpp>
+#include <real_t.h>
 
 /**
  * Altitude height reference to track, consisting of a single float.
@@ -59,11 +59,6 @@ struct AltitudeControlSignal {
 class AltitudeController {
 
   private:
-    /**
-     * Altitude height reference to track, consisting of a single float.
-     */
-    AltitudeReference reference;
-
     /**
      * Estimate of the state of the drone's altitude, consisting three components.
      * First is a float representing the marginal angular velocity of the "common
@@ -125,7 +120,6 @@ class AltitudeController {
     void clampAltitudeControllerOutput(AltitudeControlSignal,
                                        AltitudeIntegralWindup);
 
-
     real_t utClamp;
     real_t zMin;
     real_t zMax;
@@ -133,7 +127,6 @@ class AltitudeController {
     real_t RCThrottleReferenceDecreaseTreshold;
 
   public:
-
     /**
      * Try updating the altitude observer (called at 238 Hz). This function will only
      * change the altitude estimate if there is a new measurement from the sonar. See
@@ -156,8 +149,9 @@ class AltitudeController {
      */
     AltitudeControlSignal updateControlSignal(AltitudeReference reference);
 
-    void initializeController(AttitudeState, AltitudeMeasurement);
+    void initializeController(Quaternion quaternion,
+                              AltitudeMeasurement measurement,
+                              AltitudeReference reference);
 
-    void updateReference();
-
+    void updateReference(AltitudeReference reference);
 };

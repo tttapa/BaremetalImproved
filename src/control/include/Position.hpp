@@ -65,10 +65,6 @@ struct PositionControlSignal {
 class PositionController {
 
   private:
-    /**
-     * Position reference to track, consisting of a two floats.
-     */
-    PositionReference reference;
 
     /**
      * Measurement from the Image Processing team, consisting of two floats
