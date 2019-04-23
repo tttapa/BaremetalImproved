@@ -92,7 +92,7 @@ class AltitudeController {
      * Boolean flag indicating whether there is a new measurement from the sonar
      * during the current cycle (238 Hz).
      */
-    bool hasNewMeasurement;
+    //bool hasNewMeasurement;
 
     void updateAltitudeKFEstimate(AltitudeState, AltitudeControlSignal,
                                   AltitudeMeasurement, int);
@@ -121,16 +121,14 @@ class AltitudeController {
      * this function should be called before trying to update the observer or the
      * controller.
      */
-    void checkForNewMeasurement();
-
-    void resetNewMeasurementFlag();
+    //void checkForNewMeasurement();
 
     /**
      * Try updating the altitude observer (called at 238 Hz). This function will only
      * change the altitude estimate if there is a new measurement from the sonar. See
      * AltitudeController::checkForNewMeasurement().
      */
-    void updateObserver();
+    void updateObserver(AltitudeMeasurement);
 
     /**
      * Try updating the altitude controller at 238 Hz. This function will only change
