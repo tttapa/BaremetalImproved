@@ -60,14 +60,13 @@ void PositionController::clampPositionControllerOutput(
             -PositionController::qRefClamp;
 }
 
-void PositionController::initializeController(AttitudeState attitudeState) {
+void PositionController::initializeController(
+    AttitudeState attitudeState, PositionMeasurement positionMeasurement,
+    AltitudeMeasurement altitudeMeasurement) {
 
-    //TODO: measurements
-    ColVector<2> locationMeasurement = getLocationMeasurement();
-    real_t heightMeasurement         = getHeightMeasurement();
-
-    ColVector<2> correctedPosition = getCorrectedPosition(
-        locationMeasurement, heightMeasurement, attitudeState.q);
+    ColVector<2> correctedPosition =
+        getCorrectedPosition({positionMeasurement.x, positionMeasurement.y},
+                             altitudeMeasurement.z, attitudeState.q);
 
     // Set reference to middle of the square
     ColVector<2> middleOfSquare;

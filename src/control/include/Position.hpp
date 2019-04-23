@@ -1,3 +1,4 @@
+#include <Altitude.hpp>
 #include <Attitude.hpp>
 #include <real_t.h>
 
@@ -10,7 +11,7 @@ struct PositionReference {
     real_t y;  // Y position (m)
 };
 
-/**
+/** 
  * Measurement from the Image Processing team, consisting of two floats
  * representing the corrected global position in meters.
  */
@@ -142,5 +143,6 @@ class PositionController {
      */
     PositionControlSignal updateControlSignal();
 
-    void initializeController(AttitudeState);
+    void initializeController(AttitudeState, PositionMeasurement,
+                              AltitudeMeasurement);
 };

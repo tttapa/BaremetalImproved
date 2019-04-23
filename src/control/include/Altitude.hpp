@@ -1,6 +1,7 @@
 #include <real_t.h>
 #include <Quaternion.hpp>
 #include <Globals.h>
+#include <Attitude.hpp>
 
 /**
  * Altitude height reference to track, consisting of a single float.
@@ -150,7 +151,7 @@ class AltitudeController {
      */
     AltitudeControlSignal updateControlSignal();
 
-    void initializeController(Quaternion);
+    void initializeController(AttitudeState, AltitudeMeasurement);
 
     void updateReference();
 

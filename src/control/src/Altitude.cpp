@@ -50,23 +50,22 @@ void AltitudeController::clampAltitudeControllerOutput(
         AltitudeController::controlSignal.ut = -AltitudeController::utClamp;
 }
 
-void AltitudeController::initializeController(Quaternion quaternion) {
+void AltitudeController::initializeController(
+    AttitudeState attitudeState, AltitudeMeasurement altitudeMeasurement) {
     // From now on, attempt to stay at the height we were at on altitude switch
     // (initialized only when going from manual to altitude)
 
-    //TODO: measurements
-    real_t heightMeasurement = getHeightMeasurement();
+    real_t correctedHeight =
+        getCorrectedHeight(altitudeMeasurement.z, attitudeState.q);
 
-    real_t correctedHeight = getCorrectedHeight(heightMeasurement, quaternion);
-
-    AltitudeController::reference.z = heightMeasurement;
+    AltitudeController::reference.z = altitudeMeasurement.z;
     if (AltitudeController::reference.z < AltitudeController::zMin)
         AltitudeController::reference.z = AltitudeController::zMin;
     if (AltitudeController::reference.z > AltitudeController::zMin)
         AltitudeController::reference.z = AltitudeController::zMin;
 
     AltitudeController::stateEstimate   = {};
-    AltitudeController::stateEstimate.z = heightMeasurement;
+    AltitudeController::stateEstimate.z = altitudeMeasurement.z;
     AltitudeController::controlSignal   = {};
     AltitudeController::integralWindup  = {};
 
@@ -80,8 +79,8 @@ void AltitudeController::initializeController(Quaternion quaternion) {
 
 void AltitudeController::updateReference() {
 
-    //TODO: implement RC functions
-    real_t thrust             = getRCThrust();
+    //TODO: getMaxRCThrottle()
+    real_t thrust             = getRCThrottle();
     real_t maxSpeedRCThrottle = getMaxSpeedRCThrottle();  // in cm/s
 
     //TODO: implement sonar functions
