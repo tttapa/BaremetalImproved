@@ -106,3 +106,14 @@ void AttitudeController::initializeController() {
  */
 //TODO: PWMOutput
 void AttitudeController::idleController() { PWMoutput(0, 0, 0, 0); }
+
+
+// TODO: 
+MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSignal, real_t commonThrust) {
+    return MotorDutyCycles {
+        commonThrust + controlSignal.ux + controlSignal.uy - controlSignal.uz,
+        commonThrust + controlSignal.ux - controlSignal.uy + controlSignal.uz,
+        commonThrust - controlSignal.ux + controlSignal.uy + controlSignal.uz,
+        commonThrust - controlSignal.ux - controlSignal.uy - controlSignal.uz;
+    };
+}

@@ -162,13 +162,13 @@ float rescaleMid(float x) {
 RCInput readRC() {
 
 	// Get all of the rc controls
-	float throttle  = rescale(   clamp(   (float)Xil_In32(RC::THROTTLE_ADDR)/MEASURE_FREQ));
-	float pitch     = rescaleMid(clampMid((float)Xil_In32(RC::PITCH_ADDR)/MEASURE_FREQ));
-	float roll      = rescaleMid(clampMid((float)Xil_In32(RC::ROLL_ADDR)/MEASURE_FREQ));
-	float yaw       = rescaleMid(clampMid((float)Xil_In32(RC::YAW_ADDR)/MEASURE_FREQ));
-	float tuner     = rescaleMid(clampMid((float)Xil_In32(RC::TUNER_ADDR)/MEASURE_FREQ));   // TODO: dead should stay mid, but margin should increase
-	float mode      = rescale(   clamp(   (float)Xil_In32(RC::MODE_ADDR)/MEASURE_FREQ));
-	float inductive = rescale(   clamp(   (float)Xil_In32(RC::INDUCTIVE_ADDR)/MEASURE_FREQ));
+	float throttle  = rescale(   clamp(   (float)Xil_In32(RC::THROTTLE_ADDR)/CLOCK_FREQUENCY));
+	float pitch     = rescaleMid(clampMid((float)Xil_In32(RC::PITCH_ADDR)/CLOCK_FREQUENCY));
+	float roll      = rescaleMid(clampMid((float)Xil_In32(RC::ROLL_ADDR)/CLOCK_FREQUENCY));
+	float yaw       = rescaleMid(clampMid((float)Xil_In32(RC::YAW_ADDR)/CLOCK_FREQUENCY));
+	float tuner     = rescaleMid(clampMid((float)Xil_In32(RC::TUNER_ADDR)/CLOCK_FREQUENCY));   // TODO: dead should stay mid, but margin should increase
+	float mode      = rescale(   clamp(   (float)Xil_In32(RC::MODE_ADDR)/CLOCK_FREQUENCY));
+	float inductive = rescale(   clamp(   (float)Xil_In32(RC::INDUCTIVE_ADDR)/CLOCK_FREQUENCY));
 
     // Scale throttle to [0.00, 0.80] so that we can still make attitude adjustments when throttle
     // reaches its highest value

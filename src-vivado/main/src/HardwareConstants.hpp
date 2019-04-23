@@ -4,7 +4,7 @@
 
 // TODO: is this an int or a float?
 /* Frequency of measure clock connected to AXI BUS on FCLK_CLK0. */
-const int MEASURE_FREQ = XPAR_PS7_UART_1_UART_CLK_FREQ_HZ;
+const float CLOCK_FREQUENCY = XPAR_PS7_UART_1_UART_CLK_FREQ_HZ;
 
 
 /**
@@ -26,6 +26,20 @@ namespace AXI_GPIO {
 
 	/* Address of GPIO that the TESTPINs are connected to. */
 	const int GPIO_DEVICE_TESTPIN = XPAR_AXI_GPIO_TESTPINS_DEVICE_ID;
+
+}
+
+
+/**
+ * Constants used to generate signals to the buzzer.
+ */
+namespace BUZZER {
+
+    /** Address to set the period of the buzzer. */
+    const int PERIOD_ADDR = XPAR_PWM_AXI_TRIPLE_5_0;
+
+    /** Address to set the volume of the buzzer. */
+    const int VOLUME_ADDR = XPAR_PWM_AXI_TRIPLE_5_0 + 0x04;
 
 }
 
@@ -76,11 +90,53 @@ namespace INTERRUPT_SYSTEM {
 
 
 /**
+ * Constants used to generate PWM signals to the motors.
+ */
+namespace MOTORS {
+
+    /**
+     * Address of PWM period for the front-left (0), front-right (1) and
+     * back-left (2) motors.
+     */
+    const int PERIOD_012_ADDR = XPAR_PWM_AXI_TRIPLE_0_0;
+
+    /**
+     * Address of PWM period for the back-right (3) motor. This has a different
+     * address because a different GPIO block is used for the back-right motor.
+     */
+    const int PERIOD_3_ADDR = XPAR_PWM_AXI_TRIPLE_3_0;
+
+    /** Address of PWM duty cycle for the front-left (0) motor. */
+    const int DUTY_CYCLE_0_ADDR = XPAR_PWM_AXI_TRIPLE_0_0 + 0x04;
+
+    /** Address of PWM duty cycle for the front-left (0) motor. */
+    const int DUTY_CYCLE_1_ADDR = XPAR_PWM_AXI_TRIPLE_0_0 + 0x08;
+
+    /** Address of PWM duty cycle for the front-left (0) motor. */
+    const int DUTY_CYCLE_2_ADDR = XPAR_PWM_AXI_TRIPLE_0_0 + 0x0C;
+
+    /** Address of PWM duty cycle for the front-left (0) motor. */
+    const int DUTY_CYCLE_3_ADDR = XPAR_PWM_AXI_TRIPLE_3_0 + 0x04;
+
+    /** Lowest PWM duty cycle sent to the ESCs. */
+    const float MIN_DUTY_CYCLE = 45.0;
+
+    /** Highest PWM duty cycle sent to the ESCs. */
+    const float MAX_DUTY_CYCLE = 92.0;
+
+    /** Dead PWM signal is always off. */
+    const float DEAD_DUTY_CYCLE = 0.0;
+
+    /** PWM frequency sent to the ESCs. */
+    const float PWM_FREQUENCY = 500.0;
+
+}
+
+
+/**
  * Constants used by the RC.
  */
 namespace RC {
-
-
     // TODO: are these pins correct?
 
     /* Address of the RC's throttle: PIN T14 (JD1). */
@@ -104,8 +160,6 @@ namespace RC {
     /* Address of the RC's tuner knob: */
     const int TUNER_ADDR = XPAR_RC_1_S00_AXI_BASEADDR + 0x0C;
 
-
-
     /* Value if RC knob/joystick is at its lowest value. */
     const float RC_LOW = 0.001109;
 
@@ -124,14 +178,16 @@ namespace RC {
 }
 
 
+/**
+ * Constants used by the sonar.
+ */
 namespace SONAR {
 
 	/** Address of the sonar : // TODO: what pin? */
 	const int SONAR_ADDR = XPAR_RC_1_S00_AXI_BASEADDR + 0x04;
 
-
     /** Conversion factor to meters. */
-    const float PWM_TO_HEIGHT = 0.005787;
+    const float PWM_TO_HEIGHT = 0.005787;   // TODO: is this correct?
 
     /** Size of the median filter buffer during flight. */
     const int MF_BUFFER_SIZE_SMALL = 5;
@@ -156,5 +212,24 @@ namespace SONAR {
 
 }
 
+
+/**
+ * Constants used to control the Wireless Power Transfer.
+ */
+namespace WPT {
+    
+    /** Address of the PWM period of the WPT. */
+    const int PERIOD_ADDR = XPAR_PWM_AXI_TRIPLE_4_0;
+
+    /** Address of the PWM duty cycle of the WPT. */
+    const int DUTY_CYCLE_ADDR = XPAR_PWM_AXI_TRIPLE_4_0 + 0x04;
+
+    /** PWM frequency sent to the WPT team. */
+    const float PWM_FREQUENCY = 90000.0;
+
+    /** Duty cycle of the PWM signal sent to the WPT team. */
+    const float DUTY_CYCLE = 0.50;
+
+}
 
 
