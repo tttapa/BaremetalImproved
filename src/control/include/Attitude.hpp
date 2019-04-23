@@ -1,7 +1,4 @@
-// Original: BareMetal/src/control/attitude.h
-#include <Matrix.hpp>
 #include <Quaternion.hpp>
-#include <EulerAngles.hpp>
 #include <attitude-controller.hpp>
 
 /**
@@ -59,6 +56,16 @@ struct AttitudeControlSignal {
 
 
 
+/**
+ * Class to control the attitude of the drone. The first part is an observer to
+ * estimate the drone's orientation, angular velocity and the angular velocity
+ * of the "torque motors". Next, there is a controller to send appropriate PWM
+ * signals to the torque motors based on how far the drone's state estimate
+ * deviates from the reference state.
+ *
+ * To achieve this, the AttitudeController contains variables to store the
+ * reference orientation, state estimate, integral windup and control signal.
+ */
 class AttitudeController {
 
   private:
@@ -107,11 +114,22 @@ class AttitudeController {
   public: 
     
     /**
-     * Try updating the attitude observer at 238Hz. Because the attitude 
+     * Try updating the attitude observer at 238 Hz. Because the attitude
+     * control system is directly coupled to the IMU measurements, which updates
+     * at 238Hz, the attitude estimate will change every time this function is
+     * called. 
      */
     void updateObserver();
 
-    void updateController();
-    void initializeController();
-    void idleController();
+    /**
+     * Try updating the attitude controller at 238 Hz. Because the attitude
+     * control system is directly coupled to the IMU measurements, which updates
+     * at 238Hz, the attitude control signal will change every time this function
+     * is called.
+     */
+    void updateControlSignal();
+    
+    // TODO: init & idle
+    //void initializeController();
+    //void idleController();
 };
