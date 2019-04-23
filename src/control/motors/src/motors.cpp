@@ -43,9 +43,6 @@ void Motor::calculateMotorSignal(Attitude attitude) {
 	}
     // Tilt compensation: more thrust when tilted
     // TODO: Dirk's EZ mode
-
-
-    attitude.x_hat.
     
     // else if(configuration == EZ_MODE || flightMode == ALTITUDE || flightMode == NAVIGATING) {	
 	else if(flightMode == ALTITUDE || flightMode == NAVIGATING) {
@@ -63,4 +60,4 @@ void Motor::calculateMotorSignal(Attitude attitude) {
         Motor::v.v2 = thrust - attitude.u.ux + attitude.u.uy + attitude.u.uz;
         Motor::v.v3 = thrust - attitude.u.ux - attitude.u.uy - attitude.u.uz;
 	}
-}
+};
