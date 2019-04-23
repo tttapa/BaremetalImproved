@@ -47,23 +47,33 @@ void AttitudeController::clampAttitudeControllerOutput(AttitudeControlSignal u,
     }
 
     //TODO: thrust clamp in de afstandsbediening zelf doen.
-
+    using namespace AttitudeController;
     // Clamp [ux;uy;uz] such that for all motor inputs vi: 0 <= vi <= 1.
     // TODO: divide by e = epsilon + 1?
     float other_max;
     float other_actual;
     other_max    = 1 - fabs(thrust);
-    other_actual = fabs(u.ux) + fabs(u.uy) + fabs(u.uz);
+    other_actual = fabs(AttitudeController::controlSignal.ux) +
+                   fabs(AttitudeController::controlSignal.uy) +
+                   fabs(AttitudeController::controlSignal.uz);
     if (other_actual > other_max) {
-        u.ux         = other_max / other_actual * u.ux;
-        u.uy         = other_max / other_actual * u.uy;
-        u.uz         = other_max / other_actual * u.uz;
-        other_actual = fabs(u.ux) + fabs(u.uy) + fabs(u.uz);
+        controlSignal.ux =
+            other_max / other_actual * AttitudeController::controlSignal.ux;
+        AttitudeController::controlSignal.uy =
+            other_max / other_actual * AttitudeController::controlSignal.uy;
+        AttitudeController::controlSignal.uz =
+            other_max / other_actual * AttitudeController::controlSignal.uz;
+        other_actual = fabs(AttitudeController::controlSignal.ux) +
+                       fabs(AttitudeController::controlSignal.uy) +
+                       fabs(AttitudeController::controlSignal.uz);
     }
     if (other_actual > thrust) {
-        u.ux = thrust / other_actual * u.ux;
-        u.uy = thrust / other_actual * u.uy;
-        u.uz = thrust / other_actual * u.uz;
+        AttitudeController::controlSignal.ux =
+            thrust / other_actual * AttitudeController::controlSignal.ux;
+        AttitudeController::controlSignal.uy =
+            thrust / other_actual * AttitudeController::controlSignal.uy;
+        AttitudeController::controlSignal.uz =
+            thrust / other_actual * AttitudeController::controlSignal.uz;
     }
 }
 
