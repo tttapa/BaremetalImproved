@@ -3,13 +3,13 @@
 #include <Altitude.hpp>
 #include <Matrix.hpp>
 #include <TiltCorrection.hpp>
+#include <configuration.hpp>
 
 void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
 
     //TODO: measurement flags
     if (*NEW_HEIGHT_MEASUREMENT_FLAG == 1) {
 
-        //TODO: droneConfiguration
         int currentDroneConfiguration = getDroneConfiguration();
 
         updateAltitudeKFEstimate(AltitudeController::stateEstimate,
@@ -22,7 +22,6 @@ AltitudeControlSignal AltitudeController::updateControlSignal() {
 
     if (*NEW_HEIGHT_MEASUREMENT_FLAG == 1) {
 
-        //TODO: RCTuner
         int currentDroneConfiguration = getDroneConfiguration();
         real_t currentRCTuner         = getRCTuner();
 

@@ -4,7 +4,6 @@
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
 
-    // TODO: droneConfiguration
     int currentDroneConfiguration = getDroneConfiguration();
 
     updateAttitudeKFEstimate(
@@ -14,15 +13,13 @@ void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
 
 AttitudeControlSignal AttitudeController::updateControlSignal() {
 
-    // TODO: RC functions
-    real_t thrust = getRCThrust();
+    real_t thrust = getRCThrottle();
     real_t roll   = getRCRoll();
     real_t pitch  = getRCPitch();
     real_t yaw    = getRCYaw();
 
-    // TODO: RCTuner
     int currentDroneConfiguration = getDroneConfiguration();
-    real_t currentRCTuner         = getRCtuner();
+    real_t currentRCTuner         = getRCTuner();
 
     // Calculate u_k (unclamped)
     getAttitudeControllerOutput(

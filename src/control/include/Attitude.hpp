@@ -1,4 +1,6 @@
 #include <Quaternion.hpp>
+#include <Globals.h>
+#include <configuration.hpp>
 
 /**
  * Attitude reference to track, consisting of a single quaternion.

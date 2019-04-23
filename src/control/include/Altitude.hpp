@@ -1,5 +1,6 @@
 #include <real_t.h>
 #include <Quaternion.hpp>
+#include <Globals.h>
 
 /**
  * Altitude height reference to track, consisting of a single float.
