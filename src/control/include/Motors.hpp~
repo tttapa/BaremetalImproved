@@ -13,6 +13,7 @@ struct MotorSignal {
 class Motor {
   private:
     MotorSignal v;
+    real_t thrust_clamp;
     void calculateMotorSignal(Attitude attitude);
 }
 

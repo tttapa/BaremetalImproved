@@ -1,1 +1,0 @@
-To implement: altitude control system

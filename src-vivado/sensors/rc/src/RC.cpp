@@ -95,6 +95,12 @@ float clamp(float x) {
  *  @return clamped value.
  */
 float clampMid(float x) {
+    // TODO:
+    //       x in (-inf, LOW-MARGIN) -> MID
+    //       x in [LOW-MARGIN, LOW) -> LOW
+    //       x in [LOW, HIGH] -> x
+    //       x in (HIGH, HIGH+MARGIN] -> HIGH
+    //       x in (HIGH+MARGIN, inf) -> MID
     if(x < RC::RC_LOW - RC::RC_MARGIN || x > RC::RC_HIGH + RC::RC_MARGIN)
         return RC::RC_MID;
     return x;
@@ -109,6 +115,7 @@ float clampMid(float x) {
 float rescale(float x) {
 
     /* Upper edge of deadzone. */
+    // TODO: change this to "RC_DEADZONE_SIZE"
     float low = RC::RC_LOW + RC::RC_MARGIN;
 
     /* Out of range. */
@@ -130,6 +137,7 @@ float rescale(float x) {
 float rescaleMid(float x) {
 
     /* Edges of deadzone. */
+    // TODO: change this to "RC_DEADZONE_SIZE"
     float midlow = RC::RC_MID - RC::RC_MARGIN;
     float midhigh = RC::RC_MID + RC::RC_MARGIN;
 
@@ -158,7 +166,7 @@ RCInput readRC() {
 	float pitch     = rescaleMid(clampMid((float)Xil_In32(RC::PITCH_ADDR)/MEASURE_FREQ));
 	float roll      = rescaleMid(clampMid((float)Xil_In32(RC::ROLL_ADDR)/MEASURE_FREQ));
 	float yaw       = rescaleMid(clampMid((float)Xil_In32(RC::YAW_ADDR)/MEASURE_FREQ));
-	float tuner     = rescaleMid(clampMid((float)Xil_In32(RC::TUNER_ADDR)/MEASURE_FREQ));
+	float tuner     = rescaleMid(clampMid((float)Xil_In32(RC::TUNER_ADDR)/MEASURE_FREQ));   // TODO: dead should stay mid, but margin should increase
 	float mode      = rescale(   clamp(   (float)Xil_In32(RC::MODE_ADDR)/MEASURE_FREQ));
 	float inductive = rescale(   clamp(   (float)Xil_In32(RC::INDUCTIVE_ADDR)/MEASURE_FREQ));
 

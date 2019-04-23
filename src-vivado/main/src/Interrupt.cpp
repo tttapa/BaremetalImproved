@@ -32,6 +32,7 @@ static XIicPs Iic0;
  * @param InstancePtr is a pointer to the XIicPs instance.
  */
 void int_gyr(void *InstancePtr) {
+	// TODO: update the main program
 	/* update the FSM */
     std::cout << "update" << std::endl;
 	// update();

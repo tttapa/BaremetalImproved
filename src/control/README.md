@@ -1,3 +1,3 @@
 Original: non-existant
 
-General description of control's subpackages
+In-depth description of control package
