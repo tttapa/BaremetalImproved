@@ -110,6 +110,8 @@ class AltitudeController {
      *          control signal to update
      * @param   integralWindup
      *          integral windup to update
+     * @param   droneConfiguration
+     *          configuration of the drone
      */
     void updateControlSignalCodegen(AltitudeState stateEstimate,
                                     AltitudeReference reference,
@@ -144,10 +146,13 @@ class AltitudeController {
      * Try updating the altitude controller at 238 Hz. This function will only change
      * the altitude control signal if there is a new measurement from the sonar. See
      * AltitudeController::checkForNewMeasurement().
+     * 
+     * @param   reference
+     *          the reference height to track
      *
-     * @return the control signal to be sent to the "common motor".
+     * @return  the control signal to be sent to the "common motor".
      */
-    AltitudeControlSignal updateControlSignal();
+    AltitudeControlSignal updateControlSignal(AltitudeReference reference);
 
     void initializeController(Quaternion);
 

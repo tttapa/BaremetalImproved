@@ -4,34 +4,25 @@
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
 
-    // TODO: droneConfiguration
-    int currentDroneConfiguration = getDroneConfiguration();
+    updateObserverCodegen(AttitudeController::stateEstimate,
+                          AttitudeController::controlSignal,
+                          measurement,
+                          getDroneConfiguration());
 
-    updateAttitudeKFEstimate(
-        AttitudeController::stateEstimate, AttitudeController::controlSignal,
-        measurement, currentDroneConfiguration);
 }
 
-AttitudeControlSignal AttitudeController::updateControlSignal() {
-
-    // TODO: RC functions
-    real_t thrust = getRCThrust();
-    real_t roll   = getRCRoll();
-    real_t pitch  = getRCPitch();
-    real_t yaw    = getRCYaw();
-
-    // TODO: RCTuner
-    int currentDroneConfiguration = getDroneConfiguration();
-    real_t currentRCTuner         = getRCtuner();
+AttitudeControlSignal AttitudeController::updateControlSignal(AttitudeReference reference) {
 
     // Calculate u_k (unclamped)
-    getAttitudeControllerOutput(
-        AttitudeController::stateEstimate, AttitudeController::reference,
-        AttitudeController::controlSignal, AttitudeController::integralWindup,
-        currentDroneConfiguration, currentRCTuner);
+    updateControlSignalCodegen(AttitudeController::stateEstimate,
+                               reference,
+                               AttitudeController::controlSignal,
+                               AttitudeController::integralWindup,
+                               getDroneConfiguration());
 
     // Clamp u_k
-    clampAttitudeControllerOutput(AttitudeController::controlSignal, thrust);
+    clampAttitudeControllerOutput(AttitudeController::controlSignal,
+                                  getRCThrottle());
 
     return AttitudeController::controlSignal;
 }

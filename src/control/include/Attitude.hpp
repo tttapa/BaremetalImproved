@@ -133,14 +133,46 @@ class AttitudeController {
     // TODO: clamp where?
     void clampAttitudeControllerOutput(AttitudeControlSignal, real_t);
 
-    void updateAttitudeKFEstimate(AttitudeState, AttitudeControlSignal,
-                                  AttitudeMeasurement, int);
+    /**
+     * Update the given attitude estimate using the code generator.
+     * 
+     * @param   stateEstimate
+     *          estimate of the current attitude state, determined last cycle
+     * @param   controlSignal
+     *          current control signal
+     * @param   measurement
+     *          current measurement from the IMU
+     * @param   droneConfiguration
+     *          configuration of the drone
+     */
+    void updateObserverCodegen(AttitudeState stateEstimate,
+                               AttitudeControlSignal controlSignal,
+                               AttitudeMeasurement measurement,
+                               int droneConfiguration);
 
-    void getAttitudeControllerOutput(AttitudeState, AttitudeReference,
-                                     AttitudeControlSignal,
-                                     AttitudeIntegralWindup, int, real_t);
+    /**
+     * Update the given attitude control signal using the code generator.
+     * 
+     * @param   stateEstimate
+     *          estimate of the current attitude state, determined last cycle
+     * @param   reference
+     *          height reference to track
+     * @param   controlSignal
+     *          control signal to update
+     * @param   integralWindup
+     *          integral windup to update
+     * @param   droneConfiguration
+     *          configuration of the drone
+     */
+    void updateControlSignalCodegen(AttitudeState stateEstimate,
+                                    AttitudeReference reference,
+                                    AttitudeControlSignal controlSignal,
+                                    AttitudeIntegralWindup integralWindup,
+                                    int droneConfiguration);
+
 
   public:
+  
     /**
      * Try updating the attitude observer at 238 Hz. Because the attitude
      * control system is directly coupled to the IMU measurements, which updates
@@ -154,8 +186,13 @@ class AttitudeController {
      * control system is directly coupled to the IMU measurements, which updates
      * at 238Hz, the attitude control signal will change every time this function
      * is called.
+     * 
+     * @param   reference
+     *          the reference orientation to track
+     *
+     * @return  the control signal to be sent to the "torque motors".
      */
-    AttitudeControlSignal updateControlSignal();
+    AttitudeControlSignal updateControlSignal(AttitudeReference reference);
 
     void initializeController();
     
