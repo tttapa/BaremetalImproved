@@ -1,8 +1,18 @@
 // Original: BareMetal/src/control/attitude.c
 
-#include <attitude.hpp>
+#include <Attitude.hpp>
 
-void Attitude::updateController() {
+void AttitudeController::updateObserver() {
+
+    // TODO: droneConfiguration
+    int currentDroneConfiguation = getDroneConfiguration();
+
+    updateAttitudeKFEstimate(
+        AttitudeController::stateEstimate, AttitudeController::controlSignal,
+        AttitudeController::measurement, currentDroneConfiguration);
+}
+
+AttitudeControlSignal AttitudeController::updateControlSignal() {
 
     // TODO: RC functions
     real_t thrust = getRCThrust();
@@ -10,64 +20,75 @@ void Attitude::updateController() {
     real_t pitch  = getRCPitch();
     real_t yaw    = getRCYaw();
 
+    // TODO: RCTuner
+    int currentDroneConfiguation = getDroneConfiguration();
+    real_t currentRCTuner        = getRCtuner();
+
     // Calculate u_k (unclamped)
-    getAttitudeControllerOutput(Attitude::x_hat, Attitude::ref, Attitude::u,
-                                Attitude::y_int, 0, 0);
-    //TODO: replace zeros with currentDroneConfig, ..
+    getAttitudeControllerOutput(
+        AttitudeController::stateEstimate, AttitudeController::reference,
+        AttitudeController::controlSignal, AttitudeController::integralWindup,
+        currentDroneConfiguration, currentRCTuner);
 
     // Clamp u_k
-    clampAttitudeControllerOutput(Attitude::u, thrust);
+    clampAttitudeControllerOutput(AttitudeController::controlSignal, thrust);
+
+    return AttitudeController::controlSignal;
 }
 
-void Attitude::clampAttitudeControllerOutput(AttitudeControlSignal u,
-                                             real_t thrust) {
+void AttitudeController::clampAttitudeControllerOutput(AttitudeControlSignal u,
+                                                       real_t thrust) {
     // If definition is not negative, then clamp
-    if (0 <= Attitude::uz_clamp) {
-        if (u.uz > Attitude::uz_clamp)
-            u.uz = Attitude::uz_clamp;
-        if (-u.uz > Attitude::uz_clamp)
-            u.uz = -Attitude::uz_clamp;
+    if (0 <= AttitudeController::uz_clamp) {
+        if (u.uz > AttitudeController::uz_clamp)
+            u.uz = AttitudeController::uz_clamp;
+        if (-u.uz > AttitudeController::uz_clamp)
+            u.uz = -AttitudeController::uz_clamp;
     }
 
-    // Clamp thrust to [0,THRUST_MAX], so we can still correct attitude 
-    // if the user sets the thrust to 100%.
-    if (thrust < 0)
-        thrust = 0;
-    if (thrust > Attitude::thrust_clamp)
-        thrust = Attitude::thrust_clamp;
-
+    //TODO: thrust clamp in de afstandsbediening zelf doen.
+    using namespace AttitudeController;
     // Clamp [ux;uy;uz] such that for all motor inputs vi: 0 <= vi <= 1.
     // TODO: divide by e = epsilon + 1?
     float other_max;
     float other_actual;
     other_max    = 1 - fabs(thrust);
-    other_actual = fabs(u.ux) + fabs(u.uy) + fabs(u.uz);
+    other_actual = fabs(AttitudeController::controlSignal.ux) +
+                   fabs(AttitudeController::controlSignal.uy) +
+                   fabs(AttitudeController::controlSignal.uz);
     if (other_actual > other_max) {
-        u.ux         = other_max / other_actual * u.ux;
-        u.uy         = other_max / other_actual * u.uy;
-        u.uz         = other_max / other_actual * u.uz;
-        other_actual = fabs(u.ux) + fabs(u.uy) + fabs(u.uz);
+        controlSignal.ux =
+            other_max / other_actual * AttitudeController::controlSignal.ux;
+        AttitudeController::controlSignal.uy =
+            other_max / other_actual * AttitudeController::controlSignal.uy;
+        AttitudeController::controlSignal.uz =
+            other_max / other_actual * AttitudeController::controlSignal.uz;
+        other_actual = fabs(AttitudeController::controlSignal.ux) +
+                       fabs(AttitudeController::controlSignal.uy) +
+                       fabs(AttitudeController::controlSignal.uz);
     }
     if (other_actual > thrust) {
-        u.ux = thrust / other_actual * u.ux;
-        u.uy = thrust / other_actual * u.uy;
-        u.uz = thrust / other_actual * u.uz;
+        AttitudeController::controlSignal.ux =
+            thrust / other_actual * AttitudeController::controlSignal.ux;
+        AttitudeController::controlSignal.uy =
+            thrust / other_actual * AttitudeController::controlSignal.uy;
+        AttitudeController::controlSignal.uz =
+            thrust / other_actual * AttitudeController::controlSignal.uz;
     }
 }
 
+void AttitudeController::initializeController() {
 
-void Attitude::initializeController() {
+    // reset Attitude stateEstimate
+    AttitudeController::stateEstimate = {};
+    // reset Attitude controlSignal
+    AttitudeController::controlSignal = {};
+    // reset Attitude integralWindup
+    AttitudeController::integralWindup = {};
+    // reset Attitude reference
+    AttitudeController::reference = {};
 
-    // reset AttitudeObserverEstimate
-    x_hat = {};
-    // reset AttitudeControlSignal
-    u = {};
-    // reset IntegralAction
-    y_int = {};
-    // reset AttitudeReference
-    ref = {};
-
-    //TODO: nog niet af
+    //TODO: dit nog steeds hier?
     // Also reset the yaw counters here
     //att_total_dyaw_rads = 0;
     //rel_yaw = 0.0;
@@ -84,6 +105,4 @@ void Attitude::initializeController() {
  * with v[4] = {0, 0, 0, 0}
  */
 //TODO: PWMOutput
-void Attitude::idleController() { PWMoutput(0, 0, 0, 0); }
-
-
+void AttitudeController::idleController() { PWMoutput(0, 0, 0, 0); }
