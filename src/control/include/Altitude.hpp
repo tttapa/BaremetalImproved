@@ -63,12 +63,6 @@ class AltitudeController {
     AltitudeReference reference;
 
     /**
-     * Measurement from the sonar, consisting of one float representing the
-     * corrected height of the drone, measured in meters.
-     */
-    AltitudeMeasurement measurement;
-
-    /**
      * Estimate of the state of the drone's altitude, consisting three components.
      * First is a float representing the marginal angular velocity of the "common
      * motor", relative to the hovering angular velocity. This value is measured
@@ -89,24 +83,44 @@ class AltitudeController {
     AltitudeControlSignal controlSignal;
 
     /**
-     * Boolean flag indicating whether there is a new measurement from the sonar
-     * during the current cycle (238 Hz).
+     * Update the given altitude estimate using the code generator.
+     * 
+     * @param   stateEstimate
+     *          estimate of the current altitude state, determined last cycle
+     * @param   controlSignal
+     *          current control signal
+     * @param   measurement
+     *          current measurement from the sonar
+     * @param   droneConfiguration
+     *          configuration of the drone
      */
-    //bool hasNewMeasurement;
+    void updateObserverCodegen(AltitudeState stateEstimate,
+                               AltitudeControlSignal controlSignal,
+                               AltitudeMeasurement measurement,
+                               int droneConfiguration);
 
-    void updateAltitudeKFEstimate(AltitudeState, AltitudeControlSignal,
-                                  AltitudeMeasurement, int);
-
-    void getAltitudeControllerOutput(AltitudeState, AltitudeReference,
-                                     AltitudeControlSignal,
-                                     AltitudeIntegralWindup, int, real_t);
+    /**
+     * Update the given altitude control signal using the code generator.
+     * 
+     * @param   stateEstimate
+     *          estimate of the current altitude state, determined last cycle
+     * @param   reference
+     *          height reference to track
+     * @param   controlSignal
+     *          control signal to update
+     * @param   integralWindup
+     *          integral windup to update
+     */
+    void updateControlSignalCodegen(AltitudeState stateEstimate,
+                                    AltitudeReference reference,
+                                    AltitudeControlSignal controlSignal,
+                                    AltitudeIntegralWindup integralWindup,
+                                    int droneConfiguration);
 
     // TODO: clamp where?
     void clampAltitudeControllerOutput(AltitudeControlSignal,
                                        AltitudeIntegralWindup);
 
-    // TODO: has new measurement - gets hasNewMeasurement
-    // void hasNewMeasurement();
 
     real_t utClamp;
     real_t zMin;
@@ -115,20 +129,16 @@ class AltitudeController {
     real_t RCThrottleReferenceDecreaseTreshold;
 
   public:
-    /**
-     * Check if the sonar has sent a new measurement. The observer and controller
-     * will only update this cycle (238 Hz) if there is a new measurement. Therefore
-     * this function should be called before trying to update the observer or the
-     * controller.
-     */
-    //void checkForNewMeasurement();
 
     /**
      * Try updating the altitude observer (called at 238 Hz). This function will only
      * change the altitude estimate if there is a new measurement from the sonar. See
      * AltitudeController::checkForNewMeasurement().
+     * 
+     * @param   measurement
+     *          new height measurement from the sonar
      */
-    void updateObserver(AltitudeMeasurement);
+    void updateObserver(AltitudeMeasurement measurement);
 
     /**
      * Try updating the altitude controller at 238 Hz. This function will only change

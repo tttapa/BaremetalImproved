@@ -114,6 +114,6 @@ MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSign
         commonThrust + controlSignal.ux + controlSignal.uy - controlSignal.uz,
         commonThrust + controlSignal.ux - controlSignal.uy + controlSignal.uz,
         commonThrust - controlSignal.ux + controlSignal.uy + controlSignal.uz,
-        commonThrust - controlSignal.ux - controlSignal.uy - controlSignal.uz;
+        commonThrust - controlSignal.ux - controlSignal.uy - controlSignal.uz
     };
 }
