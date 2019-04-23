@@ -55,7 +55,6 @@ struct AttitudeControlSignal {
 };
 
 
-
 /**
  * Class to control the attitude of the drone. The first part is an observer to
  * estimate the drone's orientation, angular velocity and the angular velocity
@@ -109,7 +108,7 @@ class AttitudeController {
     real_t uzClamp;
 
     // TODO: clamp where?
-    // void clampAttitudeControllerOutput(AttitudeControlSignal,real_t);
+    void clampAttitudeControllerOutput(AttitudeControlSignal, real_t);
 
   public: 
     
@@ -127,9 +126,9 @@ class AttitudeController {
      * at 238Hz, the attitude control signal will change every time this function
      * is called.
      */
-    void updateControlSignal();
+    AttitudeControlSignal updateControlSignal();
     
     // TODO: init & idle
-    //void initializeController();
-    //void idleController();
+    void initializeController();
+    void idleController();
 };

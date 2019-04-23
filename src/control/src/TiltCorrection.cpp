@@ -33,5 +33,5 @@ real_t getCorrectedHeight(real_t heightMeasurement, Quaternion q) {
 	float down_vector_z = -q[0]*q[0] + q[1]*q[1] + q[2]*q[2] - q[3]*q[3];
 
 	// Implement tilt correction: pz = down_vector' * [0; 0; 0; -1] * sonar
-	return  -down_vector_z * sonar;
+	return  -down_vector_z * heightMeasurement;
 }
