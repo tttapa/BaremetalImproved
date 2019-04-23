@@ -2,14 +2,14 @@
 
 #include <Attitude.hpp>
 
-void AttitudeController::updateObserver() {
+void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
 
     // TODO: droneConfiguration
     int currentDroneConfiguration = getDroneConfiguration();
 
     updateAttitudeKFEstimate(
         AttitudeController::stateEstimate, AttitudeController::controlSignal,
-        AttitudeController::measurement, currentDroneConfiguration);
+        measurement, currentDroneConfiguration);
 }
 
 AttitudeControlSignal AttitudeController::updateControlSignal() {

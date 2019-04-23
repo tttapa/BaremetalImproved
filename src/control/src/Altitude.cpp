@@ -2,50 +2,40 @@
 
 #include <Altitude.hpp>
 #include <Matrix.hpp>
-#include <TiltCorrection.hpp> 
+#include <TiltCorrection.hpp>
 
-//TODO: implement
-void AltitudeController::checkForNewMeasurement() {
+void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
 
-}
-
-void AltitudeController::resetNewMeasurementFlag() {
-    AltitudeController::hasNewMeasurement = false;
-}
-
-void AltitudeController::updateObserver() {
-
-    AltitudeController::checkForNewMeasurement();
-    if (AltitudeController::hasNewMeasurement) {
+    //TODO: measurement flags
+    if (*NEW_HEIGHT_MEASUREMENT_FLAG == 1) {
 
         //TODO: droneConfiguration
         int currentDroneConfiguration = getDroneConfiguration();
 
-        updateAltitudeKFEstimate(
-            AltitudeController::stateEstimate, AltitudeController::controlSignal,
-            AltitudeController::measurement, currentDroneConfiguration);
+        updateAltitudeKFEstimate(AltitudeController::stateEstimate,
+                                 AltitudeController::controlSignal, measurement,
+                                 currentDroneConfiguration);
     }
 }
 
 AltitudeControlSignal AltitudeController::updateControlSignal() {
 
-    AltitudeController::checkForNewMeasurement();
-    if (AltitudeController::hasNewMeasurement) {
+    if (*NEW_HEIGHT_MEASUREMENT_FLAG == 1) {
 
         //TODO: RCTuner
         int currentDroneConfiguration = getDroneConfiguration();
         real_t currentRCTuner         = getRCTuner();
 
         // Calculate u_k (unclamped)
-        getAltitudeControllerOutput(
-            AltitudeController::stateEstimate, AltitudeController::reference,
-            AltitudeController::controlSignal, AltitudeController::integralWindup,
-            currentDroneConfiguration, currentRCTuner);
+        getAltitudeControllerOutput(AltitudeController::stateEstimate,
+                                    AltitudeController::reference,
+                                    AltitudeController::controlSignal,
+                                    AltitudeController::integralWindup,
+                                    currentDroneConfiguration, currentRCTuner);
 
         // Clamp u_k
         clampAltitudeControllerOutput(AltitudeController::controlSignal,
-                                    AltitudeController::integralWindup);
-
+                                      AltitudeController::integralWindup);
     }
 
     return AltitudeController::controlSignal;
@@ -65,8 +55,8 @@ void AltitudeController::initializeController(Quaternion quaternion) {
     // From now on, attempt to stay at the height we were at on altitude switch
     // (initialized only when going from manual to altitude)
 
-    //TODO: sonar
-    real_t heightMeasurement = getSonarHeightMeasurement();
+    //TODO: measurements
+    real_t heightMeasurement = getHeightMeasurement();
 
     real_t correctedHeight = getCorrectedHeight(heightMeasurement, quaternion);
 

@@ -121,7 +121,7 @@ class AttitudeController {
      * at 238Hz, the attitude estimate will change every time this function is
      * called. 
      */
-    void updateObserver();
+    void updateObserver(AttitudeMeasurement);
 
     /**
      * Try updating the attitude controller at 238 Hz. Because the attitude
@@ -131,7 +131,7 @@ class AttitudeController {
      */
     AttitudeControlSignal updateControlSignal();
 
-    // TODO: init & idle
     void initializeController();
+    
     void idleController();
 };

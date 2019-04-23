@@ -4,32 +4,24 @@
 #include <Position.hpp>
 #include <TiltCorrection.hpp>
 
-//TODO: implement
-void PositionController::checkForNewMeasurement() {}
+void PositionController::updateObserver(AttitudeState attitudeState,
+                                        PositionMeasurement measurement) {
 
-void PositionController::resetNewMeasurementFlag() {
-    PositionController::hasNewMeasurement = false;
-}
-
-void PositionController::updateObserver(AttitudeState attitudeState) {
-
-    PositionController::checkForNewMeasurement();
-    if (PositionController::hasNewMeasurement) {
+    //TODO: measurement flags
+    if (*NEW_LOCATION_MEASUREMENT_FLAG == 1) {
 
         //TODO: komt uit timers -> wat hiermee doen?
         real_t positionMeasurementTimeElapsed =
             getPositionMeasurementTimeElapsed();
 
-        updatePositionObserver(PositionController::stateEstimate,
-                               PositionController::measurement, attitudeState,
-                               positionMeasurementTimeElapsed);
+        updatePositionObserver(PositionController::stateEstimate, measurement,
+                               attitudeState, positionMeasurementTimeElapsed);
     }
 }
 
 PositionControlSignal PositionController::updateControlSignal() {
 
-    PositionController::checkForNewMeasurement();
-    if (PositionController::hasNewMeasurement) {
+    if (*NEW_LOCATION_MEASUREMENT_FLAG == 1) {
 
         //TODO: droneConfiguration & RCTuner
         int currentDroneConfiguration = getDroneConfiguration();
@@ -70,9 +62,9 @@ void PositionController::clampPositionControllerOutput(
 
 void PositionController::initializeController(AttitudeState attitudeState) {
 
-    //TODO: sonar
-    ColVector<2> locationMeasurement = getSonarLocationMeasurement();
-    real_t heightMeasurement = getSonarHeightMeasurement();
+    //TODO: measurements
+    ColVector<2> locationMeasurement = getLocationMeasurement();
+    real_t heightMeasurement         = getHeightMeasurement();
 
     ColVector<2> correctedPosition = getCorrectedPosition(
         locationMeasurement, heightMeasurement, attitudeState.q);
@@ -98,7 +90,7 @@ void PositionController::initializeController(AttitudeState attitudeState) {
     PositionController::integralWindup   = {};
 
     //TODO: blijft dit hier staan?
-    // Start loitering mode:
-    navigationFSMState = NAV_LOITERING;
-    loiteringCounter   = 0;
+    //  Start loitering mode:
+    //navigationFSMState = NAV_LOITERING;
+    //loiteringCounter   = 0;
 }

@@ -98,7 +98,7 @@ class PositionController {
      * Boolean flag indicating whether there is a new measurement from the Image
      * Processing team during the current cycle (238 Hz).
      */
-    bool hasNewMeasurement;
+    //bool hasNewMeasurement;
 
     void updatePositionObserver(PositionState, PositionMeasurement,
                                 AttitudeState, real_t);
@@ -121,16 +121,14 @@ class PositionController {
      * measurement. Therefore function should be called before trying to update the
      * observer or the controller.
      */
-    void checkForNewMeasurement();
-
-    void resetNewMeasurementFlag();
+    //void checkForNewMeasurement();
 
     /**
      * Try updating the position observer (called at 238 Hz). This function will only
      * change the position estimate if there is a new measurement from the Image
      * Processing team. See PositionController::checkForNewMeasurement().
      */
-    void updateObserver(AttitudeState);
+    void updateObserver(AttitudeState, PositionMeasurement);
 
     /**
      * Try updating the position controller at 238 Hz. This function will only change
