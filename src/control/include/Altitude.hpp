@@ -127,10 +127,14 @@ class AltitudeController {
     real_t RCThrottleReferenceDecreaseTreshold;
 
   public:
+
     /**
-     * Try updating the altitude observer (called at 238 Hz). This function will only
-     * change the altitude estimate if there is a new measurement from the sonar. See
-     * AltitudeController::checkForNewMeasurement().
+     * Update the altitude observer with the given measurement height. This
+     * function should only be called when there is a new measurement from the
+     * sonar. Because the altitude control system is implemented with a Kalman
+     * filter, this function should be called after AltitudeController::
+     * updateControlSignal() is called in order to determine the state estimate
+     * for the next cycle.
      * 
      * @param   measurement
      *          new height measurement from the sonar
@@ -138,9 +142,9 @@ class AltitudeController {
     void updateObserver(AltitudeMeasurement measurement);
 
     /**
-     * Try updating the altitude controller at 238 Hz. This function will only change
-     * the altitude control signal if there is a new measurement from the sonar. See
-     * AltitudeController::checkForNewMeasurement().
+     * Update the altitude controller with the given reference height. This
+     * function should only be called when there is a new measurement from the
+     * sonar.
      * 
      * @param   reference
      *          the reference height to track

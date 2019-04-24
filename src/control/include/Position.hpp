@@ -67,12 +67,6 @@ class PositionController {
   private:
 
     /**
-     * Measurement from the Image Processing team, consisting of two floats
-     * representing the corrected global position in meters.
-     */
-    PositionMeasurement measurement;
-
-    /**
      * Estimate of the state of the drone's position, consisting six components.
      * The first two floats are the quaternion components q1 and q2. The next two
      * floats represent the drone's corrected global position, measured in meters.
@@ -142,30 +136,35 @@ class PositionController {
     real_t blocksToMeters;
 
   public:
-    /**
-     * Check if the Image Processing team has sent a new measurement. The observer
-     * and controller will only update this cycle (238 Hz) if there is a new
-     * measurement. Therefore function should be called before trying to update the
-     * observer or the controller.
-     */
-    //void checkForNewMeasurement();
 
     /**
-     * Try updating the position observer (called at 238 Hz). This function will only
-     * change the position estimate if there is a new measurement from the Image
-     * Processing team. See PositionController::checkForNewMeasurement().
+     * Update the position observer with the given measurement position and the
+     * current orientation of the drone. This function should only be called
+     * when there is a new measurement from the Image Processing team. Because
+     * the position control system is implemented with a varying sample time,
+     * this function should be called before PositionController::
+     * updateControlSignal() is called in order to determine the state estimate
+     * for the current cycle.
+     * 
+     * @param   orientation
+     *          current orientation of the drone
+     * @param   measurement
+     *          new position measurement from the Image Processing team
      */
-    void updateObserver(AttitudeState, PositionMeasurement);
+    void updateObserver(Quaternion orientation, PositionMeasurement measurement);
 
     /**
-     * Try updating the position controller at 238 Hz. This function will only change
-     * the position control signal if there is a new measurement from the Image
-     * Processing team. See PositionController::checkForNewMeasurement().
+     * Update the position controller with the given reference position. This
+     * function should only be called when there is a new measurement from the
+     * Image Processing team.
+     * 
+     * @param   reference
+     *          the reference position to track
      *
-     * @return the control signal to be sent to the attitude controller. The result
-     *         only contains the quaternion components q1 and q2. The last component
-     *         q3 should be determined by the anti-yaw-drift controller and from that
-     *         the full quaternion should be constructed.
+     * @return  the control signal to be sent to the attitude controller. The result
+     *          only contains the quaternion components q1 and q2. The last component
+     *          q3 should be determined by the anti-yaw-drift controller and from that
+     *          the full quaternion should be constructed.
      */
     PositionControlSignal updateControlSignal();
 

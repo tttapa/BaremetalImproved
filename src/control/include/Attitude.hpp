@@ -96,13 +96,6 @@ class AttitudeController {
   private:
 
     /**
-     * Most recent measurement from the IMU, consisting of one quaternion for
-     * the drone's orientation and three floats for the drone's angular
-     * velocity, measured in rad/s.
-     */
-    AttitudeMeasurement measurement;
-
-    /**
      * Estimate of the state of the drone's attitude, consisting of the drone's
      * orientation (1 quaternion), angular velocity in rad/s (3 components: wx,
      * wy, wz) and the angular velocity of the torque motors in rad/s (3
@@ -170,18 +163,22 @@ class AttitudeController {
   public:
   
     /**
-     * Try updating the attitude observer at 238 Hz. Because the attitude
-     * control system is directly coupled to the IMU measurements, which updates
-     * at 238Hz, the attitude estimate will change every time this function is
-     * called. 
+     * Update the attitude observer with the given IMU measurement. This
+     * function should be called at 238 Hz when the IMU receives a new
+     * measurement. Because the attitude control system is implemented with a
+     * Kalman filter, this function should be called after AttitudeController::
+     * updateControlSignal() is called in order to determine the state estimate
+     * for the next cycle.
+     * 
+     * @param   measurement
+     *          new measurement from the IMU
      */
-    void updateObserver(AttitudeMeasurement);
+    void updateObserver(AttitudeMeasurement measurement);
 
     /**
-     * Try updating the attitude controller at 238 Hz. Because the attitude
-     * control system is directly coupled to the IMU measurements, which updates
-     * at 238Hz, the attitude control signal will change every time this function
-     * is called.
+     * Update the attitude controller with the given reference orientation. This
+     * function should be called at 238 Hz when the IMU receives a new
+     * measurement.
      * 
      * @param   reference
      *          the reference orientation to track
