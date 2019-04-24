@@ -1,6 +1,6 @@
 #include <Attitude.hpp>
 #include <Configuration.hpp>
-#include <Globals.h>
+#include <Globals.hpp>
 #include <SoftwareConstants.hpp>
 
 /* Use software constants from the ATTITUDE namespace. */

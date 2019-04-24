@@ -1,5 +1,5 @@
 #include <Configuration.hpp>
-#include <Globals.h>
+#include <Globals.hpp>
 #include <Position.hpp>
 #include <SoftwareConstants.hpp>
 #include <Time.hpp>
@@ -39,7 +39,7 @@ void PositionController::updateObserver(Quaternion orientation,
     /* Calculate the current state estimate. */
     PositionController::stateEstimate = codegenCurrentStateEstimate(
         PositionController::stateEstimate, measurement, orientation,
-        getDroneConfiguration())
+        getDroneConfiguration());
 }
 
 PositionControlSignal PositionController::updateControlSignal() {

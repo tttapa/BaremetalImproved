@@ -1,4 +1,4 @@
-#include "../include/Globals.h"
+#include "../include/Globals.hpp"
 
 static struct RCInput RC;
 
