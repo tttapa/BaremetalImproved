@@ -38,6 +38,8 @@ target_compile_features(control PUBLIC cxx_std_17)
 target_link_libraries(control 
     PUBLIC 
         quaternion
+        utilities
+    PRIVATE
         configuration
         globals
         time
