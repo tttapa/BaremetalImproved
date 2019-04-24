@@ -22,6 +22,7 @@ endif()
 ################################   GOOGLE TEST   ###############################
 ################################################################################
 
+if(NOT CMAKE_CROSSCOMPILING)
 # https://github.com/google/googletest/blob/master/googletest/README.md#incorporating-into-an-existing-cmake-project
 # <copy>
 # Download and unpack googletest at configure time
@@ -51,7 +52,6 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest/googletest-src
                  EXCLUDE_FROM_ALL)
 # </copy>
 
-if(NOT CMAKE_CROSSCOMPILING)
     include(GoogleTest)
     enable_testing()
 endif()

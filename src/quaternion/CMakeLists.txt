@@ -12,4 +12,6 @@ target_link_libraries(quaternion
         utilities
 )
 
+if(NOT CMAKE_CROSSCOMPILING)
 add_subdirectory(test) 
+endif()

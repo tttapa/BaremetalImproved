@@ -10,4 +10,6 @@ target_include_directories(utilities
 
 target_compile_features(utilities INTERFACE cxx_std_17)
 
+if(NOT CMAKE_CROSSCOMPILING)
 add_subdirectory(test)
+endif()

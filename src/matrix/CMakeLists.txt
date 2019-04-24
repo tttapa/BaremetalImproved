@@ -12,4 +12,6 @@ target_compile_features(matrix INTERFACE cxx_std_17)
 
 target_link_libraries(matrix INTERFACE utilities)
 
+if(NOT CMAKE_CROSSCOMPILING)
 add_subdirectory(test)
+endif()
