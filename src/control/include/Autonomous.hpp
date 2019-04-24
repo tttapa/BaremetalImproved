@@ -6,7 +6,7 @@ struct AutonomousOutput {
     PositionReference location;
     AltitudeReference height;
     bool bypassAltitudeController;
-    float commonThrust;
+    real_t commonThrust;
 };
 
 AutonomousOutput updateAutonomousFSM();

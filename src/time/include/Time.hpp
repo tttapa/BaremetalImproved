@@ -1,4 +1,5 @@
 #pragma once
+#include <real_t.h>
 
 /**********************************************************************************************************************
 *   This file maintains the drone's internal clock.
@@ -18,4 +19,4 @@ int getTickCount();
 /**
  * Get the time since startup in seconds.
  */
-float getTime();
+real_t getTime();

@@ -1,7 +1,7 @@
 #include "Time.hpp"
 
 /* Clock is updated when interrupts occur at 238 Hz. */
-static constexpr float ticksPerSecond = 1.0 / 238.0;
+static constexpr real_t ticksPerSecond = 1.0 / 238.0;
 
 /* Tick counter. */
 static unsigned int tickCount = 0;
@@ -14,6 +14,6 @@ int getTickCount() {
     return tickCount;
 }
 
-float getTime() {
+real_t getTime() {
     return ticksPerSecond * getTickCount();
 }

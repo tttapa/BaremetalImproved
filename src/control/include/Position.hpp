@@ -1,5 +1,5 @@
-#include <Altitude.hpp>
-#include <Attitude.hpp>
+#pragma once
+#include <Quaternion.hpp>
 #include <real_t.h>
 
 /**
@@ -13,7 +13,7 @@ struct PositionReference {
 
 /** 
  * Measurement from the Image Processing team, consisting of two floats
- * representing the corrected global position in meters.
+ * representing the global position in meters.
  */
 struct PositionMeasurement {
     real_t x; /* X position (m) */
@@ -23,20 +23,20 @@ struct PositionMeasurement {
 /**
  * Estimate of the state of the drone's position, consisting six components.
  * The first two floats are the quaternion components q1 and q2. The next two
- * floats represent the drone's corrected global position, measured in meters.
- * Finally two floats represent the horizontal velocity of the drone in m/s.
+ * floats represent the drone's global position, measured in meters. Finally,
+ * two floats represent the horizontal velocity of the drone in m/s.
  */
 struct PositionState {
-    float q1; /* Orientation q1 component (/) */
-    float q2; /* Orientation q2 component (/) */
-    float x;  /* X position (m) */
-    float y;  /* Y position (m) */
-    float vx; /* X velocity (m/s) */
-    float vy; /* Y velocity (m/s) */
+    real_t q1; /* Orientation q1 component (/) */
+    real_t q2; /* Orientation q2 component (/) */
+    real_t x;  /* X position (m) */
+    real_t y;  /* Y position (m) */
+    real_t vx; /* X velocity (m/s) */
+    real_t vy; /* Y velocity (m/s) */
 };
 
 /**
- * Integral of the error of the corrected global position of the drone.
+ * Integral of the error of the global position of the drone.
  */
 struct PositionIntegralWindup {
     real_t x; /* X position (m) */
@@ -48,8 +48,8 @@ struct PositionIntegralWindup {
  * attitude controller.
  */
 struct PositionControlSignal {
-    float q1ref; /* Reference orientation q1 component (/) */
-    float q2ref; /* Reference orientation q2 component (/) */
+    real_t q1ref; /* Reference orientation q1 component (/) */
+    real_t q2ref; /* Reference orientation q2 component (/) */
 };
 
 /**
@@ -60,7 +60,8 @@ struct PositionControlSignal {
  * drone's state estimate deviates from the reference state.
  *
  * To achieve this, the PositionController contains variables to store the
- * reference position, state estimate, integral windup and control signal.
+ * state estimate, integral windup, control signal and the last measurement
+ * time.
  */
 class PositionController {
 
@@ -68,14 +69,14 @@ class PositionController {
     /**
      * Estimate of the state of the drone's position, consisting six components.
      * The first two floats are the quaternion components q1 and q2. The next
-     * two floats represent the drone's corrected global position, measured in
-     * meters. Finally two floats represent the horizontal velocity of the drone
+     * two floats represent the drone's global position, measured in meters.
+     * Finally, two floats represent the horizontal velocity of the drone
      * in m/s.
      */
     PositionState stateEstimate;
 
     /**
-     * Integral of the error of the corrected global position of the drone.
+     * Integral of the error of the global position of the drone.
      */
     PositionIntegralWindup integralWindup;
 
@@ -84,6 +85,12 @@ class PositionController {
      * attitude controller.
      */
     PositionControlSignal controlSignal;
+
+    /**
+     * Time that the last measurement from the Image Processing team was
+     * received (see Time.hpp).
+     */
+    real_t lastMeasurementTime;
 
     /**
      * Calculate the current position control signal using the code generator.
@@ -142,16 +149,19 @@ class PositionController {
      */
     PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
                                               PositionMeasurement measurement,
-                                              AttitudeState orientation,
+                                              Quaternion orientation,
                                               int droneConfiguration);
 
-    // TODO: uncommented
-    // TODO: clamp where?
-    void clampPositionControllerOutput(PositionControlSignal,
-                                       PositionIntegralWindup);
-
-    real_t qRefClamp;
-    real_t blocksToMeters;
+    /**
+     * Clamp the given position control signal in [-0.0436,+0.0436].
+     * 
+     * @param   controlSignal
+     *          control signal to clamp
+     * 
+     * @return  the clamped position control signal.
+     */
+    PositionControlSignal
+    clampControlSignal(PositionControlSignal controlSignal);
 
   public:
     /**
@@ -187,7 +197,8 @@ class PositionController {
      */
     PositionControlSignal updateControlSignal(PositionReference reference);
 
-    // TODO: uncommented
-    void initializeController(AttitudeState, PositionMeasurement,
-                              AltitudeMeasurement);
+    /**
+     * Reset the position controller.
+     */
+    void init();
 };

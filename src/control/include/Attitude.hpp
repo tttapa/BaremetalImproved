@@ -1,6 +1,6 @@
-#include <Globals.h>
+#pragma once
 #include <Quaternion.hpp>
-#include <configuration.hpp>
+#include <real_t.h>
 
 /**
  * Attitude reference to track, consisting of a single quaternion.
@@ -23,9 +23,9 @@ struct AttitudeMeasurement {
 
 /**
  * Estimate of the state of the drone's attitude, consisting of the drone's
- * orientation (1 quaternion), angular velocity in rad/s (3 components: wx, wy,
- * wz) and the angular velocity of the torque motors in rad/s (3 components: nx,
- * ny, nz).
+ * orientation (1 quaternion q), angular velocity in rad/s (3 components: wx,
+ * wy, wz) and the angular velocity of the torque motors in rad/s (3 components:
+ * nx, ny, nz).
  */
 struct AttitudeState {
     Quaternion q; /* Orientation */
@@ -90,7 +90,7 @@ transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
  * deviates from the reference state.
  *
  * To achieve this, the AttitudeController contains variables to store the
- * reference orientation, state estimate, integral windup and control signal.
+ * state estimate, integral windup and control signal.
  */
 class AttitudeController {
 
@@ -170,16 +170,22 @@ class AttitudeController {
                                            AttitudeMeasurement measurement,
                                            int droneConfiguration);
 
-    // TODO: uncommented
     /**
-     * Maximum signal value (clamp) for the z-torque motor. This prevents the
-     * drone from trying to turn too fast to correct the yaw.
+     * Clamp the given attitude control signal such that the corrections are not
+     * dominated by the yaw component and such that each motor PWM duty cycle is
+     * in [0,1].
+     * 
+     * @param   controlSignal
+     *          control signal to clamp
+     * @param   commonThrust
+     *          control signal to be sent to the "common motor": this must be in
+     *          [0,1]
+     * 
+     * @return  the clamped attitude control signal.
      */
-    // TODO: constant? where should this be?
-    real_t uzClamp;
-
-    // TODO: clamp where?
-    void clampAttitudeControllerOutput(AttitudeControlSignal, real_t);
+    AttitudeControlSignal
+    clampControlSignal(AttitudeControlSignal controlSignal,
+                       real_t commonThrust);
 
   public:
     /**
@@ -202,14 +208,17 @@ class AttitudeController {
      * 
      * @param   reference
      *          reference orientation to track
+     * @param   commonThrust
+     *          control signal sent to the "common motor"
      *
      * @return  the control signal to be sent to the "torque motors" until the
      *          next IMU measurement.
      */
-    AttitudeControlSignal updateControlSignal(AttitudeReference reference);
+    AttitudeControlSignal updateControlSignal(AttitudeReference reference,
+                                              real_t commonThrust);
 
-    // TODO: uncommented
-    void initializeController();
-
-    void idleController();
+    /**
+     * Reset the attitude controller.
+     */
+    void init();
 };

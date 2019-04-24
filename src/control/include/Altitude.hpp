@@ -1,5 +1,4 @@
-#include <Attitude.hpp>
-#include <Globals.h>
+#pragma once
 #include <Quaternion.hpp>
 #include <real_t.h>
 
@@ -11,8 +10,8 @@ struct AltitudeReference {
 };
 
 /**
- * Measurement from the sonar, consisting of one float representing the
- * corrected height of the drone, measured in meters.
+ * Corrected measurement from the sonar, consisting of one float representing
+ * the height of the drone, measured in meters.
  */
 struct AltitudeMeasurement {
     real_t z; /* Height (m) */
@@ -22,9 +21,9 @@ struct AltitudeMeasurement {
  * Estimate of the state of the drone's altitude, consisting three components.
  * First is a float representing the marginal angular velocity of the "common
  * motor", relative to the hovering angular velocity. This value is measured
- * in rad/s. Next is a float representing the corrected height of the drone,
- * measured in meters. Finally is a float representing the vertical velocity
- * of the drone, measured in m/s.
+ * in rad/s. Next is a float representing the height of the drone, measured
+ * in meters. Finally is a float representing the vertical velocity of the
+ * drone, measured in m/s.
  */
 struct AltitudeState {
     real_t nt; /* Common motor marginal angular velocity (rad/s) */
@@ -33,7 +32,7 @@ struct AltitudeState {
 };
 
 /**
- * Integral of the error of the corrected height of the drone.
+ * Integral of the error of the height of the drone.
  */
 struct AltitudeIntegralWindup {
     real_t z; /* Height (m) */
@@ -47,14 +46,28 @@ struct AltitudeControlSignal {
 };
 
 /**
+ * Update the reference height using the RC throttle. When the RC throttle is in
+ * the dead zone [25%, 75%], the reference height will not change. If the value
+ * of the RC throttle exceeds 75% (goes below 25%), then the reference height
+ * will increase (decrease). The maximum increase (decrease) speed is reached
+ * when the value of the RC throttle reaches 100% (0%).
+ * 
+ * @param   reference
+ *          reference height from the previous cycle
+ * 
+ * @return  the updated reference height.
+ */
+AltitudeReference rcUpdateReferenceHeight(AltitudeReference reference);
+
+/**
  * Class to control the altitude of the drone. The first part is an observer to
- * estimate the drone's "common motor" marginal angular velocity, corrected
- * height, and vertical velocity. Next, there is a controller to send the
- * appropriate PWM signal to the common motor based on how far the drone's state
+ * estimate the drone's "common motor" marginal angular velocity, height and
+ * vertical velocity. Next, there is a controller to send the appropriate
+ * marginal PWM signal to the common motor based on how far the drone's state
  * estimate deviates from the reference state.
  *
  * To achieve this, the AltitudeController contains variables to store the
- * reference height, state estimate, integral windup and control signal.
+ * state estimate, integral windup, and control signal.
  */
 class AltitudeController {
 
@@ -63,14 +76,14 @@ class AltitudeController {
      * Estimate of the state of the drone's altitude, consisting three
      * components. First is a float representing the marginal angular velocity
      * of the "common motor", relative to the hovering angular velocity. This
-     * value is measured in rad/s. Next is a float representing the corrected
-     * height of the drone, measured in meters. Finally is a float representing
-     * the vertical velocity of the drone, measured in m/s.
+     * value is measured in rad/s. Next is a float representing the height of
+     * the drone, measured in meters. Finally is a float representing the
+     * vertical velocity of the drone, measured in m/s.
      */
     AltitudeState stateEstimate;
 
     /**
-     * Integral of the error of the corrected height of the drone.
+     * Integral of the error of the height of the drone.
      */
     AltitudeIntegralWindup integralWindup;
 
@@ -136,16 +149,16 @@ class AltitudeController {
                                            AltitudeMeasurement measurement,
                                            int droneConfiguration);
 
-    // TODO: uncommented
-    // TODO: clamp where?
-    void clampAltitudeControllerOutput(AltitudeControlSignal,
-                                       AltitudeIntegralWindup);
-
-    real_t utClamp;
-    real_t zMin;
-    real_t zMax;
-    real_t RCThrottleReferenceIncreaseTreshold;
-    real_t RCThrottleReferenceDecreaseTreshold;
+    /**
+     * Clamp the given altitude control signal in [-0.10,+0.10].
+     * 
+     * @param   controlSignal
+     *          control signal to clamp
+     * 
+     * @return  the clamped altitude control signal.
+     */
+    AltitudeControlSignal
+    clampControlSignal(AltitudeControlSignal controlSignal);
 
   public:
     /**
@@ -174,10 +187,8 @@ class AltitudeController {
      */
     AltitudeControlSignal updateControlSignal(AltitudeReference reference);
 
-    // TODO: uncommented
-    void initializeController(Quaternion quaternion,
-                              AltitudeMeasurement measurement,
-                              AltitudeReference reference);
-
-    void updateReference(AltitudeReference reference);
+    /**
+     * Reset the altitude controller.
+     */
+    void init();
 };

@@ -1,95 +1,70 @@
-// Original: BareMetal/src/control/navigation.c
-
-#include <Matrix.hpp>
+#include <Configuration.hpp>
+#include <Globals.h>
 #include <Position.hpp>
-#include <TiltCorrection.hpp>
+#include <SoftwareConstants.hpp>
+#include <Time.hpp>
 
-void PositionController::updateObserver(AttitudeState attitudeState,
+/* Use software constants from the POSITION namespace. */
+using namespace POSITION;
+
+PositionControlSignal
+PositionController::clampControlSignal(PositionControlSignal controlSignal) {
+
+    /* Load values from the position controller. */
+    real_t q1ref = PositionController::controlSignal.q1ref;
+    real_t q2ref = PositionController::controlSignal.q2ref;
+
+    /* Clamp q1ref and q2ref. */
+    if (q1ref > getReferenceQuaternionClamp())
+        q1ref = getReferenceQuaternionClamp();
+    if (q1ref < -getReferenceQuaternionClamp())
+        q1ref = -getReferenceQuaternionClamp();
+    if (q2ref > getReferenceQuaternionClamp())
+        q2ref = getReferenceQuaternionClamp();
+    if (q2ref < -getReferenceQuaternionClamp())
+        q2ref = -getReferenceQuaternionClamp();
+
+    return PositionControlSignal{q1ref, q2ref};
+}
+
+void PositionController::updateObserver(Quaternion orientation,
                                         PositionMeasurement measurement) {
 
-    //TODO: measurement flags
-    if (*NEW_LOCATION_MEASUREMENT_FLAG == 1) {
+    /* Calculate time since last measurement in seconds. */
+    real_t timeElapsed = getTime() - PositionController::lastMeasurementTime;
 
-        //TODO: komt uit timers -> wat hiermee doen?
-        real_t positionMeasurementTimeElapsed =
-            getPositionMeasurementTimeElapsed();
+    /* Store the current time for the next cycle. */
+    PositionController::lastMeasurementTime = getTime();
 
-        updatePositionObserver(PositionController::stateEstimate, measurement,
-                               attitudeState, positionMeasurementTimeElapsed);
-    }
+    /* Calculate the current state estimate. */
+    PositionController::stateEstimate = codegenCurrentStateEstimate(
+        PositionController::stateEstimate, measurement, orientation,
+        getDroneConfiguration())
 }
 
 PositionControlSignal PositionController::updateControlSignal() {
 
-    if (*NEW_LOCATION_MEASUREMENT_FLAG == 1) {
+    /* Calculate integral windup. */
+    PositionController::integralWindup =
+        codegenIntegralWindup(PositionController::integralWindup, reference);
 
-        //TODO: droneConfiguration & RCTuner
-        int currentDroneConfiguration = getDroneConfiguration();
-        real_t currentRCTuner         = getRCTuner();
+    /* Calculate control signal (unclamped). */
+    PositionController::controlSignal = codegenControlSignal(
+        PositionController::stateEstimate, reference,
+        PositionController::integralWindup, getDroneConfiguration());
 
-        // Calculate u_k (unclamped)
-        getPositionControllerOutput(PositionController::stateEstimate,
-                                    PositionController::reference,
-                                    PositionController::controlSignal,
-                                    PositionController::integralWindup,
-                                    currentDroneConfiguration, currentRCTuner);
-
-        // Clamp u_k
-        clampPositionControllerOutput(PositionController::controlSignal,
-                                      PositionController::integralWindup);
-    }
+    /* Clamp control signal. */
+    PositionController::controlSignal =
+        clampControlSignal(PositionController::controlSignal);
 
     return PositionController::controlSignal;
 }
 
-void PositionController::clampPositionControllerOutput(
-    PositionControlSignal controlSignal,
-    PositionIntegralWindup integralWindup) {
+void PositionController::init() {
 
-    if (PositionController::controlSignal.q1ref > PositionController::qRefClamp)
-        PositionController::controlSignal.q1ref = PositionController::qRefClamp;
-    if (PositionController::controlSignal.q1ref <
-        -PositionController::qRefClamp)
-        PositionController::controlSignal.q1ref =
-            -PositionController::qRefClamp;
-    if (PositionController::controlSignal.q2ref > PositionController::qRefClamp)
-        PositionController::controlSignal.q2ref = PositionController::qRefClamp;
-    if (PositionController::controlSignal.q2ref <
-        -PositionController::qRefClamp)
-        PositionController::controlSignal.q2ref =
-            -PositionController::qRefClamp;
-}
-
-void PositionController::initializeController(
-    AttitudeState attitudeState, PositionMeasurement positionMeasurement,
-    AltitudeMeasurement altitudeMeasurement) {
-
-    ColVector<2> correctedPosition =
-        getCorrectedPosition({positionMeasurement.x, positionMeasurement.y},
-                             altitudeMeasurement.z, attitudeState.q);
-
-    // Set reference to middle of the square
-    ColVector<2> middleOfSquare;
-    middleOfSquare[0] = floorf(correctedPosition[0]) + 0.5;
-    middleOfSquare[1] = floorf(correctedPosition[1]) + 0.5;
-    PositionController::reference.x =
-        middleOfSquare[0] * PositionController::blocksToMeters;
-    PositionController::reference.y =
-        middleOfSquare[1] * PositionController::blocksToMeters;
-
-    PositionController::stateEstimate.q1 = attitudeState.q[1];
-    PositionController::stateEstimate.q2 = attitudeState.q[2];
-    PositionController::stateEstimate.x =
-        correctedPosition[0] * PositionController::blocksToMeters;
-    PositionController::stateEstimate.y =
-        correctedPosition[1] * PositionController::blocksToMeters;
-    PositionController::stateEstimate.vx = 0;
-    PositionController::stateEstimate.vy = 0;
-    PositionController::controlSignal    = {};
-    PositionController::integralWindup   = {};
-
-    //TODO: blijft dit hier staan?
-    //  Start loitering mode:
-    //navigationFSMState = NAV_LOITERING;
-    //loiteringCounter   = 0;
+    /* Reset the position controller. */
+    PositionController::stateEstimate       = {};
+    PositionController::integralWindup      = {};
+    PositionController::controlSignal       = {};
+    PositionController::lastMeasurementTime = 0.0;
 }
