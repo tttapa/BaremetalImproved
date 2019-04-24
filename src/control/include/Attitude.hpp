@@ -1,12 +1,12 @@
-#include <Quaternion.hpp>
 #include <Globals.h>
+#include <Quaternion.hpp>
 #include <configuration.hpp>
 
 /**
  * Attitude reference to track, consisting of a single quaternion.
  */
 struct AttitudeReference {
-    Quaternion q = Quaternion(1, 0, 0, 0);  // Orientation
+    Quaternion q; /* Orientation */
 };
 
 /**
@@ -15,10 +15,10 @@ struct AttitudeReference {
  * rad/s.
  */
 struct AttitudeMeasurement {
-    Quaternion q;
-    real_t wx;  // X angular velocity (rad/s)
-    real_t wy;  // Y angular velocity (rad/s)
-    real_t wz;  // Z angular velocity (rad/s)
+    Quaternion q; /* Orientation */
+    real_t wx;    /* X angular velocity (rad/s) */
+    real_t wy;    /* Y angular velocity (rad/s) */
+    real_t wz;    /* Z angular velocity (rad/s) */
 };
 
 /**
@@ -28,31 +28,31 @@ struct AttitudeMeasurement {
  * ny, nz).
  */
 struct AttitudeState {
-    Quaternion q = Quaternion(1, 0, 0, 0);  // Orientation
-    real_t wx;                              // X angular velocity (rad/s)
-    real_t wy;                              // Y angular velocity (rad/s)
-    real_t wz;                              // Z angular velocity (rad/s)
-    real_t nx;                              // X motor angular velocity (rad/s)
-    real_t ny;                              // Y motor angular velocity (rad/s)
-    real_t nz;                              // Z motor angular velocity (rad/s)
+    Quaternion q; /* Orientation */
+    real_t wx;    /* X angular velocity (rad/s) */
+    real_t wy;    /* Y angular velocity (rad/s) */
+    real_t wz;    /* Z angular velocity (rad/s) */
+    real_t nx;    /* X motor angular velocity (rad/s) */
+    real_t ny;    /* Y motor angular velocity (rad/s) */
+    real_t nz;    /* Z motor angular velocity (rad/s) */
 };
 
 /**
  * Integral of the error of the quaternion components q1, q2 and q3.
  */
 struct AttitudeIntegralWindup {
-    real_t q1;
-    real_t q2;
-    real_t q3;
+    real_t q1; /* Orientation q1 component */
+    real_t q2; /* Orientation q2 component */
+    real_t q3; /* Orientation q3 component */
 };
 
 /**
  * PWM control signals sent to the torque motors (3 components: ux, uy, uz).
  */
 struct AttitudeControlSignal {
-    real_t ux;  // X motor signal (/)
-    real_t uy;  // Y motor signal (/)
-    real_t uz;  // Z motor signal (/)
+    real_t ux; /* X motor signal (/) */
+    real_t uy; /* Y motor signal (/) */
+    real_t uz; /* Z motor signal (/) */
 };
 
 /**
@@ -61,10 +61,10 @@ struct AttitudeControlSignal {
  * be in [0, 1].
  */
 struct MotorDutyCycles {
-  real_t v0;  /* Front-left motor duty cycle. */
-  real_t v1;  /* Front-right motor duty cycle. */
-  real_t v2;  /* Back-left motor duty cycle. */
-  real_t v3;  /* Back-right motor duty cycle. */
+    real_t v0; /* Front-left motor duty cycle */
+    real_t v1; /* Front-right motor duty cycle */
+    real_t v2; /* Back-left motor duty cycle */
+    real_t v3; /* Back-right motor duty cycle */
 };
 
 /**
@@ -78,8 +78,9 @@ struct MotorDutyCycles {
  * 
  * @return  the duty cycles to the four motors.
  */
-MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSignal, real_t commonThrust);
-
+MotorDutyCycles
+transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
+                               real_t commonThrust);
 
 /**
  * Class to control the attitude of the drone. The first part is an observer to
@@ -94,7 +95,6 @@ MotorDutyCycles transformAttitudeControlSignal(AttitudeControlSignal controlSign
 class AttitudeController {
 
   private:
-
     /**
      * Estimate of the state of the drone's attitude, consisting of the drone's
      * orientation (1 quaternion), angular velocity in rad/s (3 components: wx,
@@ -114,54 +114,74 @@ class AttitudeController {
     AttitudeControlSignal controlSignal;
 
     /**
+     * Calculate the current attitude control signal using the code generator.
+     * 
+     * @param   stateEstimate
+     *          estimate of the current state, determined last cycle
+     * @param   reference
+     *          reference orientation to track
+     * @param   integralWindup
+     *          current integral windup
+     * @param   droneConfiguration
+     *          configuration of the drone
+     * 
+     * @return  the control signal to be sent to the "torque motors" until the
+     *          next IMU measurement.
+     */
+    AttitudeControlSignal codegenControlSignal(
+        AttitudeState stateEstimate, AttitudeReference reference,
+        AttitudeIntegralWindup integralWindup, int droneConfiguration);
+
+    /**
+     * Calculate the current integral windup using the code generator.
+     * 
+     * @param   lastIntegralWindup
+     *          integral windup from the last cycle
+     * @param   reference
+     *          reference orientation to track
+     * 
+     * @return  the current integral windup.
+     */
+    AttitudeIntegralWindup
+    codegenIntegralWindup(AttitudeIntegralWindup lastIntegralWindup,
+                          AttitudeReference reference);
+
+    /**
+     * Calculate the next attitude estimate using the code generator. Because
+     * the attitude control system is implemented with a Kalman filter, this
+     * function should be called after AttitudeController::
+     * codegenControlSignal() is called in order to determine the state estimate
+     * for the next cycle.
+     * 
+     * @param   stateEstimate
+     *          estimate of the current state, determined last cycle
+     * @param   controlSignal
+     *          control signal that will be sent to the "torque motors" until
+     *          the next IMU measurement
+     * @param   measurement
+     *          current measurement from the IMU
+     * @param   droneConfiguration
+     *          configuration of the drone
+     * 
+     * @return  the estimate of the next attitude state.
+     */
+    AttitudeState codegenNextStateEstimate(AttitudeState stateEstimate,
+                                           AttitudeControlSignal controlSignal,
+                                           AttitudeMeasurement measurement,
+                                           int droneConfiguration);
+
+    // TODO: uncommented
+    /**
      * Maximum signal value (clamp) for the z-torque motor. This prevents the
      * drone from trying to turn too fast to correct the yaw.
      */
+    // TODO: constant? where should this be?
     real_t uzClamp;
 
     // TODO: clamp where?
     void clampAttitudeControllerOutput(AttitudeControlSignal, real_t);
 
-    /**
-     * Update the given attitude estimate using the code generator.
-     * 
-     * @param   stateEstimate
-     *          estimate of the current attitude state, determined last cycle
-     * @param   controlSignal
-     *          current control signal
-     * @param   measurement
-     *          current measurement from the IMU
-     * @param   droneConfiguration
-     *          configuration of the drone
-     */
-    void updateObserverCodegen(AttitudeState stateEstimate,
-                               AttitudeControlSignal controlSignal,
-                               AttitudeMeasurement measurement,
-                               int droneConfiguration);
-
-    /**
-     * Update the given attitude control signal using the code generator.
-     * 
-     * @param   stateEstimate
-     *          estimate of the current attitude state, determined last cycle
-     * @param   reference
-     *          height reference to track
-     * @param   controlSignal
-     *          control signal to update
-     * @param   integralWindup
-     *          integral windup to update
-     * @param   droneConfiguration
-     *          configuration of the drone
-     */
-    void updateControlSignalCodegen(AttitudeState stateEstimate,
-                                    AttitudeReference reference,
-                                    AttitudeControlSignal controlSignal,
-                                    AttitudeIntegralWindup integralWindup,
-                                    int droneConfiguration);
-
-
   public:
-  
     /**
      * Update the attitude observer with the given IMU measurement. This
      * function should be called at 238 Hz when the IMU receives a new
@@ -181,13 +201,15 @@ class AttitudeController {
      * measurement.
      * 
      * @param   reference
-     *          the reference orientation to track
+     *          reference orientation to track
      *
-     * @return  the control signal to be sent to the "torque motors".
+     * @return  the control signal to be sent to the "torque motors" until the
+     *          next IMU measurement.
      */
     AttitudeControlSignal updateControlSignal(AttitudeReference reference);
 
+    // TODO: uncommented
     void initializeController();
-    
+
     void idleController();
 };
