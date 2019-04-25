@@ -1,4 +1,5 @@
 #include <xparameters.h>
+#include "../include/PublicHardwareConstants.hpp"
 #pragma once
 
 
@@ -209,6 +210,9 @@ namespace SONAR {
      * (after applying median filter). 
      */
     const float MAX_JUMP = 0.5;
+
+    /** Frequency of the sonar measurements. */
+    const float FREQUENCY = SONAR_FREQUENCY();
 
 }
 

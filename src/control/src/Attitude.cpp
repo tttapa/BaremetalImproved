@@ -21,9 +21,9 @@ AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
                                        real_t commonThrust) {
 
     /* Load values from the attitude controller. */
-    real_t ux = AttitudeController::controlSignal.ux;
-    real_t uy = AttitudeController::controlSignal.uy;
-    real_t uz = AttitudeController::controlSignal.uz;
+    real_t ux = controlSignal.ux;
+    real_t uy = controlSignal.uy;
+    real_t uz = controlSignal.uz;
 
     /* Clamp the yaw torque motor separately to ensure ux, uy compensation. */
     if (uz > getYawSignalClamp())

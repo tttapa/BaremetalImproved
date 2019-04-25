@@ -2,6 +2,7 @@
 #include <Configuration.hpp>
 #include <Globals.hpp>
 #include <SoftwareConstants.hpp>
+#include "../../../src-vivado/main/include/PublicHardwareConstants.hpp"
 
 /* Use software constants from the ALTITDUE namespace. */
 using namespace ALTITUDE;
@@ -13,9 +14,9 @@ AltitudeReference rcUpdateReferenceHeight(AltitudeReference reference) {
 
     /* Try increasing/decreasing the reference height. */
     if (throttle > getRCReferenceUpperThreshold())
-        z += (throttle - getRCReferenceUpperThreshold()) / getSonarFrequency();
+        z += (throttle - getRCReferenceUpperThreshold()) / SONAR_FREQUENCY();
     if (throttle < getRCReferenceLowerThreshold())
-        z -= (getRCReferenceLowerThreshold() - throttle) / getSonarFrequency();
+        z -= (getRCReferenceLowerThreshold() - throttle) / SONAR_FREQUENCY();
 
     /* Clamp the reference height. */
     if (z < getMinimumReferenceHeight())

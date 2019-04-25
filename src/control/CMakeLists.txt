@@ -8,7 +8,6 @@ add_library(control
     src/Altitude.cpp
     src/Attitude.cpp
     src/PositionCodegen.cpp
-    src/QRFSM.cpp
 )
 
 # Set target include directories 

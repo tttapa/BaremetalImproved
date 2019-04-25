@@ -12,6 +12,13 @@ void updateMainFSM() {
     // globals.setRC(readRC())
 
 
+    // TODO: imp position -tilt-correct-> corrected imp position -time-elapsed-> global position
+    // /* Calculate time since last measurement in seconds. */
+    // real_t timeElapsed = getTime() - PositionController::lastMeasurementTime;
+    //
+    // /* Store the current time for the next cycle. */
+    // PositionController::lastMeasurementTime = getTime();
+
 
     // ! switch
 

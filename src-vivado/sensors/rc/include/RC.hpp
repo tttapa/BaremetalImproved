@@ -27,16 +27,16 @@ struct RCInput {
     int inductive;
 };
 
-namespace INDUCTIVE {
-const int ON  = 1;
-const int OFF = 2;
-}  // namespace INDUCTIVE
+enum InductiveMode {
+    ON  = 1,
+    OFF = 2,
+};
 
-namespace MODE {
-const int MANUAL        = 1;
-const int ALTITUDE_HOLD = 2;
-const int AUTONOMOUS    = 3;
-}  // namespace MODE
+enum FlightMode {
+    MANUAL_MODE        = 1,
+    ALTITUDE_HOLD_MODE = 2,
+    AUTONOMOUS_MODE    = 3,
+};
 
 /**
  * Read the RC voltages from the registers and assign them to the correct instances

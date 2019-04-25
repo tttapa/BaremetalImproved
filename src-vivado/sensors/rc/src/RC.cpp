@@ -26,11 +26,11 @@ int getMode(float mode) {
 	// Get the current mode from RC
 	int newMode;
 	if (mode < threshold1)
-		newMode = MODE::MANUAL;
+		newMode = MANUAL_MODE;
 	else if (mode < threshold2)
-		newMode = MODE::ALTITUDE_HOLD;
+		newMode = ALTITUDE_HOLD_MODE;
 	else
-        newMode = MODE::AUTONOMOUS; 
+        newMode = AUTONOMOUS_MODE; 
 
     // TODO: can this be smaller
     #define MODE_DELAY 50

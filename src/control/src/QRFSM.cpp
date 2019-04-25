@@ -1,1 +1,0 @@
-// Original: BareMetal/src/control/timers.c

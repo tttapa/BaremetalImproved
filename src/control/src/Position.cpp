@@ -7,12 +7,22 @@
 /* Use software constants from the POSITION namespace. */
 using namespace POSITION;
 
+real_t dist(PositionReference position1, PositionReference position2) {
+    return std::sqrt(distsq(position1, position2));
+}
+
+real_t distsq(PositionReference position1, PositionReference position2) {
+    real_t dx = position2.x - position1.x;
+    real_t dy = position2.y - position1.y;
+    return dx * dx + dy * dy;
+}
+
 PositionControlSignal
 PositionController::clampControlSignal(PositionControlSignal controlSignal) {
 
     /* Load values from the position controller. */
-    real_t q1ref = PositionController::controlSignal.q1ref;
-    real_t q2ref = PositionController::controlSignal.q2ref;
+    real_t q1ref = controlSignal.q1ref;
+    real_t q2ref = controlSignal.q2ref;
 
     /* Clamp q1ref and q2ref. */
     if (q1ref > getReferenceQuaternionClamp())
@@ -30,19 +40,14 @@ PositionController::clampControlSignal(PositionControlSignal controlSignal) {
 void PositionController::updateObserver(Quaternion orientation,
                                         PositionMeasurement measurement) {
 
-    /* Calculate time since last measurement in seconds. */
-    real_t timeElapsed = getTime() - PositionController::lastMeasurementTime;
-
-    /* Store the current time for the next cycle. */
-    PositionController::lastMeasurementTime = getTime();
-
     /* Calculate the current state estimate. */
     PositionController::stateEstimate = codegenCurrentStateEstimate(
         PositionController::stateEstimate, measurement, orientation,
         getDroneConfiguration());
 }
 
-PositionControlSignal PositionController::updateControlSignal() {
+PositionControlSignal
+PositionController::updateControlSignal(PositionReference reference) {
 
     /* Calculate integral windup. */
     PositionController::integralWindup =

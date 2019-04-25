@@ -53,6 +53,31 @@ struct PositionControlSignal {
 };
 
 /**
+ * Calculates the distance the two given positions in meters.
+ * 
+ * @param   position1
+ *          first position
+ * @param   position2
+ *          second position
+ * 
+ * @return  the distance between the two given positions.
+ */
+real_t dist(PositionReference position1, PositionReference position2);
+
+/**
+ * Calculates the square of the distance the two given positions in meters.
+ * 
+ * @param   position1
+ *          first position
+ * @param   position2
+ *          second position
+ * 
+ * @return  the square of distance between the two given positions.
+ */
+real_t distsq(PositionReference position1, PositionReference position2);
+
+
+/**
  * Class to control the position of the drone. The first part is an observer to
  * estimate the drone's quaternion components q1 and q2, global position and
  * horizontal velocity. Next, there is a controller to send the appropriate 
