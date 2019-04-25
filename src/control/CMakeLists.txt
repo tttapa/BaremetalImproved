@@ -37,6 +37,8 @@ target_compile_features(control PUBLIC cxx_std_17)
 target_link_libraries(control 
     PUBLIC 
         quaternion
+        utilities
+    PRIVATE
         configuration
         globals
         time
@@ -47,19 +49,3 @@ if(NOT CMAKE_CROSSCOMPILING)
     # that adds the tests.
     add_subdirectory(test) 
 endif()
-
-# oké, dus ik heb gewoon de CMakelists van greet gekopieerd
-# ik ga nu alle files voor control toevoegen, en een nieuw target maken
-# 
-# welke dependencies heeft control allemaal? Quaternion?
-# quaternion, matrix, real_t, globals/SoftwareConstants.hpp, globals/Globals.h
-# and time/time.hpp
-# 
-# oké, nu moeten we dus alle includes zien te fiksen :p normaal doe je dat
-# terwijl je programmeert, dan moet je dat achteraf niet allemaal gaan zoeken :D
-#
-# oh shiit, that one lemme check if it's implemented at all...
-# yeah you need misc/configuration/Configuration.hpp too!
-# Do I rename it? It's lowercase 
-#
-# all files should be upper case except for real_t - oké
