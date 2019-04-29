@@ -138,7 +138,8 @@ class AutonomousController {
     /** Next target position. */
     PositionReference nextTarget;
 
-    /** 
+    /** Estimated time to navigate from previous target to next target. */
+    real_t navigationTime;
 
     /** Next QR code location. */
     PositionReference nextQRPosition;
@@ -201,6 +202,15 @@ class AutonomousController {
      */
     void setQRState(int nextState);
 
+    /**
+     * Tell the autonomous controller's FSM to switch to the LANDING state.
+     */
+    void startLanding();
+
+    /**
+     * Tell the autonomous controller's FSM to switch to the NAVIGATING state.
+     */
+    void startNavigating();
 
     /**
      * Update the autonomous controller's finite state machine (FSM). In the
@@ -214,11 +224,12 @@ class AutonomousController {
      */
     AutonomousOutput updateAutonomousFSM(PositionReference dronePosition);
 
-
     /**
-     * Update the autonomous controller's QR finite state machine (FSM) calculate
-     * next reference position and height, possibly together with a bypass of
-     * the altitude controller.
+     * Update the autonomous controller's QR finite state machine (FSM) only
+     * if the autonomous FSM state is CONVERGING. It is ANC's responsibility
+     * to change the QR state if the FSM is currently in one of the following
+     * states: QR_IDLE, QR_ERROR, QR_NEW_TARGET, QR_UNKNOWN, QR_LAND. If the 
+     * FSM is in any other state, then this function will do nothing.
      */
     void updateQRFSM();
 
@@ -229,8 +240,11 @@ class AutonomousController {
      * 
      * @param   currentPosition
      *          current position of the drone
+     * @param   currentHeight
+     *          current height of the drone
      */
-    void initAir(PositionReference currentPosition);
+    void initAir(PositionReference currentPosition,
+                 AltitudeController currentHeight);
 
     /**
      * Reset the autonomous controller to the IDLE_GROUND state and set the

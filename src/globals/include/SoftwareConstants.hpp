@@ -51,7 +51,7 @@ real_t getConvergenceDistance() { return 0.10; }
 
 /**
  * If the drone is stays with a certain distance of its destination for 1
- * seconds, then it will have converged on its target.
+ * second, then it will have converged on its target.
  */
 real_t getConvergenceDuration() { return 1.0; }
 
