@@ -138,6 +138,8 @@ class AutonomousController {
     /** Next target position. */
     PositionReference nextTarget;
 
+    /** 
+
     /** Next QR code location. */
     PositionReference nextQRPosition;
 

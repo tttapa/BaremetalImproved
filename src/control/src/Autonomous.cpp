@@ -217,7 +217,7 @@ AutonomousController::updateAutonomousFSM(PositionReference dronePosition) {
     bool trustAccelerometerForPosition  = false;
     PositionReference referencePosition = AutonomousController::nextTarget;
 
-    real_t totalTime, factor, dx, dy;
+    real_t d, totalTime, factor, dx, dy;
     switch (AutonomousController::autonomousState) {
 
         case IDLE_GROUND:
@@ -268,7 +268,7 @@ AutonomousController::updateAutonomousFSM(PositionReference dronePosition) {
 
         case LOITERING:
             if (AutonomousController::elapsedTime < getLoiterDuration()) {
-                /* Don't change any parameter. */
+                /* Stay at the target location. */
             } else {
                 /* Set state to CONVERGING and output what it says. */
                 setAutonomousState(CONVERGING);
@@ -283,11 +283,11 @@ AutonomousController::updateAutonomousFSM(PositionReference dronePosition) {
                 AutonomousController::elapsedTime = 0.0;
             }
 
-            /*
-                     * As soon as we've received a new target from the
-                     * Cryptography team, we will go (back) to NAVIGATING.
-                     */
+            /* Go to NAVIGATING if the Cryptography team sent a new target. */
             if (AutonomousController::qrState == QR_NEW_TARGET) {
+                d = dist(AutonomousController::previousTarget,
+                         AutonomousController::nextTarget);
+                AutonomousController::navigationTime = d / getNavigationSpeed();
                 setAutonomousState(NAVIGATING);
                 return updateAutonomousFSM(dronePosition);
             }
@@ -300,7 +300,8 @@ AutonomousController::updateAutonomousFSM(PositionReference dronePosition) {
                              AutonomousController::nextTarget) /
                         getNavigationSpeed();
 
-            if (AutonomousController::elapsedTime >= totalTime) {
+            if (AutonomousController::elapsedTime >=
+                AutonomousController::navigationTime) {
                 /* We've navigated long enough, switch to CONVERGING. */
                 setAutonomousState(CONVERGING);
                 return updateAutonomousFSM(dronePosition);
