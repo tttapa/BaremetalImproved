@@ -45,4 +45,5 @@
     "editor.rulers": [
         80
     ],
+    "C_Cpp.errorSquiggles": "Disabled",
 }

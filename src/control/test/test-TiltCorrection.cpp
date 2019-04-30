@@ -7,6 +7,7 @@
 static constexpr real_t eps = 1e2 * std::numeric_limits<real_t>::epsilon();
 
 // See eagle-control-slides.pdf: 182: Example (i)
+#if 0
 TEST(TiltCorrection, simpleFull) {
     real_t z_             = 1.101718;
     real_t theta          = 15_deg;
@@ -22,6 +23,7 @@ TEST(TiltCorrection, simpleFull) {
     };
     EXPECT_TRUE(isAlmostEqual(result, expected, eps));
 }
+#endif
 
 TEST(TiltCorrection, efficient) {
     real_t z_             = 1.101718;

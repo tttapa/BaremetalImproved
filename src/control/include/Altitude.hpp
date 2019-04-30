@@ -123,7 +123,8 @@ class AltitudeController {
      */
     AltitudeIntegralWindup
     codegenIntegralWindup(AltitudeIntegralWindup lastIntegralWindup,
-                          AltitudeReference reference);
+                          AltitudeReference reference,
+                          AltitudeState stateEstimate, int droneConfiguration);
 
     /**
      * Calculate the next altitude estimate using the code generator. Because
