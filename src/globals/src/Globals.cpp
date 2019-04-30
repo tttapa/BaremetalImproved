@@ -20,9 +20,9 @@ real_t getRCYaw() { return currentRCInput.yaw; }
 
 real_t getRCTuner() { return currentRCInput.tuner; }
 
-int getRCMode() { return currentRCInput.mode; }
+FlightMode getRCFlightMode() { return currentRCInput.flightMode; }
 
-int getRCInductive() { return currentRCInput.inductive; }
+WPTMode getRCWPTMode() { return currentRCInput.wptMode; }
 
 // TODO: read from shared memory
 int readQRState() { return 1; }

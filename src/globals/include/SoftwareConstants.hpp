@@ -1,7 +1,7 @@
 #include <real_t.h>
 
 namespace ATTITUDE {
-
+// TODO: replace with const real_t ... = ...;
 /**
  * The largest control signal that can be sent to the "yaw torque motor" is
  * 0.10.
@@ -54,6 +54,33 @@ real_t getConvergenceDistance() { return 0.10; }
  * second, then it will have converged on its target.
  */
 real_t getConvergenceDuration() { return 1.0; }
+
+/**
+ * The blind stage of the landing, meaning the sonar is not accurate anymore,
+ * lasts 2.5 seconds.
+ */
+real_t getLandingBlindDuration() { return 2.5; }
+
+
+/**
+ * During the blind stage of the landing, meaning the sonar is not accurate
+ * anymore, a marginal signal of 1% below the hovering signal will be sent to
+ * the "common motor".
+ */
+real_t getLandingBlindMarginalThrust() { return -0.01; }
+
+/**
+ * In the first stage of the landing procedure, when the sonar is accurate, the
+ * reference height will decrease until it hits 0.25 meters.
+ */
+real_t getLandingLowestReferenceHeight() { return 0.25; };
+
+/**
+ * In the first stage of the landing procedure, when the sonar is accurate, the
+ * reference height will decrease at a speed of 0.25 m/s until it hits the
+ * minimum value, see getLandingLowestReferenceHeight().
+ */
+real_t getLandingReferenceHeightDecreaseSpeed() { return 0.25; }
 
 /**
  * If the autonomous controller is in the state LOITERING, NAVIGATING or

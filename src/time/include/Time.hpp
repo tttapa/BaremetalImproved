@@ -12,6 +12,11 @@
 void incrementTickCount();
 
 /**
+ * Returns the time between ticks in seconds, namely (1.0/238.0) seconds.
+ */
+real_t getSecondsPerTick();
+
+/**
  * Get the tick counter;
  */
 int getTickCount();

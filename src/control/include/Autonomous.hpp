@@ -78,6 +78,7 @@ enum AutonomousState {
 /** States present in the QR finite state machine (FSM). */
 enum QRState {
 
+    // TODO: start at 0 for default state in enums
     /** No group is busy with QR codes. */
     QR_IDLE = 1,
 
@@ -102,6 +103,18 @@ enum QRState {
 };
 
 /**
+ * Returns whether the given position is a valid position to search for the
+ * QR code.
+ * 
+ * @param   position
+ *          position to check
+ * 
+ * @return  True if and only if the given position is within the bounds
+ *          of the grid.
+ */
+bool isValidSearchTarget(PositionReference position);
+
+/**
  * Class to control the autonomous navigation of the drone. It has one function
  * to update the finite state machine (FSM) which returns an AutonomousOutput.
  * The AutonomousOutput consists of a reference position, reference height,
@@ -117,14 +130,12 @@ class AutonomousController {
 
   private:
     /**
-     * Seconds that have passed since the controller entered the current state.
-     */
-    real_t elapsedTime;
-
-    /**
      * Current state of the autonomous controller's finite state machine (FSM).
      */
     AutonomousState autonomousState;
+
+    /** Time that the autonomous controller entered its current state. */
+    real_t autonomousStateStartTime;
 
     /** Current state of the QR finite state machine (FSM). */
     QRState qrState;
@@ -157,22 +168,19 @@ class AutonomousController {
     int qrTilesSearched;
 
     /**
+     * Calculates the time since the autonomous controller entered its current
+     * state in seconds.
+     * 
+     * @return  seconds passed since the current autonomous state was entered.
+     */
+    real_t getElapsedTime();
+
+    /**
      * Calculates the next target in an outward spiral search for the QR code.
      * 
      * @return  the next target to check.
      */
     PositionReference getNextSearchTarget();
-
-    /**
-     * Returns whether the given position is a valid position to search.
-     * 
-     * @param   position
-     *          position to check
-     * 
-     * @return  True if and only if the given position is within the bounds
-     *          of the grid.
-     */
-    bool isValidSearchTarget(PositionReference position);
 
     /**
      * Set the current state of the autonomous controller's FSM to the given
@@ -203,26 +211,44 @@ class AutonomousController {
     void setQRState(int nextState);
 
     /**
-     * Tell the autonomous controller's FSM to switch to the LANDING state.
+     * Tell the autonomous controller's FSM to switch to the LANDING state. This
+     * will be called from the QR FSM when the Cryptography team decodes a
+     * QR_LAND instruction. The drone will either try to land at its current
+     * position (e.g. if the pilot aborts the autonomous flight by setting the
+     * throttle to zero) or at the most recent target position. This is based
+     * on the parameter shouldLandAtCurrentPosition.
+     * 
+     * @param   shouldLandAtCurrentPosition
+     *          whether the landing target position should be the current drone
+     *          position
+     * @param   currentPosition
+     *          current drone position
      */
-    void startLanding();
+    void startLanding(bool shouldLandAtCurrentPosition,
+                      PositionReference currentPosition);
 
     /**
-     * Tell the autonomous controller's FSM to switch to the NAVIGATING state.
+     * Tell the autonomous controller's FSM to switch to the NAVIGATING state
+     * and start navigating to the given target. This will be called from the QR
+     * FSM when the Cryptography team decodes a QR_NEW_TARGET instruction.
+     * 
+     * @param   nextQRPosition
+     *          position to navigate to, which will be the next QR code during
+     *          autonomous mode
      */
-    void startNavigating();
+    void startNavigating(PositionReference nextQRPosition);
 
     /**
      * Update the autonomous controller's finite state machine (FSM). In the
      * resulting struct contains the next reference position and height,
      * possibly together with a bypass of the altitude controller.
      * 
-     * @param   dronePosition
-     *          current estimate of the drone's position
+     * @param   currentPosition
+     *          current position of the drone
      * 
      * @return  the next AutonomousOutput.
      */
-    AutonomousOutput updateAutonomousFSM(PositionReference dronePosition);
+    AutonomousOutput updateAutonomousFSM(PositionReference currentPosition);
 
     /**
      * Update the autonomous controller's QR finite state machine (FSM) only
@@ -240,15 +266,15 @@ class AutonomousController {
      * 
      * @param   currentPosition
      *          current position of the drone
-     * @param   currentHeight
-     *          current height of the drone
+     * @param   referenceHeight
+     *          reference height of the drone during autonomous mode
      */
     void initAir(PositionReference currentPosition,
-                 AltitudeController currentHeight);
+                 AltitudeReference referenceHeight);
 
     /**
      * Reset the autonomous controller to the IDLE_GROUND state and set the
-     * reference position to the given position.
+     * reference position for takeoff and loitering to the given position.
      * 
      * @param   currentPosition
      *          current position of the drone
@@ -261,10 +287,10 @@ class AutonomousController {
      * reference position and height, possibly together with a bypass of the
      * altitude controller.
      * 
-     * @param   positionState
-     *          current estimate of the position system state
+     * @param   currentPosition
+     *          current position of the drone
      * 
      * @return  the next AutonomousOutput.
      */
-    AutonomousOutput update(PositionState positionState);
+    AutonomousOutput update(PositionReference currentPosition);
 };

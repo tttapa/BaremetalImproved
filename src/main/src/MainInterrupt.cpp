@@ -1,12 +1,13 @@
-#include "MainInterrupt.hpp"
-#include "../sensors/ahrs/AHRS.hpp"
-#include "../sensors/imu/IMU.hpp"
-#include "../time/Time.hpp"
-#include <MainFSM.hpp>  // Update control system
+#include "../include/MainInterrupt.hpp"
+#include "../../../src-vivado/sensors/rc/include/RC.hpp"
+#include <Globals.hpp>
 
 
 // Called by src-vivado every 238 Hz after initialization/calibration is complete.
 void updateMainFSM() {
+
+    /* Previous flight mode initialized when the function is first called. */
+    static FlightMode previousFlightMode = FlightMode::UNINITIALIZED;
 
     // TODO:
     // globals.setRC(readRC())
@@ -62,6 +63,8 @@ void updateMainFSM() {
     // TODO: reset new measurement flags
     // TODO: *NEW_LOCATION_MEASUREMENT == 0
 
+    /* Store flight mode. */
+    previousFlightMode = getRCFlightMode();
     
 }
 

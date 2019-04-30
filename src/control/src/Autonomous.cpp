@@ -1,33 +1,41 @@
 #include <Autonomous.hpp>
 #include <Globals.hpp>
 #include <SoftwareConstants.hpp>
+#include <Time.hpp>
 
 /* Use software constants from the AUTONOMOUS namespace. */
 using namespace AUTONOMOUS;
 
-PositionReference AutonomousController::getNextSearchTarget() {
+bool isValidSearchTarget(PositionReference position) {
+    return position.x >= POSITION::getXMin() &&
+           position.x <= POSITION::getXMax() &&
+           position.y >= POSITION::getYMin() &&
+           position.y <= POSITION::getYMax();
+}
 
-    /* Spiral outwards until we reach the next tile to check. */
+real_t AutonomousController::getElapsedTime() {
+    return getTime() - AutonomousController::autonomousStateStartTime;
+}
+
+PositionReference AutonomousController::getNextSearchTarget() {
     real_t x = AutonomousController::nextQRPosition.x;
     real_t y = AutonomousController::nextQRPosition.y;
 
+    /* Spiral outward until we reach the next tile to check. */
     real_t dx          = 1.0;
     real_t dy          = 0.0;
     int tilesUntilTurn = 0;
     int nextTurnIndex  = 1;
     for (int i = 0; i < AutonomousController::qrTilesSearched; i++) {
-
         /* Every two iterations, the turn occurs 1 tile later. */
         if (i % 2 == 0)
             tilesUntilTurn++;
-
         /* Update dx, dy based on the index i. */
         if (i == nextTurnIndex) {
             dx = -dy;
             dy = dx;
             nextTurnIndex += tilesUntilTurn;
         }
-
         /* Next tile. */
         x += dx;
         y += dy;
@@ -35,16 +43,9 @@ PositionReference AutonomousController::getNextSearchTarget() {
     return PositionReference{x, y};
 }
 
-bool isValidSearchTarget(PositionReference position) {
-    return position.x >= POSITION::getXMin() &&
-           position.x <= POSITION::getXMax() &&
-           position.y >= POSITION::getYMin() &&
-           position.y >= POSITION::getYMax();
-}
-
-void AutonomousController::setAutonomousState(AutonomousState nextState) {
-    AutonomousController::autonomousState = nextState;
-    AutonomousController::elapsedTime     = 0.0;
+void AutonomousController::setAutonomousState(AutonomousState state) {
+    AutonomousController::autonomousState          = state;
+    AutonomousController::autonomousStateStartTime = getTime();
 }
 
 void AutonomousController::setNextTarget(PositionReference target) {
@@ -52,8 +53,8 @@ void AutonomousController::setNextTarget(PositionReference target) {
     AutonomousController::nextTarget     = target;
 }
 
-void AutonomousController::setQRState(int nextState) {
-    switch (nextState) {
+void AutonomousController::setQRState(int state) {
+    switch (state) {
         case QR_IDLE: AutonomousController::qrState = QR_IDLE; return;
         case QR_READING: AutonomousController::qrState = QR_READING; return;
         case QR_CRYPTO_BUSY:
@@ -69,12 +70,17 @@ void AutonomousController::setQRState(int nextState) {
     }
 }
 
-void AutonomousController::startLanding() {
+void AutonomousController::startLanding(bool landAtCurrentPosition,
+                                        PositionReference currentPosition) {
+    if (landAtCurrentPosition)
+        setNextTarget(currentPosition);
+
     // TODO: landing script init
     setAutonomousState(LANDING);
 }
 
-void AutonomousController::startNavigating() {
+void AutonomousController::startNavigating(PositionReference nextQRPosition) {
+    setNextTarget(nextQRPosition);
     real_t d = dist(AutonomousController::previousTarget,
                     AutonomousController::nextTarget);
     AutonomousController::navigationTime = d / getNavigationSpeed();
@@ -83,6 +89,7 @@ void AutonomousController::startNavigating() {
 
 void AutonomousController::updateQRFSM() {
 
+    /* Load the QR state from shared memory. */
     setQRState(readQRState());
 
     /* Don't update QR FSM if the drone is not in CONVERGING state. */
@@ -90,31 +97,32 @@ void AutonomousController::updateQRFSM() {
         return;
 
     /**
-     *  Implement FSM logic.
-     * 
-     * ============ QR FSM ============
-     * ------------- START ------------
+     * ================================ QR FSM ================================
+     * --------------------------------- START --------------------------------
      * QR_Idle
      * 
-     * ---------- MAIN CYCLE ----------
-     * QR_Idle -> QR_Reading
-     * QR_Reading -> QR_Crypto_Busy
-     * 
-     * QR_Crypto_Busy -> QR_Error
-     * QR_Crypto_Busy -> QR_New_Target
-     * QR_Crypto_Busy -> QR_Land
-     * QR_Crypto_Busy -> QR_Unknown
-     * 
-     * QR_Error -> QR_Reading
-     * QR_New_Target -> QR_Idle
-     * QR_Land -> QR_Idle
-     * QR_Unknown -> QR_Idle
+     * ------------------------------ MAIN CYCLE ------------------------------
+     *                                     |
+     * ~~~~~~~~~~~~~~~ ANC ~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~~~ ANC ~~~~~~~~~~~~~~
+     * QR_Idle -> QR_Reading               | QR_Error -> QR_Reading
+     *                                     | QR_New_Target -> QR_Idle
+     * ~~~~~~~~~~~~~~~ IMP ~~~~~~~~~~~~~~~ | QR_Land -> QR_Idle
+     * QR_Reading -> QR_Crypto_Busy        | QR_Unknown -> QR_Idle
+     *                                     |
+     * ~~~~~~~~~~~~~~ CRYPTO ~~~~~~~~~~~~~ |
+     * QR_Crypto_Busy -> QR_Error          |
+     * QR_Crypto_Busy -> QR_New_Target     |
+     * QR_Crypto_Busy -> QR_Land           |
+     * QR_Crypto_Busy -> QR_Unknown        |
      */
+
+    /* Implement FSM logic. */
     real_t correctionX, correctionY;
     switch (AutonomousController::qrState) {
         case QR_IDLE:
-            /* Let the Image Processing team take a picture if convergence. */
-            if (AutonomousController::elapsedTime > getConvergenceDuration())
+            /* Let the Image Processing team take a picture if we have converged
+               on our target. */
+            if (getElapsedTime() > getConvergenceDuration())
                 writeQRState(QR_READING);
             break;
         case QR_NEW_TARGET:
@@ -131,27 +139,29 @@ void AutonomousController::updateQRFSM() {
             if (correctionX != 0.0 && correctionY != 0.0)
                 correctDronePosition(correctionX, correctionY);
 
-            /* Set the next target, tell the autonomous controller's FSM to
-               start navigating, and switch this FSM to QR_IDLE. */
-            setNextTarget(PositionReference{readQRTargetX(), readQRTargetY()});
-            startNavigating();
+            /* Tell the autonomous controller's FSM to start navigating to the
+               position of the next QR code sent by the Cryptography team. */
+            /* Switch this FSM to QR_IDLE. */
+            startNavigating({readQRTargetX(), readQRTargetY()});
             writeQRState(QR_IDLE);
             break;
         case QR_LAND:
-            /* Reset error count and search count. Switch to QR_IDLE. */
+            /* Reset error count and search count. */
             AutonomousController::qrErrorCount    = 0;
             AutonomousController::qrTilesSearched = 0;
 
-            /* Tell the autonomous controller's FSM to start landing, and switch
-               this FSM to QR_IDLE. */
-            startLanding();
+            /* Tell the autonomous controller's FSM to start landing. */
+            /* Switch this FSM to QR_IDLE. */
+            startLanding(false, {});
             writeQRState(QR_IDLE);
             break;
         case QR_UNKNOWN:
-            /* Reset error count and search count. Switch to QR_IDLE */
+            /* Reset error count and search count. */
             AutonomousController::qrErrorCount    = 0;
             AutonomousController::qrTilesSearched = 0;
             // TODO: what do we do with unknown QR data?
+
+            /* Switch this FSM to QR_IDLE. */
             writeQRState(QR_IDLE);
             break;
         case QR_ERROR:
@@ -160,7 +170,7 @@ void AutonomousController::updateQRFSM() {
                 writeQRState(QR_READING); /* Tell IMP to try again. */
             } else {
 
-                /* Spiral-searching for QR code. */
+                /* Start (or continue) spiral-searching for QR code. */
                 AutonomousController::qrErrorCount = 0;
                 AutonomousController::qrTilesSearched++;
                 PositionReference nextSearchTarget = getNextSearchTarget();
@@ -172,6 +182,7 @@ void AutonomousController::updateQRFSM() {
                 }
 
                 /* Valid search target, so set it as the next target. */
+                /* Switch this FSM to QR_IDLE. */
                 if (AutonomousController::qrTilesSearched <
                     getMaxQRSearchCount()) {
                     setNextTarget(nextSearchTarget);
@@ -179,80 +190,56 @@ void AutonomousController::updateQRFSM() {
                 }
 
                 /* We've run out of tiles to search, so have the drone land. */
+                /* Switch this FSM to QR_IDLE. */
                 else {
-                    startLanding();
+                    startLanding(false, {});
+                    writeQRState(QR_IDLE);
                 }
             }
             break;
         default:
-            /* In any other case, it's either the Image Processing team's job to
-               continue or it's the Cryptography team's job. */
+            /* In any other case, it's not our job to update the QR FSM. It's up
+               to either the Image Processing team or the Cryptography team. */
             break;
     }
 }
 
-void AutonomousController::initAir(PositionReference currentPosition,
-                                   AltitudeReference currentHeight) {
-    AutonomousController::autonomousState = IDLE_AIR;
-    AutonomousController::elapsedTime     = 0.0;
-    AutonomousController::previousTarget  = currentPosition;
-    AutonomousController::nextTarget      = currentPosition;
-    AutonomousController::qrErrorCount    = 0;
-}
-
-void AutonomousController::initGround(PositionReference currentPosition) {
-    AutonomousController::autonomousState = IDLE_GROUND;
-    AutonomousController::elapsedTime     = 0.0;
-    AutonomousController::previousTarget  = currentPosition;
-    AutonomousController::nextTarget      = currentPosition;
-    AutonomousController::qrErrorCount    = 0;
-}
-
 AutonomousOutput
-AutonomousController::updateAutonomousFSM(PositionReference dronePosition) {
+AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
 
     /**
-     * ======== AUTONOMOUS FSM ========
-     * ------------- START ------------
-     * Idle_Ground: if drone is grounded
-     * Idle_Air: if drone is airborne
-     * 
-     * ---------- MAIN CYCLE ----------
-     * Idle_Ground -> Pre_Takeoff
-     * Pre_Takeoff -> Takeoff
-     * Takeoff -> Loitering
-     * Loitering -> Converging
-     * Converging <-> Navigating
-     * Converging -> Landing
-     * Landing -> Idle
-     * 
-     * ------- MID-FLIGHT CYCLE -------
-     * Idle_Air -> Loitering
-     * Loitering -> Converging
-     * Converging <-> Navigating
-     * Converging -> Landing
-     * Landing -> Idle
-     * 
-     * ------------ ERROR ------------
-     * Takeoff Stage 2 -> Error
-     * Loitering -> Error
-     * Converging -> Error
-     * Navigating -> Error
-     * Landing Stage 1 -> Error
-     * 
-     * --- WIRELESS POWER TRANSFER ---
-     * Idle_Ground -> WPT
-     * WPT -> Idle_Ground
+     * ============================ AUTONOMOUS FSM ============================
+     * -------------- START ------------- | -------------- ERROR --------------
+     * Idle_Ground: if drone is grounded  | Takeoff Stage 2 -> Error
+     * Idle_Air: if drone is airborne     | Loitering -> Error
+     *                                    | Converging -> Error
+     * ----------- MAIN CYCLE ----------- | Navigating -> Error
+     * Idle_Ground -> Pre_Takeoff         | Landing Stage 1 -> Error
+     * Pre_Takeoff -> Takeoff             |
+     * Takeoff -> Loitering               | ----- WIRELESS POWER TRANSFER -----
+     * Loitering -> Converging            | Idle_Ground -> WPT
+     * Converging <-> Navigating          | WPT -> Idle_Ground
+     * Converging -> Landing              |
+     * Landing -> Idle                    |
+     *                                    |
+     * -------- MID-FLIGHT CYCLE -------- |
+     * Idle_Air -> Loitering              |
+     * Loitering -> Converging            |
+     * Converging <-> Navigating          |
+     * Converging -> Landing              |
+     * Landing -> Idle                    |
      */
 
-    /* Default values for the autonomous controller's output. */
+    /* Default values for the autonomous controller's output... Instruction =
+       hover at (position, height) = (nextTarget, referenceHeight). */
     bool bypassAltitudeController       = false;
     real_t commonThrust                 = 0.0;
     bool updatePositionController       = true;
     bool trustAccelerometerForPosition  = false;
     PositionReference referencePosition = AutonomousController::nextTarget;
 
-    real_t d, totalTime, factor, dx, dy;
+    /* Implement FSM logic. */
+    real_t dx, dy;
     switch (AutonomousController::autonomousState) {
 
         case IDLE_GROUND:
@@ -268,8 +255,8 @@ AutonomousController::updateAutonomousFSM(PositionReference dronePosition) {
             break;
 
         case IDLE_AIR:
-            /* Instruction: hover at position=nextTarget, which should be the
-               current position, and height= & reference height. */
+            /* Instruction: hover at (position, height) = (nextTarget,
+               referenceHeight) which are both set in initAir(). */
             /* Switch to LOITERING. */
             setAutonomousState(LOITERING);
             break;
@@ -285,81 +272,149 @@ AutonomousController::updateAutonomousFSM(PositionReference dronePosition) {
             break;
 
         case TAKEOFF:
-            /* Set reference height to 1m. */
+            /* Set reference height to 1 meter. */
             AutonomousController::referenceHeight = {getReferenceHeight()};
 
             /* Takeoff stage 1... Instruction = override thrust (blind takeoff
                thrust), trust acceleration for position. */
-            if (AutonomousController::elapsedTime < getTakeoffBlindDuration()) {
+            if (getElapsedTime() < getTakeoffBlindDuration()) {
                 bypassAltitudeController = true;
                 commonThrust =
                     getHoveringThrust() + getTakeoffBlindMarginalThrust();
                 trustAccelerometerForPosition = true;
             }
-            /* Takeoff stage 2... Instruction = hover at current position &
-               reference height. */
+            /* Takeoff stage 2... Instruction = hover at (position, height) = 
+               (nextTarget, 1 meter). */
 
-            /* Takeoff finished... Instruction = hover at current position &
-               reference height. */
+            /* Takeoff finished... Instruction = hover at (position, height) =
+               (nextTarget, 1 meter). */
             /* Switch to LOITERING. */
-            else if (AutonomousController::elapsedTime > getTakeoffDuration())
+            else if (getElapsedTime() > getTakeoffDuration())
                 setAutonomousState(LOITERING);
             break;
 
         case LOITERING:
-            /* Instruction = hover at current position & reference height. */
+            /* Switch to LANDING if the pilot lowers the throttle enough. */
+            if (getRCThrottle() <= getLandingThrottle())
+                startLanding(true, currentPosition);
+
+            /* Instruction = hover at (position, height) = (nextTarget,
+               referenceHeight). */
             /* Switch to CONVERGING if we've loitered long enough. */
-            if (AutonomousController::elapsedTime > getLoiterDuration())
+            if (getElapsedTime() > getLoiterDuration())
                 setAutonomousState(CONVERGING);
             break;
 
         case CONVERGING:
+            /* Switch to LANDING if the pilot lowers the throttle enough. */
+            if (getRCThrottle() <= getLandingThrottle())
+                startLanding(true, currentPosition);
+
             /* Reset counter if we're no longer within converging distance. */
-            if (distsq(AutonomousController::nextTarget, dronePosition) >
+            if (distsq(AutonomousController::nextTarget, currentPosition) >
                 getConvergenceDistance() * getConvergenceDistance()) {
-                AutonomousController::elapsedTime = 0.0;
+                AutonomousController::autonomousStateStartTime = getTime();
             }
-            /* Instruction = hover at current position & reference height. */
+            /* Instruction = hover at (position, height) = (nextTarget,
+               referenceHeight). */
             /* Stay in this state until the QR FSM moves us to NAVIGATING or
                LANDING. */
             break;
 
         case NAVIGATING:
-            /* Navigating... Instruction = hover at interpolation point &
-               current reference height. */
-            if (AutonomousController::elapsedTime <=
-                AutonomousController::navigationTime) {
-                /* Interpolate to determine the reference position. */
-                factor = AutonomousController::elapsedTime / totalTime;
-                dx     = factor * (nextTarget.x - previousTarget.x);
-                dy     = factor * (nextTarget.y - previousTarget.y);
+            /* Switch to LANDING if the pilot lowers the throttle enough. */
+            if (getRCThrottle() <= getLandingThrottle())
+                startLanding(true, currentPosition);
+
+            /* Navigating... Instruction = hover at (position, height) =
+               (interpolation point, referenceHeight). */
+            if (getElapsedTime() <= AutonomousController::navigationTime) {
+                dx = (nextTarget.x - previousTarget.x) * getElapsedTime() /
+                     AutonomousController::navigationTime;
+                dy = (nextTarget.y - previousTarget.y) * getElapsedTime() /
+                     AutonomousController::navigationTime;
                 referencePosition = {previousTarget.x + dx,
                                      previousTarget.y + dy};
             }
 
-            /* Finished navigating... Instruction = hover at target 
+            /* Finished navigating... Instruction = hover at (position, height)
+               = (nextTarget, referenceHeight). */
+            /* Switch to CONVERGING. */
+            else
+                setAutonomousState(CONVERGING);
+            break;
+
+        case LANDING:
+            /* Landing stage 1... Instruction = hover at (position, height) =
+               (nextTarget, referenceHeight). nextTarget is set when the method
+               startNavigating() is called; referenceHeight is updated in this
+               block of code. */
+            if (AutonomousController::referenceHeight.z >
+                getLandingLowestReferenceHeight()) {
+                AutonomousController::referenceHeight.z -=
+                    getLandingReferenceHeightDecreaseSpeed() *
+                    getSecondsPerTick();
+
+                /* Reset autonomous state timer, so we can use it during the
+                   second stage. */
+                AutonomousController::autonomousStateStartTime = getTime();
+            }
+
+            /* Landing stage 2... Instruction = override thrust (landing final
+               descent thrust) and trust accelerometer for position. */
+            else if (getElapsedTime() < getLandingBlindDuration()) {
+                bypassAltitudeController = true;
+                commonThrust =
+                    getHoveringThrust() + getLandingBlindMarginalThrust();
+                trustAccelerometerForPosition = true;
+            }
+
+            /* Landing finished... Instruction = override thrust (no thrust),
+               dont' update position controller. */
+            /* Switch to IDLE_GROUND. */
             else {
-                                /* We've navigated long enough, switch to CONVERGING. */
-            setAutonomousState(CONVERGING);
-            return updateAutonomousFSM(dronePosition);
+                bypassAltitudeController = true;
+                commonThrust             = 0.0;
+                updatePositionController = false;
+                setAutonomousState(IDLE_GROUND);
+            }
+            break;
+
+        case WPT: break;
+
+        case ERROR: break;
     }
-    else {
-    }
-    break;
 
-    case LANDING: break;
-
-    case WPT: break;
-
-    case ERROR: break;
+    return AutonomousOutput{
+        bypassAltitudeController,
+        AutonomousController::referenceHeight,
+        commonThrust,
+        updatePositionController,
+        trustAccelerometerForPosition,
+        referencePosition,
+    };
 }
 
-return AutonomousOutput{
-    bypassAltitudeController,
-    AutonomousController::referenceHeight,
-    commonThrust,
-    updatePositionController,
-    trustAccelerometerForPosition,
-    referencePosition,
-};
+void AutonomousController::initAir(PositionReference currentPosition,
+                                   AltitudeReference referenceHeight) {
+    AutonomousController::autonomousState          = IDLE_AIR;
+    AutonomousController::autonomousStateStartTime = getTime();
+    AutonomousController::previousTarget           = currentPosition;
+    AutonomousController::nextTarget               = currentPosition;
+    AutonomousController::referenceHeight          = referenceHeight;
+    AutonomousController::qrErrorCount             = 0;
+}
+
+void AutonomousController::initGround(PositionReference currentPosition) {
+    AutonomousController::autonomousState          = IDLE_GROUND;
+    AutonomousController::autonomousStateStartTime = getTime();
+    AutonomousController::previousTarget           = currentPosition;
+    AutonomousController::nextTarget               = currentPosition;
+    AutonomousController::qrErrorCount             = 0;
+}
+
+AutonomousOutput
+AutonomousController::update(PositionReference currentPosition) {
+    updateQRFSM();
+    return updateAutonomousFSM(currentPosition);
 }

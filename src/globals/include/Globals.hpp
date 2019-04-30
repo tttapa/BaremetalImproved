@@ -11,8 +11,8 @@ real_t getRCRoll();
 real_t getRCPitch();
 real_t getRCYaw();
 real_t getRCTuner();
-int getRCMode();
-int getRCInductive();
+FlightMode getRCFlightMode();
+WPTMode getRCWPTMode();
 
 int readQRState();
 real_t readQRTargetX();

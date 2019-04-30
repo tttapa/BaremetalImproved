@@ -23,16 +23,17 @@ struct RCInput {
     float pitch;
     float yaw;
     float tuner;
-    int mode;
-    int inductive;
+    FlightMode flightMode;
+    WPTMode wptMode;
 };
 
-enum InductiveMode {
+enum WPTMode {
     ON  = 1,
     OFF = 2,
 };
 
 enum FlightMode {
+    UNINITIALIZED      = 0,
     MANUAL_MODE        = 1,
     ALTITUDE_HOLD_MODE = 2,
     AUTONOMOUS_MODE    = 3,
