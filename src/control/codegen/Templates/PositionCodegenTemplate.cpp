@@ -33,6 +33,7 @@ codegenControlSignal(PositionState stateEstimate, PositionReference reference,
             break;
         default: controlSignal = {};
     }
+    return controlSignal;
 }
 
 /* Don't use integral action if tunerValue < 0.0. */
@@ -61,6 +62,8 @@ codegenIntegralWindup(PositionIntegralWindup integralWindup,
         integralWindup.x = copysign(maxIntegralWindup, integralWindup.x);
     if (fabs(integralWindup.y) > maxIntegralWindup)
         integralWindup.y = copysign(maxIntegralWindup, integralWindup.y);
+
+    return integralWindup;
 }
 
 /*
@@ -123,6 +126,8 @@ PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
     stateEstimate.q2 = orientation[2];
     stateEstimate.x  = measurement.x;
     stateEstimate.y  = measurement.y;
+
+    return stateEstimate;
 }
 
 /*

@@ -2,8 +2,7 @@
 #include <math.h> /* sqrt */
 
 #define SQ(x) ((x) * (x))
-#define CALCULATE_QUAT_0(x)                                                    \
-    x.q[0] = sqrt(1.0 - SQ(x.q[1]) - SQ(x.q[2]) - SQ(x.q[3]))
+#define QUAT_0(x) (x.q[0] = sqrt(1.0 - SQ(x.q[1]) - SQ(x.q[2]) - SQ(x.q[3])))
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
@@ -97,7 +96,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             prediction.nx   = $c1$p7;
             prediction.ny   = $c1$p8;
             prediction.nz   = $c1$p9;
-            CALCULATE_QUAT_0(prediction);
+            QUAT_0(prediction);
             innovation.q[1] = $c1$i1;
             innovation.q[2] = $c1$i2;
             innovation.q[3] = $c1$i3;
@@ -107,7 +106,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             innovation.nx   = $c1$i7;
             innovation.ny   = $c1$i8;
             innovation.nz   = $c1$i9;
-            CALCULATE_QUAT_0(innovation);
+            QUAT_0(innovation);
             /* TODO: This last part is the same for all configurations */
             stateEstimate.q[0] = $c1$x0;
             stateEstimate.q[1] = $c1$x1;
@@ -130,7 +129,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             prediction.nx   = $c2$p7;
             prediction.ny   = $c2$p8;
             prediction.nz   = $c2$p9;
-            CALCULATE_QUAT_0(prediction);
+            QUAT_0(prediction);
             innovation.q[1] = $c2$i1;
             innovation.q[2] = $c2$i2;
             innovation.q[3] = $c2$i3;
@@ -140,7 +139,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             innovation.nx   = $c2$i7;
             innovation.ny   = $c2$i8;
             innovation.nz   = $c2$i9;
-            CALCULATE_QUAT_0(innovation);
+            QUAT_0(innovation);
             stateEstimate.q[0] = $c2$x0;
             stateEstimate.q[1] = $c2$x1;
             stateEstimate.q[2] = $c2$x2;
@@ -162,7 +161,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             prediction.nx   = $c3$p7;
             prediction.ny   = $c3$p8;
             prediction.nz   = $c3$p9;
-            CALCULATE_QUAT_0(prediction);
+            QUAT_0(prediction);
             innovation.q[1] = $c3$i1;
             innovation.q[2] = $c3$i2;
             innovation.q[3] = $c3$i3;
@@ -172,7 +171,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             innovation.nx   = $c3$i7;
             innovation.ny   = $c3$i8;
             innovation.nz   = $c3$i9;
-            CALCULATE_QUAT_0(innovation);
+            QUAT_0(innovation);
             stateEstimate.q[0] = $c3$x0;
             stateEstimate.q[1] = $c3$x1;
             stateEstimate.q[2] = $c3$x2;
@@ -194,7 +193,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             prediction.nx   = $c4$p7;
             prediction.ny   = $c4$p8;
             prediction.nz   = $c4$p9;
-            CALCULATE_QUAT_0(prediction);
+            QUAT_0(prediction);
             innovation.q[1] = $c4$i1;
             innovation.q[2] = $c4$i2;
             innovation.q[3] = $c4$i3;
@@ -204,7 +203,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             innovation.nx   = $c4$i7;
             innovation.ny   = $c4$i8;
             innovation.nz   = $c4$i9;
-            CALCULATE_QUAT_0(innovation);
+            QUAT_0(innovation);
             stateEstimate.q[0] = $c4$x0;
             stateEstimate.q[1] = $c4$x1;
             stateEstimate.q[2] = $c4$x2;

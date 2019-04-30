@@ -143,12 +143,12 @@ for k = 1:length(configs)
     
     % Altitude controller
     [controlSignal, integralWindup] = GenerateAltitudeController(s);
-    controlSignalElements = symbolicVectorExpressionToStrings('Altitude', controlSignal); % Control output
-    integralWindupElements = symbolicVectorExpressionToStrings('Altitude', integralWindup); % Integral increment
+    controlSignalElements = symbolicVectorExpressionToStrings(controlSignal); % Control output
+    integralWindupElements = symbolicVectorExpressionToStrings(integralWindup); % Integral increment
 
     % Altitude observer
     stateEstimate = GenerateAltitudeObserver(s);
-    stateEstimateElements = symbolicVectorExpressionToStrings('Altitude', stateEstimate); % New stateEstimate
+    stateEstimateElements = symbolicVectorExpressionToStrings(stateEstimate); % New stateEstimate
 
     for i = 1:length(controlSignalElements)
         tag = strcat('$c', num2str(k), '$u', num2str(i - 1));
@@ -193,12 +193,12 @@ for k = 1:length(configs)
     
     % Navigation controller
     [controlSignal, integralWindup] = GenerateNavigationController(s);
-    controlSignalElements = symbolicVectorExpressionToStrings('Position', controlSignal); % Control output
-    integralWindupElements = symbolicVectorExpressionToStrings('Position', integralWindup); % Integral increment
+    controlSignalElements = symbolicVectorExpressionToStrings(controlSignal); % Control output
+    integralWindupElements = symbolicVectorExpressionToStrings(integralWindup); % Integral increment
 
     % Navigation observer
     stateEstimate = GenerateNavigationObserver(s);
-    stateEstimateElements = symbolicVectorExpressionToStrings('Position', stateEstimate); % New state estimate x_hat
+    stateEstimateElements = symbolicVectorExpressionToStrings(stateEstimate); % New state estimate x_hat
 
     for i = 1:length(controlSignalElements)
         tag = strcat('$c', num2str(k), '$u', num2str(i - 1));
@@ -226,9 +226,9 @@ for k = 1:length(configs)
     fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.nav.lqi.I, 1)) '\r\n'], s.nav.lqi.I');
     
 end
-for i = 1:length(integralWindupElements)
+for i = 1:length(stateEstimateElements)
     tag = strcat('$int', num2str(i - 1));
-    template = replace(template, tag, integralWindupElements(i));
+    template = replace(template, tag, stateEstimateElements(i));
 end
 fprintf(outputFid, ' *\r\n');
 fprintf(outputFid, ' */\r\n\n');
@@ -247,13 +247,13 @@ u_str = replace(u_str, ']])', '');
 u_str = replace(u_str, '], [', ',');
 
 regex = 'vector__(\w+?)(\d+)';
-repl = 'vector__$1[$2 - 1]';
+repl = '$1[$2 - 1]';
 u_str = regexprep(u_str, regex, repl);
-u_str = ReplaceWithStructParameterName(droneState, u_str);
+
 
 
 regex = 'matrix__(\w+?)(\d+)_(\d+)';
-repl = 'matrix__$1[$2 - 1][$3 - 1]';
+repl = '$1[$2 - 1][$3 - 1]';
 u_str = regexprep(u_str, regex, repl);
 
 textComponents = strsplit(u_str, ',');

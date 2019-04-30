@@ -1,1 +1,0 @@
-function string = GetStructParameterName(controller, ...)

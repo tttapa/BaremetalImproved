@@ -150,7 +150,7 @@ class PositionController {
      * @return  the current integral windup.
      */
     PositionIntegralWindup
-    codegenIntegralWindup(PositionIntegralWindup lastIntegralWindup,
+    codegenIntegralWindup(PositionIntegralWindup integralWindup,
                           PositionReference reference,
                           PositionState stateEstimate, int droneConfiguration);
 
