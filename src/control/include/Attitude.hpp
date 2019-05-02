@@ -143,7 +143,7 @@ class AttitudeController {
      * @return  the current integral windup.
      */
     AttitudeIntegralWindup
-    codegenIntegralWindup(AttitudeIntegralWindup lastIntegralWindup,
+    codegenIntegralWindup(AttitudeIntegralWindup integralWindup,
                           AttitudeReference reference);
 
     /**

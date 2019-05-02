@@ -76,7 +76,6 @@ real_t dist(PositionReference position1, PositionReference position2);
  */
 real_t distsq(PositionReference position1, PositionReference position2);
 
-
 /**
  * Class to control the position of the drone. The first part is an observer to
  * estimate the drone's quaternion components q1 and q2, global position and
@@ -151,8 +150,9 @@ class PositionController {
      * @return  the current integral windup.
      */
     PositionIntegralWindup
-    codegenIntegralWindup(PositionIntegralWindup lastIntegralWindup,
-                          PositionReference reference);
+    codegenIntegralWindup(PositionIntegralWindup integralWindup,
+                          PositionReference reference,
+                          PositionState stateEstimate, int droneConfiguration);
 
     /**
      * Calculate the current position estimate using the code generator. Because

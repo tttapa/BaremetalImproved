@@ -122,8 +122,9 @@ class AltitudeController {
      * @return  the current integral windup.
      */
     AltitudeIntegralWindup
-    codegenIntegralWindup(AltitudeIntegralWindup lastIntegralWindup,
-                          AltitudeReference reference);
+    codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
+                          AltitudeReference reference,
+                          AltitudeState stateEstimate, int droneConfiguration);
 
     /**
      * Calculate the next altitude estimate using the code generator. Because

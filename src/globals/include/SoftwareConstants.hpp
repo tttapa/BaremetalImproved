@@ -8,7 +8,7 @@ namespace ATTITUDE {
  */
 real_t getYawSignalClamp() { return 0.10; }
 
-};  // namespace ATTITUDE
+}  // namespace ATTITUDE
 
 /**
  * Constants related to the altitude control system.
