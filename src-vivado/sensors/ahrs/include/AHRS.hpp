@@ -21,6 +21,6 @@ void initAHRS(IMUMeasurement imu);
  * Update the Attitude and Heading Reference System using the new IMU measurement.
  * 
  * @param   imu
- *          new IMU measurement
+ *          New IMU measurement.
  */
 Quaternion updateAHRS(IMUMeasurement imu);

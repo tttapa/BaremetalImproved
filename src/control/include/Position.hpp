@@ -2,13 +2,22 @@
 #include <Quaternion.hpp>
 #include <real_t.h>
 
+// TODO: make struct position
+/**
+ * Position (x,y) consisiting of two floats. This value is measured in meters.
+ */
+struct Position {
+    real_t x; ///< X-coordinate of the position (m).
+    real_t y; ///< Y-coordinate of the position (m).
+}
+
 /**
  * Position (x,y) reference to track, consisting of two floats. This value
  * is measured in meters.
  */
 struct PositionReference {
-    real_t x; /* X position (m) */
-    real_t y; /* Y position (m) */
+    real_t x; ///< X position (m).
+    real_t y; ///< Y position (m).
 };
 
 /** 
@@ -16,8 +25,8 @@ struct PositionReference {
  * representing the global position in meters.
  */
 struct PositionMeasurement {
-    real_t x; /* X position (m) */
-    real_t y; /* Y position (m) */
+    real_t x; ///< X position (m).
+    real_t y; ///< Y position (m).
 };
 
 /**
@@ -27,20 +36,20 @@ struct PositionMeasurement {
  * two floats represent the horizontal velocity of the drone in m/s.
  */
 struct PositionState {
-    real_t q1; /* Orientation q1 component (/) */
-    real_t q2; /* Orientation q2 component (/) */
-    real_t x;  /* X position (m) */
-    real_t y;  /* Y position (m) */
-    real_t vx; /* X velocity (m/s) */
-    real_t vy; /* Y velocity (m/s) */
+    real_t q1; ///< Orientation q1 component (/).
+    real_t q2; ///< Orientation q2 component (/).
+    real_t x;  ///< X position (m).
+    real_t y;  ///< Y position (m).
+    real_t vx; ///< X velocity (m/s).
+    real_t vy; ///< Y velocity (m/s).
 };
 
 /**
  * Integral of the error of the global position of the drone.
  */
 struct PositionIntegralWindup {
-    real_t x; /* X position (m) */
-    real_t y; /* Y position (m) */
+    real_t x; ///< X position (m).
+    real_t y; ///< Y position (m).
 };
 
 /**
@@ -48,17 +57,17 @@ struct PositionIntegralWindup {
  * attitude controller.
  */
 struct PositionControlSignal {
-    real_t q1ref; /* Reference orientation q1 component (/) */
-    real_t q2ref; /* Reference orientation q2 component (/) */
+    real_t q1ref; ///< Reference orientation q1 component (/).
+    real_t q2ref; ///< Reference orientation q2 component (/).
 };
 
 /**
  * Calculates the distance the two given positions in meters.
  * 
  * @param   position1
- *          first position
+ *          First position.
  * @param   position2
- *          second position
+ *          Second position.
  * 
  * @return  the distance between the two given positions.
  */
@@ -68,9 +77,9 @@ real_t dist(PositionReference position1, PositionReference position2);
  * Calculates the square of the distance the two given positions in meters.
  * 
  * @param   position1
- *          first position
+ *          First position.
  * @param   position2
- *          second position
+ *          Second position.
  * 
  * @return  the square of distance between the two given positions.
  */
@@ -120,15 +129,15 @@ class PositionController {
      * Calculate the current position control signal using the code generator.
      * 
      * @param   stateEstimate
-     *          estimate of the current state, determined this cycle
+     *          Estimate of the current state, determined this cycle.
      * @param   reference
-     *          reference position to track
+     *          Reference position to track.
      * @param   integralWindup
-     *          current integral windup
+     *          Current integral windup.
      * @param   droneConfiguration
-     *          configuration of the drone
+     *          Configuration of the drone.
      * 
-     * @return  the control signal to be sent to the attitude controller until
+     * @return  The control signal to be sent to the attitude controller until
      *          the next measurement from the Image Processing team. The result
      *          only contains the quaternion components q1 and q2. The last
      *          component q3 should be determined by the anti-yaw-drift
@@ -143,11 +152,11 @@ class PositionController {
      * Calculate the current integral windup using the code generator.
      * 
      * @param   lastIntegralWindup
-     *          integral windup from the last cycle
+     *          Integral windup from the last cycle.
      * @param   reference
-     *          reference position to track
+     *          Reference position to track.
      * 
-     * @return  the current integral windup.
+     * @return  The current integral windup.
      */
     PositionIntegralWindup
     codegenIntegralWindup(PositionIntegralWindup integralWindup,
@@ -162,15 +171,15 @@ class PositionController {
      * for the current cycle.
      * 
      * @param   stateEstimate
-     *          estimate of the previous state, determined last cycle
+     *          Estimate of the previous state, determined last cycle.
      * @param   measurement
-     *          current measurement from the Image Processing team
+     *          Current measurement from the Image Processing team.
      * @param   orientation
-     *          current orientation of the drone
+     *          Current orientation of the drone.
      * @param   droneConfiguration
-     *          configuration of the drone
+     *          Configuration of the drone.
      * 
-     * @return  the estimate of the current position state.
+     * @return  The estimate of the current position state.
      */
     PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
                                               PositionMeasurement measurement,
@@ -181,9 +190,9 @@ class PositionController {
      * Clamp the given position control signal in [-0.0436,+0.0436].
      * 
      * @param   controlSignal
-     *          control signal to clamp
+     *          Control signal to clamp.
      * 
-     * @return  the clamped position control signal.
+     * @return  The clamped position control signal.
      */
     PositionControlSignal
     clampControlSignal(PositionControlSignal controlSignal);
@@ -194,11 +203,11 @@ class PositionController {
      * correction.
      * 
      * @param   correctionX
-     *          correction to be added to the x-coordinate of the estimate of
-     *          the position controller
+     *          Correction to be added to the x-coordinate of the estimate of
+     *          the position controller.
      * @param   correctionY
-     *          correction to be added to the y-coordinate of the estimate of
-     *          the position controller
+     *          Correction to be added to the y-coordinate of the estimate of
+     *          the position controller.
      */
     void correctPosition(real_t correctionX, real_t correctionY);
 
@@ -213,9 +222,9 @@ class PositionController {
      * Image Processing team.
      * 
      * @param   reference
-     *          the reference position to track
+     *          The reference position to track.
      *
-     * @return  the control signal to be sent to the attitude controller. The
+     * @return  The control signal to be sent to the attitude controller. The
      *          result only contains the quaternion components q1 and q2. The
      *          last component q3 should be determined by the anti-yaw-drift
      *          controller and from that the full quaternion should be
@@ -233,9 +242,9 @@ class PositionController {
      * for the current cycle.
      * 
      * @param   orientation
-     *          current orientation of the drone
+     *          Current orientation of the drone.
      * @param   measurement
-     *          new position measurement from the Image Processing team
+     *          New position measurement from the Image Processing team.
      */
     void updateObserver(Quaternion orientation,
                         PositionMeasurement measurement);

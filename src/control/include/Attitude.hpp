@@ -19,11 +19,6 @@ struct AttitudeMeasurement {
     real_t wx;     ///< X angular velocity (rad/s)
     real_t wy;     ///< Y angular velocity (rad/s)
     real_t wz;     ///< Z angular velocity (rad/s)
-
-    operator&real_t[sizeof(*this) / sizeof(real_t)]() {
-        return reinterpret_cast<&real_t[sizeof(*this) / sizeof(real_t)]()>(
-            *this);
-    }
 };
 
 /**
@@ -77,11 +72,11 @@ struct MotorDutyCycles {
  * the ESCs of the four motors.
  * 
  * @param   controlSignal
- *          the attitude control signal to transform
+ *          The attitude control signal to transform.
  * @param   commonThrust
- *          the common thrust to transform
+ *          The common thrust to transform.
  * 
- * @return  the duty cycles to the four motors.
+ * @return  The duty cycles to the four motors.
  */
 MotorDutyCycles
 transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
@@ -122,15 +117,15 @@ class AttitudeController {
      * Calculate the current attitude control signal using the code generator.
      * 
      * @param   stateEstimate
-     *          estimate of the current state, determined last cycle
+     *          Estimate of the current state, determined last cycle.
      * @param   reference
-     *          reference orientation to track
+     *          Reference orientation to track.
      * @param   integralWindup
-     *          current integral windup
+     *          Current integral windup.
      * @param   droneConfiguration
-     *          configuration of the drone
+     *          Configuration of the drone.
      * 
-     * @return  the control signal to be sent to the "torque motors" until the
+     * @return  The control signal to be sent to the "torque motors" until the
      *          next IMU measurement.
      */
     AttitudeControlSignal codegenControlSignal(
@@ -141,11 +136,11 @@ class AttitudeController {
      * Calculate the current integral windup using the code generator.
      * 
      * @param   lastIntegralWindup
-     *          integral windup from the last cycle
+     *          Integral windup from the last cycle.
      * @param   reference
-     *          reference orientation to track
+     *          Reference orientation to track.
      * 
-     * @return  the current integral windup.
+     * @return  The current integral windup.
      */
     AttitudeIntegralWindup
     codegenIntegralWindup(AttitudeIntegralWindup integralWindup,
@@ -159,16 +154,16 @@ class AttitudeController {
      * for the next cycle.
      * 
      * @param   stateEstimate
-     *          estimate of the current state, determined last cycle
+     *          Estimate of the current state, determined last cycle.
      * @param   controlSignal
-     *          control signal that will be sent to the "torque motors" until
-     *          the next IMU measurement
+     *          Control signal that will be sent to the "torque motors" until
+     *          the next IMU measurement.
      * @param   measurement
-     *          current measurement from the IMU
+     *          Current measurement from the IMU.
      * @param   droneConfiguration
-     *          configuration of the drone
+     *          Configuration of the drone.
      * 
-     * @return  the estimate of the next attitude state.
+     * @return  The estimate of the next attitude state.
      */
     AttitudeState codegenNextStateEstimate(AttitudeState stateEstimate,
                                            AttitudeControlSignal controlSignal,
@@ -181,12 +176,12 @@ class AttitudeController {
      * in [0,1].
      * 
      * @param   controlSignal
-     *          control signal to clamp
+     *          Control signal to clamp.
      * @param   commonThrust
-     *          control signal to be sent to the "common motor": this must be in
-     *          [0,1]
+     *          Control signal to be sent to the "common motor": this must be in
+     *          [0,1].
      * 
-     * @return  the clamped attitude control signal.
+     * @return  The clamped attitude control signal.
      */
     AttitudeControlSignal
     clampControlSignal(AttitudeControlSignal controlSignal,
@@ -204,11 +199,11 @@ class AttitudeController {
      * measurement.
      * 
      * @param   reference
-     *          reference orientation to track
+     *          Reference orientation to track.
      * @param   commonThrust
-     *          control signal sent to the "common motor"
+     *          Control signal sent to the "common motor".
      *
-     * @return  the control signal to be sent to the "torque motors" until the
+     * @return  The control signal to be sent to the "torque motors" until the
      *          next IMU measurement.
      */
     AttitudeControlSignal updateControlSignal(AttitudeReference reference,
@@ -223,7 +218,7 @@ class AttitudeController {
      * for the next cycle.
      * 
      * @param   measurement
-     *          new measurement from the IMU
+     *          New measurement from the IMU.
      */
     void updateObserver(AttitudeMeasurement measurement);
 };

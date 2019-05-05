@@ -11,28 +11,23 @@
 #include <xil_io.h>
 
 
-/* Orientation of the drone, updated by Madgwick's algorithm. */
+/** Orientation of the drone, updated by Madgwick's algorithm. */
 static Quaternion orientation;
 
 
 void initAHRS(IMUMeasurement imu) {
-	/*
-	 * use accelerometer values to ensure that the initial quaternion is oriented correctly
-	 */
+	/* Use accelerometer values to ensure that the initial quaternion is
+	   oriented correctly. */
 	ColVector<3> accel = {imu.ax, imu.ay, imu.az};
 	
 	orientation = Quaternion::fromDirection(accel);
 
-	/*
-	 * AHRS is now initialized
-	 */
+	/* AHRS is now initialized. */
 	xil_printf("AHRS init ok\r\n");
 }
 
 
 Quaternion updateAHRS(IMUMeasurement imu) {
-
     orientation = MadgwickAHRSUpdate(orientation, imu);
 	return orientation;
-
 }

@@ -8,14 +8,14 @@
  * the formula, see eagle-control-slides.pdf pp.178-181.
  * 
  * @param   impMeasurement
- *          column vector with two rows, containing the x- and y-coordinate
- *          sent by the Image Processing team, to correct
+ *          Column vector with two rows, containing the x- and y-coordinate
+ *          sent by the Image Processing team, to correct.
  * @param   sonarMeasurment
- *          most recent sonar measurement
+ *          Most recent sonar measurement.
  * @param   orientation
- *          orientation of the drone
+ *          Orientation of the drone.
  * 
- * @return  a column vector with two rows, representing the corrected position
+ * @return  A column vector with two rows, representing the corrected position
  *          of the drone (x,y).
  */
 ColVector<2> getCorrectedPosition(ColVector<2> impMeasurement,
@@ -27,10 +27,10 @@ ColVector<2> getCorrectedPosition(ColVector<2> impMeasurement,
  * the derivation of the formula, see eagle-control-slides.pdf pp.178-181.
  * 
  * @param   sonarMeasurement
- *          sonar measurement to correct
+ *          Sonar measurement to correct.
  * @param   orientation
- *          orientation of the drone
+ *          Orientation of the drone.
  * 
- * @return  the corrected height of the drone.
+ * @return  The corrected height of the drone.
  */
 real_t getCorrectedHeight(real_t sonarMeasurement, Quaternion orientation);

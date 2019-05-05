@@ -19,26 +19,24 @@
  */
 bool initAxiGpio();
 
-
 /**
  * Generate a heartbeat by writing 0, then 1 to the heartbeat channel.
  */
 void generateHeartbeat();
 
-
 /**
  * Write the given value to the test pin to probe the length of an interrupt.
  * 
  * @param   value
- *          the value to write to the test pin (on/off)
+ *          The value to write to the test pin (on/off).
  */
 void writeValueToTestPin(bool value);
 
-
 /**
- * Write the given value to the LEDs on the Zybo. The value should be in [0x0000, 0x1111], and each bit will be written to a different LED.
+ * Write the given value to the LEDs on the Zybo. The value should be in
+ * [0x0000, 0x1111], and each bit will be written to a different LED.
  * 
  * @param   value
- *          the value to write to the LEDs
+ *          The value to write to the LEDs.
  */
 void writeValueToLEDs(int value);
