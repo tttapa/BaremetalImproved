@@ -6,7 +6,7 @@
  * Altitude reference height to track, consisting of a single float.
  */
 struct AltitudeReference {
-    real_t z; /* Height (m) */
+    real_t z; ///< Height (m).
 };
 
 /**
@@ -14,7 +14,7 @@ struct AltitudeReference {
  * the height of the drone, measured in meters.
  */
 struct AltitudeMeasurement {
-    real_t z; /* Height (m) */
+    real_t z; ///< Height (m).
 };
 
 /**
@@ -26,23 +26,23 @@ struct AltitudeMeasurement {
  * drone, measured in m/s.
  */
 struct AltitudeState {
-    real_t nt; /* Common motor marginal angular velocity (rad/s) */
-    real_t z;  /* Height (m) */
-    real_t vz; /* Velocity (m/s) */
+    real_t nt; ///< Common motor marginal angular velocity (rad/s).
+    real_t z;  ///< Height (m).
+    real_t vz; ///< Velocity (m/s).
 };
 
 /**
  * Integral of the error of the height of the drone.
  */
 struct AltitudeIntegralWindup {
-    real_t z; /* Height (m) */
+    real_t z; ///< Height (m).
 };
 
 /**
  * Marginal PWM control signal sent to the common motor.
  */
 struct AltitudeControlSignal {
-    real_t ut; /* Common motor marginal signal (/) */
+    real_t ut; ///< Common motor marginal signal (/).
 };
 
 /**
@@ -53,9 +53,9 @@ struct AltitudeControlSignal {
  * when the value of the RC throttle reaches 100% (0%).
  * 
  * @param   reference
- *          reference height from the previous cycle
+ *          Reference height from the previous cycle.
  * 
- * @return  the updated reference height.
+ * @return  The updated reference height.
  */
 AltitudeReference rcUpdateReferenceHeight(AltitudeReference reference);
 
@@ -96,15 +96,15 @@ class AltitudeController {
      * Calculate the current altitude control signal using the code generator.
      * 
      * @param   stateEstimate
-     *          estimate of the current state, determined last cycle
+     *          Estimate of the current state, determined last cycle.
      * @param   reference
-     *          reference height to track
+     *          Reference height to track.
      * @param   integralWindup
-     *          current integral windup
+     *          Current integral windup.
      * @param   droneConfiguration
-     *          configuration of the drone
+     *          Configuration of the drone.
      * 
-     * @return  the marginal control signal to be sent to the "common motor"
+     * @return  The marginal control signal to be sent to the "common motor"
      *          until the next sonar measurement.
      */
     AltitudeControlSignal codegenControlSignal(
@@ -115,11 +115,11 @@ class AltitudeController {
      * Calculate the current integral windup using the code generator.
      * 
      * @param   lastIntegralWindup
-     *          integral windup from the last cycle
+     *          Integral windup from the last cycle.
      * @param   reference
-     *          reference height to track
+     *          Reference height to track.
      * 
-     * @return  the current integral windup.
+     * @return  The current integral windup.
      */
     AltitudeIntegralWindup
     codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
@@ -134,16 +134,16 @@ class AltitudeController {
      * estimate for the next cycle.
      * 
      * @param   stateEstimate
-     *          estimate of the current state, determined last cycle
+     *          Estimate of the current state, determined last cycle.
      * @param   controlSignal
-     *          marignal control signal that will be sent to the "common motor"
-     *          until the next sonar measurement
+     *          Marignal control signal that will be sent to the "common motor"
+     *          until the next sonar measurement.
      * @param   measurement
-     *          current measurement from the sonar
+     *          Current measurement from the sonar.
      * @param   droneConfiguration
-     *          configuration of the drone
+     *          Configuration of the drone.
      * 
-     * @return  the estimate of the next altitude state.
+     * @return  The estimate of the next altitude state.
      */
     AltitudeState codegenNextStateEstimate(AltitudeState stateEstimate,
                                            AltitudeControlSignal controlSignal,
@@ -154,9 +154,9 @@ class AltitudeController {
      * Clamp the given altitude control signal in [-0.10,+0.10].
      * 
      * @param   controlSignal
-     *          control signal to clamp
+     *          Control signal to clamp.
      * 
-     * @return  the clamped altitude control signal.
+     * @return  The clamped altitude control signal.
      */
     AltitudeControlSignal
     clampControlSignal(AltitudeControlSignal controlSignal);
@@ -173,9 +173,9 @@ class AltitudeController {
      * sonar.
      * 
      * @param   reference
-     *          the reference height to track
+     *          The reference height to track.
      *
-     * @return  the marginal control signal to be sent to the "common motor"
+     * @return  The marginal control signal to be sent to the "common motor"
      *          until the next sonar measurement.
      */
     AltitudeControlSignal updateControlSignal(AltitudeReference reference);
@@ -189,7 +189,7 @@ class AltitudeController {
      * for the next cycle.
      * 
      * @param   measurement
-     *          new height measurement from the sonar
+     *          New height measurement from the sonar.
      */
     void updateObserver(AltitudeMeasurement measurement);
 };

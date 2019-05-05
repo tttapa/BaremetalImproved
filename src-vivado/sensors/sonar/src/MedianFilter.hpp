@@ -14,11 +14,11 @@
  * measurement value.
  * 
  * @param   measurements
- *          Array of measurements
+ *          Array of measurements.
  * @param   size
- *          Size of array
+ *          Size of array.
  * @param   measurement
- *          Element to fill the buffer with
+ *          Element to fill the buffer with.
  */
 void initMF(float* measurements, int size, float measurement);
 
@@ -26,11 +26,11 @@ void initMF(float* measurements, int size, float measurement);
  * Add an element to the measurement buffer.
  * 
  * @param   measurements
- *          Array of measurements
+ *          Array of measurements.
  * @param   size
- *          Size of array
+ *          Size of array.
  * @param   measurement
- *          Element to add
+ *          Element to add.
  */
 void addMFMeasurement(float* measurements, int size, float measurement);
 
@@ -39,10 +39,10 @@ void addMFMeasurement(float* measurements, int size, float measurement);
  * measurement buffer.
  * 
  * @param   measurements
- *          Array of measurements
+ *          Array of measurements.
  * @param   size
- *          Size of array
+ *          Size of array.
  * @param   bufferSize
- *          The amount of elements that will be sorted to find the median
+ *          The amount of elements that will be sorted to find the median.
  */
 float getMedian(float* measurements, int size, int bufferSize);

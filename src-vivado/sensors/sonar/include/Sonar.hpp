@@ -15,9 +15,9 @@
  * store the result locally.
  * 
  * @return  true
- *          if the sonar has a new measurement.
+ *          If the sonar has a new measurement.
  * @return  false
- *          otherwise
+ *          Otherwise.
  */
 bool readSonar();
 

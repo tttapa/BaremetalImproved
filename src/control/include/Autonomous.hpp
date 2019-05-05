@@ -107,7 +107,7 @@ enum QRState {
  * QR code.
  * 
  * @param   position
- *          position to check
+ *          Position to check.
  * 
  * @return  True if and only if the given position is within the bounds
  *          of the grid.
@@ -171,14 +171,14 @@ class AutonomousController {
      * Calculates the time since the autonomous controller entered its current
      * state in seconds.
      * 
-     * @return  seconds passed since the current autonomous state was entered.
+     * @return  Seconds passed since the current autonomous state was entered.
      */
     real_t getElapsedTime();
 
     /**
      * Calculates the next target in an outward spiral search for the QR code.
      * 
-     * @return  the next target to check.
+     * @return  The next target to check.
      */
     PositionReference getNextSearchTarget();
 
@@ -187,7 +187,7 @@ class AutonomousController {
      * state and reset the elapsed time.
      * 
      * @param   nextState
-     *          new autonomous FSM state
+     *          New autonomous FSM state.
      */
     void setAutonomousState(AutonomousState nextState);
 
@@ -196,7 +196,7 @@ class AutonomousController {
      * "nextTarget", then set "nextTarget" equal to the given target.
      * 
      * @param   target
-     *          new "nextTarget" for the autonomous controller
+     *          New "nextTarget" for the autonomous controller.
      */
     void setNextTarget(PositionReference target);
 
@@ -206,7 +206,7 @@ class AutonomousController {
      * QR_IDLE.
      * 
      * @param   nextState
-     *          new QR FSM state
+     *          New QR FSM state.
      */
     void setQRState(int nextState);
 
@@ -219,10 +219,10 @@ class AutonomousController {
      * on the parameter shouldLandAtCurrentPosition.
      * 
      * @param   shouldLandAtCurrentPosition
-     *          whether the landing target position should be the current drone
-     *          position
+     *          Whether the landing target position should be the current drone
+     *          position.
      * @param   currentPosition
-     *          current drone position
+     *          Current drone position.
      */
     void startLanding(bool shouldLandAtCurrentPosition,
                       PositionReference currentPosition);
@@ -233,8 +233,8 @@ class AutonomousController {
      * FSM when the Cryptography team decodes a QR_NEW_TARGET instruction.
      * 
      * @param   nextQRPosition
-     *          position to navigate to, which will be the next QR code during
-     *          autonomous mode
+     *          Position to navigate to, which will be the next QR code during
+     *          autonomous mode.
      */
     void startNavigating(PositionReference nextQRPosition);
 
@@ -244,9 +244,9 @@ class AutonomousController {
      * possibly together with a bypass of the altitude controller.
      * 
      * @param   currentPosition
-     *          current position of the drone
+     *          Current position of the drone.
      * 
-     * @return  the next AutonomousOutput.
+     * @return  The next AutonomousOutput.
      */
     AutonomousOutput updateAutonomousFSM(PositionReference currentPosition);
 
@@ -265,9 +265,9 @@ class AutonomousController {
      * reference position to the given position.
      * 
      * @param   currentPosition
-     *          current position of the drone
+     *          Current position of the drone.
      * @param   referenceHeight
-     *          reference height of the drone during autonomous mode
+     *          Reference height of the drone during autonomous mode.
      */
     void initAir(PositionReference currentPosition,
                  AltitudeReference referenceHeight);
@@ -277,7 +277,7 @@ class AutonomousController {
      * reference position for takeoff and loitering to the given position.
      * 
      * @param   currentPosition
-     *          current position of the drone
+     *          Current position of the drone.
      */
     void initGround(PositionReference currentPosition);
 
@@ -288,9 +288,9 @@ class AutonomousController {
      * altitude controller.
      * 
      * @param   currentPosition
-     *          current position of the drone
+     *          Current position of the drone.
      * 
-     * @return  the next AutonomousOutput.
+     * @return  The next AutonomousOutput.
      */
     AutonomousOutput update(PositionReference currentPosition);
 };

@@ -21,10 +21,10 @@ extern AutonomousController autonomousController;
  * correction.
  * 
  * @param   correctionX
- *          correction to be added to the x-coordinate of the estimate of the
- *          position controller
+ *          Correction to be added to the x-coordinate of the estimate of the
+ *          position controller.
  * @param   correctionY
- *          correction to be added to the y-coordinate of the estimate of the
- *          position controller
+ *          Correction to be added to the y-coordinate of the estimate of the
+ *          position controller.
  */
 void correctDronePosition(real_t correctionX, real_t correctionY);

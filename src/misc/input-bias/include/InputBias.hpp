@@ -91,9 +91,9 @@ class InputBias {
      * radians.
      * 
      * @param   referenceRollRads
-     *          reference roll to be sent to the attitude controller in radians
+     *          Reference roll to be sent to the attitude controller in radians.
      * @param   flightMode
-     *          the flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS)
+     *          The flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS).
      */
     void updateRollBias(real_t referenceRollRads, FlightMode flightMode);
 
@@ -102,12 +102,12 @@ class InputBias {
      * radians.
      * 
      * @param   referenceRollRads
-     *          reference roll to be sent to the attitude controller in radians
+     *          Reference roll to be sent to the attitude controller in radians.
      * @param   flightMode
-     *          the flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS)
+     *          The flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS).
      * @param   autonomousState
-     *          the state the autonomous controller is in, which should only be
-     *          specified if the flight mode is AUTONOMOUS
+     *          The state the autonomous controller is in, which should only be
+     *          specified if the flight mode is AUTONOMOUS.
      */
     void updateRollBias(real_t referenceRollRads, FlightMode flightMode,
                         AutonomousState autonomousState);
@@ -117,9 +117,10 @@ class InputBias {
      * radians.
      * 
      * @param   referencePitchRads
-     *          reference pitch to be sent to the attitude controller in radians
+     *          Reference pitch to be sent to the attitude controller in
+     *          radians.
      * @param   flightMode
-     *          the flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS)
+     *          The flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS).
      */
     void updatePitchBias(real_t referencePitchRads, FlightMode flightMode);
 
@@ -128,12 +129,13 @@ class InputBias {
      * radians.
      * 
      * @param   referencePitchRads
-     *          reference pitch to be sent to the attitude controller in radians
+     *          Reference pitch to be sent to the attitude controller in
+     *          radians.
      * @param   flightMode
-     *          the flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS)
+     *          The flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS).
      * @param   autonomousState
-     *          the state the autonomous controller is in, which should only be
-     *          specified if the flight mode is AUTONOMOUS
+     *          The state the autonomous controller is in, which should only be
+     *          specified if the flight mode is AUTONOMOUS.
      */
     void updatePitchBias(real_t referencePitchRads, FlightMode flightMode,
                          AutonomousState autonomousState);
@@ -142,7 +144,7 @@ class InputBias {
      * Update the thrust bias (exponential filter) using the given RC thrust.
      * 
      * @param   rcThrust
-     *          thrust sent by the RC in [0,1]
+     *          Thrust sent by the RC in [0,1].
      */
     void updateThrustBiasManual(real_t rcThrust);
 
@@ -151,7 +153,7 @@ class InputBias {
      * signal from the altitude controller.
      * 
      * @param   ut
-     *          marginal thrust sent by the altitude controller
+     *          Marginal thrust sent by the altitude controller.
      */
     void updateThrustBiasAltitudeHold(real_t ut);
 }

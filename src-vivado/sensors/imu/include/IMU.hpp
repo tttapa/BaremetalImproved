@@ -4,34 +4,34 @@
 
 /* Raw 16-bit signed data from the accelerometer. */
 struct RawAccelMeasurement {
-    int axInt;
-    int ayInt;
-    int azInt;
+    int axInt;  ///< Raw 16-bit reading of the acceleration along the x-axis.
+    int ayInt;  ///< Raw 16-bit reading of the acceleration along the y-axis.
+    int azInt;  ///< Raw 16-bit reading of the acceleration along the z-axis.
 };
 
 /* Raw 16-bit signed data from the gyroscope. */
 struct RawGyroMeasurement {
-    int gxInt;
-    int gyInt;
-    int gzInt;
+    int gxInt;  ///< Raw 16-bit reading of the angular vel. about the x-axis.
+    int gyInt;  ///< Raw 16-bit reading of the angular vel. about the y-axis.
+    int gzInt;  ///< Raw 16-bit reading of the angular vel. about the z-axis.
 };
 
 /* Angular velocity measurement in rad/s. */
 struct GyroMeasurement {
-    float gx;
-    float gy;
-    float gz;
+    float gx;   ///< Angular velocity about the x-axis in rad/s.
+    float gy;   ///< Angular velocity about the y-axis in rad/s.
+    float gz;   ///< Angular velocity about the z-axis in rad/s.
 };
 
 
 /* Measured IMU angular velocity (gx,gy,gz) and acceleration (ax,ay,az). */
 struct IMUMeasurement {
-    float gx;
-    float gy;
-    float gz;
-    float ax;
-    float ay;
-    float az;
+    float gx;   ///< Acceleration along the x-axis in g.
+    float gy;   ///< Acceleration along the y-axis in g.
+    float gz;   ///< Acceleration along the z-axis in g.
+    float ax;   ///< Angular velocity about the x-axis in rad/s.
+    float ay;   ///< Angular velocity about the y-axis in rad/s.
+    float az;   ///< Angular velocity about the z-axis in rad/s.
 };
 
 
@@ -43,9 +43,9 @@ struct IMUMeasurement {
  * calculated from this sum.
  * 
  * @return	true
- * 			if calibration has reached its final step
+ * 			If calibration has reached its final step.
  * @return	false
- * 			otherwise
+ * 			Otherwise.
  */
 bool calibrateIMUStep();
 
@@ -55,17 +55,18 @@ bool calibrateIMUStep();
  * variables and flush the FIFO.
  * 
  * @return	true
- * 			if initialization was successful
+ * 			If initialization was successful.
  * @return	false
- * 			otherwise
+ * 			Otherwise.
  */
 bool initIMU();
 
 
 /**
- * Read the gyroscope measurement (rad/s) and acceleration measurement (g) from the IMU.
+ * Read the gyroscope measurement (rad/s) and acceleration measurement (g) from
+ * the IMU.
  * 
- * @return	most recent IMU measurement.
+ * @return	Most recent IMU measurement.
  */
 IMUMeasurement readIMU();
 

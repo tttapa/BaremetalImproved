@@ -29,7 +29,8 @@ static XIicPs Iic0;
  * This function is the handler which is used when the Gyro generates an interrupt.
  * It does this at 238Hz. This method then updates the EAGLE FSM.
  *
- * @param InstancePtr is a pointer to the XIicPs instance.
+ * @param	InstancePtr
+ * 			A pointer to the XIicPs instance.
  */
 void int_gyr(void *InstancePtr) {
 	// TODO: update the main program
@@ -45,7 +46,10 @@ void int_gyr(void *InstancePtr) {
  * This function is application specific since the actual
  * system may or may not have an interrupt controller.
  *
- * @return XST_SUCCESS if successful, otherwise XST_FAILURE.
+ * @return 	XST_SUCCESS
+ * 			If successful.
+ * @return	XST_FAILURE
+ * 			Otherwise.
  */
 int setupInterruptSystem() {
 
@@ -83,10 +87,14 @@ int setupInterruptSystem() {
  * directly connected to a processor without an interrupt controller.  The
  * user should modify this function to fit the application.
  *
- * @param IicPsPtr contains a pointer to the instance of the Iic
- *        which is going to be connected to the interrupt controller.
+ * @param 	IicPsPtr
+ * 			A pointer to the instance of the Iic which is going to be connected
+ * 			to the interrupt controller.
  *
- * @return XST_SUCCESS if successful, otherwise XST_FAILURE.
+ * @return 	XST_SUCCESS
+ * 			If successful.
+ * @return	XST_FAILURE
+ * 			Otherwise.
  */
 int setupIICInterruptSystem() {
 
@@ -119,7 +127,10 @@ int setupIICInterruptSystem() {
  * for the IMU.  This function is application specific since the actual
  * system may or may not have an interrupt controller.
  *
- * @return XST_SUCCESS if successful, otherwise XST_FAILURE.
+ * @return	XST_SUCCESS
+ * 			If successful.
+ * @return	XST_FAILURE
+ * 			Otherwise.
  */
 int setupIMUInterruptSystem() {
 
@@ -193,6 +204,11 @@ void handler(void *CallBackRef, u32 Event) {
 /**
  * Initializes the IIC driver by looking up the configuration in the config
  * table and then initializing it. Also sets the IIC serial clock rate.
+ * 
+ * @return	XST_SUCCESS
+ * 			If successful.
+ * @return	XST_FAILURE
+ * 			Otherwise.
  */
 unsigned char iicConfig(unsigned int DeviceIdPS, XIicPs* iic_ptr) {
 	xil_printf("start IIC communication\r\n");

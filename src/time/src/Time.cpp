@@ -1,9 +1,9 @@
 #include "Time.hpp"
 
-/* Clock is updated when interrupts occur at 238 Hz. */
+/** Clock is updated when interrupts occur at 238 Hz. */
 static constexpr real_t secondsPerTick = 1.0 / 238.0;
 
-/* Tick counter. */
+/** Tick counter. */
 static unsigned int tickCount = 0;
 
 void incrementTickCount() {

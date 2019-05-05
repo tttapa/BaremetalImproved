@@ -23,10 +23,10 @@ extern volatile float beta;
  * and the accelerometer (and the given orientation).
  * 
  * @param   orientation
- *          last orientation of the drone
+ *          Last orientation of the drone
  * @param   imu
- *          current measurement of the IMU (gyro+accel)
+ *          Current measurement of the IMU (gyro+accel)
  * 
- * @return updated drone orientation, according to Madgwick's algorithm.
+ * @return  The updated drone orientation, according to Madgwick's algorithm.
  */
 Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu);

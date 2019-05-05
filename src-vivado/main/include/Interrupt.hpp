@@ -12,8 +12,8 @@
  * Set up the interrupt system (master, IIC, IMU).
  *
  * @return  true 
- *          if setup was successful 
+ *          If setup was successful.
  * @return  false
- *          otherwise
+ *          Otherwise.
  */
 bool initInterrupt();
