@@ -3,10 +3,6 @@
 static struct RCInput currentRCInput;
 
 
-// TODO: this should be in input bias i think
-real_t getHoveringThrust() { return 0.0; }
-
-
 real_t getRCThrottle() { return currentRCInput.throttle; }
 
 real_t getRCPitch() { return currentRCInput.pitch; }

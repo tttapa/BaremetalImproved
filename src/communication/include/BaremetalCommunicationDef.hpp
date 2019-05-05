@@ -1,1 +1,1 @@
-// TODO: symlink to file in EAGLE-ZYBO-Linux
+../../../../EAGLE-ZYBO-Linux/src/baremetal-comm/include/BaremetalCommunicationDef.hpp

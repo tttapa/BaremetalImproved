@@ -6,7 +6,7 @@
  * Attitude reference to track, consisting of a single quaternion.
  */
 struct AttitudeReference {
-    Quaternion q; ///< Orientation.
+    Quaternion q;  ///< Orientation.
 };
 
 /**
@@ -15,10 +15,10 @@ struct AttitudeReference {
  * rad/s.
  */
 struct AttitudeMeasurement {
-    Quaternion q; ///< Orientation.
-    real_t wx;    ///< X angular velocity (rad/s).
-    real_t wy;    ///< Y angular velocity (rad/s).
-    real_t wz;    ///< Z angular velocity (rad/s).
+    Quaternion q;  ///< Orientation.
+    real_t wx;     ///< X angular velocity (rad/s).
+    real_t wy;     ///< Y angular velocity (rad/s).
+    real_t wz;     ///< Z angular velocity (rad/s).
 };
 
 /**
@@ -28,31 +28,31 @@ struct AttitudeMeasurement {
  * nx, ny, nz).
  */
 struct AttitudeState {
-    Quaternion q; ///< Orientation.
-    real_t wx;    ///< X angular velocity (rad/s).
-    real_t wy;    ///< Y angular velocity (rad/s).
-    real_t wz;    ///< Z angular velocity (rad/s).
-    real_t nx;    ///< X motor angular velocity (rad/s).
-    real_t ny;    ///< Y motor angular velocity (rad/s).
-    real_t nz;    ///< Z motor angular velocity (rad/s).
+    Quaternion q;  ///< Orientation.
+    real_t wx;     ///< X angular velocity (rad/s).
+    real_t wy;     ///< Y angular velocity (rad/s).
+    real_t wz;     ///< Z angular velocity (rad/s).
+    real_t nx;     ///< X motor angular velocity (rad/s).
+    real_t ny;     ///< Y motor angular velocity (rad/s).
+    real_t nz;     ///< Z motor angular velocity (rad/s).
 };
 
 /**
  * Integral of the error of the quaternion components q1, q2 and q3.
  */
 struct AttitudeIntegralWindup {
-    real_t q1; ///< Orientation q1 component.
-    real_t q2; ///< Orientation q2 component.
-    real_t q3; ///< Orientation q3 component.
+    real_t q1;  ///< Orientation q1 component.
+    real_t q2;  ///< Orientation q2 component.
+    real_t q3;  ///< Orientation q3 component.
 };
 
 /**
  * PWM control signals sent to the torque motors (3 components: ux, uy, uz).
  */
 struct AttitudeControlSignal {
-    real_t ux; ///< X motor signal (/).
-    real_t uy; ///< Y motor signal (/).
-    real_t uz; ///< Z motor signal (/).
+    real_t ux;  ///< X motor signal (/).
+    real_t uy;  ///< Y motor signal (/).
+    real_t uz;  ///< Z motor signal (/).
 };
 
 /**
@@ -61,10 +61,10 @@ struct AttitudeControlSignal {
  * be in [0, 1].
  */
 struct MotorDutyCycles {
-    real_t v0; ///< Front-left motor duty cycle in [0,1].
-    real_t v1; ///< Front-right motor duty cycle in [0,1].
-    real_t v2; ///< Back-left motor duty cycle in [0,1].
-    real_t v3; ///< Back-right motor duty cycle in [0,1].
+    real_t v0;  ///< Front-left motor duty cycle in [0,1].
+    real_t v1;  ///< Front-right motor duty cycle in [0,1].
+    real_t v2;  ///< Back-left motor duty cycle in [0,1].
+    real_t v3;  ///< Back-right motor duty cycle in [0,1].
 };
 
 /**
@@ -188,6 +188,11 @@ class AttitudeController {
                        real_t commonThrust);
 
   public:
+    /**
+     * Returns the quaternion of the attitude controller's state estimate.
+     */
+    Quaternion getOrientationEstimate();
+
     /**
      * Reset the attitude controller.
      */

@@ -1,6 +1,12 @@
-#include "../include/MainInterrupt.hpp"
-#include "../../../src-vivado/sensors/rc/include/RC.hpp"
+#include <MainInterrupt.hpp>
+#include <BaremetalCommunicationDef.hpp>
 #include <Globals.hpp>
+#include <SharedMemoryInstances.hpp>
+#include <TiltCorrection.hpp>
+#include "../../../src-vivado/sensors/ahrs/include/AHRS.hpp"
+#include "../../../src-vivado/sensors/imu/include/IMU.hpp"
+#include "../../../src-vivado/sensors/rc/include/RC.hpp"
+#include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
 
 
 // Called by src-vivado every 238 Hz after initialization/calibration is complete.
@@ -9,16 +15,57 @@ void updateMainFSM() {
     /* Previous flight mode initialized when the function is first called. */
     static FlightMode previousFlightMode = FlightMode::UNINITIALIZED;
 
-    // TODO:
-    // globals.setRC(readRC())
+    /* Read RC data and update the global struct. */
+    setRCInput(readRC());
 
+    /* Read IMU measurement and update the AHRS. */
+    updateAHRS(readIMU());
 
-    // TODO: imp position -tilt-correct-> corrected imp position -time-elapsed-> global position
-    // /* Calculate time since last measurement in seconds. */
-    // real_t timeElapsed = getTime() - PositionController::lastMeasurementTime;
-    //
-    // /* Store the current time for the next cycle. */
-    // PositionController::lastMeasurementTime = getTime();
+    /* Read sonar measurement and correct it using the drone's orientation. */
+    bool hasNewSonarMeasurement = readSonar();
+    real_t sonarMeasurement;
+    real_t correctedSonarMeasurement;
+    if (hasNewSonarMeasurement) {
+        sonarMeasurement = getFilteredSonarMeasurement();
+        correctedSonarMeasurement = getCorrectedHeight(sonarMeasurement, attitudeController.getOrientationEstimate());
+    }
+
+    /* Read IMP measurement from shared memory and correct it using the sonar
+       measurement and the drone's orientation. */
+    bool hasNewIMPMeasurement = false;
+    real_t yawMeasurement;
+    Position correctedPositionMeasurement;
+    if (visionComm->isDoneWriting()) {
+        hasNewIMPMeasurement = true;
+        VisionData visionData = visionComm->read();
+        impPositionMeasurement = visionData.position;
+        impYawMeasurement = visionData.yawAngle;
+        correctedPositionMeasurement = getCorrectedPosition(ColVector<2>{VisionData.position.x, VisionData.position.y}, sonarMeasurement, attitudeController.getOrientationEstimate());
+    }
+
+    AttitudeControlSignal torqueMotorSignals;
+    real_t commonThrust;
+    switch(getRCFlightMode()) {
+        case FlightMode::MANUAL:
+            // TODO: arming check
+            // TODO: gradual thrust change if last mode was altitude-hold
+            commonThrust = getRCThrottle();
+            // TODO: convert RC signal to quaternion
+            torqueMotorSignals = attitudeController.updateControlSignal({}, commonThrust);
+            break;
+        case FlightMode::ALTITUDE_HOLD:
+            if(hasNewSonarMeasurement) {
+                
+            }
+            break;
+        case FlightMode::AUTONOMOUS:
+            break;
+        case FlightMode::UNINITIALIZED:
+            /* We will never get here because readRC() cannot return an
+               uninitialized flight mode. */
+            break;
+    }
+
 
 
     // ! switch

@@ -24,7 +24,7 @@ bool readSonar();
 /**
  * Returns the latest filtered sonar measurement.
  */
-real_t geFilteredSonarMeasurement();
+real_t getFilteredSonarMeasurement();
 
 /**
  * Calculates the median of the entire sonar measurement buffer.

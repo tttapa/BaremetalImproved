@@ -11,6 +11,7 @@
 #include "../../../src-vivado/sensors/imu/include/IMU.hpp"
 #include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
 #include "../../init/include/Init.hpp"
+#include <SharedMemoryInstances.hpp>
 
 
 /**
@@ -40,6 +41,9 @@ int main(void) {
 	/* Initialize files in src. */
 	// TODO: init controllers
 	//createControllers(attitudeController, altitudeController, positionController);
+
+	/* Initialize the communication with the Linux core. */
+	initCommunicationStructs();
 
 	/* Initialize interrupt system. */
 	if(initInterrupt() == false)

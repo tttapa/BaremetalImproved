@@ -55,6 +55,7 @@ bool readSonar() {
     real_t diff = fabs(newSonarRaw - filteredSonarMeasurement);
     if (diff > SONAR::MAX_JUMP && jumpCounter < SONAR::MAX_JUMP_COUNT) {
         jumpCounter++;
+        // TODO: if there's a big jump, should we still say there's a new meas?
     } else {
         filteredSonarMeasurement = newSonarRaw;
         jumpCounter              = 0;

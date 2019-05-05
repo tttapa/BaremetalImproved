@@ -1,15 +1,7 @@
 #pragma once
 #include <Quaternion.hpp>
 #include <real_t.h>
-
-// TODO: make struct position
-/**
- * Position (x,y) consisiting of two floats. This value is measured in meters.
- */
-struct Position {
-    real_t x; ///< X-coordinate of the position (m).
-    real_t y; ///< Y-coordinate of the position (m).
-}
+#include <BaremetalCommunicationDef.hpp>
 
 /**
  * Position (x,y) reference to track, consisting of two floats. This value
@@ -71,7 +63,7 @@ struct PositionControlSignal {
  * 
  * @return  the distance between the two given positions.
  */
-real_t dist(PositionReference position1, PositionReference position2);
+real_t dist(Position position1, Position position2);
 
 /**
  * Calculates the square of the distance the two given positions in meters.
@@ -83,7 +75,7 @@ real_t dist(PositionReference position1, PositionReference position2);
  * 
  * @return  the square of distance between the two given positions.
  */
-real_t distsq(PositionReference position1, PositionReference position2);
+real_t distsq(Position position1, Position position2);
 
 /**
  * Class to control the position of the drone. The first part is an observer to
@@ -226,7 +218,7 @@ class PositionController {
      *
      * @return  The control signal to be sent to the attitude controller. The
      *          result only contains the quaternion components q1 and q2. The
-     *          last component q3 should be determined by the anti-yaw-drift
+     *          last component q3 should be determined by the anti-yaw-drift`
      *          controller and from that the full quaternion should be
      *          constructed.
      */

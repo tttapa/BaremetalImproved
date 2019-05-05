@@ -7,11 +7,11 @@
 /* Use software constants from the POSITION namespace. */
 using namespace POSITION;
 
-real_t dist(PositionReference position1, PositionReference position2) {
+real_t dist(Position position1, Position position2) {
     return std::sqrt(distsq(position1, position2));
 }
 
-real_t distsq(PositionReference position1, PositionReference position2) {
+real_t distsq(Position position1, Position position2) {
     real_t dx = position2.x - position1.x;
     real_t dy = position2.y - position1.y;
     return dx * dx + dy * dy;

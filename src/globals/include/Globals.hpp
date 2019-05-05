@@ -1,8 +1,6 @@
 #include "../../../src-vivado/sensors/rc/include/RC.hpp"
 #include <real_t.h>
 
-real_t getHoveringThrust();
-
 
 real_t getRCThrottle();
 real_t getRCRoll();

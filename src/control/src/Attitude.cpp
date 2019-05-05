@@ -45,6 +45,10 @@ AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
     return AttitudeControlSignal{ux, uy, uz};
 }
 
+Quaternion AttitudeController::getOrientationEstimate() {
+    return AttitudeController::stateEstimate.q;
+}
+
 void AttitudeController::init() {
 
     /* Reset the attitude controller. */
