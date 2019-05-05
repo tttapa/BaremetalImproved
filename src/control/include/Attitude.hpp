@@ -194,7 +194,7 @@ class AttitudeController {
     Quaternion getOrientationEstimate();
 
     /**
-     * Reset the attitude controller.
+     * Reset the attitude controller to the initial state.
      */
     void init();
 
