@@ -37,13 +37,18 @@ PositionController::clampControlSignal(PositionControlSignal controlSignal) {
     return PositionControlSignal{q1ref, q2ref};
 }
 
-void PositionController::updateObserver(Quaternion orientation,
-                                        PositionMeasurement measurement) {
+void PositionController::correctPosition(real_t correctionX,
+                                         real_t correctionY) {
+    PositionController::stateEstimate.x += correctionX;
+    PositionController::stateEstimate.y += correctionY;
+}
 
-    /* Calculate the current state estimate. */
-    PositionController::stateEstimate = codegenCurrentStateEstimate(
-        PositionController::stateEstimate, measurement, orientation,
-        getDroneConfiguration());
+void PositionController::init() {
+    /* Reset the position controller. */
+    PositionController::stateEstimate       = {};
+    PositionController::integralWindup      = {};
+    PositionController::controlSignal       = {};
+    PositionController::lastMeasurementTime = 0.0;
 }
 
 PositionControlSignal
@@ -65,11 +70,10 @@ PositionController::updateControlSignal(PositionReference reference) {
     return PositionController::controlSignal;
 }
 
-void PositionController::init() {
-
-    /* Reset the position controller. */
-    PositionController::stateEstimate       = {};
-    PositionController::integralWindup      = {};
-    PositionController::controlSignal       = {};
-    PositionController::lastMeasurementTime = 0.0;
+void PositionController::updateObserver(Quaternion orientation,
+                                        PositionMeasurement measurement) {
+    /* Calculate the current state estimate. */
+    PositionController::stateEstimate = codegenCurrentStateEstimate(
+        PositionController::stateEstimate, measurement, orientation,
+        getDroneConfiguration());
 }

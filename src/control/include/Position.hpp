@@ -190,21 +190,22 @@ class PositionController {
 
   public:
     /**
-     * Update the position observer with the given measurement position and the
-     * current orientation of the drone. This function should only be called
-     * when there is a new measurement from the Image Processing team. Because
-     * the position control system is implemented with a varying sample time,
-     * this function should be called before PositionController::
-     * updateControlSignal() is called in order to determine the state estimate
-     * for the current cycle.
+     * Shift the position controller's estimate of the position by the given
+     * correction.
      * 
-     * @param   orientation
-     *          current orientation of the drone
-     * @param   measurement
-     *          new position measurement from the Image Processing team
+     * @param   correctionX
+     *          correction to be added to the x-coordinate of the estimate of
+     *          the position controller
+     * @param   correctionY
+     *          correction to be added to the y-coordinate of the estimate of
+     *          the position controller
      */
-    void updateObserver(Quaternion orientation,
-                        PositionMeasurement measurement);
+    void correctPosition(real_t correctionX, real_t correctionY);
+
+    /**
+     * Reset the position controller.
+     */
+    void init();
 
     /**
      * Update the position controller with the given reference position. This
@@ -223,7 +224,19 @@ class PositionController {
     PositionControlSignal updateControlSignal(PositionReference reference);
 
     /**
-     * Reset the position controller.
+     * Update the position observer with the given measurement position and the
+     * current orientation of the drone. This function should only be called
+     * when there is a new measurement from the Image Processing team. Because
+     * the position control system is implemented with a varying sample time,
+     * this function should be called before PositionController::
+     * updateControlSignal() is called in order to determine the state estimate
+     * for the current cycle.
+     * 
+     * @param   orientation
+     *          current orientation of the drone
+     * @param   measurement
+     *          new position measurement from the Image Processing team
      */
-    void init();
+    void updateObserver(Quaternion orientation,
+                        PositionMeasurement measurement);
 };

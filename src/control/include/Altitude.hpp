@@ -163,17 +163,9 @@ class AltitudeController {
 
   public:
     /**
-     * Update the altitude observer with the given measurement height. This
-     * function should only be called when there is a new measurement from the
-     * sonar. Because the altitude control system is implemented with a Kalman
-     * filter, this function should be called after AltitudeController::
-     * updateControlSignal() is called in order to determine the state estimate
-     * for the next cycle.
-     * 
-     * @param   measurement
-     *          new height measurement from the sonar
+     * Reset the altitude controller.
      */
-    void updateObserver(AltitudeMeasurement measurement);
+    void init();
 
     /**
      * Update the altitude controller with the given reference height. This
@@ -189,7 +181,15 @@ class AltitudeController {
     AltitudeControlSignal updateControlSignal(AltitudeReference reference);
 
     /**
-     * Reset the altitude controller.
+     * Update the altitude observer with the given measurement height. This
+     * function should only be called when there is a new measurement from the
+     * sonar. Because the altitude control system is implemented with a Kalman
+     * filter, this function should be called after AltitudeController::
+     * updateControlSignal() is called in order to determine the state estimate
+     * for the next cycle.
+     * 
+     * @param   measurement
+     *          new height measurement from the sonar
      */
-    void init();
+    void updateObserver(AltitudeMeasurement measurement);
 };

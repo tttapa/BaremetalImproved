@@ -190,6 +190,8 @@ namespace SONAR {
     /** Conversion factor to meters. */
     const float PWM_TO_HEIGHT = 0.005787;   // TODO: is this correct?
 
+    // TODO: i think this causes altitude controllers to overshoot
+    // TODO: 10 Hz = 250ms delay, 20 Hz = 125 ms delay
     /** Size of the median filter buffer during flight. */
     const int MF_BUFFER_SIZE_SMALL = 5;
 

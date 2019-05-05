@@ -2,9 +2,6 @@
 
 static struct RCInput currentRCInput;
 
-// TODO: controllers should be in globals and this should modify
-//       the position controller
-void correctDronePosition(real_t correctionX, real_t correctionY);
 
 // TODO: this should be in input bias i think
 real_t getHoveringThrust() { return 0.0; }

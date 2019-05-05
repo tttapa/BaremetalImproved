@@ -1,8 +1,8 @@
+#include "../../../src-vivado/main/include/PublicHardwareConstants.hpp"
 #include <Altitude.hpp>
 #include <Configuration.hpp>
 #include <Globals.hpp>
 #include <SoftwareConstants.hpp>
-#include "../../../src-vivado/main/include/PublicHardwareConstants.hpp"
 
 /* Use software constants from the ALTITDUE namespace. */
 using namespace ALTITUDE;
@@ -36,10 +36,12 @@ AltitudeController::clampControlSignal(AltitudeControlSignal controlSignal) {
     return AltitudeControlSignal{controlSignal.ut};
 }
 
-void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
-    AltitudeController::stateEstimate = codegenNextStateEstimate(
-        AltitudeController::stateEstimate, AltitudeController::controlSignal,
-        measurement, getDroneConfiguration());
+void AltitudeController::init() {
+
+    /* Reset the altitude controller. */
+    AltitudeController::controlSignal  = {};
+    AltitudeController::integralWindup = {};
+    AltitudeController::stateEstimate  = {};
 }
 
 AltitudeControlSignal
@@ -61,10 +63,8 @@ AltitudeController::updateControlSignal(AltitudeReference reference) {
     return AltitudeController::controlSignal;
 }
 
-void AltitudeController::init() {
-
-    /* Reset the altitude controller. */
-    AltitudeController::controlSignal  = {};
-    AltitudeController::integralWindup = {};
-    AltitudeController::stateEstimate  = {};
+void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
+    AltitudeController::stateEstimate = codegenNextStateEstimate(
+        AltitudeController::stateEstimate, AltitudeController::controlSignal,
+        measurement, getDroneConfiguration());
 }

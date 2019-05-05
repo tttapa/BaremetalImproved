@@ -1,8 +1,6 @@
 #include "../../../src-vivado/sensors/rc/include/RC.hpp"
 #include <real_t.h>
 
-void correctDronePosition(real_t correctionX, real_t correctionY);
-
 real_t getHoveringThrust();
 
 

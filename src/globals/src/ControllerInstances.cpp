@@ -11,3 +11,7 @@ PositionController positionController;
 
 /** Instance of the autonomous controller. */
 AutonomousController autonomousController;
+
+void correctDronePosition(real_t correctionX, real_t correctionY) {
+    positionController.correctPosition(correctionX, correctionY);
+}

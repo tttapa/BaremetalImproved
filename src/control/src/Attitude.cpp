@@ -45,10 +45,12 @@ AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
     return AttitudeControlSignal{ux, uy, uz};
 }
 
-void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
-    AttitudeController::stateEstimate = codegenNextStateEstimate(
-        AttitudeController::stateEstimate, AttitudeController::controlSignal,
-        measurement, getDroneConfiguration());
+void AttitudeController::init() {
+
+    /* Reset the attitude controller. */
+    AttitudeController::stateEstimate  = {};
+    AttitudeController::integralWindup = {};
+    AttitudeController::controlSignal  = {};
 }
 
 AttitudeControlSignal
@@ -67,14 +69,12 @@ AttitudeController::updateControlSignal(AttitudeReference reference,
     /* Clamp control signal. */
     AttitudeController::controlSignal =
         clampControlSignal(AttitudeController::controlSignal, commonThrust);
-        
+
     return AttitudeController::controlSignal;
 }
 
-void AttitudeController::init() {
-
-    /* Reset the attitude controller. */
-    AttitudeController::stateEstimate  = {};
-    AttitudeController::integralWindup = {};
-    AttitudeController::controlSignal  = {};
+void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
+    AttitudeController::stateEstimate = codegenNextStateEstimate(
+        AttitudeController::stateEstimate, AttitudeController::controlSignal,
+        measurement, getDroneConfiguration());
 }

@@ -189,17 +189,9 @@ class AttitudeController {
 
   public:
     /**
-     * Update the attitude observer with the given IMU measurement. This
-     * function should be called at 238 Hz when the IMU receives a new
-     * measurement. Because the attitude control system is implemented with a
-     * Kalman filter, this function should be called after AttitudeController::
-     * updateControlSignal() is called in order to determine the state estimate
-     * for the next cycle.
-     * 
-     * @param   measurement
-     *          new measurement from the IMU
+     * Reset the attitude controller.
      */
-    void updateObserver(AttitudeMeasurement measurement);
+    void init();
 
     /**
      * Update the attitude controller with the given reference orientation. This
@@ -218,7 +210,15 @@ class AttitudeController {
                                               real_t commonThrust);
 
     /**
-     * Reset the attitude controller.
+     * Update the attitude observer with the given IMU measurement. This
+     * function should be called at 238 Hz when the IMU receives a new
+     * measurement. Because the attitude control system is implemented with a
+     * Kalman filter, this function should be called after AttitudeController::
+     * updateControlSignal() is called in order to determine the state estimate
+     * for the next cycle.
+     * 
+     * @param   measurement
+     *          new measurement from the IMU
      */
-    void init();
+    void updateObserver(AttitudeMeasurement measurement);
 };

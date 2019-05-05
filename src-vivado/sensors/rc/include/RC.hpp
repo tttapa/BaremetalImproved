@@ -28,8 +28,8 @@ struct RCInput {
 };
 
 enum WPTMode {
+    OFF = 0,
     ON  = 1,
-    OFF = 2,
 };
 
 enum FlightMode {
