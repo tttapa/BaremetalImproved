@@ -38,7 +38,7 @@ AltitudeReference rcUpdateReferenceHeight(AltitudeReference reference) {
     /* Clamp the reference height. */
     if (z < MINIMUM_REFERENCE_HEIGHT)
         z = MINIMUM_REFERENCE_HEIGHT;
-    if (z > MAXIMUM_REFERENCE_HEIGHT
+    if (z > MAXIMUM_REFERENCE_HEIGHT)
         z = MAXIMUM_REFERENCE_HEIGHT;
 
     return AltitudeReference{z};
@@ -66,7 +66,8 @@ AltitudeController::updateControlSignal(AltitudeReference reference) {
 
     /* Calculate integral windup. */
     this->integralWindup =
-        codegenIntegralWindup(this->integralWindup, reference);
+        codegenIntegralWindup(this->integralWindup, reference,
+                              this->stateEstimate, getDroneConfiguration());
 
     /* Calculate control signal (unclamped). */
     this->controlSignal =

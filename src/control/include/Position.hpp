@@ -1,7 +1,7 @@
 #pragma once
+#include <BaremetalCommunicationDef.hpp>
 #include <Quaternion.hpp>
 #include <real_t.h>
-#include <BaremetalCommunicationDef.hpp>
 
 /** Highest valid x-coordinate. */
 const real_t X_MAX = 8.0;
@@ -20,8 +20,8 @@ const real_t Y_MIN = -4.0;
  * is measured in meters.
  */
 struct PositionReference {
-    real_t x; ///< X position (m).
-    real_t y; ///< Y position (m).
+    real_t x;  ///< X position (m).
+    real_t y;  ///< Y position (m).
 };
 
 /** 
@@ -29,8 +29,8 @@ struct PositionReference {
  * representing the global position in meters.
  */
 struct PositionMeasurement {
-    real_t x; ///< X position (m).
-    real_t y; ///< Y position (m).
+    real_t x;  ///< X position (m).
+    real_t y;  ///< Y position (m).
 };
 
 /**
@@ -40,20 +40,20 @@ struct PositionMeasurement {
  * two floats represent the horizontal velocity of the drone in m/s.
  */
 struct PositionState {
-    real_t q1; ///< Orientation q1 component (/).
-    real_t q2; ///< Orientation q2 component (/).
-    real_t x;  ///< X position (m).
-    real_t y;  ///< Y position (m).
-    real_t vx; ///< X velocity (m/s).
-    real_t vy; ///< Y velocity (m/s).
+    real_t q1;  ///< Orientation q1 component (/).
+    real_t q2;  ///< Orientation q2 component (/).
+    real_t x;   ///< X position (m).
+    real_t y;   ///< Y position (m).
+    real_t vx;  ///< X velocity (m/s).
+    real_t vy;  ///< Y velocity (m/s).
 };
 
 /**
  * Integral of the error of the global position of the drone.
  */
 struct PositionIntegralWindup {
-    real_t x; ///< X position (m).
-    real_t y; ///< Y position (m).
+    real_t x;  ///< X position (m).
+    real_t y;  ///< Y position (m).
 };
 
 /**
@@ -61,8 +61,8 @@ struct PositionIntegralWindup {
  * attitude controller.
  */
 struct PositionControlSignal {
-    real_t q1ref; ///< Reference orientation q1 component (/).
-    real_t q2ref; ///< Reference orientation q2 component (/).
+    real_t q1ref;  ///< Reference orientation q1 component (/).
+    real_t q2ref;  ///< Reference orientation q2 component (/).
 };
 
 /**
@@ -129,6 +129,18 @@ class PositionController {
      */
     real_t lastMeasurementTime;
 
+  public:
+    /**
+     * Clamp the given position control signal in [-0.0436,+0.0436].
+     * 
+     * @param   controlSignal
+     *          Control signal to clamp.
+     * 
+     * @return  The clamped position control signal.
+     */
+    static PositionControlSignal
+    clampControlSignal(PositionControlSignal controlSignal);
+
     /**
      * Calculate the current position control signal using the code generator.
      * 
@@ -148,7 +160,7 @@ class PositionController {
      *          controller and from that the full quaternion should be
      *          constructed.
      */
-    PositionControlSignal codegenControlSignal(
+    static PositionControlSignal codegenControlSignal(
         PositionState stateEstimate, PositionReference reference,
         PositionIntegralWindup integralWindup, int droneConfiguration);
 
@@ -162,7 +174,7 @@ class PositionController {
      * 
      * @return  The current integral windup.
      */
-    PositionIntegralWindup
+    static PositionIntegralWindup
     codegenIntegralWindup(PositionIntegralWindup integralWindup,
                           PositionReference reference,
                           PositionState stateEstimate, int droneConfiguration);
@@ -180,28 +192,18 @@ class PositionController {
      *          Current measurement from the Image Processing team.
      * @param   orientation
      *          Current orientation of the drone.
+     * @param   timeElapsed
+     *          Time elapsed in seconds since the last update of the position
+     *          controller's state estimate.
      * @param   droneConfiguration
      *          Configuration of the drone.
      * 
      * @return  The estimate of the current position state.
      */
-    PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
-                                              PositionMeasurement measurement,
-                                              Quaternion orientation,
-                                              int droneConfiguration);
+    static PositionState codegenCurrentStateEstimate(
+        PositionState stateEstimate, PositionMeasurement measurement,
+        Quaternion orientation, real_t timeElapsed, int droneConfiguration);
 
-    /**
-     * Clamp the given position control signal in [-0.0436,+0.0436].
-     * 
-     * @param   controlSignal
-     *          Control signal to clamp.
-     * 
-     * @return  The clamped position control signal.
-     */
-    PositionControlSignal
-    clampControlSignal(PositionControlSignal controlSignal);
-
-  public:
     /**
      * Shift the position controller's estimate of the position by the given
      * correction.
