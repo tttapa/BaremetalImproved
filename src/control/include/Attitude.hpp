@@ -164,7 +164,8 @@ class AttitudeController {
      */
     static AttitudeIntegralWindup
     codegenIntegralWindup(AttitudeIntegralWindup integralWindup,
-                          AttitudeReference reference, int droneConfiguration);
+                          AttitudeReference reference,
+                          AttitudeState stateEstimate, int droneConfiguration);
 
     /**
      * Calculate the next attitude estimate using the code generator. Because

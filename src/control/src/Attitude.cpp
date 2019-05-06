@@ -64,8 +64,9 @@ AttitudeController::updateControlSignal(AttitudeReference reference,
                                         real_t commonThrust) {
 
     /* Calculate integral windup. */
-    this->integralWindup = codegenIntegralWindup(
-        this->integralWindup, reference, getDroneConfiguration());
+    this->integralWindup =
+        codegenIntegralWindup(this->integralWindup, reference,
+                              this->stateEstimate, getDroneConfiguration());
 
     /* Calculate control signal (unclamped). */
     this->controlSignal =

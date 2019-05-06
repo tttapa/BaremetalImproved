@@ -107,5 +107,8 @@ PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
     stateEstimate.x  = measurement.x;
     stateEstimate.y  = measurement.y;
 
+    /* Drone configuration unused. */
+    (void)droneConfiguration;
+
     return stateEstimate;
 }
