@@ -56,32 +56,31 @@ AltitudeController::clampControlSignal(AltitudeControlSignal controlSignal) {
 void AltitudeController::init() {
 
     /* Reset the altitude controller. */
-    AltitudeController::controlSignal  = {};
-    AltitudeController::integralWindup = {};
-    AltitudeController::stateEstimate  = {};
+    this->controlSignal  = {};
+    this->integralWindup = {};
+    this->stateEstimate  = {};
 }
 
 AltitudeControlSignal
 AltitudeController::updateControlSignal(AltitudeReference reference) {
 
     /* Calculate integral windup. */
-    AltitudeController::integralWindup =
-        codegenIntegralWindup(AltitudeController::integralWindup, reference);
+    this->integralWindup =
+        codegenIntegralWindup(this->integralWindup, reference);
 
     /* Calculate control signal (unclamped). */
-    AltitudeController::controlSignal = codegenControlSignal(
-        AltitudeController::stateEstimate, reference,
-        AltitudeController::integralWindup, getDroneConfiguration());
+    this->controlSignal =
+        codegenControlSignal(this->stateEstimate, reference,
+                             this->integralWindup, getDroneConfiguration());
 
     /* Clamp control signal. */
-    AltitudeController::controlSignal =
-        clampControlSignal(AltitudeController::controlSignal);
+    this->controlSignal = clampControlSignal(this->controlSignal);
 
-    return AltitudeController::controlSignal;
+    return this->controlSignal;
 }
 
 void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
-    AltitudeController::stateEstimate = codegenNextStateEstimate(
-        AltitudeController::stateEstimate, AltitudeController::controlSignal,
-        measurement, getDroneConfiguration());
+    this->stateEstimate =
+        codegenNextStateEstimate(this->stateEstimate, this->controlSignal,
+                                 measurement, getDroneConfiguration());
 }
