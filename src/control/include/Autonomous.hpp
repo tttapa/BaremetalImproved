@@ -113,7 +113,7 @@ enum QRState {
  * @return  True if and only if the given position is within the bounds
  *          of the grid.
  */
-bool isValidSearchTarget(PositionReference position);
+bool isValidSearchTarget(Position position);
 
 /**
  * Class to control the autonomous navigation of the drone. It has one function
