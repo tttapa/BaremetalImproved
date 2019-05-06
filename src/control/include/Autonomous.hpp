@@ -35,7 +35,7 @@ struct AutonomousOutput {
     bool trustAccelerometerForPosition;
 
     /** Reference position to be sent to the position controller. */
-    PositionReference referencePosition;
+    Position referencePosition;
 };
 
 /** States present in the autonomous controller's finite state machine (FSM). */
@@ -113,7 +113,7 @@ enum QRState {
  * @return  True if and only if the given position is within the bounds
  *          of the grid.
  */
-bool isValidSearchTarget(PositionReference position);
+bool isValidSearchTarget(Position position);
 
 /**
  * Class to control the autonomous navigation of the drone. It has one function
