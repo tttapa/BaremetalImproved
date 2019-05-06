@@ -1,4 +1,5 @@
 /* Include for the FlightMode enumeration. */
+#pragma once
 #include <BaremetalCommunicationDef.hpp>
 
 /**
