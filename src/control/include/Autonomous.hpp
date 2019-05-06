@@ -144,16 +144,16 @@ class AutonomousController {
     AltitudeReference referenceHeight;
 
     /** Previous target position. */
-    PositionReference previousTarget;
+    Position previousTarget;
 
     /** Next target position. */
-    PositionReference nextTarget;
+    Position nextTarget;
 
     /** Estimated time to navigate from previous target to next target. */
     real_t navigationTime;
 
     /** Next QR code location. */
-    PositionReference nextQRPosition;
+    Position nextQRPosition;
 
     /**
      * Number of times the Cryptography team failed to decrypt the image sent by
@@ -180,7 +180,7 @@ class AutonomousController {
      * 
      * @return  The next target to check.
      */
-    PositionReference getNextSearchTarget();
+    Position getNextSearchTarget();
 
     /**
      * Set the current state of the autonomous controller's FSM to the given
@@ -198,7 +198,7 @@ class AutonomousController {
      * @param   target
      *          New "nextTarget" for the autonomous controller.
      */
-    void setNextTarget(PositionReference target);
+    void setNextTarget(Position target);
 
     /**
      * Set the current state of the QR FSM to the the given state (converted to
@@ -225,7 +225,7 @@ class AutonomousController {
      *          Current drone position.
      */
     void startLanding(bool shouldLandAtCurrentPosition,
-                      PositionReference currentPosition);
+                      Position currentPosition);
 
     /**
      * Tell the autonomous controller's FSM to switch to the NAVIGATING state
@@ -236,7 +236,7 @@ class AutonomousController {
      *          Position to navigate to, which will be the next QR code during
      *          autonomous mode.
      */
-    void startNavigating(PositionReference nextQRPosition);
+    void startNavigating(Position nextQRPosition);
 
     /**
      * Update the autonomous controller's finite state machine (FSM). In the
@@ -248,7 +248,7 @@ class AutonomousController {
      * 
      * @return  The next AutonomousOutput.
      */
-    AutonomousOutput updateAutonomousFSM(PositionReference currentPosition);
+    AutonomousOutput updateAutonomousFSM(Position currentPosition);
 
     /**
      * Update the autonomous controller's QR finite state machine (FSM) only
@@ -269,7 +269,7 @@ class AutonomousController {
      * @param   referenceHeight
      *          Reference height of the drone during autonomous mode.
      */
-    void initAir(PositionReference currentPosition,
+    void initAir(Position currentPosition,
                  AltitudeReference referenceHeight);
 
     /**
@@ -279,7 +279,7 @@ class AutonomousController {
      * @param   currentPosition
      *          Current position of the drone.
      */
-    void initGround(PositionReference currentPosition);
+    void initGround(Position currentPosition);
 
     /**
      * Update the autonomous controller's QR finite state machine (FSM), then
@@ -292,5 +292,5 @@ class AutonomousController {
      * 
      * @return  The next AutonomousOutput.
      */
-    AutonomousOutput update(PositionReference currentPosition);
+    AutonomousOutput update(Position currentPosition);
 };
