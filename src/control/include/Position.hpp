@@ -249,9 +249,12 @@ class PositionController {
      * 
      * @param   orientation
      *          Current orientation of the drone.
+     * @param   timeElapsed
+     *          Time elapsed in seconds since the last update of the position
+     *          controller's state estimate.
      * @param   measurement
      *          New position measurement from the Image Processing team.
      */
-    void updateObserver(Quaternion orientation,
+    void updateObserver(Quaternion orientation, real_t timeElapsed,
                         PositionMeasurement measurement);
 };
