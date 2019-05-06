@@ -17,11 +17,11 @@ FlightMode getRCFlightMode() { return currentRCInput.flightMode; }
 WPTMode getRCWPTMode() { return currentRCInput.wptMode; }
 
 // TODO: read from shared memory
-int readQRState() { return 1; }
+QRFSMState readQRState() { return QRFSMState::IDLE; }
 real_t readQRTargetX() { return 0.5; }
 real_t readQRTargetY() {return 0.5; }
 
 void setRCInput(RCInput input) { currentRCInput = input; }
 
 // TODO: write to shared memory
-void writeQRState(int qrState) { (void)qrState; }
+void writeQRState(QRFSMState qrState) { (void)qrState; }

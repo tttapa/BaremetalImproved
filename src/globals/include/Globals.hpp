@@ -1,5 +1,5 @@
-#include <real_t.h>
 #include <RCTypes.hpp>
+#include <real_t.h>
 
 real_t getRCThrottle();
 real_t getRCRoll();
@@ -9,10 +9,10 @@ real_t getRCTuner();
 FlightMode getRCFlightMode();
 WPTMode getRCWPTMode();
 
-int readQRState();
+QRFSMState readQRState();
 real_t readQRTargetX();
 real_t readQRTargetY();
 
 void setRCInput(RCInput input);
 
-void writeQRState(int qrState);
+void writeQRState(QRFSMState qrState);

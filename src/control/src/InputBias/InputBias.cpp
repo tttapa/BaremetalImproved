@@ -2,8 +2,8 @@
 #include <InputBias/InputBias.hpp>
 
 void InputBias::init() {
-    this->pitchBias = 0.0;
-    this->rollBias = 0.0;
+    this->pitchBias  = 0.0;
+    this->rollBias   = 0.0;
     this->thrustBias = 0.0;
 }
 
@@ -56,11 +56,7 @@ void InputBias::updatePitchBias(real_t referencePitchRads,
     }
 }
 
-void InputBias::updateThrustBiasManual(real_t rcThrust) {
+void InputBias::updateThrustBias(real_t commonThrust) {
     this->thrustBias +=
-        THRUST_BIAS_WEIGHT_MANUAL * (rcThrust - this->thrustBias);
-}
-
-void InputBias::updateThrustBiasAltitudeHold(real_t ut) {
-    this->thrustBias += THRUST_BIAS_WEIGHT_ALTITUDE_HOLD * ut;
+        THRUST_BIAS_WEIGHT_MANUAL * (commonThrust - this->thrustBias);
 }

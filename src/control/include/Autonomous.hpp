@@ -1,6 +1,7 @@
 #pragma once
 #include <Altitude.hpp>
 #include <Position.hpp>
+#include <BaremetalCommunicationDef.hpp>
 
 /**
  * Output of the autonomous control system, which consists of a reference
@@ -42,65 +43,38 @@ struct AutonomousOutput {
 enum AutonomousState {
 
     /** The drone is inactive on the ground. */
-    IDLE_GROUND = 1,
+    IDLE_GROUND = 0,
 
     /** The drone is airborne, but the autonomous mode has not been started. */
-    IDLE_AIR = 2,
+    IDLE_AIR = 1,
 
     /** The drone is starting up the motors to prepare for takeoff. */
-    PRE_TAKEOFF = 3,
+    PRE_TAKEOFF = 2,
 
     /** The drone is taking off in autonomous mode. */
-    TAKEOFF = 4,
+    TAKEOFF = 3,
 
     /** The drone is attempting to hold its (x,y,z) position for 15 seconds. */
-    LOITERING = 5,
+    LOITERING = 4,
 
     /** The drone is converging on its next destination. */
-    CONVERGING = 6,
+    CONVERGING = 5,
 
     /** The drone is navigating to its next destination. */
-    NAVIGATING = 7,
+    NAVIGATING = 6,
 
     /** The drone has received the "landing flag" and is attempting to land. */
-    LANDING = 8,
+    LANDING = 7,
 
     /** The drone has activated the Wireless Power Transfer (WPT). */
-    WPT = 9,
+    WPT = 8,
 
     /**
      * The drone has received a bad measurement or has not received any position
      * measurement in 2 seconds. It will set its reference orientation upright
      * and start beeping.
      */
-    ERROR = 10,
-};
-
-/** States present in the QR finite state machine (FSM). */
-enum QRState {
-
-    // TODO: start at 0 for default state in enums
-    /** No group is busy with QR codes. */
-    QR_IDLE = 1,
-
-    /** The Image Processing team is busy reading the QR code. */
-    QR_READING = 2,
-
-    /** The Cryptography team is busy decoding the QR code. */
-    QR_CRYPTO_BUSY = 3,
-
-    /** The Cryptography team has decoded a new target. */
-    QR_NEW_TARGET = 4,
-
-    /** The Cryptography team has decoded a landing instruction. */
-    QR_LAND = 5,
-
-    /** The Cryptography team has decoded an unknown instruction. */
-    QR_UNKNOWN = 6,
-
-    /** The Cryptography team could not decode the image sent to them. */
-    QR_ERROR = 7
-
+    ERROR = -1,
 };
 
 /**
@@ -139,7 +113,7 @@ class AutonomousController {
     real_t autonomousStateStartTime;
 
     /** Current state of the QR finite state machine (FSM). */
-    QRState qrState;
+    QRFSMState qrState;
 
     /** Most recent reference height of the autonomous controller. */
     AltitudeReference referenceHeight;
@@ -209,7 +183,7 @@ class AutonomousController {
      * @param   nextState
      *          New QR FSM state.
      */
-    void setQRState(int nextState);
+    void setQRState(QRFSMState nextState);
 
     /**
      * Tell the autonomous controller's FSM to switch to the LANDING state. This

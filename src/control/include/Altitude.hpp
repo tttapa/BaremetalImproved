@@ -46,20 +46,6 @@ struct AltitudeControlSignal {
 };
 
 /**
- * Update the reference height using the RC throttle. When the RC throttle is in
- * the dead zone [25%, 75%], the reference height will not change. If the value
- * of the RC throttle exceeds 75% (goes below 25%), then the reference height
- * will increase (decrease). The maximum increase (decrease) speed is reached
- * when the value of the RC throttle reaches 100% (0%).
- * 
- * @param   reference
- *          Reference height from the previous cycle.
- * 
- * @return  The updated reference height.
- */
-AltitudeReference rcUpdateReferenceHeight(AltitudeReference reference);
-
-/**
  * Class to control the altitude of the drone. The first part is an observer to
  * estimate the drone's "common motor" marginal angular velocity, height and
  * vertical velocity. Next, there is a controller to send the appropriate
@@ -87,10 +73,11 @@ class AltitudeController {
      */
     AltitudeIntegralWindup integralWindup;
 
-    /**
-     * Marginal PWM control signal sent to the "common motor".
-     */
+    /** Marginal PWM control signal sent to the "common motor". */
     AltitudeControlSignal controlSignal;
+
+    /** Reference height to track in meters. */
+    AltitudeReference reference;
 
   public:
     /**
@@ -166,17 +153,23 @@ class AltitudeController {
     void init();
 
     /**
-     * Update the altitude controller with the given reference height. This
-     * function should only be called when there is a new measurement from the
-     * sonar.
+     * Set the altitude controller's reference height.
      * 
      * @param   reference
-     *          The reference height to track.
-     *
+     *          New reference height to track in meters.
+     */
+    void setReference(AltitudeReference reference);
+
+    /**
+     * Update the altitude controller with the altitude controller's reference
+     * height. Use updateRCReference() to update the reference heigth based on
+     * the RC throttle and setReference() to set it directly.  This function
+     * should only be called when there is a new measurement from the sonar.
+     * 
      * @return  The marginal control signal to be sent to the "common motor"
      *          until the next sonar measurement.
      */
-    AltitudeControlSignal updateControlSignal(AltitudeReference reference);
+    AltitudeControlSignal updateControlSignal();
 
     /**
      * Update the altitude observer with the given measurement height. This
@@ -190,4 +183,14 @@ class AltitudeController {
      *          New height measurement from the sonar.
      */
     void updateObserver(AltitudeMeasurement measurement);
+
+    /**
+     * Update the altitude controller's reference height using the RC throttle.
+     * When the RC throttle is in the dead zone [25%, 75%], the reference height
+     * will not change. If the value of the RC throttle exceeds 75% (goes below
+     * 25%), then the reference height will increase (decrease). The maximum
+     * increase (decrease) speed is reached when the value of the RC throttle
+     * reaches 100% (0%).
+     */
+    void updateRCReference();
 };

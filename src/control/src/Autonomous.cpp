@@ -149,17 +149,8 @@ void AutonomousController::setNextTarget(Position target) {
     this->nextTarget     = target;
 }
 
-void AutonomousController::setQRState(int nextState) {
-    switch (nextState) {
-        case QR_IDLE: this->qrState = QR_IDLE; return;
-        case QR_READING: this->qrState = QR_READING; return;
-        case QR_CRYPTO_BUSY: this->qrState = QR_CRYPTO_BUSY; return;
-        case QR_NEW_TARGET: this->qrState = QR_NEW_TARGET; return;
-        case QR_LAND: this->qrState = QR_LAND; return;
-        case QR_UNKNOWN: this->qrState = QR_UNKNOWN; return;
-        case QR_ERROR: this->qrState = QR_ERROR; return;
-        default: this->qrState = QR_IDLE;
-    }
+void AutonomousController::setQRState(QRFSMState nextState) {
+    this->qrState = nextState;
 }
 
 void AutonomousController::startLanding(bool shouldLandAtCurrentPosition,
@@ -210,13 +201,13 @@ void AutonomousController::updateQRFSM() {
     /* Implement FSM logic. */
     real_t correctionX, correctionY;
     switch (this->qrState) {
-        case QR_IDLE:
+        case QRFSMState::IDLE:
             /* Let the Image Processing team take a picture if we have converged
                on our target. */
             if (getElapsedTime() > CONVERGENCE_DURATION)
-                writeQRState(QR_READING);
+                writeQRState(QRFSMState::QR_READ_REQUEST);
             break;
-        case QR_NEW_TARGET:
+        case QRFSMState::NEW_TARGET:
             /* Reset error count and search count. */
             this->qrErrorCount    = 0;
             this->qrTilesSearched = 0;
@@ -232,9 +223,9 @@ void AutonomousController::updateQRFSM() {
                position of the next QR code sent by the Cryptography team. */
             /* Switch this FSM to QR_IDLE. */
             startNavigating({readQRTargetX(), readQRTargetY()});
-            writeQRState(QR_IDLE);
+            writeQRState(QRFSMState::IDLE);
             break;
-        case QR_LAND:
+        case QRFSMState::LAND:
             /* Reset error count and search count. */
             this->qrErrorCount    = 0;
             this->qrTilesSearched = 0;
@@ -242,21 +233,22 @@ void AutonomousController::updateQRFSM() {
             /* Tell the autonomous controller's FSM to start landing. */
             /* Switch this FSM to QR_IDLE. */
             startLanding(false, {});
-            writeQRState(QR_IDLE);
+            writeQRState(QRFSMState::IDLE);
             break;
-        case QR_UNKNOWN:
+        case QRFSMState::QR_UNKNOWN:
             /* Reset error count and search count. */
             this->qrErrorCount    = 0;
             this->qrTilesSearched = 0;
             // TODO: what do we do with unknown QR data?
 
             /* Switch this FSM to QR_IDLE. */
-            writeQRState(QR_IDLE);
+            writeQRState(QRFSMState::IDLE);
             break;
-        case QR_ERROR:
+        case QRFSMState::ERROR:
             this->qrErrorCount++;
             if (this->qrErrorCount <= MAX_QR_ERROR_COUNT) {
-                writeQRState(QR_READING); /* Tell IMP to try again. */
+                /* Tell IMP to try again. */
+                writeQRState(QRFSMState::QR_READ_REQUEST);
             } else {
 
                 /* Start (or continue) spiral-searching for QR code. */
@@ -273,14 +265,14 @@ void AutonomousController::updateQRFSM() {
                 /* Switch this FSM to QR_IDLE. */
                 if (this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
                     setNextTarget(nextSearchTarget);
-                    writeQRState(QR_IDLE);
+                    writeQRState(QRFSMState::IDLE);
                 }
 
                 /* We've run out of tiles to search, so have the drone land. */
                 /* Switch this FSM to QR_IDLE. */
                 else {
                     startLanding(false, {});
-                    writeQRState(QR_IDLE);
+                    writeQRState(QRFSMState::IDLE);
                 }
             }
             break;

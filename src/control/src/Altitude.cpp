@@ -16,33 +16,13 @@ const real_t MAXIMUM_REFERENCE_HEIGHT = 1.75;
 const real_t MINIMUM_REFERENCE_HEIGHT = 0.25;
 
 /** The maximum speed of the reference height is 0.25 m/s. */
-const real_t RC_REFERENCE_MAX_SPEED = 0.25;
+const real_t RC_HEIGHT_REFERENCE_MAX_SPEED = 0.25;
 
 /** The threshold to start decreasing the reference height is 0.25. */
-const real_t RC_REFERENCE_LOWER_THRESHOLD = 0.25;
+const real_t RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.25;
 
 /** The threshold to start increasing the reference height is 0.75. */
-const real_t RC_REFERENCE_UPPER_THRESHOLD = 0.75;
-
-AltitudeReference rcUpdateReferenceHeight(AltitudeReference reference) {
-
-    real_t throttle = getRCThrottle();
-    real_t z        = reference.z;
-
-    /* Try increasing/decreasing the reference height. */
-    if (throttle > RC_REFERENCE_UPPER_THRESHOLD)
-        z += (throttle - RC_REFERENCE_UPPER_THRESHOLD) / SONAR_FREQUENCY;
-    if (throttle < RC_REFERENCE_LOWER_THRESHOLD)
-        z -= (RC_REFERENCE_LOWER_THRESHOLD - throttle) / SONAR_FREQUENCY;
-
-    /* Clamp the reference height. */
-    if (z < MINIMUM_REFERENCE_HEIGHT)
-        z = MINIMUM_REFERENCE_HEIGHT;
-    if (z > MAXIMUM_REFERENCE_HEIGHT)
-        z = MAXIMUM_REFERENCE_HEIGHT;
-
-    return AltitudeReference{z};
-}
+const real_t RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.75;
 
 AltitudeControlSignal
 AltitudeController::clampControlSignal(AltitudeControlSignal controlSignal) {
@@ -61,17 +41,20 @@ void AltitudeController::init() {
     this->stateEstimate  = {};
 }
 
-AltitudeControlSignal
-AltitudeController::updateControlSignal(AltitudeReference reference) {
+void AltitudeController::setReference(AltitudeReference reference) {
+    this->reference = reference;
+}
+
+AltitudeControlSignal AltitudeController::updateControlSignal() {
 
     /* Calculate integral windup. */
     this->integralWindup =
-        codegenIntegralWindup(this->integralWindup, reference,
+        codegenIntegralWindup(this->integralWindup, this->reference,
                               this->stateEstimate, getDroneConfiguration());
 
     /* Calculate control signal (unclamped). */
     this->controlSignal =
-        codegenControlSignal(this->stateEstimate, reference,
+        codegenControlSignal(this->stateEstimate, this->reference,
                              this->integralWindup, getDroneConfiguration());
 
     /* Clamp control signal. */
@@ -84,4 +67,28 @@ void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
     this->stateEstimate =
         codegenNextStateEstimate(this->stateEstimate, this->controlSignal,
                                  measurement, getDroneConfiguration());
+}
+
+void AltitudeController::updateRCReference() {
+
+    /* Store the RC throttle. */
+    real_t throttle = getRCThrottle();
+
+    /* Try increasing/decreasing the reference height. */
+    real_t upperZoneSize = 1.0 - RC_REFERENCE_HEIGHT_UPPER_THRESHOLD;
+    real_t lowerZoneSize = RC_REFERENCE_HEIGHT_LOWER_THRESHOLD;
+    if (throttle > RC_REFERENCE_HEIGHT_UPPER_THRESHOLD)
+        this->reference.z += (throttle - RC_REFERENCE_HEIGHT_UPPER_THRESHOLD) /
+                             upperZoneSize * RC_HEIGHT_REFERENCE_MAX_SPEED /
+                             SONAR_FREQUENCY;
+    if (throttle < RC_REFERENCE_HEIGHT_LOWER_THRESHOLD)
+        this->reference.z -= (RC_REFERENCE_HEIGHT_LOWER_THRESHOLD - throttle) /
+                             lowerZoneSize * RC_HEIGHT_REFERENCE_MAX_SPEED /
+                             SONAR_FREQUENCY;
+
+    /* Clamp the reference height. */
+    if (this->reference.z < MINIMUM_REFERENCE_HEIGHT)
+        this->reference.z = MINIMUM_REFERENCE_HEIGHT;
+    if (this->reference.z > MAXIMUM_REFERENCE_HEIGHT)
+        this->reference.z = MAXIMUM_REFERENCE_HEIGHT;
 }

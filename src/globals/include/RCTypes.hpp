@@ -1,6 +1,7 @@
 /* Include for the FlightMode enumeration. */
 #pragma once
 #include <BaremetalCommunicationDef.hpp>
+#include <real_t.h>
 
 /**
  * Struct containing the values from the RC transmitter. This includes the

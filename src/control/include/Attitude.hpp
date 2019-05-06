@@ -1,4 +1,5 @@
 #pragma once
+#include <EulerAngles.hpp>
 #include <Quaternion.hpp>
 #include <real_t.h>
 
@@ -103,15 +104,23 @@ class AttitudeController {
      */
     AttitudeState stateEstimate;
 
-    /**
-     * Integral of the error of the quaternion components q1, q2 and q3.
-     */
+    /** Integral of the error of the quaternion components q1, q2 and q3. */
     AttitudeIntegralWindup integralWindup;
 
     /**
      * PWM control signals sent to the torque motors (3 components: ux, uy, uz).
      */
     AttitudeControlSignal controlSignal;
+
+    /** Reference orientation to track. */
+    AttitudeReference reference;
+
+    /**
+     * Reference orientation to track as EulerAngles. This is used to keep track
+     * of the reference yaw, which needs to be remembered between clock cycles,
+     * and to pass on to the logger.
+     */
+    EulerAngles referenceEuler;
 
   public:
     /**
@@ -196,25 +205,60 @@ class AttitudeController {
     Quaternion getOrientationEstimate();
 
     /**
+     * Returns the quaternion representation of the reference orientation.
+     */
+    Quaternion getReferenceQuat() {return this->reference.q;}
+
+    /**
+     * Returns the Euler representation of the reference orientation.
+     */
+    EulerAngles getReferenceEuler() {return this->referenceEuler;}
+
+
+    /**
      * Reset the attitude controller to the initial state.
      */
     void init();
 
     /**
-     * Update the attitude controller with the given reference orientation. This
-     * function should be called at 238 Hz when the IMU receives a new
-     * measurement.
+     * Set the attitude controller's reference orientation.
      * 
      * @param   reference
-     *          Reference orientation to track.
+     *          New reference orientation to track.
+     */
+    void setReference(AttitudeReference reference);
+
+    /**
+     * Set the attitude controller's reference orientation to the given
+     * EulerAngles, converted to a quaternion.
+     * 
+     * @param   reference
+     *          New reference orientation to track as EulerAngles.
+     */
+    void setReference(EulerAngles referenceEuler);
+
+    /**
+     * Set the attitude controller's reference yaw.
+     * 
+     * @param   referenceEulerAngles
+     *          New reference orientation to track as EulerAngles. This is only
+     *          used to keep track of the reference yaw, which needs to be
+     *          remembered between clock cycles, and to pass on to the logger.
+     */
+    void setReferenceEuler(EulerAngles referenceEuler);
+
+    /**
+     * Update the attitude controller with its current reference orientation.
+     * This function should be called at 238 Hz when the IMU receives a new
+     * measurement.
+     * 
      * @param   commonThrust
      *          Control signal sent to the "common motor".
      *
      * @return  The control signal to be sent to the "torque motors" until the
      *          next IMU measurement.
      */
-    AttitudeControlSignal updateControlSignal(AttitudeReference reference,
-                                              real_t commonThrust);
+    AttitudeControlSignal updateControlSignal(real_t commonThrust);
 
     /**
      * Update the attitude observer with the given IMU measurement. This
@@ -228,4 +272,16 @@ class AttitudeController {
      *          New measurement from the IMU.
      */
     void updateObserver(AttitudeMeasurement measurement);
+
+    /**
+     * Update the attitude controller's reference orientation using the RC
+     * pitch, roll and yaw. The pitch and roll will be added to the input bias
+     * to attain the total reference pitch and roll. The reference yaw will be
+     * incremented or decremented by a small amount based on the RC yaw. When
+     * the RC yaw is in the dead zone [-5%, +5%], the reference yaw will not
+     * change. If the value of the RC yaw exceeds +5% (goes below -5%), then the
+     * reference yaw will increase (decrease). The maximum increase (decrease)
+     * speed is reached when the value of the RC yaw reaches +50% (-50%).
+     */
+    void updateRCReference();
 };

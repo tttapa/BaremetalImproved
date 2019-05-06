@@ -6,13 +6,12 @@
 *   all of the components on the Zybo, starts the interrupts and runs a loop
 *   that logs data.
 ******************************************************************************/
-#include "../../../src-vivado/main/include/Platform.hpp"
 #include "../../../src-vivado/main/include/Interrupt.hpp"
+#include "../../../src-vivado/main/include/Platform.hpp"
 #include "../../../src-vivado/sensors/imu/include/IMU.hpp"
 #include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
 #include "../../init/include/Init.hpp"
 #include <SharedMemoryInstances.hpp>
-
 
 /**
  * Entry point to BareMetal program.
@@ -24,40 +23,36 @@
  */
 int main(void) {
 
-	/* Initialize Xilinx platform and IPC. */
-	initPlatform();
+    /* Initialize Xilinx platform and IPC. */
+    initPlatform();
 
-	/* Initialize the sensors. AHRS will be initialized after IMU is calibrated.  */
-	initSonar();
-	initIMU();
+    /* Initialize the sensors. AHRS will be initialized after IMU is calibrated.  */
+    initSonar();
+    initIMU();
 
-	/* Initialize communication with other core. */
-	initCommunication();
+    /* Initialize communication with other core. */
+    initCommunication();
 
-	/* Reset PWM output. */
-	pwmOutput(0,0,0,0);
+    /* Reset PWM output. */
+    pwmOutput(0, 0, 0, 0);
 
-	/* Initialize files in src. */
-	// TODO: init controllers
-	//createControllers(attitudeController, altitudeController, positionController);
+    /* Initialize the controllers and input bias. */
+    initControllers();
 
-	/* Initialize the communication with the Linux core. */
-	initCommunicationStructs();
+    /* Initialize the communication with the Linux core. */
+    initCommunicationStructs();
 
-	/* Initialize interrupt system. */
-	if(initInterrupt() == false)
-		return 1;
+    /* Initialize interrupt system. */
+    if (initInterrupt() == false)
+        return 1;
 
-
-	//-------------------- MAIN EXECUTION -------------------
-	while (true) {
+    //-------------------- MAIN EXECUTION -------------------
+    while (true) {
 
         // Wait for next interrupt...
-
-	}
+    }
 
     /* For completeness. */
-	cleanup_platform();
-	return 1;
+    cleanup_platform();
+    return 1;
 }
-

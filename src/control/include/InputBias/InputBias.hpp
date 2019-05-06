@@ -146,19 +146,12 @@ class InputBias {
                          AutonomousState autonomousState);
 
     /**
-     * Update the thrust bias (exponential filter) using the given RC thrust.
+     * Update the thrust bias (exponential filter) using the given common
+     * thrust.
      * 
-     * @param   rcThrust
-     *          Thrust sent by the RC in [0,1].
+     * @param   commonThrust
+     *          Signal sent to the common motor in [0,1].
      */
-    void updateThrustBiasManual(real_t rcThrust);
+    void updateThrustBias(real_t commonThrust);
 
-    /**
-     * Update the thrust bias (exponential filter) using the marginal thrust
-     * signal from the altitude controller.
-     * 
-     * @param   ut
-     *          Marginal thrust sent by the altitude controller.
-     */
-    void updateThrustBiasAltitudeHold(real_t ut);
 };

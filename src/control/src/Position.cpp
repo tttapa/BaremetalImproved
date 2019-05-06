@@ -74,10 +74,13 @@ PositionController::updateControlSignal(PositionReference reference) {
 }
 
 void PositionController::updateObserver(Quaternion orientation,
-                                        real_t timeElapsed,
+                                        real_t currentTime,
                                         PositionMeasurement measurement) {
     /* Calculate the current state estimate. */
     this->stateEstimate = codegenCurrentStateEstimate(
-        this->stateEstimate, measurement, orientation, timeElapsed,
-        getDroneConfiguration());
+        this->stateEstimate, measurement, orientation,
+        currentTime - lastMeasurementTime, getDroneConfiguration());
+
+    /* Store the measurement time. */
+    this->lastMeasurementTime = currentTime;
 }

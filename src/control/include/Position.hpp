@@ -16,7 +16,7 @@ const real_t Y_MAX = 4.0;
 const real_t Y_MIN = -4.0;
 
 /**
- * Position (x,y) reference to track, consisting of two floats. This value
+z * Position (x,y) reference to track, consisting of two floats. This value
  * is measured in meters.
  */
 struct PositionReference {
@@ -249,12 +249,11 @@ class PositionController {
      * 
      * @param   orientation
      *          Current orientation of the drone.
-     * @param   timeElapsed
-     *          Time elapsed in seconds since the last update of the position
-     *          controller's state estimate.
+     * @param   currentTime
+     *          Current time in seconds.
      * @param   measurement
      *          New position measurement from the Image Processing team.
      */
-    void updateObserver(Quaternion orientation, real_t timeElapsed,
+    void updateObserver(Quaternion orientation, real_t currentTime,
                         PositionMeasurement measurement);
 };

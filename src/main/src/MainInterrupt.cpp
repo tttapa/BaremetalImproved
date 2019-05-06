@@ -1,13 +1,14 @@
-#include <MainInterrupt.hpp>
-#include <BaremetalCommunicationDef.hpp>
-#include <Globals.hpp>
-#include <SharedMemoryInstances.hpp>
-#include <TiltCorrection.hpp>
+#include "../../../src-vivado/output/motors/include/Motors.hpp"
 #include "../../../src-vivado/sensors/ahrs/include/AHRS.hpp"
 #include "../../../src-vivado/sensors/imu/include/IMU.hpp"
 #include "../../../src-vivado/sensors/rc/include/RC.hpp"
 #include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
-
+#include <BaremetalCommunicationDef.hpp>
+#include <ControllerInstances.hpp>
+#include <Globals.hpp>
+#include <MainInterrupt.hpp>
+#include <SharedMemoryInstances.hpp>
+#include <TiltCorrection.hpp>
 
 // Called by src-vivado every 238 Hz after initialization/calibration is complete.
 void updateMainFSM() {
@@ -19,15 +20,16 @@ void updateMainFSM() {
     setRCInput(readRC());
 
     /* Read IMU measurement and update the AHRS. */
-    updateAHRS(readIMU());
+    Quaternion orientationMeasurement = updateAHRS(readIMU());
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement = readSonar();
     real_t sonarMeasurement;
     real_t correctedSonarMeasurement;
     if (hasNewSonarMeasurement) {
-        sonarMeasurement = getFilteredSonarMeasurement();
-        correctedSonarMeasurement = getCorrectedHeight(sonarMeasurement, attitudeController.getOrientationEstimate());
+        sonarMeasurement          = getFilteredSonarMeasurement();
+        correctedSonarMeasurement = getCorrectedHeight(
+            sonarMeasurement, attitudeController.getOrientationEstimate());
     }
 
     /* Read IMP measurement from shared memory and correct it using the sonar
@@ -36,86 +38,119 @@ void updateMainFSM() {
     real_t yawMeasurement;
     Position correctedPositionMeasurement;
     if (visionComm->isDoneWriting()) {
-        hasNewIMPMeasurement = true;
-        VisionData visionData = visionComm->read();
-        impPositionMeasurement = visionData.position;
-        impYawMeasurement = visionData.yawAngle;
-        correctedPositionMeasurement = getCorrectedPosition(ColVector<2>{VisionData.position.x, VisionData.position.y}, sonarMeasurement, attitudeController.getOrientationEstimate());
+        hasNewIMPMeasurement         = true;
+        VisionData visionData        = visionComm->read();
+        impPositionMeasurement       = visionData.position;
+        impYawMeasurement            = visionData.yawAngle;
+        correctedPositionMeasurement = getCorrectedPosition(
+            ColVector<2>{VisionData.position.x, VisionData.position.y},
+            sonarMeasurement, attitudeController.getOrientationEstimate());
     }
 
-    AttitudeControlSignal torqueMotorSignals;
-    real_t commonThrust;
-    switch(getRCFlightMode()) {
+    AttitudeControlSignal uxyz;  ///< Torque motor signals.
+    real_t uc;                   ///< Common motor signal.
+    switch (getRCFlightMode()) {
         case FlightMode::MANUAL:
             // TODO: arming check
             // TODO: gradual thrust change if last mode was altitude-hold
-            commonThrust = getRCThrottle();
-            // TODO: convert RC signal to quaternion
-            torqueMotorSignals = attitudeController.updateControlSignal({}, commonThrust);
+            /* Common thrust comes directly from the RC. */
+            uc = getRCThrottle();
+
+            /* Update the attitude controller's reference using the RC. */
+            attitudeController.updateRCReference();
+
+            /* Calculate the torque motor signals. */
+            uxyz = attitudeController.updateControlSignal(uc);
             break;
         case FlightMode::ALTITUDE_HOLD:
-            if(hasNewSonarMeasurement) {
-                
+            if (hasNewSonarMeasurement) {
+
+                /* Update the altitude controller's reference using the RC. */
+                altitudeController.updateRCReference();
+
+                /* Common thrust is calculated by the altitude controller. */
+                uc = inputBias.getThrustBias() +
+                     altitudeController.updateControlSignal().ut;
+
+                /* Calculate the torque motor signals. */
+                uxyz = attitudeController.updateControlSignal(uc);
             }
             break;
         case FlightMode::AUTONOMOUS:
+            if (hasNewIMPMeasurement) {
+
+                /* Autonomous controller, using position of the drone. */
+                AutonomousOutput output =
+                    autonomousController.update(correctedPositionMeasurement);
+
+                /* Position controller, using AutonomousOutput. */
+                PositionControlSignal q12ref;
+                if (output.updatePositionController) {
+
+                    /* Calculate current position state estimate. */
+                    if (output.trustAccelerometerForPosition)
+                        // TODO: accelerometer estimate
+                        ;
+                    else
+                        positionController.updateObserver(
+                            attitudeController.getOrientationEstimate(),
+                            getTime(), {correctedPositionMeasurement});
+
+                    /* Calculate control signal. */
+                    q12ref = positionController.updateControlSignal(
+                        {output.referencePosition});
+                } else {
+                    q12ref = {0.0, 0.0};
+                }
+
+                /* Altitude controller, using AutonomousOutput. */
+                if (output.bypassAltitudeController) {
+                    uc = output.commonThrust;
+                } else {
+                    altitudeController.setReference({output.referenceHeight});
+                    uc = inputBias.getThrustBias() +
+                         altitudeController.updateControlSignal().ut;
+                }
+
+                /* Calculate the torque motor signals. */
+                real_t q1        = q12ref.q1ref;
+                real_t q2        = q12ref.q2ref;
+                real_t q0        = 1 - sqrt(q1 * q1 + q2 * q2);
+                real_t pitch     = inputBias.getPitchBias();
+                real_t roll      = inputBias.getRollBias();
+                Quaternion quat1 = Quaternion(q0, q1, q2, 0);
+                Quaternion quat2 = EulerAngles::eul2quat(0.0, pitch, roll);
+                attitudeController.setReference(quat1 + quat2);
+                attitudeController.setReferenceEuler({quat1 + quat2});
+                uxyz = attitudeController.updateControlSignal(uc);
+            }
             break;
         case FlightMode::UNINITIALIZED:
             /* We will never get here because readRC() cannot return an
-               uninitialized flight mode. */
+            uninitialized flight mode. */
             break;
     }
 
+    /* Transform the motor signals and output to the motors. */
+    MotorDutyCycles dutyCycles = transformAttitudeControlSignal(uxyz, uc);
+    outputMotorPWM(dutyCycles.v0, dutyCycles.v1, dutyCycles.v2, dutyCycles.v2);
 
+    /* Update the Kalman Filters (the position controller doesn't use one). */
+    attitudeController.updateObserver({orientationMeasurement});
+    altitudeController.updateObserver({correctedSonarMeasurement});
 
-    // ! switch
+    // TODO: kill if the drone tilts too far? (droneControllersActivated flag)
 
-    // ! CASE ( flightMode == MANUAL )
-        // TODO: arming check
-        // TODO: u_att = att.updateCtrl()
-        // TODO: u_thr = getRCThrust()
-
-    // ! CASE ( flightMode == ALTITDUE_HOLD )
-        // TODO: if(*NEW_LOCATION_MEASUREMENT == 1) {
-            // TODO: set PositionController::measurement
-            // TODO: u_att = att.updateCtrl(getRCManualReference())
-            // TODO: z_ref = altref.updateZRef(getRCThrust())   // Use throttle to move zref up or down
-            // TODO: u_thr = alt.updateCtrl(z_ref)
-        // TODO: }
-
-    // ! CASE ( flightMode == AUTONOMOUS )
-        // TODO: posref, altref = updateAutoFSM(getRCThrust(), getRCInductive())  // Call these as globals
-        // TODO: qref = pos.updateCtrl(posref, measurement)
-        // TODO: u_att = att.updateCtrl(qref)
-        // TODO: if altref.bypass, then u_thr = altref.thrust
-        // TODO: else u_thr = alt.updateCtrl(altref.z_ref)
-
-    // ! CASE ( flightMode == ERROR )
-        // TODO: why is this here again?
-        
-    // ! end switch
-
-
-    
-    // TODO: if isDroneKilled, then setMotors(0,0,0,0)
-    // TODO: elseif gtc_busy, then setMotors(u_att, gtc_thrust)
-    // TODO: else setMotors(u_att, u_thr)
-
-    /* Try updating the observers at 238 Hz. */
-    
-    // TODO: att.updateObserver()
-    // TODO: alt.updateObserver()
-    // TODO: pos.updateObserver()
-    
-    // TODO: reset new measurement flags
-    // TODO: *NEW_LOCATION_MEASUREMENT == 0
+    /* Update input biases. */
+    inputBias.updatePitchBias(attitudeController.getReferenceEuler().pitch,
+                              getRCFlightMode());
+    inputBias.updateRollBias(attitudeController.getReferenceEuler().roll,
+                             getRCFlightMode());
+    inputBias.updateThrustBias(uc);
 
     /* Store flight mode. */
     previousFlightMode = getRCFlightMode();
-    
 }
-
-
 
 void update() {
 
@@ -146,5 +181,4 @@ void update() {
 
     // Test pin low to probe length of interrupt.
     writeValueToTestPin(false);
-
 }
