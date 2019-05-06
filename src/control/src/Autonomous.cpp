@@ -103,7 +103,7 @@ const real_t TAKEOFF_DURATION = 2.0;
  */
 const real_t TAKEOFF_THROTTLE = 0.50;
 
-bool isValidSearchTarget(PositionReference position) {
+bool isValidSearchTarget(Position position) {
     return position.x >= X_MIN && position.x <= X_MAX && position.y >= Y_MIN &&
            position.y <= Y_MAX;
 }
@@ -112,7 +112,7 @@ real_t AutonomousController::getElapsedTime() {
     return getTime() - this->autonomousStateStartTime;
 }
 
-PositionReference AutonomousController::getNextSearchTarget() {
+Position AutonomousController::getNextSearchTarget() {
     real_t x = this->nextQRPosition.x;
     real_t y = this->nextQRPosition.y;
 
@@ -135,7 +135,7 @@ PositionReference AutonomousController::getNextSearchTarget() {
         x += dx;
         y += dy;
     }
-    return PositionReference{x, y};
+    return Position{x, y};
 }
 
 void AutonomousController::setAutonomousState(AutonomousState nextState) {
@@ -143,7 +143,7 @@ void AutonomousController::setAutonomousState(AutonomousState nextState) {
     this->autonomousStateStartTime = getTime();
 }
 
-void AutonomousController::setNextTarget(PositionReference target) {
+void AutonomousController::setNextTarget(Position target) {
     this->previousTarget = this->nextTarget;
     this->nextTarget     = target;
 }
@@ -162,7 +162,7 @@ void AutonomousController::setQRState(int nextState) {
 }
 
 void AutonomousController::startLanding(bool shouldLandAtCurrentPosition,
-                                        PositionReference currentPosition) {
+                                        Position currentPosition) {
     if (shouldLandAtCurrentPosition)
         setNextTarget(currentPosition);
 
@@ -170,7 +170,7 @@ void AutonomousController::startLanding(bool shouldLandAtCurrentPosition,
     setAutonomousState(LANDING);
 }
 
-void AutonomousController::startNavigating(PositionReference nextQRPosition) {
+void AutonomousController::startNavigating(Position nextQRPosition) {
     setNextTarget(nextQRPosition);
     real_t d             = dist(this->previousTarget, this->nextTarget);
     this->navigationTime = d / NAVIGATION_SPEED;
@@ -261,7 +261,7 @@ void AutonomousController::updateQRFSM() {
                 /* Start (or continue) spiral-searching for QR code. */
                 this->qrErrorCount = 0;
                 this->qrTilesSearched++;
-                PositionReference nextSearchTarget = getNextSearchTarget();
+                Position nextSearchTarget = getNextSearchTarget();
                 while (!isValidSearchTarget(nextSearchTarget) &&
                        this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
                     nextSearchTarget = getNextSearchTarget();
@@ -291,7 +291,7 @@ void AutonomousController::updateQRFSM() {
 }
 
 AutonomousOutput
-AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
+AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
     /**
      * ============================ AUTONOMOUS FSM ============================
@@ -322,7 +322,7 @@ AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
     real_t commonThrust                 = 0.0;
     bool updatePositionController       = true;
     bool trustAccelerometerForPosition  = false;
-    PositionReference referencePosition = this->nextTarget;
+    Position referencePosition = this->nextTarget;
 
     /* Implement FSM logic. */
     real_t dx, dy;
@@ -475,7 +475,7 @@ AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
                             referencePosition};
 }
 
-void AutonomousController::initAir(PositionReference currentPosition,
+void AutonomousController::initAir(Position currentPosition,
                                    AltitudeReference referenceHeight) {
     this->autonomousState          = IDLE_AIR;
     this->autonomousStateStartTime = getTime();
@@ -485,7 +485,7 @@ void AutonomousController::initAir(PositionReference currentPosition,
     this->qrErrorCount             = 0;
 }
 
-void AutonomousController::initGround(PositionReference currentPosition) {
+void AutonomousController::initGround(Position currentPosition) {
     this->autonomousState          = IDLE_GROUND;
     this->autonomousStateStartTime = getTime();
     this->previousTarget           = currentPosition;
@@ -494,7 +494,7 @@ void AutonomousController::initGround(PositionReference currentPosition) {
 }
 
 AutonomousOutput
-AutonomousController::update(PositionReference currentPosition) {
+AutonomousController::update(Position currentPosition) {
     updateQRFSM();
     return updateAutonomousFSM(currentPosition);
 }
