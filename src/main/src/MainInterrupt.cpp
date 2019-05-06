@@ -47,8 +47,11 @@ void updateMainFSM() {
             sonarMeasurement, attitudeController.getOrientationEstimate());
     }
 
-    AttitudeControlSignal uxyz;  ///< Torque motor signals.
-    real_t uc;                   ///< Common motor signal.
+    /* Implement main FSM logic. The transformed motor signals will be
+       calculated based on the current flight mode, the measurements and the
+       current state of the controllers. */
+    AttitudeControlSignal uxyz;
+    real_t uc;
     switch (getRCFlightMode()) {
         case FlightMode::MANUAL:
             // TODO: arming check
@@ -63,6 +66,9 @@ void updateMainFSM() {
             uxyz = attitudeController.updateControlSignal(uc);
             break;
         case FlightMode::ALTITUDE_HOLD:
+            if(previousFlightMode == FlightMode::MANUAL)
+                altitudeController.init();
+            
             if (hasNewSonarMeasurement) {
 
                 /* Update the altitude controller's reference using the RC. */
@@ -77,6 +83,8 @@ void updateMainFSM() {
             }
             break;
         case FlightMode::AUTONOMOUS:
+            // TODO: when should we initGround or initAir?
+            // TODO: should we tell IMP to reset their measurement?
             if (hasNewIMPMeasurement) {
 
                 /* Autonomous controller, using position of the drone. */
@@ -135,11 +143,11 @@ void updateMainFSM() {
     MotorDutyCycles dutyCycles = transformAttitudeControlSignal(uxyz, uc);
     outputMotorPWM(dutyCycles.v0, dutyCycles.v1, dutyCycles.v2, dutyCycles.v2);
 
-    /* Update the Kalman Filters (the position controller doesn't use one). */
-    attitudeController.updateObserver({orientationMeasurement});
-    altitudeController.updateObserver({correctedSonarMeasurement});
-
     // TODO: kill if the drone tilts too far? (droneControllersActivated flag)
+    // TODO: gradual thrust change
+    // TODO: update buzzer
+    // TODO: escs startup script
+    // TODO: update configuration
 
     /* Update input biases. */
     inputBias.updatePitchBias(attitudeController.getReferenceEuler().pitch,
@@ -148,37 +156,41 @@ void updateMainFSM() {
                              getRCFlightMode());
     inputBias.updateThrustBias(uc);
 
+    /* Update the Kalman Filters (the position controller doesn't use one). */
+    attitudeController.updateObserver({orientationMeasurement});
+    altitudeController.updateObserver({correctedSonarMeasurement});
+
     /* Store flight mode. */
     previousFlightMode = getRCFlightMode();
 }
 
 void update() {
 
-    // Test pin high to probe length of interrupt.
+    /* Test pin high to probe length of interrupt. */
     writeValueToTestPin(true);
 
-    // Keep the clock/timer up-to-date
+    /* Update the drone's clock. */
     incrementTickCount();
 
-    // IMU bias should be calculated before use.
+    /* IMU bias should be calculated before use. */
     static bool isIMUCalibrated = false;
-    // AHRS should calibrate with accelerometer before use.
+    /* AHRS should calibrate with accelerometer before use. */
     static bool isAHRSInitialized = false;
 
-    // Phase 1: Calibrate IMU.
+    /* Phase 1: Calibrate IMU. */
     if (!isIMUCalibrated) {
         isIMUCalibrated = calibrateIMU();
     }
-    // Phase 2: Initialize AHRS. */
+    /* Phase 2: Initialize AHRS. */
     else if (!isAHRSInitialized) {
         initAHRS();
         isAHRSInitialized = true;
     }
-    // Phase 3: main operation
+    /* Phase 3: Main operation. */
     else {
         updateMainFSM();
     }
 
-    // Test pin low to probe length of interrupt.
+    /* Test pin low to probe length of interrupt. */
     writeValueToTestPin(false);
 }
