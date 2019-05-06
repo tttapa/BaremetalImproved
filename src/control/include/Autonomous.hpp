@@ -35,7 +35,7 @@ struct AutonomousOutput {
     bool trustAccelerometerForPosition;
 
     /** Reference position to be sent to the position controller. */
-    PositionReference referencePosition;
+    Position referencePosition;
 };
 
 /** States present in the autonomous controller's finite state machine (FSM). */
