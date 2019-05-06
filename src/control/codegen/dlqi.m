@@ -1,5 +1,3 @@
-% ../../MATLAB/dlqi.m
-
 function K = dlqi(A, B, C, D, Q, R, Ts) 
     nx = size(A, 1);
     ny = size(C, 1);

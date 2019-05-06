@@ -1,13 +1,19 @@
+function Codegen()
+
 clear
 
-if ~exist('Output', 'dir'); mkdir('Output'); end
-if ~exist('Output/src', 'dir'); mkdir('Output/src'); end
-if ~exist('Output/ParamsAndMatrices', 'dir'); mkdir('Output/ParamsAndMatrices'); end
+[scriptfolder, ~] = fileparts(mfilename('fullpath'));
+addpath(scriptfolder);
+inputfolder = fullfile(scriptfolder, '..', 'templates');
+
+if ~exist('src-generated', 'dir'); mkdir('src-generated'); end
+if ~exist('ParamsAndMatrices-generated', 'dir'); mkdir('ParamsAndMatrices-generated'); end
 
 s = GetParamsAndMatrices();
 p = quat_params();
 
 %% 4 Configurations, config. 5 is reserved for callibration
+
 % Config 1: current config
 s1 = s;
 s1.nav.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
@@ -71,8 +77,8 @@ configs = [s1, s2, s3, s4];
 %% Attitude
 
 % Output to file
-template = fileread('Templates/AttitudeCodegenTemplate.cpp');
-outputFid = fopen('Output/src/AttitudeCodegen.cpp', 'w');
+template = fileread(fullfile(inputfolder, 'AttitudeCodegenTemplate.cpp'));
+outputFid = fopen('src-generated/AttitudeCodegen.cpp', 'w');
     
 fprintf(outputFid, '/* Automatically generated, using... \r\n');
 for k = 1:length(configs)
@@ -132,8 +138,8 @@ fclose(outputFid);
 %% Altitude 
 
 % Output to file
-template = fileread('Templates/AltitudeCodegenTemplate.cpp');
-outputFid = fopen('Output/src/AltitudeCodegen.cpp', 'w');
+template = fileread(fullfile(inputfolder, 'AltitudeCodegenTemplate.cpp'));
+outputFid = fopen('src-generated/AltitudeCodegen.cpp', 'w');
 
 fprintf(outputFid, '/* Automatically generated, using \r\n');
 for k = 1:length(configs)
@@ -182,8 +188,8 @@ fclose(outputFid);
 %% Position
 
 %Output to file
-template = fileread('Templates/PositionCodegenTemplate.cpp');
-outputFid = fopen('Output/src/PositionCodegen.cpp', 'w');
+template = fileread(fullfile(inputfolder, 'PositionCodegenTemplate.cpp'));
+outputFid = fopen('src-generated/PositionCodegen.cpp', 'w');
 
 fprintf(outputFid, '/* Automatically generated, using \r\n');
 for k = 1:length(configs)
@@ -235,7 +241,9 @@ fprintf(outputFid, ' */\r\n\n');
 fprintf(outputFid, template);
 fclose(outputFid);
 
-ExportParamsAndMatrices('Output/ParamsAndMatrices');
+ExportParamsAndMatrices('ParamsAndMatrices-generated');
+
+end
 
 %% Symbolic expression to string
 function textComponents = symbolicVectorExpressionToStrings(droneState, u)
