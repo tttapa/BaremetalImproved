@@ -109,19 +109,19 @@ bool isValidSearchTarget(PositionReference position) {
 }
 
 real_t AutonomousController::getElapsedTime() {
-    return getTime() - AutonomousController::autonomousStateStartTime;
+    return getTime() - this->autonomousStateStartTime;
 }
 
 PositionReference AutonomousController::getNextSearchTarget() {
-    real_t x = AutonomousController::nextQRPosition.x;
-    real_t y = AutonomousController::nextQRPosition.y;
+    real_t x = this->nextQRPosition.x;
+    real_t y = this->nextQRPosition.y;
 
     /* Spiral outward until we reach the next tile to check. */
     real_t dx          = 1.0;
     real_t dy          = 0.0;
     int tilesUntilTurn = 0;
     int nextTurnIndex  = 1;
-    for (int i = 0; i < AutonomousController::qrTilesSearched; i++) {
+    for (int i = 0; i < this->qrTilesSearched; i++) {
         /* Every two iterations, the turn occurs 1 tile later. */
         if (i % 2 == 0)
             tilesUntilTurn++;
@@ -138,36 +138,32 @@ PositionReference AutonomousController::getNextSearchTarget() {
     return PositionReference{x, y};
 }
 
-void AutonomousController::setAutonomousState(AutonomousState state) {
-    AutonomousController::autonomousState          = state;
-    AutonomousController::autonomousStateStartTime = getTime();
+void AutonomousController::setAutonomousState(AutonomousState nextState) {
+    this->autonomousState          = nextState;
+    this->autonomousStateStartTime = getTime();
 }
 
 void AutonomousController::setNextTarget(PositionReference target) {
-    AutonomousController::previousTarget = AutonomousController::nextTarget;
-    AutonomousController::nextTarget     = target;
+    this->previousTarget = this->nextTarget;
+    this->nextTarget     = target;
 }
 
-void AutonomousController::setQRState(int state) {
-    switch (state) {
-        case QR_IDLE: AutonomousController::qrState = QR_IDLE; return;
-        case QR_READING: AutonomousController::qrState = QR_READING; return;
-        case QR_CRYPTO_BUSY:
-            AutonomousController::qrState = QR_CRYPTO_BUSY;
-            return;
-        case QR_NEW_TARGET:
-            AutonomousController::qrState = QR_NEW_TARGET;
-            return;
-        case QR_LAND: AutonomousController::qrState = QR_LAND; return;
-        case QR_UNKNOWN: AutonomousController::qrState = QR_UNKNOWN; return;
-        case QR_ERROR: AutonomousController::qrState = QR_ERROR; return;
-        default: AutonomousController::qrState = QR_IDLE;
+void AutonomousController::setQRState(int nextState) {
+    switch (nextState) {
+        case QR_IDLE: this->qrState = QR_IDLE; return;
+        case QR_READING: this->qrState = QR_READING; return;
+        case QR_CRYPTO_BUSY: this->qrState = QR_CRYPTO_BUSY; return;
+        case QR_NEW_TARGET: this->qrState = QR_NEW_TARGET; return;
+        case QR_LAND: this->qrState = QR_LAND; return;
+        case QR_UNKNOWN: this->qrState = QR_UNKNOWN; return;
+        case QR_ERROR: this->qrState = QR_ERROR; return;
+        default: this->qrState = QR_IDLE;
     }
 }
 
-void AutonomousController::startLanding(bool landAtCurrentPosition,
+void AutonomousController::startLanding(bool shouldLandAtCurrentPosition,
                                         PositionReference currentPosition) {
-    if (landAtCurrentPosition)
+    if (shouldLandAtCurrentPosition)
         setNextTarget(currentPosition);
 
     // TODO: landing script init
@@ -176,9 +172,8 @@ void AutonomousController::startLanding(bool landAtCurrentPosition,
 
 void AutonomousController::startNavigating(PositionReference nextQRPosition) {
     setNextTarget(nextQRPosition);
-    real_t d = dist(AutonomousController::previousTarget,
-                    AutonomousController::nextTarget);
-    AutonomousController::navigationTime = d / NAVIGATION_SPEED;
+    real_t d             = dist(this->previousTarget, this->nextTarget);
+    this->navigationTime = d / NAVIGATION_SPEED;
     setAutonomousState(NAVIGATING);
 }
 
@@ -188,7 +183,7 @@ void AutonomousController::updateQRFSM() {
     setQRState(readQRState());
 
     /* Don't update QR FSM if the drone is not in CONVERGING state. */
-    if (AutonomousController::autonomousState != CONVERGING)
+    if (this->autonomousState != CONVERGING)
         return;
 
     /**
@@ -213,7 +208,7 @@ void AutonomousController::updateQRFSM() {
 
     /* Implement FSM logic. */
     real_t correctionX, correctionY;
-    switch (AutonomousController::qrState) {
+    switch (this->qrState) {
         case QR_IDLE:
             /* Let the Image Processing team take a picture if we have converged
                on our target. */
@@ -222,15 +217,13 @@ void AutonomousController::updateQRFSM() {
             break;
         case QR_NEW_TARGET:
             /* Reset error count and search count. */
-            AutonomousController::qrErrorCount    = 0;
-            AutonomousController::qrTilesSearched = 0;
+            this->qrErrorCount    = 0;
+            this->qrTilesSearched = 0;
 
             /* Correct the drone's position if the drone got lost, and we had to
                search for the code. */
-            correctionX = AutonomousController::nextTarget.x -
-                          AutonomousController::nextQRPosition.x;
-            correctionY = AutonomousController::nextTarget.y -
-                          AutonomousController::nextQRPosition.y;
+            correctionX = this->nextTarget.x - this->nextQRPosition.x;
+            correctionY = this->nextTarget.y - this->nextQRPosition.y;
             if (correctionX != 0.0 && correctionY != 0.0)
                 correctDronePosition(correctionX, correctionY);
 
@@ -242,8 +235,8 @@ void AutonomousController::updateQRFSM() {
             break;
         case QR_LAND:
             /* Reset error count and search count. */
-            AutonomousController::qrErrorCount    = 0;
-            AutonomousController::qrTilesSearched = 0;
+            this->qrErrorCount    = 0;
+            this->qrTilesSearched = 0;
 
             /* Tell the autonomous controller's FSM to start landing. */
             /* Switch this FSM to QR_IDLE. */
@@ -252,34 +245,32 @@ void AutonomousController::updateQRFSM() {
             break;
         case QR_UNKNOWN:
             /* Reset error count and search count. */
-            AutonomousController::qrErrorCount    = 0;
-            AutonomousController::qrTilesSearched = 0;
+            this->qrErrorCount    = 0;
+            this->qrTilesSearched = 0;
             // TODO: what do we do with unknown QR data?
 
             /* Switch this FSM to QR_IDLE. */
             writeQRState(QR_IDLE);
             break;
         case QR_ERROR:
-            AutonomousController::qrErrorCount++;
-            if (AutonomousController::qrErrorCount <= MAX_QR_ERROR_COUNT) {
+            this->qrErrorCount++;
+            if (this->qrErrorCount <= MAX_QR_ERROR_COUNT) {
                 writeQRState(QR_READING); /* Tell IMP to try again. */
             } else {
 
                 /* Start (or continue) spiral-searching for QR code. */
-                AutonomousController::qrErrorCount = 0;
-                AutonomousController::qrTilesSearched++;
+                this->qrErrorCount = 0;
+                this->qrTilesSearched++;
                 PositionReference nextSearchTarget = getNextSearchTarget();
                 while (!isValidSearchTarget(nextSearchTarget) &&
-                       AutonomousController::qrTilesSearched <
-                           MAX_QR_SEARCH_COUNT) {
+                       this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
                     nextSearchTarget = getNextSearchTarget();
-                    AutonomousController::qrTilesSearched++;
+                    this->qrTilesSearched++;
                 }
 
                 /* Valid search target, so set it as the next target. */
                 /* Switch this FSM to QR_IDLE. */
-                if (AutonomousController::qrTilesSearched <
-                    MAX_QR_SEARCH_COUNT) {
+                if (this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
                     setNextTarget(nextSearchTarget);
                     writeQRState(QR_IDLE);
                 }
@@ -331,11 +322,11 @@ AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
     real_t commonThrust                 = 0.0;
     bool updatePositionController       = true;
     bool trustAccelerometerForPosition  = false;
-    PositionReference referencePosition = AutonomousController::nextTarget;
+    PositionReference referencePosition = this->nextTarget;
 
     /* Implement FSM logic. */
     real_t dx, dy;
-    switch (AutonomousController::autonomousState) {
+    switch (this->autonomousState) {
 
         case IDLE_GROUND:
             /* Instruction: override thrust (no thrust), don't update position
@@ -368,7 +359,7 @@ AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
 
         case TAKEOFF:
             /* Set reference height to 1 meter. */
-            AutonomousController::referenceHeight = {REFERENCE_HEIGHT};
+            this->referenceHeight = {REFERENCE_HEIGHT};
 
             /* Takeoff stage 1... Instruction = override thrust (blind takeoff
                thrust), trust acceleration for position. */
@@ -405,9 +396,9 @@ AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
                 startLanding(true, currentPosition);
 
             /* Reset counter if we're no longer within converging distance. */
-            if (distsq(AutonomousController::nextTarget, currentPosition) >
+            if (distsq(this->nextTarget, currentPosition) >
                 CONVERGENCE_DISTANCE * CONVERGENCE_DISTANCE) {
-                AutonomousController::autonomousStateStartTime = getTime();
+                this->autonomousStateStartTime = getTime();
             }
             /* Instruction = hover at (position, height) = (nextTarget,
                referenceHeight). */
@@ -422,11 +413,11 @@ AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
 
             /* Navigating... Instruction = hover at (position, height) =
                (interpolation point, referenceHeight). */
-            if (getElapsedTime() <= AutonomousController::navigationTime) {
+            if (getElapsedTime() <= this->navigationTime) {
                 dx = (nextTarget.x - previousTarget.x) * getElapsedTime() /
-                     AutonomousController::navigationTime;
+                     this->navigationTime;
                 dy = (nextTarget.y - previousTarget.y) * getElapsedTime() /
-                     AutonomousController::navigationTime;
+                     this->navigationTime;
                 referencePosition = {previousTarget.x + dx,
                                      previousTarget.y + dy};
             }
@@ -443,14 +434,13 @@ AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
                (nextTarget, referenceHeight). nextTarget is set when the method
                startNavigating() is called; referenceHeight is updated in this
                block of code. */
-            if (AutonomousController::referenceHeight.z >
-                LANDING_LOWEST_REFERENCE_HEIGHT) {
-                AutonomousController::referenceHeight.z -=
+            if (this->referenceHeight.z > LANDING_LOWEST_REFERENCE_HEIGHT) {
+                this->referenceHeight.z -=
                     LANDING_REFERENCE_HEIGHT_DECREASE_SPEED * SECONDS_PER_TICK;
 
                 /* Reset autonomous state timer, so we can use it during the
                    second stage. */
-                AutonomousController::autonomousStateStartTime = getTime();
+                this->autonomousStateStartTime = getTime();
             }
 
             /* Landing stage 2... Instruction = override thrust (landing final
@@ -477,32 +467,30 @@ AutonomousController::updateAutonomousFSM(PositionReference currentPosition) {
         case ERROR: break;
     }
 
-    return AutonomousOutput{
-        bypassAltitudeController,
-        AutonomousController::referenceHeight,
-        commonThrust,
-        updatePositionController,
-        trustAccelerometerForPosition,
-        referencePosition,
-    };
+    return AutonomousOutput{bypassAltitudeController,
+                            this->referenceHeight,
+                            commonThrust,
+                            updatePositionController,
+                            trustAccelerometerForPosition,
+                            referencePosition};
 }
 
 void AutonomousController::initAir(PositionReference currentPosition,
                                    AltitudeReference referenceHeight) {
-    AutonomousController::autonomousState          = IDLE_AIR;
-    AutonomousController::autonomousStateStartTime = getTime();
-    AutonomousController::previousTarget           = currentPosition;
-    AutonomousController::nextTarget               = currentPosition;
-    AutonomousController::referenceHeight          = referenceHeight;
-    AutonomousController::qrErrorCount             = 0;
+    this->autonomousState          = IDLE_AIR;
+    this->autonomousStateStartTime = getTime();
+    this->previousTarget           = currentPosition;
+    this->nextTarget               = currentPosition;
+    this->referenceHeight          = referenceHeight;
+    this->qrErrorCount             = 0;
 }
 
 void AutonomousController::initGround(PositionReference currentPosition) {
-    AutonomousController::autonomousState          = IDLE_GROUND;
-    AutonomousController::autonomousStateStartTime = getTime();
-    AutonomousController::previousTarget           = currentPosition;
-    AutonomousController::nextTarget               = currentPosition;
-    AutonomousController::qrErrorCount             = 0;
+    this->autonomousState          = IDLE_GROUND;
+    this->autonomousStateStartTime = getTime();
+    this->previousTarget           = currentPosition;
+    this->nextTarget               = currentPosition;
+    this->qrErrorCount             = 0;
 }
 
 AutonomousOutput

@@ -48,15 +48,15 @@ AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
 }
 
 Quaternion AttitudeController::getOrientationEstimate() {
-    return AttitudeController::stateEstimate.q;
+    return this->stateEstimate.q;
 }
 
 void AttitudeController::init() {
 
     /* Reset the attitude controller. */
-    AttitudeController::stateEstimate  = {};
-    AttitudeController::integralWindup = {};
-    AttitudeController::controlSignal  = {};
+    this->stateEstimate  = {};
+    this->integralWindup = {};
+    this->controlSignal  = {};
 }
 
 AttitudeControlSignal
@@ -64,23 +64,22 @@ AttitudeController::updateControlSignal(AttitudeReference reference,
                                         real_t commonThrust) {
 
     /* Calculate integral windup. */
-    AttitudeController::integralWindup = codegenIntegralWindup(
-        AttitudeController::integralWindup, reference, getDroneConfiguration());
+    this->integralWindup = codegenIntegralWindup(
+        this->integralWindup, reference, getDroneConfiguration());
 
     /* Calculate control signal (unclamped). */
-    AttitudeController::controlSignal = codegenControlSignal(
-        AttitudeController::stateEstimate, reference,
-        AttitudeController::integralWindup, getDroneConfiguration());
+    this->controlSignal =
+        codegenControlSignal(this->stateEstimate, reference,
+                             this->integralWindup, getDroneConfiguration());
 
     /* Clamp control signal. */
-    AttitudeController::controlSignal =
-        clampControlSignal(AttitudeController::controlSignal, commonThrust);
+    this->controlSignal = clampControlSignal(this->controlSignal, commonThrust);
 
-    return AttitudeController::controlSignal;
+    return this->controlSignal;
 }
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
-    AttitudeController::stateEstimate = codegenNextStateEstimate(
-        AttitudeController::stateEstimate, AttitudeController::controlSignal,
-        measurement, getDroneConfiguration());
+    this->stateEstimate =
+        codegenNextStateEstimate(this->stateEstimate, this->controlSignal,
+                                 measurement, getDroneConfiguration());
 }

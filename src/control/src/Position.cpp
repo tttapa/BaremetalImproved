@@ -41,41 +41,40 @@ PositionController::clampControlSignal(PositionControlSignal controlSignal) {
 
 void PositionController::correctPosition(real_t correctionX,
                                          real_t correctionY) {
-    PositionController::stateEstimate.x += correctionX;
-    PositionController::stateEstimate.y += correctionY;
+    this->stateEstimate.x += correctionX;
+    this->stateEstimate.y += correctionY;
 }
 
 void PositionController::init() {
+
     /* Reset the position controller. */
-    PositionController::stateEstimate       = {};
-    PositionController::integralWindup      = {};
-    PositionController::controlSignal       = {};
-    PositionController::lastMeasurementTime = 0.0;
+    this->stateEstimate       = {};
+    this->integralWindup      = {};
+    this->controlSignal       = {};
+    this->lastMeasurementTime = 0.0;
 }
 
 PositionControlSignal
 PositionController::updateControlSignal(PositionReference reference) {
 
     /* Calculate integral windup. */
-    PositionController::integralWindup = codegenIntegralWindup(
-        PositionController::integralWindup, reference, getDroneConfiguration());
+    this->integralWindup = codegenIntegralWindup(
+        this->integralWindup, reference, getDroneConfiguration());
 
     /* Calculate control signal (unclamped). */
-    PositionController::controlSignal = codegenControlSignal(
-        PositionController::stateEstimate, reference,
-        PositionController::integralWindup, getDroneConfiguration());
+    this->controlSignal =
+        codegenControlSignal(this->stateEstimate, reference,
+                             this->integralWindup, getDroneConfiguration());
 
     /* Clamp control signal. */
-    PositionController::controlSignal =
-        clampControlSignal(PositionController::controlSignal);
+    this->controlSignal = clampControlSignal(this->controlSignal);
 
-    return PositionController::controlSignal;
+    return this->controlSignal;
 }
 
 void PositionController::updateObserver(Quaternion orientation,
                                         PositionMeasurement measurement) {
     /* Calculate the current state estimate. */
-    PositionController::stateEstimate = codegenCurrentStateEstimate(
-        PositionController::stateEstimate, measurement, orientation,
-        getDroneConfiguration());
+    this->stateEstimate = codegenCurrentStateEstimate(
+        this->stateEstimate, measurement, orientation, getDroneConfiguration());
 }
