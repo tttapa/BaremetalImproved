@@ -113,6 +113,24 @@ class AttitudeController {
      */
     AttitudeControlSignal controlSignal;
 
+  public:
+    /**
+     * Clamp the given attitude control signal such that the corrections are not
+     * dominated by the yaw component and such that each motor PWM duty cycle is
+     * in [0,1].
+     * 
+     * @param   controlSignal
+     *          Control signal to clamp.
+     * @param   commonThrust
+     *          Control signal to be sent to the "common motor": this must be in
+     *          [0,1].
+     * 
+     * @return  The clamped attitude control signal.
+     */
+    static AttitudeControlSignal
+    clampControlSignal(AttitudeControlSignal controlSignal,
+                       real_t commonThrust);
+
     /**
      * Calculate the current attitude control signal using the code generator.
      * 
@@ -128,7 +146,7 @@ class AttitudeController {
      * @return  The control signal to be sent to the "torque motors" until the
      *          next IMU measurement.
      */
-    AttitudeControlSignal codegenControlSignal(
+    static AttitudeControlSignal codegenControlSignal(
         AttitudeState stateEstimate, AttitudeReference reference,
         AttitudeIntegralWindup integralWindup, int droneConfiguration);
 
@@ -144,9 +162,9 @@ class AttitudeController {
      * 
      * @return  The current integral windup.
      */
-    AttitudeIntegralWindup
+    static AttitudeIntegralWindup
     codegenIntegralWindup(AttitudeIntegralWindup integralWindup,
-                          AttitudeReference reference, int droneConfigure);
+                          AttitudeReference reference, int droneConfiguration);
 
     /**
      * Calculate the next attitude estimate using the code generator. Because
@@ -167,29 +185,10 @@ class AttitudeController {
      * 
      * @return  The estimate of the next attitude state.
      */
-    AttitudeState codegenNextStateEstimate(AttitudeState stateEstimate,
-                                           AttitudeControlSignal controlSignal,
-                                           AttitudeMeasurement measurement,
-                                           int droneConfiguration);
+    static AttitudeState codegenNextStateEstimate(
+        AttitudeState stateEstimate, AttitudeControlSignal controlSignal,
+        AttitudeMeasurement measurement, int droneConfiguration);
 
-    /**
-     * Clamp the given attitude control signal such that the corrections are not
-     * dominated by the yaw component and such that each motor PWM duty cycle is
-     * in [0,1].
-     * 
-     * @param   controlSignal
-     *          Control signal to clamp.
-     * @param   commonThrust
-     *          Control signal to be sent to the "common motor": this must be in
-     *          [0,1].
-     * 
-     * @return  The clamped attitude control signal.
-     */
-    AttitudeControlSignal
-    clampControlSignal(AttitudeControlSignal controlSignal,
-                       real_t commonThrust);
-
-  public:
     /**
      * Returns the quaternion of the attitude controller's state estimate.
      */

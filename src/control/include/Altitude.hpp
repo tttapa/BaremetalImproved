@@ -6,7 +6,7 @@
  * Altitude reference height to track, consisting of a single float.
  */
 struct AltitudeReference {
-    real_t z; ///< Height (m).
+    real_t z;  ///< Height (m).
 };
 
 /**
@@ -14,7 +14,7 @@ struct AltitudeReference {
  * the height of the drone, measured in meters.
  */
 struct AltitudeMeasurement {
-    real_t z; ///< Height (m).
+    real_t z;  ///< Height (m).
 };
 
 /**
@@ -26,23 +26,23 @@ struct AltitudeMeasurement {
  * drone, measured in m/s.
  */
 struct AltitudeState {
-    real_t nt; ///< Common motor marginal angular velocity (rad/s).
-    real_t z;  ///< Height (m).
-    real_t vz; ///< Velocity (m/s).
+    real_t nt;  ///< Common motor marginal angular velocity (rad/s).
+    real_t z;   ///< Height (m).
+    real_t vz;  ///< Velocity (m/s).
 };
 
 /**
  * Integral of the error of the height of the drone.
  */
 struct AltitudeIntegralWindup {
-    real_t z; ///< Height (m).
+    real_t z;  ///< Height (m).
 };
 
 /**
  * Marginal PWM control signal sent to the common motor.
  */
 struct AltitudeControlSignal {
-    real_t ut; ///< Common motor marginal signal (/).
+    real_t ut;  ///< Common motor marginal signal (/).
 };
 
 /**
@@ -92,6 +92,17 @@ class AltitudeController {
      */
     AltitudeControlSignal controlSignal;
 
+  public:
+    /**
+     * Clamp the given altitude control signal in [-0.10,+0.10].
+     * 
+     * @param   controlSignal
+     *          Control signal to clamp.
+     * 
+     * @return  The clamped altitude control signal.
+     */
+    static AltitudeControlSignal
+    clampControlSignal(AltitudeControlSignal controlSignal);
     /**
      * Calculate the current altitude control signal using the code generator.
      * 
@@ -107,7 +118,7 @@ class AltitudeController {
      * @return  The marginal control signal to be sent to the "common motor"
      *          until the next sonar measurement.
      */
-    AltitudeControlSignal codegenControlSignal(
+    static AltitudeControlSignal codegenControlSignal(
         AltitudeState stateEstimate, AltitudeReference reference,
         AltitudeIntegralWindup integralWindup, int droneConfiguration);
 
@@ -121,7 +132,7 @@ class AltitudeController {
      * 
      * @return  The current integral windup.
      */
-    AltitudeIntegralWindup
+    static AltitudeIntegralWindup
     codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
                           AltitudeReference reference,
                           AltitudeState stateEstimate, int droneConfiguration);
@@ -145,23 +156,10 @@ class AltitudeController {
      * 
      * @return  The estimate of the next altitude state.
      */
-    AltitudeState codegenNextStateEstimate(AltitudeState stateEstimate,
-                                           AltitudeControlSignal controlSignal,
-                                           AltitudeMeasurement measurement,
-                                           int droneConfiguration);
+    static AltitudeState codegenNextStateEstimate(
+        AltitudeState stateEstimate, AltitudeControlSignal controlSignal,
+        AltitudeMeasurement measurement, int droneConfiguration);
 
-    /**
-     * Clamp the given altitude control signal in [-0.10,+0.10].
-     * 
-     * @param   controlSignal
-     *          Control signal to clamp.
-     * 
-     * @return  The clamped altitude control signal.
-     */
-    AltitudeControlSignal
-    clampControlSignal(AltitudeControlSignal controlSignal);
-
-  public:
     /**
      * Reset the altitude controller.
      */

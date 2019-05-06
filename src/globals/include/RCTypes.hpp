@@ -9,11 +9,11 @@
  * transfer. These are represented by their respective enumerations.
  */
 struct RCInput {
-    float throttle;         ///< Value of the RC throttle in [0,1].
-    float roll;             ///< Value of the RC roll in [0,1].
-    float pitch;            ///< Value of the RC pitch in [0,1].
-    float yaw;              ///< Value of the RC yaw in [0,1].
-    float tuner;            ///< Value of the RC tuner knob in [-0.5,+0.5].
+    real_t throttle;        ///< Value of the RC throttle in [0,1].
+    real_t roll;            ///< Value of the RC roll in [0,1].
+    real_t pitch;           ///< Value of the RC pitch in [0,1].
+    real_t yaw;             ///< Value of the RC yaw in [0,1].
+    real_t tuner;           ///< Value of the RC tuner knob in [-0.5,+0.5].
     FlightMode flightMode;  ///< Value of the RC flight mode (as a FlightMode).
     WPTMode wptMode;        ///< Value of the RC WPT mode (as a WPTMode).
 };

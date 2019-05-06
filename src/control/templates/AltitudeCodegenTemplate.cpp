@@ -70,9 +70,8 @@ AltitudeState AltitudeController::codegenNextStateEstimate(AltitudeState stateEs
     if (measurement.z < 0.01)
         measurement.z = stateEstimate.z;
 
-    //TODO:  wat is dit? 
-    AltitudeState stateEstimateCopy;
-    memcpy(stateEstimateCopy, stateEstimate, sizeof(stateEstimateCopy));
+    //TODO: maybe make this newStateEstimate (nitpicky...)
+    AltitudeState stateEstimateCopy = stateEstimate;
 
     switch (droneConfiguration) {
         case 1:
