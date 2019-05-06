@@ -104,6 +104,13 @@ class AttitudeController {
      */
     AttitudeState stateEstimate;
 
+    /**
+     * Estimate of the drone's orientation as EulerAngles. This representation
+     * facilitates the quaternion jumps when the state estimate's yaw becomes
+     * too large.
+     */
+    EulerAngles orientationEuler;
+
     /** Integral of the error of the quaternion components q1, q2 and q3. */
     AttitudeIntegralWindup integralWindup;
 
@@ -117,12 +124,26 @@ class AttitudeController {
 
     /**
      * Reference orientation to track as EulerAngles. This is used to keep track
-     * of the reference yaw, which needs to be remembered between clock cycles,
-     * and to pass on to the logger.
+     * of the reference yaw, which needs to be remembered between clock cycles.
+     * Also, this facilitates the quaternion jumps when the state estimate's yaw
+     * becomes too large, and this data will passed on to the logger.
      */
     EulerAngles referenceEuler;
 
   public:
+    /**
+     * Using the given yaw jump, calculate the quaternion representation of the
+     * drone's orientation and the reference orientation. Then store these in
+     * the state estimate and in the controller's reference. This "yaw jumping"
+     * is used to keep the state estimate's orientation near the unit quaternion
+     * [1;0;0;0] in order to ensure the control system's stability.
+     * 
+     * @param   yawJumpRads
+     *          Radians to add to the EulerAngles representation of the drone's
+     *          orientation and the reference orientation.
+     */
+    void calculateJumpedQuaternions(real_t yawJumpRads);
+
     /**
      * Clamp the given attitude control signal such that the corrections are not
      * dominated by the yaw component and such that each motor PWM duty cycle is
@@ -200,20 +221,34 @@ class AttitudeController {
         AttitudeMeasurement measurement, int droneConfiguration);
 
     /**
-     * Returns the quaternion of the attitude controller's state estimate.
+     * Returns the quaternion of the attitude controller's estimate of the
+     * drone's orientation. This value is "jumped" in order to keep the estimate
+     * near the unit quaternion [1;0;0;0].
      */
-    Quaternion getOrientationEstimate();
+    Quaternion getOrientationQuat() { return this->stateEstimate.q; }
 
     /**
-     * Returns the quaternion representation of the reference orientation.
+     * Returns the EulerAngles representation of the attitude controller's
+     * estimate of the drone's orientation. This representation facilitates the
+     * quaternion jumps when the state estimate's yaw becomes too large.
      */
-    Quaternion getReferenceQuat() {return this->reference.q;}
+    EulerAngles getOrientationEuler() { return this->orientationEuler; }
 
     /**
-     * Returns the Euler representation of the reference orientation.
+     * Returns the quaternion representation of the reference orientation. This
+     * value is "jumped" in order to keep the estimate near the unit quaternion
+     * [1;0;0;0].
      */
-    EulerAngles getReferenceEuler() {return this->referenceEuler;}
+    Quaternion getReferenceQuat() { return this->reference.q; }
 
+    /**
+     * Returns the Euler representation of the reference orientation. This is
+     * used to keep track of the reference yaw, which needs to be remembered
+     * between clock cycles. Also, this facilitates the quaternion jumps when
+     * the state estimate's yaw becomes too large, and this data will passed on
+     * to the logger.
+     */
+    EulerAngles getReferenceEuler() { return this->referenceEuler; }
 
     /**
      * Reset the attitude controller to the initial state.
@@ -221,31 +256,30 @@ class AttitudeController {
     void init();
 
     /**
-     * Set the attitude controller's reference orientation.
+     * Set the attitude controller's EulerAngles orientation estimate to the
+     * given EulerAngles. This representation facilitates the quaternion jumps
+     * when the state estimate's yaw becomes too large.
      * 
-     * @param   reference
-     *          New reference orientation to track.
+     * @param   orientationEuler
+     *          New orientation estimate as EulerAngles.
      */
-    void setReference(AttitudeReference reference);
+    void setOrientationEuler(EulerAngles orientationEuler) {
+        this->orientationEuler = orientationEuler;
+    }
 
     /**
-     * Set the attitude controller's reference orientation to the given
-     * EulerAngles, converted to a quaternion.
+     * Set the attitude controller's EulerAngles reference orientation to the
+     * given EulerAngles. This is used to keep track of the reference yaw, which
+     * needs to be remembered between clock cycles. Also, this facilitates the
+     * quaternion jumps when the state estimate's yaw becomes too large, and
+     * this data will passed on to the logger.
      * 
-     * @param   reference
-     *          New reference orientation to track as EulerAngles.
+     * @param   referenceEuler
+     *          New reference orientation to track as EulerAngles. 
      */
-    void setReference(EulerAngles referenceEuler);
-
-    /**
-     * Set the attitude controller's reference yaw.
-     * 
-     * @param   referenceEulerAngles
-     *          New reference orientation to track as EulerAngles. This is only
-     *          used to keep track of the reference yaw, which needs to be
-     *          remembered between clock cycles, and to pass on to the logger.
-     */
-    void setReferenceEuler(EulerAngles referenceEuler);
+    void setReferenceEuler(EulerAngles referenceEuler) {
+        this->referenceEuler = referenceEuler;
+    }
 
     /**
      * Update the attitude controller with its current reference orientation.
@@ -270,8 +304,11 @@ class AttitudeController {
      * 
      * @param   measurement
      *          New measurement from the IMU.
+     * @param   yawJumpToSubtract
+     *          Yaw jump calculated in the beginning of the clock cycle.
      */
-    void updateObserver(AttitudeMeasurement measurement);
+    void updateObserver(AttitudeMeasurement measurement,
+                        real_t yawJumpToSubtract);
 
     /**
      * Update the attitude controller's reference orientation using the RC

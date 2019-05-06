@@ -217,7 +217,7 @@ void AutonomousController::updateQRFSM() {
             correctionX = this->nextTarget.x - this->nextQRPosition.x;
             correctionY = this->nextTarget.y - this->nextQRPosition.y;
             if (correctionX != 0.0 && correctionY != 0.0)
-                correctDronePosition(correctionX, correctionY);
+                positionController.correctPosition(correctionX, correctionY);
 
             /* Tell the autonomous controller's FSM to start navigating to the
                position of the next QR code sent by the Cryptography team. */

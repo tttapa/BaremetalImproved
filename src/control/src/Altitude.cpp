@@ -39,6 +39,7 @@ void AltitudeController::init() {
     this->controlSignal  = {};
     this->integralWindup = {};
     this->stateEstimate  = {};
+    this->reference      = {};
 }
 
 void AltitudeController::setReference(AltitudeReference reference) {

@@ -10,17 +10,45 @@
 #include <SharedMemoryInstances.hpp>
 #include <TiltCorrection.hpp>
 
+real_t calculateYawJump(float yaw) {
+
+    /* Whenever the yaw passes 10 degrees (0.1745 rad), it will jump to -10
+       degrees and vice versa. */
+    static constexpr real_t MAX_YAW_RADS = 0.1745;
+
+    /* The size of the interval is 2*MAX_YAW. */
+    real_t size = 2 * MAX_YAW_RADS;
+
+    /* Calculate yaw value in [0, 2*MAX_YAW]. */
+    real_t modYaw = fmod(fmod(yaw, size) + size, size);
+
+    /* Calculate yaw value in [-MAX_YAW, +MAX_YAW]. */
+    modYaw -= MAX_YAW_RADS;
+
+    /* Return the yaw jump. */
+    return modYaw - yaw;
+}
+
 // Called by src-vivado every 238 Hz after initialization/calibration is complete.
 void updateMainFSM() {
 
     /* Previous flight mode initialized when the function is first called. */
     static FlightMode previousFlightMode = FlightMode::UNINITIALIZED;
 
+    /* Keep the attitude controller's state estimate near the unit quaternion
+       [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
+       passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
+       versa. */
+    real_t yawJump =
+        calculateYawJump(attitudeController.getOrientationEuler().yaw);
+    attitudeController.calculateJumpedQuaternions(yawJump);
+
     /* Read RC data and update the global struct. */
     setRCInput(readRC());
 
     /* Read IMU measurement and update the AHRS. */
-    Quaternion orientationMeasurement = updateAHRS(readIMU());
+    updateAHRS(readIMU());
+    Quaternion jumpedOrientationMeasurement = getJumpedOrientation(yawJump);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement = readSonar();
@@ -66,9 +94,9 @@ void updateMainFSM() {
             uxyz = attitudeController.updateControlSignal(uc);
             break;
         case FlightMode::ALTITUDE_HOLD:
-            if(previousFlightMode == FlightMode::MANUAL)
+            if (previousFlightMode == FlightMode::MANUAL)
                 altitudeController.init();
-            
+
             if (hasNewSonarMeasurement) {
 
                 /* Update the altitude controller's reference using the RC. */
@@ -157,7 +185,7 @@ void updateMainFSM() {
     inputBias.updateThrustBias(uc);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
-    attitudeController.updateObserver({orientationMeasurement});
+    attitudeController.updateObserver({orientationMeasurement}, yawJump);
     altitudeController.updateObserver({correctedSonarMeasurement});
 
     /* Store flight mode. */

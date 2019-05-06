@@ -36,6 +36,15 @@ transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
         commonThrust - controlSignal.ux - controlSignal.uy - controlSignal.uz};
 }
 
+void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {
+    this->stateEstimate.q = EulerAngles::eul2quat(
+        {this->orientationEuler.yaw + yawJumpRads, this->orientationEuler.pitch,
+         this->orientationEuler.roll});
+    this->reference.q = EulerAngles::eul2quat(
+        {this->referenceEuler.yaw + yawJumpRads, this->referenceEuler.pitch,
+         this->referenceEuler.roll});
+}
+
 AttitudeControlSignal
 AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
                                        real_t commonThrust) {
@@ -65,28 +74,15 @@ AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
     return AttitudeControlSignal{ux, uy, uz};
 }
 
-Quaternion AttitudeController::getOrientationEstimate() {
-    return this->stateEstimate.q;
-}
-
 void AttitudeController::init() {
 
     /* Reset the attitude controller. */
-    this->stateEstimate  = {};
-    this->integralWindup = {};
-    this->controlSignal  = {};
-}
-
-void AttitudeController::setReference(AttitudeReference reference) {
-    this->reference = reference;
-}
-
-void AttitudeController::setReference(EulerAngles referenceEuler) {
-    this->reference = {EulerAngles::eul2quat(referenceEuler)};
-}
-
-void AttitudeController::setReferenceEuler(EulerAngles referenceEuler) {
-    this->referenceEuler = referenceEuler;
+    this->stateEstimate    = {};
+    this->orientationEuler = EulerAngles({});
+    this->integralWindup   = {};
+    this->controlSignal    = {};
+    this->reference        = {};
+    this->referenceEuler   = EulerAngles({});
 }
 
 AttitudeControlSignal
@@ -108,10 +104,15 @@ AttitudeController::updateControlSignal(real_t commonThrust) {
     return this->controlSignal;
 }
 
-void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
+void AttitudeController::updateObserver(AttitudeMeasurement measurement,
+                                        real_t yawJumpToSubtract) {
     this->stateEstimate =
         codegenNextStateEstimate(this->stateEstimate, this->controlSignal,
                                  measurement, getDroneConfiguration());
+
+    /* Update the EulerAngles representation as well! */
+    this->orientationEuler = EulerAngles::quat2eul(this->stateEstimate.q);
+    this->orientationEuler.yaw -= yawJumpToSubtract;
 }
 
 void AttitudeController::updateRCReference() {
@@ -138,9 +139,4 @@ void AttitudeController::updateRCReference() {
 
     /* Store the EulerAngles reference orientation. */
     this->referenceEuler = EulerAngles{yawRads, pitchRads, rollRads};
-
-    // TODO: keep orientation estimate close to unit quaternion
-
-    /* Convert the EulerAngles to a quaternion. */
-    this->reference = {EulerAngles::eul2quat(this->referenceEuler)};
 }
