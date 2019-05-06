@@ -1,5 +1,5 @@
-#include "../../../src-vivado/sensors/rc/include/RC.hpp"
 #include <real_t.h>
+#include <RCTypes.hpp>
 
 
 real_t getRCThrottle();

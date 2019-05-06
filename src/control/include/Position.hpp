@@ -3,6 +3,18 @@
 #include <real_t.h>
 #include <BaremetalCommunicationDef.hpp>
 
+/** Highest valid x-coordinate. */
+const real_t X_MAX = 8.0;
+
+/** Lowest valid x-coordinate. */
+const real_t X_MIN = -8.0;
+
+/** Highest valid y-coordinate. */
+const real_t Y_MAX = 4.0;
+
+/** Lowest valid y-coordinate. */
+const real_t Y_MIN = -4.0;
+
 /**
  * Position (x,y) reference to track, consisting of two floats. This value
  * is measured in meters.

@@ -9,12 +9,30 @@
 #include "../include/IMU.hpp"
 #include "../../../main/include/AxiGpio.hpp"
 #include "../../../main/include/Interrupt.hpp"
-#include "../../../main/src/HardwareConstants.hpp"
 #include "../../../main/src/IIC.hpp"
 #include "LSM9DS1_Registers.h"
 #include <Quaternion.hpp>
 #include <sleep.h>  // TODO: is usleep() necessary?
 #include <xil_io.h>
+#include <xparameters.h>
+
+/* Amount of samples to take to determine bias. */
+const int CALIBRATION_SAMPLES = 512;
+
+/* Amount of samples to remove at the start of calibration. */
+const int INVALID_SAMPLES = 16;
+
+/* Number of u8s used to construct the 3 raw measurements (signed 16-bit) for the gyroscope. */
+const int GYRO_DATA_SIZE = 6;
+
+/* Number of u8s used to construct the 3 raw measurements (signed 16-bit) for the accelerometer. */
+const int ACCEL_DATA_SIZE = 6;
+
+/* Maximum measurable angular velocity in degree/s. */
+const float MAX_GYRO_VALUE = 2000.0;
+
+/* Maximum measurable acceleration in g. */
+const float MAX_ACCEL_VALUE = 16.0;
 
 /** Bias of the gyroscope, set on last step of calibration. */
 GyroMeasurement gyroBias;
@@ -46,7 +64,7 @@ const float PI = 3.14159265358979323846;
 float calcGyro(int rawGyro) {
 
     /** Calculate the resolution of the gyroscope in degree/s. */
-    const float gyroResolution = (float) IMU::MAX_GYRO_VALUE / (2 ^ 15);
+    const float gyroResolution = (float) MAX_GYRO_VALUE / (2 ^ 15);
 
     /** Convert the raw gyro value to rad/s. */
     return gyroResolution * (PI / 180.0) * (float) rawGyro;
@@ -63,7 +81,7 @@ float calcAccel(int rawAccel) {
 
     // TODO: file to choose accel resolution, using datasheet data
     /** Calculate the resolution of the accelerometer in g. */
-    const float accelResolution = (float) IMU::MAX_ACCEL_VALUE / (2 ^ 15);
+    const float accelResolution = (float) MAX_ACCEL_VALUE / (2 ^ 15);
 
     /** Convert the raw accel value to g. */
     return accelResolution * (float) rawAccel;
@@ -78,8 +96,8 @@ float calcAccel(int rawAccel) {
 RawGyroMeasurement readGyro() {
 
     /* Read data from gyroscope.*/
-    static u8 gyroData[IMU::GYRO_DATA_SIZE];
-    iicReadReg(gyroData, OUT_X_L_G, 1, IMU::GYRO_DATA_SIZE);
+    static u8 gyroData[GYRO_DATA_SIZE];
+    iicReadReg(gyroData, OUT_X_L_G, LSM9DS1_GX_ADDR, GYRO_DATA_SIZE);
 
     /* Raw 16-bit signed data from readings. */
     int gxInt = (gyroData[1] << 8) + gyroData[0];
@@ -120,8 +138,8 @@ GyroMeasurement getGyroMeasurement(RawGyroMeasurement raw,
 RawAccelMeasurement readAccel() {
 
     /* Read data from accelerometer. */
-    static u8 accelData[IMU::ACCEL_DATA_SIZE];
-    iicReadReg(accelData, OUT_X_L_XL, 1, IMU::ACCEL_DATA_SIZE);
+    static u8 accelData[ACCEL_DATA_SIZE];
+    iicReadReg(accelData, OUT_X_L_XL, LSM9DS1_GX_ADDR, ACCEL_DATA_SIZE);
 
     /* Raw 16-bit signed data from readings. */
     int axInt = (accelData[1] << 8) + accelData[0];
@@ -159,7 +177,7 @@ bool calibrateIMUStep() {
     /* Log start of calibration. */
     if (calibrationStepCounter == 0)
         xil_printf("calibrating IMU, reading %i samples \r\n",
-                   IMU::CALIBRATION_SAMPLES);
+                   CALIBRATION_SAMPLES);
 
     /* Have the LEDs blink: slow down by factor 2^4, cycle through 8 states. */
     int ledIndex = (calibrationStepCounter >> 4) % 8;
@@ -179,7 +197,7 @@ bool calibrateIMUStep() {
     RawAccelMeasurement rawAccel = readAccel();
 
     /* First measurementes contain invalid parameters. */
-    if (calibrationStepCounter > IMU::INVALID_SAMPLES) {
+    if (calibrationStepCounter > INVALID_SAMPLES) {
         gyroRawSum[0] += rawGyro.gxInt;
         gyroRawSum[1] += rawGyro.gyInt;
         gyroRawSum[2] += rawGyro.gzInt;
@@ -190,9 +208,9 @@ bool calibrateIMUStep() {
 
     /* Final calibration step reached. */
     if (calibrationStepCounter ==
-        IMU::CALIBRATION_SAMPLES + IMU::INVALID_SAMPLES) {
+        CALIBRATION_SAMPLES + INVALID_SAMPLES) {
 
-        float factor = 1.0 / (float) (IMU::CALIBRATION_SAMPLES);
+        float factor = 1.0 / (float) (CALIBRATION_SAMPLES);
 
         /* Calculate gyroscope bias. */
         gyroBias.gx = calcGyro(gyroRawSum[0] * factor);
@@ -225,14 +243,14 @@ bool initIMU() {
     xil_printf("init IMU started \r\n");
 
     /* Check WHO_AM_I to see if the IMU is connected. */
-    iicReadReg(temp, WHO_AM_I_XG, 1, 1);
+    iicReadReg(temp, WHO_AM_I_XG, LSM9DS1_GX_ADDR, 1);
     usleep(100);
     xil_printf("received: 0x%02x\r\n", *temp);
     if (*temp != WHO_AM_I_AG_RSP) {
         xil_printf("WHO_AM_I FAILED\r\n");
         return false;
     }
-    iicReadReg(temp, WHO_AM_I_M, 0, 1);
+    iicReadReg(temp, WHO_AM_I_M, LSM9DS1_M_ADDR, 1);
     usleep(100);
     xil_printf("received: 0x%02x\r\n", *temp);
     if (*temp != WHO_AM_I_M_RSP) {

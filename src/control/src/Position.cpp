@@ -1,11 +1,13 @@
 #include <Configuration.hpp>
 #include <Globals.hpp>
 #include <Position.hpp>
-#include <SoftwareConstants.hpp>
 #include <Time.hpp>
 
-/* Use software constants from the POSITION namespace. */
-using namespace POSITION;
+/**
+ * The largest reference quaternion component that can be sent to the attitude
+ * control system is 0.0436.
+ */
+const real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
 
 real_t dist(Position position1, Position position2) {
     return std::sqrt(distsq(position1, position2));
@@ -25,14 +27,14 @@ PositionController::clampControlSignal(PositionControlSignal controlSignal) {
     real_t q2ref = controlSignal.q2ref;
 
     /* Clamp q1ref and q2ref. */
-    if (q1ref > getReferenceQuaternionClamp())
-        q1ref = getReferenceQuaternionClamp();
-    if (q1ref < -getReferenceQuaternionClamp())
-        q1ref = -getReferenceQuaternionClamp();
-    if (q2ref > getReferenceQuaternionClamp())
-        q2ref = getReferenceQuaternionClamp();
-    if (q2ref < -getReferenceQuaternionClamp())
-        q2ref = -getReferenceQuaternionClamp();
+    if (q1ref > REFERENCE_QUATERNION_CLAMP)
+        q1ref = REFERENCE_QUATERNION_CLAMP;
+    if (q1ref < -REFERENCE_QUATERNION_CLAMP)
+        q1ref = -REFERENCE_QUATERNION_CLAMP;
+    if (q2ref > REFERENCE_QUATERNION_CLAMP)
+        q2ref = REFERENCE_QUATERNION_CLAMP;
+    if (q2ref < -REFERENCE_QUATERNION_CLAMP)
+        q2ref = -REFERENCE_QUATERNION_CLAMP;
 
     return PositionControlSignal{q1ref, q2ref};
 }
