@@ -41,6 +41,30 @@
             }
         },
         {
+            "label": "Run MATLAB Code Generator",
+            "type": "shell",
+            "command": "make",
+            "windows": {
+                "command": "exit 1 # TODO",
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/src/control/codegen"
+            },
+            "problemMatcher": [],
+        },
+        {
+            "label": "Clean MATLAB Code Generator",
+            "type": "shell",
+            "command": "make clean",
+            "windows": {
+                "command": "exit 1 # TODO",
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/src/control/codegen"
+            },
+            "problemMatcher": [],
+        },
+        {
             "label": "Run CMake ZYBO Baremetal (Docker)",
             "type": "shell",
             "command": "docker exec -it -w  ${workspaceFolder}/build baremetal-devenv cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-ZYBO-Baremetal.cmake ..",
@@ -78,6 +102,9 @@
             "windows": {
                 "command": "docker exec -it -w /home/develop/eagle/build baremetal-devenv sh -c 'make -j $(nproc)'",
             },
+            "dependsOn": [
+                "Run MATLAB Code Generator"
+            ],
             "problemMatcher": "$gcc"
         },
         {
@@ -87,6 +114,9 @@
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
+            // "dependsOn": [
+            //     "Run MATLAB Code Generator"
+            // ],
             "problemMatcher": "$gcc"
         },
         {
@@ -118,6 +148,9 @@
             "windows": {
                 "command": "docker exec -it -w /home/develop/eagle/build baremetal-devenv make clean",
             },
+            "dependsOn": [
+                "Clean MATLAB Code Generator"
+            ],
             "problemMatcher": "$gcc"
         },
         {
@@ -127,6 +160,9 @@
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
+            // "dependsOn": [
+            //     "Clean MATLAB Code Generator"
+            // ],
             "problemMatcher": "$gcc"
         },
         {

@@ -1,13 +1,51 @@
+execute_process(COMMAND which matlab
+                OUTPUT_VARIABLE MATLAB_EXEC)
+
+if (NOT MATLAB_EXEC STREQUAL "")
+
+file(GLOB MATLAB_CODEGEN_SCRIPTS_DEP RELATIVE codegen *.m)
+
+add_custom_command(
+    OUTPUT
+        src-generated/AttitudeCodegen.cpp
+        src-generated/AltitudeCodegen.cpp
+        src-generated/PositionCodegen.cpp
+    COMMAND
+        ${CMAKE_CURRENT_SOURCE_DIR}/codegen/Codegen.sh
+    DEPENDS
+        ${MATLAB_CODEGEN_SCRIPTS_DEP}
+        templates/AttitudeCodegenTemplate.cpp
+        templates/AltitudeCodegenTemplate.cpp
+        templates/PositionCodegenTemplate.cpp
+)
+
+else()
+message(WARNING "MATLAB is not available. Control codegen will not be run")
+add_custom_command(
+    OUTPUT
+        ${CMAKE_CURRENT_SOURCE_DIR}/src-generated/AttitudeCodegen.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src-generated/AltitudeCodegen.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src-generated/PositionCodegen.cpp
+    COMMAND
+        make -C ${CMAKE_CURRENT_SOURCE_DIR}/codegen || (cmake -E cmake_echo_color --red --bold "Error: Codegen out of date" && exit 1)
+    DEPENDS
+        ${MATLAB_CODEGEN_SCRIPTS_DEP}
+        templates/AttitudeCodegenTemplate.cpp
+        templates/AltitudeCodegenTemplate.cpp
+        templates/PositionCodegenTemplate.cpp
+)
+endif()
+
 # Create library target and specify the implementation files to compile.
 add_library(control
-    src/AltitudeCodegen.cpp  
-    src/AttitudeCodegen.cpp  
-    src/Autonomous.cpp
-    src/Position.cpp
-    src/TiltCorrection.cpp
-    src/Altitude.cpp
     src/Attitude.cpp
-    src/PositionCodegen.cpp
+    src-generated/AttitudeCodegen.cpp  
+    src/Altitude.cpp
+    src-generated/AltitudeCodegen.cpp  
+    src/Position.cpp
+    src-generated/PositionCodegen.cpp
+    src/TiltCorrection.cpp
+    src/Autonomous.cpp
 )
 
 # Set target include directories 
