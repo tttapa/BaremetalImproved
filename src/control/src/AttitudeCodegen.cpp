@@ -1,1 +1,0 @@
-// Original: Cleanup-Pieter/Code-Generators/Controllers/Output/src/attitude-controller.c

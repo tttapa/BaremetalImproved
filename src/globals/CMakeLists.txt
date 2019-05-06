@@ -30,6 +30,7 @@ target_compile_features(globals PUBLIC cxx_std_17)
 target_link_libraries(globals 
     PUBLIC 
         utilities
+        communication
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)

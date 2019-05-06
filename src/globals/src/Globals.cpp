@@ -1,7 +1,6 @@
 #include "../include/Globals.hpp"
 
-static struct RCInput currentRCInput;
-
+static RCInput currentRCInput;
 
 real_t getRCThrottle() { return currentRCInput.throttle; }
 

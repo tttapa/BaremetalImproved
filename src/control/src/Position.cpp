@@ -55,8 +55,8 @@ PositionControlSignal
 PositionController::updateControlSignal(PositionReference reference) {
 
     /* Calculate integral windup. */
-    PositionController::integralWindup =
-        codegenIntegralWindup(PositionController::integralWindup, reference);
+    PositionController::integralWindup = codegenIntegralWindup(
+        PositionController::integralWindup, reference, getDroneConfiguration());
 
     /* Calculate control signal (unclamped). */
     PositionController::controlSignal = codegenControlSignal(

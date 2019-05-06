@@ -46,7 +46,7 @@ AttitudeControlSignal AttitudeController::codegenControlSignal(
 //	y_int_max = 0.0;
 // (void) tunerValue;
 
-AttitudeIntegralWindup AtttitudeController::codegenIntegralWindup(
+AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
     AttitudeIntegralWindup integralWindup, AttitudeReference reference,
     AttitudeState stateEstimate, int droneConfiguration) {
 

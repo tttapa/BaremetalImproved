@@ -112,7 +112,7 @@ codegenIntegralWindup(PositionIntegralWindup integralWindup,
 
     real_t maxIntegralWindup;
 
-    switch (configuration) {
+    switch (droneConfiguration) {
         case 1: maxIntegralWindup = 10; break;
         case 2: maxIntegralWindup = 10; break;
         case 3: maxIntegralWindup = 10; break;
