@@ -1,5 +1,3 @@
-// Original: BareMetal/src/sonar/sonar.h
-#include "../../../../src/utilities/include/real_t.h"
 #pragma once
 
 // TODO: append author
@@ -24,14 +22,14 @@ bool readSonar();
 /**
  * Returns the latest filtered sonar measurement.
  */
-real_t getFilteredSonarMeasurement();
+float getFilteredSonarMeasurement();
 
 /**
  * Calculates the median of the entire sonar measurement buffer.
  * 
  * @return   Median of entire sonar measurement buffer.
  */
-real_t getFilteredSonarMeasurementAccurate();
+float getFilteredSonarMeasurementAccurate();
 
 /**
  * Initialise the median filter of the sonar.

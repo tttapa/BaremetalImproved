@@ -39,6 +39,16 @@ enum class FlightMode : int32_t {
 };
 
 /**
+ * Struct containing the two different modes or statuses of the Wireless Power
+ * Transfer: OFF and ON.
+ */
+enum WPTMode {
+    OFF = 0,  ///< Wireless Power Transfer is turned off.
+    ON  = 1,  ///< Wireless Power Transfer is turned on.
+};
+
+
+/**
  * @brief   A struct for x and y coordinates of vision/QR positions.
  */
 struct Position {

@@ -37,7 +37,7 @@ struct IMUMeasurement {
 
 /**
  * Execute one step of the IMU calibration. If this step is one of the first
- * `IMU::INVALID_SAMPLES` steps, then the data will be ignored. Otherwise the
+ * `INVALID_SAMPLES` steps, then the data will be ignored. Otherwise the
  * current gyroscope and accelerometer measurements will be added to the running
  * sum. If this step is the last step in the calibration, then the bias will be
  * calculated from this sum.
@@ -48,6 +48,13 @@ struct IMUMeasurement {
  * 			Otherwise.
  */
 bool calibrateIMUStep();
+
+/**
+ * Gets the hardware address of the device.
+ * 
+ * @param   device
+ *          
+ */
 
 
 /**

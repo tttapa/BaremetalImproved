@@ -1,6 +1,6 @@
 #pragma once
 #include <Autonomous.hpp>
-#include <RC.hpp>
+#include <Globals.hpp>
 #include <real_t.h>
 
 /**
@@ -156,4 +156,4 @@ class InputBias {
      *          Marginal thrust sent by the altitude controller.
      */
     void updateThrustBiasAltitudeHold(real_t ut);
-}
+};

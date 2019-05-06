@@ -1,10 +1,12 @@
 #include <Attitude.hpp>
 #include <Configuration.hpp>
 #include <Globals.hpp>
-#include <SoftwareConstants.hpp>
 
-/* Use software constants from the ATTITUDE namespace. */
-using namespace ATTITUDE;
+/**
+ * The largest control signal that can be sent to the "yaw torque motor" is
+ * 0.10.
+ */
+const real_t YAW_SIGNAL_CLAMP = 0.10;
 
 MotorDutyCycles
 transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
@@ -26,10 +28,10 @@ AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
     real_t uz = controlSignal.uz;
 
     /* Clamp the yaw torque motor separately to ensure ux, uy compensation. */
-    if (uz > getYawSignalClamp())
-        uz = getYawSignalClamp();
-    if (uz < -getYawSignalClamp())
-        uz = -getYawSignalClamp();
+    if (uz > YAW_SIGNAL_CLAMP)
+        uz = YAW_SIGNAL_CLAMP;
+    if (uz < -YAW_SIGNAL_CLAMP)
+        uz = -YAW_SIGNAL_CLAMP;
 
     /* Clamp ux, uy, uz such that all motor PWM duty cycles are in [0,1]. */
     // TODO: divide by e = epsilon + 1?
@@ -62,8 +64,8 @@ AttitudeController::updateControlSignal(AttitudeReference reference,
                                         real_t commonThrust) {
 
     /* Calculate integral windup. */
-    AttitudeController::integralWindup =
-        codegenIntegralWindup(AttitudeController::integralWindup, reference);
+    AttitudeController::integralWindup = codegenIntegralWindup(
+        AttitudeController::integralWindup, reference, getDroneConfiguration());
 
     /* Calculate control signal (unclamped). */
     AttitudeController::controlSignal = codegenControlSignal(

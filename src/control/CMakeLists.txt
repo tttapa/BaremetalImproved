@@ -46,6 +46,7 @@ add_library(control
     src-generated/PositionCodegen.cpp
     src/TiltCorrection.cpp
     src/Autonomous.cpp
+    src/InputBias/InputBias.cpp
 )
 
 # Set target include directories 

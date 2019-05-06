@@ -139,12 +139,14 @@ class AttitudeController {
      *          Integral windup from the last cycle.
      * @param   reference
      *          Reference orientation to track.
+     * @param   droneConfiguration
+     *          Configuration of the drone.
      * 
      * @return  The current integral windup.
      */
     AttitudeIntegralWindup
     codegenIntegralWindup(AttitudeIntegralWindup integralWindup,
-                          AttitudeReference reference);
+                          AttitudeReference reference, int droneConfigure);
 
     /**
      * Calculate the next attitude estimate using the code generator. Because

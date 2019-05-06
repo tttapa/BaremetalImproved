@@ -1,4 +1,4 @@
-#include <InputBias.hpp>
+#include <InputBias/InputBias.hpp>
 
 void InputBias::updateRollBias(real_t referenceRollRads,
                                FlightMode flightMode) {
