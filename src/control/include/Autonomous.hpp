@@ -1,3 +1,4 @@
+#pragma once
 #include <Altitude.hpp>
 #include <Position.hpp>
 
