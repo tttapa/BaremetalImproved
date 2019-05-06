@@ -23,9 +23,8 @@ codegenControlSignal(PositionState stateEstimate, PositionReference reference,
                      PositionIntegralWindup integralWindup,
                      int droneConfiguration) {
 
+    /* Calculate controller output based on drone configuration. */
     PositionControlSignal controlSignal;
-
-    /* Calculate controller output. */
     switch (droneConfiguration) {
         case 1:
             controlSignal.q1ref = $c1$u0;
@@ -48,18 +47,13 @@ codegenControlSignal(PositionState stateEstimate, PositionReference reference,
     return controlSignal;
 }
 
-/* Don't use integral action if tunerValue < 0.0. */
-//if(tunerValue < 0.0)
-//	y_int_max = 0.0;
-// (void)tunerValue;
-
 PositionIntegralWindup
 codegenIntegralWindup(PositionIntegralWindup integralWindup,
                       PositionReference reference, PositionState stateEstimate,
                       int droneConfiguration) {
 
+    /* Set maximum integral windup based on drone configuration. */
     real_t maxIntegralWindup;
-
     switch (droneConfiguration) {
         case 1: maxIntegralWindup = $c1$maxWindup; break;
         case 2: maxIntegralWindup = $c2$maxWindup; break;
@@ -68,6 +62,7 @@ codegenIntegralWindup(PositionIntegralWindup integralWindup,
         default: maxIntegralWindup = 0.0;
     }
 
+    /* Update integral windup. */
     integralWindup.x += $int0;
     integralWindup.y += $int1;
     if (fabs(integralWindup.x) > maxIntegralWindup)

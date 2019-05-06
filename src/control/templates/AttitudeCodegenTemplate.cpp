@@ -12,9 +12,8 @@ AttitudeControlSignal AttitudeController::codegenControlSignal(
     AttitudeState stateEstimate, AttitudeReference reference,
     AttitudeIntegralWindup integralWindup, int droneConfiguration) {
 
+    /* Calculate control signal based on drone configuration. */
     AttitudeControlSignal controlSignal;
-
-    /* Generated calculations for control signal. */
     switch (droneConfiguration) {
         case 1:
             controlSignal.ux = $c1$u0;
@@ -41,17 +40,12 @@ AttitudeControlSignal AttitudeController::codegenControlSignal(
     return controlSignal;
 }
 
-/* Don't use integral action if tunerValue < 0.0. */
-//if(tunerValue < 0.0)
-//	y_int_max = 0.0;
-// (void) tunerValue;
-
 AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
     AttitudeIntegralWindup integralWindup, AttitudeReference reference,
     AttitudeState stateEstimate, int droneConfiguration) {
 
+    /* Set maximum integral windup based on drone configuration. */
     real_t maxIntegralWindup;
-
     switch (droneConfiguration) {
         case 1: maxIntegralWindup = $c1$maxWindup; break;
         case 2: maxIntegralWindup = $c2$maxWindup; break;
@@ -60,6 +54,7 @@ AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
         default: maxIntegralWindup = 0.0;
     }
 
+    /* Update integral windup. */
     integralWindup.q1 += $int0;
     integralWindup.q2 += $int1;
     integralWindup.q3 += $int2;
@@ -81,10 +76,9 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
     AttitudeState stateEstimate, AttitudeControlSignal controlSignal,
     AttitudeMeasurement measurement, int droneConfiguration) {
 
+    /* Calculate next state using Kalman Filter based on drone configuration. */
     AttitudeState prediction; /* = Ax + Bu */
     AttitudeState innovation; /* = L (y - Cx) */
-
-    /* Generated calculations for Kalman filter. */
     switch (droneConfiguration) {
         case 1:
             prediction.q[1] = $c1$p1;
@@ -107,7 +101,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             innovation.ny   = $c1$i8;
             innovation.nz   = $c1$i9;
             QUAT_0(innovation);
-            /* TODO: This last part is the same for all configurations */
+            // TODO: This last part is the same for all configurations
             stateEstimate.q[0] = $c1$x0;
             stateEstimate.q[1] = $c1$x1;
             stateEstimate.q[2] = $c1$x2;
