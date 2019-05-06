@@ -3,6 +3,7 @@
 #include <Altitude.hpp>
 #include <Position.hpp>
 #include <Autonomous.hpp>
+#include <InputBias/InputBias.hpp>
 
 /** Instance of the attitude controller. */
 extern AttitudeController attitudeController;
@@ -16,6 +17,9 @@ extern PositionController positionController;
 /** Instance of the autonomous controller. */
 extern AutonomousController autonomousController;
 
+/** Instance of the input bias handler. */
+extern InputBias inputBias;
+
 /**
  * Shift the position controller's estimate of the position by the given
  * correction.
@@ -28,3 +32,8 @@ extern AutonomousController autonomousController;
  *          position controller.
  */
 void correctDronePosition(real_t correctionX, real_t correctionY);
+
+/**
+ * Reset the controller instances.
+ */
+void initControllers();

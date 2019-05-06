@@ -1,4 +1,11 @@
+#include <BaremetalCommunicationDef.hpp>
 #include <InputBias/InputBias.hpp>
+
+void InputBias::init() {
+    this->pitchBias = 0.0;
+    this->rollBias = 0.0;
+    this->thrustBias = 0.0;
+}
 
 void InputBias::updateRollBias(real_t referenceRollRads,
                                FlightMode flightMode) {
@@ -7,18 +14,19 @@ void InputBias::updateRollBias(real_t referenceRollRads,
 
 void InputBias::updateRollBias(real_t referenceRollRads, FlightMode flightMode,
                                AutonomousState autonomousState) {
-    if (flightMode == MANUAL_MODE || flightMode == ALTITUDE_HOLD_MODE) {
-        this->rollBias += ROTATION_BIAS_WEIGHT_PILOT * (rcRollRads)
+    if (flightMode == FlightMode::MANUAL ||
+        flightMode == FlightMode::ALTITUDE_HOLD) {
+        this->rollBias += ROTATION_BIAS_WEIGHT_PILOT * (referenceRollRads);
     }
 
-    else if (flightMode == FlightMode::AUTONOMOUS_MODE) {
+    else if (flightMode == FlightMode::AUTONOMOUS) {
 
         if (autonomousState == AutonomousState::LOITERING) {
-            this->rollBias +=
-                ROTATION_BIAS_WEIGHT_LOITERING * (rcRollRads - this->rollBias);
+            this->rollBias += ROTATION_BIAS_WEIGHT_LOITERING *
+                              (referenceRollRads - this->rollBias);
         } else {
-            this->rollBias +=
-                ROTATION_BIAS_WEIGHT_NAVIGATING * (rcRollRads - this->rollBias);
+            this->rollBias += ROTATION_BIAS_WEIGHT_NAVIGATING *
+                              (referenceRollRads - this->rollBias);
         }
     }
 }
@@ -31,18 +39,19 @@ void InputBias::updatePitchBias(real_t referencePitchRads,
 void InputBias::updatePitchBias(real_t referencePitchRads,
                                 FlightMode flightMode,
                                 AutonomousState autonomousState) {
-    if (flightMode == MANUAL_MODE || flightMode == ALTITUDE_HOLD_MODE) {
-        this->pitchBias += ROTATION_BIAS_WEIGHT_PILOT * (rcPitchRads)
+    if (flightMode == FlightMode::MANUAL ||
+        flightMode == FlightMode::ALTITUDE_HOLD) {
+        this->pitchBias += ROTATION_BIAS_WEIGHT_PILOT * (referencePitchRads);
     }
 
-    else if (flightMode == FlightMode::AUTONOMOUS_MODE) {
+    else if (flightMode == FlightMode::AUTONOMOUS) {
 
         if (autonomousState == AutonomousState::LOITERING) {
             this->pitchBias += ROTATION_BIAS_WEIGHT_LOITERING *
-                               (rcPitchRads - this->pitchBias);
+                               (referencePitchRads - this->pitchBias);
         } else {
             this->pitchBias += ROTATION_BIAS_WEIGHT_NAVIGATING *
-                               (rcPitchRads - this->pitchBias);
+                               (referencePitchRads - this->pitchBias);
         }
     }
 }

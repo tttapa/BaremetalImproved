@@ -30,7 +30,6 @@ int main(void) {
 	/* Initialize the sensors. AHRS will be initialized after IMU is calibrated.  */
 	initSonar();
 	initIMU();
-	initInputBias();
 
 	/* Initialize communication with other core. */
 	initCommunication();

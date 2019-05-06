@@ -8,7 +8,8 @@
 
 /** Clock is updated when interrupts occur at 238 Hz. */
 // TODO: const or constexpr for file constants?
-static const real_t SECONDS_PER_TICK = 1.0 / 238.0;
+static const real_t TICKS_PER_SECOND = 238.0;
+static const real_t SECONDS_PER_TICK = 1.0 / TICKS_PER_SECOND;
 
 /**
  * Increment the tick counter.

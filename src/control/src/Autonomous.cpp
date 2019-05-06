@@ -1,4 +1,5 @@
 #include <Autonomous.hpp>
+#include <ControllerInstances.hpp>
 #include <Globals.hpp>
 #include <InputBias/InputBias.hpp>
 #include <Position.hpp>
@@ -318,11 +319,11 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
     /* Default values for the autonomous controller's output... Instruction =
        hover at (position, height) = (nextTarget, referenceHeight). */
-    bool bypassAltitudeController       = false;
-    real_t commonThrust                 = 0.0;
-    bool updatePositionController       = true;
-    bool trustAccelerometerForPosition  = false;
-    Position referencePosition = this->nextTarget;
+    bool bypassAltitudeController      = false;
+    real_t commonThrust                = 0.0;
+    bool updatePositionController      = true;
+    bool trustAccelerometerForPosition = false;
+    Position referencePosition         = this->nextTarget;
 
     /* Implement FSM logic. */
     real_t dx, dy;
@@ -365,7 +366,8 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                thrust), trust acceleration for position. */
             if (getElapsedTime() < TAKEOFF_BLIND_DURATION) {
                 bypassAltitudeController = true;
-                commonThrust = getThrustBias() + TAKEOFF_BLIND_MARGINAL_THRUST;
+                commonThrust =
+                    inputBias.getThrustBias() + TAKEOFF_BLIND_MARGINAL_THRUST;
                 trustAccelerometerForPosition = true;
             }
             /* Takeoff stage 2... Instruction = hover at (position, height) = 
@@ -447,7 +449,8 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                descent thrust) and trust accelerometer for position. */
             else if (getElapsedTime() < LANDING_BLIND_DURATION) {
                 bypassAltitudeController = true;
-                commonThrust = getThrustBias() + LANDING_BLIND_MARGINAL_THRUST;
+                commonThrust =
+                    inputBias.getThrustBias() + LANDING_BLIND_MARGINAL_THRUST;
                 trustAccelerometerForPosition = true;
             }
 
@@ -493,8 +496,7 @@ void AutonomousController::initGround(Position currentPosition) {
     this->qrErrorCount             = 0;
 }
 
-AutonomousOutput
-AutonomousController::update(Position currentPosition) {
+AutonomousOutput AutonomousController::update(Position currentPosition) {
     updateQRFSM();
     return updateAutonomousFSM(currentPosition);
 }

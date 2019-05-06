@@ -71,6 +71,11 @@ class InputBias {
 
   public:
     /**
+     * Reset the input bias.
+     */
+    void init();
+
+    /**
      * Get the current bias to be added to the RC roll.
      */
     real_t getRollBias() { return rollBias; }
