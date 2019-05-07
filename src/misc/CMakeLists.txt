@@ -45,3 +45,19 @@ target_link_libraries(misc
 #     # that adds the tests.
 #     add_subdirectory(test) 
 # endif()
+
+install(TARGETS misc
+        EXPORT misc
+        ARCHIVE DESTINATION lib
+        INCLUDES DESTINATION include)
+install(EXPORT misc DESTINATION lib)
+install(
+FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ArmedManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/BuzzerManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ConfigurationManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ESCStartupScript.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GradualThrustChangeManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/RCManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/WPT.hpp
+DESTINATION include)

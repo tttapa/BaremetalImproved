@@ -108,6 +108,22 @@
             "problemMatcher": "$gcc"
         },
         {
+            "label": "Install All (Docker)",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "docker exec -it -w  ${workspaceFolder}/build baremetal-devenv make -j$(nproc) install",
+            "windows": {
+                "command": "docker exec -it -w /home/develop/eagle/build baremetal-devenv sh -c 'make -j $(nproc) install'",
+            },
+            "dependsOn": [
+                "Run MATLAB Code Generator"
+            ],
+            "problemMatcher": "$gcc"
+        },
+        {
             "label": "Build All (Local)",
             "type": "shell",
             "command": "make -j$(nproc)",

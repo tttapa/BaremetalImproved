@@ -15,3 +15,13 @@ target_link_libraries(quaternion
 if(NOT CMAKE_CROSSCOMPILING)
 add_subdirectory(test) 
 endif()
+
+install(TARGETS quaternion
+        EXPORT quaternion
+        INCLUDES DESTINATION include)
+install(EXPORT quaternion DESTINATION lib)
+install(
+FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EulerAngles.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Quaternion.hpp
+DESTINATION include)

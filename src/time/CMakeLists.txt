@@ -35,3 +35,13 @@ target_link_libraries(time
 # Run CMake again in the `test` folder, to discover the CMakeLists.txt file that
 # adds the tests.
 # add_subdirectory(test) 
+
+install(TARGETS time
+        EXPORT time
+        ARCHIVE DESTINATION lib
+        INCLUDES DESTINATION include)
+install(EXPORT time DESTINATION lib)
+install(
+FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Time.hpp
+DESTINATION include)

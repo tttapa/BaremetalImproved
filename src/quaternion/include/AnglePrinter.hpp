@@ -2,6 +2,8 @@
 
 #include <EulerAngles.hpp>
 
+// TODO: Documentation
+
 enum class AngleFormat {
     radians,
     degrees,

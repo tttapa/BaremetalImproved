@@ -42,3 +42,15 @@ target_link_libraries(instances
 #     # that adds the tests.
 #     add_subdirectory(test) 
 # endif()
+
+install(TARGETS instances
+        EXPORT instances
+        ARCHIVE DESTINATION lib
+        INCLUDES DESTINATION include)
+install(EXPORT instances DESTINATION lib)
+install(
+FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ControllerInstances.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/MiscInstances.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SharedMemoryInstances.hpp
+DESTINATION include)

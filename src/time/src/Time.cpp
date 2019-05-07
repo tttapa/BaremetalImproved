@@ -1,4 +1,5 @@
-#include "Time.hpp"
+#include <Time.hpp>
+#include <chrono>
 
 /** Tick counter. */
 static uint32_t tickCount = 0;

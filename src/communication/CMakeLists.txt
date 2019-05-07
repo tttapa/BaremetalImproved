@@ -38,7 +38,7 @@ install(TARGETS communication
 install(EXPORT communication DESTINATION lib)
 install(
 FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/include/BaremetalCommunicationDef.hpp
-    ${CMAKE_CURRENT_BINARY_DIR}/include/LogEntry.h
-    ${CMAKE_CURRENT_BINARY_DIR}/include/SharedStruct.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/BaremetalCommunicationDef.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/LogEntry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SharedStruct.hpp
 DESTINATION include)

@@ -2,7 +2,6 @@
 
 #include <AlmostEqual.hpp>
 #include <EulerAngles.hpp>
-#include <ReducedQuaternion.hpp>
 
 static constexpr real_t eps = 1e2 * std::numeric_limits<real_t>::epsilon();
 
@@ -82,18 +81,6 @@ TEST(Quaternion, quat2eul) {
     Quaternion q_expected = {0.814068885161671, 0.450147392727527,
                              -0.244234643193019, 0.273877005417802};
     ASSERT_TRUE(isAlmostEqual(q.asColVector(), q_expected.asColVector(), eps));
-    ASSERT_TRUE(
-        isAlmostEqual(result.asColVector(), expected.asColVector(), eps));
-}
-
-// -------------------------------------------------------------------------- //
-
-TEST(ReducedQuaternion, convertAndBack) {
-    EulerAngles e       = {0.3, 0.7, 0.9};
-    Quaternion q        = e;
-    ReducedQuaternion r = quat2red(q);
-    Quaternion result   = red2quat(r);
-    Quaternion expected = q;
     ASSERT_TRUE(
         isAlmostEqual(result.asColVector(), expected.asColVector(), eps));
 }

@@ -89,3 +89,18 @@ if(NOT CMAKE_CROSSCOMPILING)
     # that adds the tests.
     add_subdirectory(test) 
 endif()
+
+install(TARGETS control
+        EXPORT control
+        ARCHIVE DESTINATION lib
+        INCLUDES DESTINATION include)
+install(EXPORT control DESTINATION lib)
+install(
+FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Altitude.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Attitude.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Autonomous.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Position.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/TiltCorrection.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/InputBias/InputBias.hpp
+DESTINATION include)
