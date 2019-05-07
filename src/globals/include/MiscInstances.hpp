@@ -2,7 +2,7 @@
 #include <BuzzerManager.hpp>
 #include <ConfigurationManager.hpp>
 #include <ESCStartupScript.hpp>
-#include <GradualThrustChange.hpp>
+#include <GradualThrustChangeManager.hpp>
 
 /** Instance of the buzzer manager. */
 extern BuzzerManager buzzerManager;
