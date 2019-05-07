@@ -1,5 +1,6 @@
 # Create library target and specify the implementation files to compile.
 add_library(misc
+    src/ArmedManager.cpp
     src/BuzzerManager.cpp
     src/ConfigurationManager.cpp
     src/ESCStartupScript.cpp

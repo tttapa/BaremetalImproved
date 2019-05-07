@@ -1,9 +1,13 @@
 #pragma once
+#include <ArmedManager.hpp>
 #include <BuzzerManager.hpp>
 #include <ConfigurationManager.hpp>
 #include <ESCStartupScript.hpp>
 #include <GradualThrustChangeManager.hpp>
 #include <RCManager.hpp>
+
+/** Instance of the armed manager. */
+extern ArmedManager armedManager;
 
 /** Instance of the buzzer manager. */
 extern BuzzerManager buzzerManager;

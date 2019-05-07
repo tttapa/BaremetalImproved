@@ -1,5 +1,8 @@
 #include <MiscInstances.hpp>
 
+/** Instance of the armed manager. */
+ArmedManager armedManager;
+
 /** Instance of the buzzer manager. */
 BuzzerManager buzzerManager;
 
@@ -16,6 +19,7 @@ GradualThrustChangeManager gtcManager;
 RCManager rcManager;
 
 void initMiscInstances() {
+    armedManager.init();
     buzzerManager.init();
     configManager.init();
     escStartupScript.init(true);

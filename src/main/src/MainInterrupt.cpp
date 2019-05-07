@@ -108,7 +108,10 @@ void updateMainFSM() {
     static ucLast = 0.0;    ///< Remember last cycle's common thrust for GTC.
     switch (rcManager.getFlightMode()) {
         case FlightMode::MANUAL:
-            // TODO: arming check
+            
+            /* Check whether the drone should be armed or disarmed. This should
+               only occur in manual mode. */
+            armedManager.update();
 
             /* Start gradual thrust change if last mode was altitude hold. */
             gtcManager.start(ucLast);
@@ -213,7 +216,8 @@ void updateMainFSM() {
 
     /* Transform the motor signals and output to the motors. */
     MotorDutyCycles dutyCycles = transformAttitudeControlSignal(uxyz, uc);
-    outputMotorPWM(dutyCycles.v0, dutyCycles.v1, dutyCycles.v2, dutyCycles.v2);
+    if(armedManager.isArmed())
+        outputMotorPWM(dutyCycles.v0, dutyCycles.v1, dutyCycles.v2, dutyCycles.v2);
 
     /* Update the controller configuration if the common thrust is near zero. */
     configManager.update(uc);

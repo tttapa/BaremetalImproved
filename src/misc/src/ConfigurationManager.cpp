@@ -29,11 +29,8 @@ static constexpr float WIGGLE_UPPER_THRESHOLD = 0.04;
 /** Lower threshold for counting wiggles is -0.04. */
 static constexpr float WIGGLE_LOWER_THRESHOLD = -0.04;
 
-// PROTOTYPES
-void configurationBeep(int numBeeps);
-void warningBeep(int numBeeps);
-
-// GLOBALS
+/** Configuration can only be changed when the RC throttle is below 0.03. */
+static constexpr float THROTTLE_THRESHOLD = 0.03;
 
 void ConfigurationManager::nextConfiguration() {
     controllerConfiguration++;
@@ -50,7 +47,7 @@ void ConfigurationManager::previousConfiguration() {
 void ConfigurationManager::update(real_t commonThrust) {
 
     /* Only update the configuration if the common thrust is near zero. */
-    if (commonThrust < 0.03)
+    if (commonThrust < THROTTLE_THRESHOLD)
         updateConfig();
 
     /* Update the wiggles in all cases. */
