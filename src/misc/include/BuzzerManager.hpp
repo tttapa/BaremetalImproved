@@ -7,17 +7,17 @@
  */
 const int QUEUE_SIZE = 30;
 
-/** Armed beep 1 lasts 0.40 seconds. */
-const float ARMED_DURATION1 = 0.40;
+/** Armed beep 1 lasts 0.30 seconds. */
+const float ARMED_DURATION1 = 0.30;
 /** Armed beep 1 has a low pitch. */
 const int ARMED_PERIOD1 = 0x37800;
-/** Armed beep 1 is as loud as possible. */
+/** Armed beep 1 has a medium volume. */
 const int ARMED_VOLUME1 = 0x20000;
-/** Armed beep 2 lasts 0.40 seconds. */
-const float ARMED_DURATION2 = 0.40;
-/** Armed beep 2 has a low pitch. */
+/** Armed beep 2 lasts 0.30 seconds. */
+const float ARMED_DURATION2 = 0.30;
+/** Armed beep 2 has a medium pitch. */
 const int ARMED_PERIOD2 = 0x27800;
-/** Armed beep 2 is as loud as possible. */
+/** Armed beep 2 has a medium volume. */
 const int ARMED_VOLUME2 = 0x20000;
 /** Armed beep is followed by 0.40 seconds of silence. */
 const float ARMED_DELAY = 0.40;
@@ -31,23 +31,29 @@ const int CONFIG_VOLUME = 0x32000;
 /** Configuration beeps have 0.20 seconds between them. */
 const float CONFIG_DELAY = 0.20;
 
-/** Disarmed beep 1 lasts 0.40 seconds. */
-const float DISARMED_DURATION1 = 0.40;
-/** Disarmed beep 1 has a low pitch. */
+/** Disarmed beep 1 lasts 0.30 seconds. */
+const float DISARMED_DURATION1 = 0.30;
+/** Disarmed beep 1 has a medium pitch. */
 const int DISARMED_PERIOD1 = 0x27800;
-/** Disarmed beep 1 is as loud as possible. */
+/** Disarmed beep 1 has a medium volume. */
 const int DISARMED_VOLUME1 = 0x20000;
-/** Disarmed beep 2 lasts 0.40 seconds. */
-const float DISARMED_DURATION2 = 0.40;
+/** Disarmed beep 2 lasts 0.30 seconds. */
+const float DISARMED_DURATION2 = 0.30;
 /** Disarmed beep 2 has a low pitch. */
 const int DISARMED_PERIOD2 = 0x37800;
-/** Disarmed beep 2 is as loud as possible. */
+/** Disarmed beep 2 has a medium volume. */
 const int DISARMED_VOLUME2 = 0x20000;
 /** Disarmed beep is followed by 0.40 seconds of silence. */
 const float DISARMED_DELAY = 0.40;
 
 /** Initiated beep lasts 0.05 seconds. */
-const float lol = 1;
+const float INITIATED_DURATION = 0.05;
+/** Initiated beep has a medium pitch. */
+const int INITIATED_PERIOD = 0x27800;
+/** Initiated beep has a loud volume. */
+const int INITIATED_VOLUME = 0x25000;
+/** Initiated beeps have 0.01 seconds between them. */
+const int INITIATED_DELAY = 0.01;
 
 /** Warning beep lasts 0.12 seconds. */
 const float WARNING_DURATION = 0.12;
@@ -59,13 +65,13 @@ const int WARNING_VOLUME = 0x20000;
 const float WARNING_DELAY = 0.06;
 
 /** Navigation error beep lasts 0.50 seconds. */
-const float ERROR_DURATION = 0.5;
+const float NAVERROR_DURATION = 0.5;
 /** Navigation error beep has a medium pitch. */
-const int ERROR_PERIOD = 0x25000;
+const int NAVERROR_PERIOD = 0x25000;
 /** Navigation error beep is as loud as possible. */
-const int ERROR_VOLUME = 0x30000;
+const int NAVERROR_VOLUME = 0x30000;
 /** Navigation error beeps have 0.50 seconds between them. */
-const float ERROR_DELAY = 0.5;
+const float NAVERROR_DELAY = 0.5;
 
 /**
  * Instruction to be sent to the buzzer containing a duration (float), a buzzer
@@ -106,12 +112,12 @@ class BuzzerManager {
 
   public:
     /**
-     * Adds an "armed" beep to the beep queue.
+     * Adds a pair of "armed" beeps to the beep queue.
      */
     void addArmedBeep();
 
     /**
-     * Adds a "disarmed" beep to the beep queue.
+     * Adds a pair of "disarmed" beeps to the beep queue.
      */
     void addDisarmedBeep();
 
@@ -122,6 +128,14 @@ class BuzzerManager {
      *          Number of configuration beeps to add to the beep queue.
      */
     void addConfigurationBeeps(int numberOfBeeps);
+
+    /**
+     * Adds the given number of initiated beeps to the beep queue.
+     * 
+     * @param   numberOfBeeps
+     *          Number of initiated beeps to add to the beep queue.
+     */
+    void addInitiatedBeeps(int numberOfBeeps);
 
     /**
      * Adds the given number of navigation error beeps to the beep queue.
@@ -209,4 +223,4 @@ class BuzzerManager {
      *          Current time in seconds.
      */
     void updateBuzzer(float currentTime);
-}
+};

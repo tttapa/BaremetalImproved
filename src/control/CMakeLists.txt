@@ -78,7 +78,7 @@ target_link_libraries(control
         quaternion
         utilities
     PRIVATE
-        configuration
+        misc
         globals
         time
 )
