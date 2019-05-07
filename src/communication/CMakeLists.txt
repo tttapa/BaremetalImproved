@@ -31,3 +31,14 @@ target_compile_features(communication INTERFACE cxx_std_17)
 # Run CMake again in the `test` folder, to discover the CMakeLists.txt file that
 # adds the tests.
 # add_subdirectory(test) 
+
+install(TARGETS communication
+        EXPORT communication
+        INCLUDES DESTINATION include)
+install(EXPORT communication DESTINATION lib)
+install(
+FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/include/BaremetalCommunicationDef.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/include/LogEntry.h
+    ${CMAKE_CURRENT_BINARY_DIR}/include/SharedStruct.hpp
+DESTINATION include)
