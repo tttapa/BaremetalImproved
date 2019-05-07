@@ -1,6 +1,7 @@
 #include <GradualThrustChangeManager.hpp>
 #include <MiscInstances.hpp>
 #include <Time.hpp>
+#include <RCValues.hpp>
 
 /** Gradual thrust change lasts 1.0 seconds. */
 const real_t GTC_DURATION = TICKS_PER_SECOND * 1.0;
@@ -25,7 +26,7 @@ void GradualThrustChangeManager::update() {
     /* If there are ticks left... */
     if (this->counter < GTC_DURATION)
         /* Linear interpolation. */
-        this->thrust += (rcManager.getThrottle() - this->thrust) / ticksLeft;
+        this->thrust += (getThrottle() - this->thrust) / ticksLeft;
     else
         /* Gradual thrust change is finished. */
         this->busy = 0;

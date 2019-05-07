@@ -9,6 +9,13 @@ struct RawAccelMeasurement {
     int azInt;  ///< Raw 16-bit reading of the acceleration along the z-axis.
 };
 
+/* Acceleration measurement in g. */
+struct AccelMeasurement {
+    float ax;   ///< Acceleration along the x-axis in g.
+    float ay;   ///< Acceleration along the y-axis in g.
+    float az;   ///< Acceleration along the z-axis in g.
+};
+
 /* Raw 16-bit signed data from the gyroscope. */
 struct RawGyroMeasurement {
     int gxInt;  ///< Raw 16-bit reading of the angular vel. about the x-axis.

@@ -1,6 +1,7 @@
 #include "../../../src-vivado/main/include/PublicHardwareConstants.hpp"
 #include <Altitude.hpp>
 #include <MiscInstances.hpp>
+#include <RCValues.hpp>
 
 /**
  * The largest marginal control signal that can be sent to the "common motor"
@@ -72,7 +73,7 @@ void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
 void AltitudeController::updateRCReference() {
 
     /* Store the RC throttle. */
-    real_t throttle = rcManager.getThrottle();
+    real_t throttle = getThrottle();
 
     /* Try increasing/decreasing the reference height. */
     real_t upperZoneSize = 1.0 - RC_REFERENCE_HEIGHT_UPPER_THRESHOLD;

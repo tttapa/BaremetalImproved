@@ -56,6 +56,9 @@ void PositionController::init() {
 PositionControlSignal
 PositionController::updateControlSignal(PositionReference reference) {
 
+    /* Save the reference position. */
+    this->reference = reference;
+
     /* Calculate integral windup. */
     this->integralWindup = codegenIntegralWindup(
         this->integralWindup, reference, this->stateEstimate,

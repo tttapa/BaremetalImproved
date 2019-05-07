@@ -5,7 +5,9 @@ add_library(misc
     src/ConfigurationManager.cpp
     src/ESCStartupScript.cpp
     src/GradualThrustChangeManager.cpp
-    src/RCManager.cpp
+    src/OutputValues.cpp
+    src/RCValues.cpp
+    src/SensorValues.cpp
     src/WPT.cpp
 )
 
@@ -38,6 +40,7 @@ target_link_libraries(misc
         time
         communication
         instances
+        control
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)

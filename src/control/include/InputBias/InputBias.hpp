@@ -1,6 +1,6 @@
 #pragma once
 #include <Autonomous.hpp>
-#include <RCManager.hpp>
+#include <RCValues.hpp>
 #include <real_t.h>
 
 /**

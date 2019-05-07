@@ -135,6 +135,9 @@ class PositionController {
      */
     PositionControlSignal controlSignal;
 
+    /** Reference position (x,y), which is stored to pass on to the logger. */
+    PositionReference reference;
+
     /**
      * Time that the last measurement from the Image Processing team was
      * received (see Time.hpp).
@@ -245,6 +248,13 @@ class PositionController {
      *          the position controller.
      */
     void correctPosition(real_t correctionX, real_t correctionY);
+
+    /**
+     * Get the position controller's reference position.
+     */
+    Position getReferencePosition() {
+        return {this->reference.x, this->reference.y};
+    }
 
     /**
      * Reset the position controller.

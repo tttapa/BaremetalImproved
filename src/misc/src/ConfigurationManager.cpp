@@ -1,5 +1,6 @@
 #include <ConfigurationManager.hpp>
 #include <MiscInstances.hpp>
+#include <RCValues.hpp>
 #include <Time.hpp>
 
 /** 3 wiggles to sound configuration. */
@@ -56,7 +57,7 @@ void ConfigurationManager::update(real_t commonThrust) {
 
 void ConfigurationManager::updateConfig() {
 
-    real_t tunerValue = rcManager.getTuner();
+    real_t tunerValue = getTuner();
 
     /* Only do configuration if we're in the changing zone. */
     if (tunerValue < CONFIG_UPPER_THRESHOLD &&
@@ -93,7 +94,7 @@ void ConfigurationManager::updateConfig() {
 
 void ConfigurationManager::updateWiggles() {
 
-    real_t tunerValue = rcManager.getTuner();
+    real_t tunerValue = getTuner();
 
     /* Only do wiggles if the buzzer is not busy. */
     if (buzzerManager.isInstructionBusy())
