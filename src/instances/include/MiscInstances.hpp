@@ -4,7 +4,6 @@
 #include <ConfigurationManager.hpp>
 #include <ESCStartupScript.hpp>
 #include <GradualThrustChangeManager.hpp>
-#include <RCManager.hpp>
 
 /** Instance of the armed manager. */
 extern ArmedManager armedManager;
@@ -20,9 +19,6 @@ extern ESCStartupScript escStartupScript;
 
 /** Instance of the gradual thrust change manager. */
 extern GradualThrustChangeManager gtcManager;
-
-/** Instance of the RC manager. */
-extern RCManager rcManager;
 
 /**
  * Initialize the miscellaneous instances.

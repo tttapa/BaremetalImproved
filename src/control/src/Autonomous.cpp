@@ -328,7 +328,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
             updatePositionController = false;
 
             /* Switch to PRE_TAKEOFF when the throttle is raised high enough. */
-            if (rcManager.getThrottle() > TAKEOFF_THROTTLE)
+            if (getThrottle() > TAKEOFF_THROTTLE)
                 setAutonomousState(PRE_TAKEOFF);
             break;
 
@@ -375,7 +375,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
         case LOITERING:
             /* Switch to LANDING if the pilot lowers the throttle enough. */
-            if (rcManager.getThrottle() <= LANDING_THROTTLE)
+            if (getThrottle() <= LANDING_THROTTLE)
                 startLanding(true, currentPosition);
 
             /* Instruction = hover at (position, height) = (nextTarget,
@@ -387,7 +387,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
         case CONVERGING:
             /* Switch to LANDING if the pilot lowers the throttle enough. */
-            if (rcManager.getThrottle() <= LANDING_THROTTLE)
+            if (getThrottle() <= LANDING_THROTTLE)
                 startLanding(true, currentPosition);
 
             /* Reset counter if we're no longer within converging distance. */
@@ -403,7 +403,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
         case NAVIGATING:
             /* Switch to LANDING if the pilot lowers the throttle enough. */
-            if (rcManager.getThrottle() <= LANDING_THROTTLE)
+            if (getThrottle() <= LANDING_THROTTLE)
                 startLanding(true, currentPosition);
 
             /* Navigating... Instruction = hover at (position, height) =

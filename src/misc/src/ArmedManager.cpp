@@ -1,5 +1,6 @@
 #include <ArmedManager.hpp>
 #include <MiscInstances.hpp>
+#include <RCValues.hpp>
 #include <Time.hpp>
 
 /** The armed status can only change if the throttle stays below 0.03. */
@@ -17,8 +18,8 @@ static constexpr float ARMED_CHANGE_DELAY = 2.0;
 
 void ArmedManager::update() {
 
-    real_t throttle = rcManager.getThrottle();
-    real_t yaw      = rcManager.getYaw();
+    real_t throttle = getThrottle();
+    real_t yaw      = getYaw();
 
     /* Only do arming/disarming if we're in the changing zone. */
     if (throttle > THROTTLE_THRESHOLD ||

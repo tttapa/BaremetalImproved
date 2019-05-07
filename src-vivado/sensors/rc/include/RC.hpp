@@ -1,5 +1,5 @@
 #pragma once
-#include <RCManager.hpp>
+#include <RCValues.hpp>
 
 /**
  * Read the RC voltages from the registers.
