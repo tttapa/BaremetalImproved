@@ -1,7 +1,7 @@
 function result_x_hat = GeneratePositionObserverBlind(s)
-%GenerateNavigationObserver - Code generator for the navigation observer
+%GeneratePositionObserverBlind - Code generator for the position observer
 %
-% Syntax: result_x_hat = GenerateNavigationObserver(s)
+% Syntax: result_x_hat = GeneratePositionObserver(s)
 %
 % `s` is the result of GetParamsAndMatrices that contains the system
 % matrices for the blind position observer.

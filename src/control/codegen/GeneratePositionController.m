@@ -1,7 +1,7 @@
 function [result_u, result_y_int_inc] = GeneratePositionController(s)
 %myFun - Code generator for the navigation controller
 %
-% Syntax: u = GenerateNavigationController(s)
+% Syntax: u = GeneratePositionController(s)
 %
 % `s` is the result of GetParamsAndMatrices that contains the proportional and 
 % integral controller matrix `lqi.K`

@@ -248,7 +248,7 @@ s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
 %s.pos.lqi.R = s.pos.lqr.R;
 %s.pos.lqi.K = dlqi(s.pos.Ad, s.pos.Bd, s.pos.Cd, s.pos.Dd, s.pos.lqi.Q, s.pos.lqi.R, s.pos.Ts);
 
-% Navigation LQR from simulation
+% Position LQR from simulation
 %s.pos.lqr.Q = diag([0.001,0.001,0.05,0.05,0.001,0.001]);
 %s.pos.lqr.R = eye(2);
 %s.pos.lqr.K = -dlqr(s.pos.Ad, s.pos.Bd, s.pos.lqr.Q, s.pos.lqr.R);
@@ -256,7 +256,7 @@ s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
 %s.pos.lqi.max_integral = 10;
 %s.pos.lqi.K = [s.pos.lqr.K, s.pos.lqi.I];
 
-% Navigation LQRs from simulation 2.0 (w/noise & forward-euler KF)
+% Position LQRs from simulation 2.0 (w/noise & forward-euler KF)
 s.pos.lqr.Q = diag([0.01,0.01,1.6,1.6,0.4,0.4]);
 s.pos.lqr.R = 30.0*eye(2);
 s.pos.lqr.K = -dlqr(s.pos.Ad, s.pos.Bd, s.pos.lqr.Q, s.pos.lqr.R);
