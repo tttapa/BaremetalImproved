@@ -12,8 +12,8 @@ u             = sym('vector__u',                [2, 1],  'real');
 
 
 % Calculate estimate
-Ad = s.nav.ABlindd;
-Bd = s.nav.BBlindd;
+Ad = s.pos.ABlindd;
+Bd = s.pos.BBlindd;
 result_x_hat   = Ad * x_hat + Bd * u;  % A * x + B * u
 
 end

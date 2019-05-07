@@ -65,6 +65,18 @@ struct PositionControlSignal {
     real_t q2ref;  ///< Reference orientation q2 component (/).
 };
 
+struct PositionStateBlind {
+    real_t x;   ///< X position (m).
+    real_t y;   ///< Y position (m).
+    real_t vx;  ///< X velocity (m/s).
+    real_t vy;  ///< Y velocity (m/s).
+};
+
+struct PositionControlSignalBlind {
+    real_t q1;
+    real_t q2;
+};
+
 /**
  * Calculates the distance the two given positions in meters.
  * 
@@ -203,6 +215,8 @@ class PositionController {
     static PositionState codegenCurrentStateEstimate(
         PositionState stateEstimate, PositionMeasurement measurement,
         Quaternion orientation, real_t timeElapsed, int droneConfiguration);
+
+    static PositionStateBlind codegenCurrentStateEstimateBlind();
 
     /**
      * Shift the position controller's estimate of the position by the given
