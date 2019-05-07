@@ -12,9 +12,13 @@ ESCStartupScript escStartupScript;
 /** Instance of the gradual thrust change manager. */
 GradualThrustChangeManager gtcManager;
 
+/** Instance of the RC manager. */
+RCManager rcManager;
+
 void initMiscInstances() {
     buzzerManager.init();
     configManager.init();
     escStartupScript.init(true);
     gtcManager.init();
+    rcManager.init();
 }

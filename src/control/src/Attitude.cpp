@@ -1,5 +1,4 @@
 #include <Attitude.hpp>
-#include <Globals.hpp>
 #include <MiscInstances.hpp>
 #include <Time.hpp>
 
@@ -118,9 +117,9 @@ void AttitudeController::updateObserver(AttitudeMeasurement measurement,
 void AttitudeController::updateRCReference() {
 
     /* Store RC values. */
-    real_t roll  = getRCRoll();
-    real_t pitch = getRCPitch();
-    real_t yaw   = getRCYaw();
+    real_t roll  = rcManager.getRoll();
+    real_t pitch = rcManager.getPitch();
+    real_t yaw   = rcManager.getYaw();
 
     /* Convert RC tilt [-0.5, +0,5] to radians [-0.1745, +0.1745]. */
     real_t rollRads  = 2 * roll * MAXIMUM_REFERENCE_TILT;

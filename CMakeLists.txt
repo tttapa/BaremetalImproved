@@ -77,7 +77,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 -Wno-register \
 -Wno-missing-braces \
 -Wno-unknown-pragmas \
--fdiagnostics-show-option")
+-fdiagnostics-show-option \
+-DBAREMETAL")
 
 # Compiler flags for C
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \

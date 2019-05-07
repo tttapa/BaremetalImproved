@@ -3,6 +3,7 @@
 #include <ConfigurationManager.hpp>
 #include <ESCStartupScript.hpp>
 #include <GradualThrustChangeManager.hpp>
+#include <RCManager.hpp>
 
 /** Instance of the buzzer manager. */
 extern BuzzerManager buzzerManager;
@@ -17,6 +18,7 @@ extern ESCStartupScript escStartupScript;
 extern GradualThrustChangeManager gtcManager;
 
 /** Instance of the RC manager. */
+extern RCManager rcManager;
 
 /**
  * Initialize the miscellaneous instances.

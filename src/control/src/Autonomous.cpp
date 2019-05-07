@@ -1,8 +1,10 @@
 #include <Autonomous.hpp>
+#include <BaremetalCommunicationDef.hpp>
 #include <ControllerInstances.hpp>
-#include <Globals.hpp>
 #include <InputBias/InputBias.hpp>
+#include <MiscInstances.hpp>
 #include <Position.hpp>
+#include <SharedMemoryInstances.hpp>
 #include <Time.hpp>
 
 /**
@@ -149,10 +151,6 @@ void AutonomousController::setNextTarget(Position target) {
     this->nextTarget     = target;
 }
 
-void AutonomousController::setQRState(QRFSMState nextState) {
-    this->qrState = nextState;
-}
-
 void AutonomousController::startLanding(bool shouldLandAtCurrentPosition,
                                         Position currentPosition) {
     if (shouldLandAtCurrentPosition)
@@ -172,7 +170,7 @@ void AutonomousController::startNavigating(Position nextQRPosition) {
 void AutonomousController::updateQRFSM() {
 
     /* Load the QR state from shared memory. */
-    setQRState(readQRState());
+    this->qrState = qrComm.getQRState();
 
     /* Don't update QR FSM if the drone is not in CONVERGING state. */
     if (this->autonomousState != CONVERGING)
@@ -205,7 +203,7 @@ void AutonomousController::updateQRFSM() {
             /* Let the Image Processing team take a picture if we have converged
                on our target. */
             if (getElapsedTime() > CONVERGENCE_DURATION)
-                writeQRState(QRFSMState::QR_READ_REQUEST);
+                qrComm.setQRStateRequest();
             break;
         case QRFSMState::NEW_TARGET:
             /* Reset error count and search count. */
@@ -222,8 +220,8 @@ void AutonomousController::updateQRFSM() {
             /* Tell the autonomous controller's FSM to start navigating to the
                position of the next QR code sent by the Cryptography team. */
             /* Switch this FSM to QR_IDLE. */
-            startNavigating({readQRTargetX(), readQRTargetY()});
-            writeQRState(QRFSMState::IDLE);
+            startNavigating(qrComm.getTargetPosition());
+            qrComm.setQRStateIdle();
             break;
         case QRFSMState::LAND:
             /* Reset error count and search count. */
@@ -233,7 +231,7 @@ void AutonomousController::updateQRFSM() {
             /* Tell the autonomous controller's FSM to start landing. */
             /* Switch this FSM to QR_IDLE. */
             startLanding(false, {});
-            writeQRState(QRFSMState::IDLE);
+            qrComm.setQRStateIdle();
             break;
         case QRFSMState::QR_UNKNOWN:
             /* Reset error count and search count. */
@@ -242,13 +240,13 @@ void AutonomousController::updateQRFSM() {
             // TODO: what do we do with unknown QR data?
 
             /* Switch this FSM to QR_IDLE. */
-            writeQRState(QRFSMState::IDLE);
+            qrComm.setQRStateIdle();
             break;
         case QRFSMState::ERROR:
             this->qrErrorCount++;
             if (this->qrErrorCount <= MAX_QR_ERROR_COUNT) {
                 /* Tell IMP to try again. */
-                writeQRState(QRFSMState::QR_READ_REQUEST);
+                qrComm.setQRStateRequest();
             } else {
 
                 /* Start (or continue) spiral-searching for QR code. */
@@ -265,14 +263,14 @@ void AutonomousController::updateQRFSM() {
                 /* Switch this FSM to QR_IDLE. */
                 if (this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
                     setNextTarget(nextSearchTarget);
-                    writeQRState(QRFSMState::IDLE);
+                    qrComm.setQRStateIdle();
                 }
 
                 /* We've run out of tiles to search, so have the drone land. */
                 /* Switch this FSM to QR_IDLE. */
                 else {
                     startLanding(false, {});
-                    writeQRState(QRFSMState::IDLE);
+                    qrComm.setQRStateIdle();
                 }
             }
             break;
@@ -329,7 +327,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
             updatePositionController = false;
 
             /* Switch to PRE_TAKEOFF when the throttle is raised high enough. */
-            if (getRCThrottle() > TAKEOFF_THROTTLE)
+            if (rcManager.getThrottle() > TAKEOFF_THROTTLE)
                 setAutonomousState(PRE_TAKEOFF);
             break;
 
@@ -374,7 +372,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
         case LOITERING:
             /* Switch to LANDING if the pilot lowers the throttle enough. */
-            if (getRCThrottle() <= LANDING_THROTTLE)
+            if (rcManager.getThrottle() <= LANDING_THROTTLE)
                 startLanding(true, currentPosition);
 
             /* Instruction = hover at (position, height) = (nextTarget,
@@ -386,7 +384,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
         case CONVERGING:
             /* Switch to LANDING if the pilot lowers the throttle enough. */
-            if (getRCThrottle() <= LANDING_THROTTLE)
+            if (rcManager.getThrottle() <= LANDING_THROTTLE)
                 startLanding(true, currentPosition);
 
             /* Reset counter if we're no longer within converging distance. */
@@ -402,7 +400,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
         case NAVIGATING:
             /* Switch to LANDING if the pilot lowers the throttle enough. */
-            if (getRCThrottle() <= LANDING_THROTTLE)
+            if (rcManager.getThrottle() <= LANDING_THROTTLE)
                 startLanding(true, currentPosition);
 
             /* Navigating... Instruction = hover at (position, height) =

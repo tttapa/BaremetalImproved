@@ -1,7 +1,6 @@
 # Create library target and specify the implementation files to compile.
 add_library(globals
     src/ControllerInstances.cpp
-    src/Globals.cpp
     src/MiscInstances.cpp
     src/SharedMemoryInstances.cpp
 )

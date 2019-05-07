@@ -4,6 +4,7 @@ add_library(misc
     src/ConfigurationManager.cpp
     src/ESCStartupScript.cpp
     src/GradualThrustChangeManager.cpp
+    src/RCManager.cpp
     src/WPT.cpp
 )
 

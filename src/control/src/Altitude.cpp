@@ -1,6 +1,5 @@
 #include "../../../src-vivado/main/include/PublicHardwareConstants.hpp"
 #include <Altitude.hpp>
-#include <Globals.hpp>
 #include <MiscInstances.hpp>
 
 /**
@@ -73,7 +72,7 @@ void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
 void AltitudeController::updateRCReference() {
 
     /* Store the RC throttle. */
-    real_t throttle = getRCThrottle();
+    real_t throttle = rcManager.getThrottle();
 
     /* Try increasing/decreasing the reference height. */
     real_t upperZoneSize = 1.0 - RC_REFERENCE_HEIGHT_UPPER_THRESHOLD;

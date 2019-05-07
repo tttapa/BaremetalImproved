@@ -80,12 +80,12 @@ void updateMainFSM() {
        current state of the controllers. */
     AttitudeControlSignal uxyz;
     real_t uc;
-    switch (getRCFlightMode()) {
+    switch (rcManager.getFlightMode()) {
         case FlightMode::MANUAL:
             // TODO: arming check
             // TODO: gradual thrust change if last mode was altitude-hold
             /* Common thrust comes directly from the RC. */
-            uc = getRCThrottle();
+            uc = rcManager.getThrottle();
 
             /* Update the attitude controller's reference using the RC. */
             attitudeController.updateRCReference();
@@ -179,9 +179,9 @@ void updateMainFSM() {
 
     /* Update input biases. */
     inputBias.updatePitchBias(attitudeController.getReferenceEuler().pitch,
-                              getRCFlightMode());
+                              rcManager.getFlightMode());
     inputBias.updateRollBias(attitudeController.getReferenceEuler().roll,
-                             getRCFlightMode());
+                             rcManager.getFlightMode());
     inputBias.updateThrustBias(uc);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
@@ -189,7 +189,7 @@ void updateMainFSM() {
     altitudeController.updateObserver({correctedSonarMeasurement});
 
     /* Store flight mode. */
-    previousFlightMode = getRCFlightMode();
+    previousFlightMode = rcManager.getFlightMode();
 }
 
 void update() {

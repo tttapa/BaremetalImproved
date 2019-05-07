@@ -1,4 +1,3 @@
-#include <Globals.hpp>
 #include <MiscInstances.hpp>
 #include <Position.hpp>
 #include <Time.hpp>
