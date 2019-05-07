@@ -1,19 +1,18 @@
-#include <BaremetalCommunicationDef.hpp>
 #include <SharedMemoryInstances.hpp>
 
 /** Instance of the test struct for shared memory. */
-TestStruct testComm;
+volatile TestStruct *testComm;
 
 /** Instance of the vision communication struct for shared memory. */
-VisionCommStruct visionComm;
+volatile VisionCommStruct *visionComm;
 
 /** Instance of the QR communication struct for shared memory. */
-QRCommStruct qrComm;
+volatile QRCommStruct *qrComm;
 
 /** Instance of the logger struct for shared memory. */
-AccessControlledLogEntry loggerComm;
+volatile AccessControlledLogEntry *loggerComm;
 
-void initCommunicationStructs() {
+void initSharedMemoryInstances() {
     testComm   = TestStruct::init();
     visionComm = VisionCommStruct::init();
     qrComm     = QRCommStruct::init();

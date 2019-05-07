@@ -86,6 +86,16 @@ using VisionCommStruct =
                                  SHARED_MEM_START_ADDRESS>;
 
 /**
+ * @brief   This test struct is used to verify the working of shared memory.
+ */
+struct TestStruct : SharedStruct<TestStruct> {
+    uint32_t l2b = 0;
+    uint32_t b2l = 0;
+
+    constexpr static uintptr_t address = SHARED_MEM_START_ADDRESS + 0xF000;
+};
+
+/**
  * @brief   The struct for communication between QR/Crypto and ANC.
  */
 struct QRCommStruct : SharedStruct<QRCommStruct> {

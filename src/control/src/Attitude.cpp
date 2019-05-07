@@ -1,13 +1,12 @@
 #include <Attitude.hpp>
-#include <Configuration.hpp>
-#include <Globals.hpp>
+#include <MiscInstances.hpp>
 #include <Time.hpp>
 
 /**
  * The largest control signal that can be sent to the "yaw torque motor" is
  * 0.10.
  */
-const real_t YAW_SIGNAL_CLAMP = 0.10;
+static constexpr real_t YAW_SIGNAL_CLAMP = 0.10;
 
 /**
  * The most the drone can tilt is 0.1745 rad (10 deg). If the hardware constants
@@ -15,16 +14,16 @@ const real_t YAW_SIGNAL_CLAMP = 0.10;
  * (pitch) will be 10 degrees when the pilot pushes the tilt stick completely to
  * the right (downwards).
  */
-const real_t MAXIMUM_REFERENCE_TILT = 0.1745;
+static constexpr real_t MAXIMUM_REFERENCE_TILT = 0.1745;
 
 /** The maximum speed of the reference yaw is 0.80 rad/s. */
-const real_t RC_REFERENCE_YAW_MAX_SPEED = 0.80;
+static constexpr real_t RC_REFERENCE_YAW_MAX_SPEED = 0.80;
 
 /** The threshold to start decreasing the reference yaw is -0.05. */
-const real_t RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
+static constexpr real_t RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
 
 /** The threshold to start increasing the reference yaw is +0.05. */
-const real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
+static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 
 MotorDutyCycles
 transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
@@ -78,25 +77,25 @@ void AttitudeController::init() {
 
     /* Reset the attitude controller. */
     this->stateEstimate    = {};
-    this->orientationEuler = EulerAngles({});
+    this->orientationEuler = {};
     this->integralWindup   = {};
     this->controlSignal    = {};
     this->reference        = {};
-    this->referenceEuler   = EulerAngles({});
+    this->referenceEuler   = {};
 }
 
 AttitudeControlSignal
 AttitudeController::updateControlSignal(real_t commonThrust) {
 
     /* Calculate integral windup. */
-    this->integralWindup =
-        codegenIntegralWindup(this->integralWindup, this->reference,
-                              this->stateEstimate, getControllerConfiguration());
+    this->integralWindup = codegenIntegralWindup(
+        this->integralWindup, this->reference, this->stateEstimate,
+        configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    this->controlSignal =
-        codegenControlSignal(this->stateEstimate, this->reference,
-                             this->integralWindup, getControllerConfiguration());
+    this->controlSignal = codegenControlSignal(
+        this->stateEstimate, this->reference, this->integralWindup,
+        configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
     this->controlSignal = clampControlSignal(this->controlSignal, commonThrust);
@@ -106,9 +105,9 @@ AttitudeController::updateControlSignal(real_t commonThrust) {
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement,
                                         real_t yawJumpToSubtract) {
-    this->stateEstimate =
-        codegenNextStateEstimate(this->stateEstimate, this->controlSignal,
-                                 measurement, getControllerConfiguration());
+    this->stateEstimate = codegenNextStateEstimate(
+        this->stateEstimate, this->controlSignal, measurement,
+        configManager.getControllerConfiguration());
 
     /* Update the EulerAngles representation as well! */
     this->orientationEuler = EulerAngles::quat2eul(this->stateEstimate.q);
@@ -118,9 +117,9 @@ void AttitudeController::updateObserver(AttitudeMeasurement measurement,
 void AttitudeController::updateRCReference() {
 
     /* Store RC values. */
-    real_t roll  = getRCRoll();
-    real_t pitch = getRCPitch();
-    real_t yaw   = getRCYaw();
+    real_t roll  = rcManager.getRoll();
+    real_t pitch = rcManager.getPitch();
+    real_t yaw   = rcManager.getYaw();
 
     /* Convert RC tilt [-0.5, +0,5] to radians [-0.1745, +0.1745]. */
     real_t rollRads  = 2 * roll * MAXIMUM_REFERENCE_TILT;

@@ -5,8 +5,8 @@
 #include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
 #include <BaremetalCommunicationDef.hpp>
 #include <ControllerInstances.hpp>
-#include <Globals.hpp>
 #include <MainInterrupt.hpp>
+#include <MiscInstances.hpp>
 #include <SharedMemoryInstances.hpp>
 #include <TiltCorrection.hpp>
 
@@ -27,6 +27,31 @@ real_t calculateYawJump(float yaw) {
 
     /* Return the yaw jump. */
     return modYaw - yaw;
+}
+
+void updateLEDs(bool isInterruptRunning, bool isControllerArmed,
+                bool isAutonomous, bool isWPTActive) {
+
+    int ledOutput = 0x0;
+
+    /* LED 0 is lit when the interrupts are running too slowly. */
+    if (isInterruptRunning)
+        ledOutput += 0x1;
+
+    /* LED 1 is lit when the controller is armed. */
+    if (isControllerArmed)
+        ledOutput += 0x2;
+
+    /* LED 2 is lit when the drone is in autonomous mode. */
+    if (isAutonomous)
+        ledOutput += 0x4;
+
+    /* LED 3 is lit when wireless power transfer is active. */
+    if (isWPTActive)
+        ledOutput += 0x8;
+
+    /* Write value to LEDs. */
+    writeValueToLEDs(ledOutput);
 }
 
 // Called by src-vivado every 238 Hz after initialization/calibration is complete.
@@ -80,12 +105,19 @@ void updateMainFSM() {
        current state of the controllers. */
     AttitudeControlSignal uxyz;
     real_t uc;
-    switch (getRCFlightMode()) {
+    static ucLast = 0.0;    ///< Remember last cycle's common thrust for GTC.
+    switch (rcManager.getFlightMode()) {
         case FlightMode::MANUAL:
-            // TODO: arming check
-            // TODO: gradual thrust change if last mode was altitude-hold
+            
+            /* Check whether the drone should be armed or disarmed. This should
+               only occur in manual mode. */
+            armedManager.update();
+
+            /* Start gradual thrust change if last mode was altitude hold. */
+            gtcManager.start(ucLast);
+
             /* Common thrust comes directly from the RC. */
-            uc = getRCThrottle();
+            uc = rcManager.getThrottle();
 
             /* Update the attitude controller's reference using the RC. */
             attitudeController.updateRCReference();
@@ -112,6 +144,8 @@ void updateMainFSM() {
             break;
         case FlightMode::AUTONOMOUS:
             // TODO: when should we initGround or initAir?
+            if(previousFlightMode == FlightMode::ALTITUDE_HOLD)
+                autonomousController.initAir(Position{0.5, 0.5});
             // TODO: should we tell IMP to reset their measurement?
             if (hasNewIMPMeasurement) {
 
@@ -125,12 +159,11 @@ void updateMainFSM() {
 
                     /* Calculate current position state estimate. */
                     if (output.trustAccelerometerForPosition)
-                        // TODO: accelerometer estimate
-                        ;
-                    else
-                        positionController.updateObserver(
-                            attitudeController.getOrientationEstimate(),
-                            getTime(), {correctedPositionMeasurement});
+                        positionController.updateObserverBlind();
+                    ;
+                    else positionController.updateObserver(
+                        attitudeController.getOrientationEstimate(), getTime(),
+                        {correctedPositionMeasurement});
 
                     /* Calculate control signal. */
                     q12ref = positionController.updateControlSignal(
@@ -167,21 +200,39 @@ void updateMainFSM() {
             break;
     }
 
+    /* Remember common thrust for next clock cycle, which is needed to start the
+       Gradual Thrust Change (GTC). */
+    ucLast = uc;
+
+    /* Pass the common thrust through the ESC startup script if it's enabled. */
+    if(escStartupScript.isEnabled())
+        uc = escStartupScript.update(uc);
+
+    /* Gradual thrust change active? */
+    if(gtcManager.isBusy()) {}
+        gtcManager.update();
+        uc = gtcManager.getThrust();
+    }
+
     /* Transform the motor signals and output to the motors. */
     MotorDutyCycles dutyCycles = transformAttitudeControlSignal(uxyz, uc);
-    outputMotorPWM(dutyCycles.v0, dutyCycles.v1, dutyCycles.v2, dutyCycles.v2);
+    if(armedManager.isArmed())
+        outputMotorPWM(dutyCycles.v0, dutyCycles.v1, dutyCycles.v2, dutyCycles.v2);
+
+    /* Update the controller configuration if the common thrust is near zero. */
+    configManager.update(uc);
+
+    /* Update the buzzer. */
+    buzzerManager.update();
 
     // TODO: kill if the drone tilts too far? (droneControllersActivated flag)
-    // TODO: gradual thrust change
-    // TODO: update buzzer
-    // TODO: escs startup script
-    // TODO: update configuration
 
     /* Update input biases. */
+    // TODO: remember input bias so we can fly immediately in autonomous
     inputBias.updatePitchBias(attitudeController.getReferenceEuler().pitch,
-                              getRCFlightMode());
+                              rcManager.getFlightMode());
     inputBias.updateRollBias(attitudeController.getReferenceEuler().roll,
-                             getRCFlightMode());
+                             rcManager.getFlightMode());
     inputBias.updateThrustBias(uc);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
@@ -189,7 +240,7 @@ void updateMainFSM() {
     altitudeController.updateObserver({correctedSonarMeasurement});
 
     /* Store flight mode. */
-    previousFlightMode = getRCFlightMode();
+    previousFlightMode = rcManager.getFlightMode();
 }
 
 void update() {
@@ -200,10 +251,17 @@ void update() {
     /* Update the drone's clock. */
     incrementTickCount();
 
+    /* Whether an interrupt is currently running. */
+    static bool isInterruptRunning = false;
     /* IMU bias should be calculated before use. */
     static bool isIMUCalibrated = false;
     /* AHRS should calibrate with accelerometer before use. */
     static bool isAHRSInitialized = false;
+
+    /* Update LEDs. */
+    updateLEDs(isInterruptRunning, armedManager.isArmed(),
+               rcManager.getFlightMode() == FlightMode::AUTONOMOUS,
+               rcManager.getWPTMode() == WPTMode::ON);
 
     /* Phase 1: Calibrate IMU. */
     if (!isIMUCalibrated) {
@@ -219,6 +277,9 @@ void update() {
         updateMainFSM();
     }
 
-    /* Test pin low to probe length of interrupt. */
-    writeValueToTestPin(false);
+    /* Output to LEDS. */
+    updateLEDs()
+
+        /* Test pin low to probe length of interrupt. */
+        writeValueToTestPin(false);
 }

@@ -21,6 +21,6 @@ extern AutonomousController autonomousController;
 extern InputBias inputBias;
 
 /**
- * Reset the controller instances.
+ * Initialize the controller instances.
  */
-void initControllers();
+void initControllerInstances();

@@ -1,6 +1,8 @@
 # Create library target and specify the implementation files to compile.
-add_library(globals
-    src/Globals.cpp
+add_library(instances
+    src/ControllerInstances.cpp
+    src/MiscInstances.cpp
+    src/SharedMemoryInstances.cpp
 )
 
 # Set target include directories 
@@ -11,7 +13,7 @@ add_library(globals
 #   Any header files in the `src` directory are private, they are only required 
 #   to compile the implementation files of the library, users of the library
 #   should not include them.
-target_include_directories(globals
+target_include_directories(instances
     PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -20,17 +22,19 @@ target_include_directories(globals
 )
 
 # Tell CMake to compile this library with C++17 features enabled
-target_compile_features(globals PUBLIC cxx_std_17)
+target_compile_features(instances PUBLIC cxx_std_17)
 
 # Link the library with its dependencies.
 #   This manages both the include directories of the dependencies, as well as  
 #   the actual linking of the other libraries.
 #   Libraries that are used in the public header files should be public,
 #   libraries that are only used in the implementation files should be private.
-target_link_libraries(globals 
+target_link_libraries(instances 
     PUBLIC 
+        misc
         utilities
         communication
+        control
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)

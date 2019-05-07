@@ -1,24 +1,13 @@
 #include <ESCStartupScript.hpp>
+#include <MiscInstances.hpp>
 #include <Time.hpp>
 
-/** The startup script lasts 5.0 seconds. */
-const float STARTUP_DURATION = 5.0;
-
-/** The shutdown script lasts 0.5 seconds. */
-const float SHUTDOWN_DURATION = 0.50;
-
-/**
- * The startup script begins as soon as the common thrust exceeds 0.105, or a
- * 50% PWM duty cycle. The shutdown script will begin as soon as it goes below
- * this value. During the shutdown script this value will be held for 0.5 s.
- */
-const float COMMON_THRUST_THRESHOLD = 0.105;
-
-/**
- * During the duration of the startup script, a common thrust of 0.215 or a 55%
- * PWM duty cycle will be sent to the ESCs.
- */
-const float STARTUP_COMMON_THRUST = 0.215;
+void ESCStartupScript::init(bool enabled) {
+    this->enabled        = enabled;
+    this->escsRunning    = false;
+    this->shutdownActive = false;
+    this->startupActive  = false;
+}
 
 real_t ESCStartupScript::update(real_t commonThrust) {
 
@@ -29,16 +18,16 @@ real_t ESCStartupScript::update(real_t commonThrust) {
     /* Begin the startup script if the ESCs are not running, and the pilot
        raises the throttle enough. */
     if (!escsRunning && commonThrust >= COMMON_THRUST_THRESHOLD) {
-        escsRunning   = true;
-        startupActive  = true;
+        escsRunning      = true;
+        startupActive    = true;
         startupStartTime = getTime();
     }
 
     /* Begin the shutdown script if the ESCs are running, and the pilot lowers
        the throttle enough. */
     if (escsRunning && commonThrust < COMMON_THRUST_THRESHOLD) {
-        escsRunning    = true;
-        shutdownActive  = true;
+        escsRunning       = true;
+        shutdownActive    = true;
         shutdownStartTime = getTime();
     }
 
@@ -50,7 +39,10 @@ real_t ESCStartupScript::update(real_t commonThrust) {
 
         /* End script. */
         startupActive = false;
-        escsRunning  = true;
+        escsRunning   = true;
+
+        /* Start gradual thrust change from the current common thrust. */
+        gtcManager.start(STARTUP_COMMON_THRUST);
     }
 
     /* Shutdown script active? */
@@ -61,7 +53,7 @@ real_t ESCStartupScript::update(real_t commonThrust) {
 
         /* End script. */
         shutdownActive = false;
-        escsRunning   = false;
+        escsRunning    = false;
     }
 
     /* No scripts are active, so are the ESCs running? */

@@ -1,18 +1,32 @@
-#include <Attitude.hpp>
+#pragma once
+#include <real_t.h>
 
-//**************************//
-//*** ESC STARTUP SCRIPT ***//
-//**************************//
+/** The startup script lasts 5.0 seconds. */
+const float STARTUP_DURATION = 5.0;
 
-// CONSTANTS
+/** The shutdown script lasts 0.5 seconds. */
+const float SHUTDOWN_DURATION = 0.50;
 
-// PROTOTYPES
-void esc_start();
-void esc_update();
+/**
+ * The startup script begins as soon as the common thrust exceeds 0.105, or a
+ * 50% PWM duty cycle. The shutdown script will begin as soon as it goes below
+ * this value. During the shutdown script this value will be held for 0.5 s.
+ */
+const float COMMON_THRUST_THRESHOLD = 0.105;
 
-int esc_isBusy;
-int esc_counter;
+/**
+ * During the duration of the startup script, a common thrust of 0.215 or a 55%
+ * PWM duty cycle will be sent to the ESCs.
+ */
+const float STARTUP_COMMON_THRUST = 0.215;
 
+/**
+ * Class to manage the startup and shutdown of the ESCs. When commercial ESCs
+ * are used, this class should be disabled. In this case the update() method
+ * will simply return the given common thrust, so it can still be used. When the
+ * class is enabled, it will manage the startup and shutdown script and return
+ * the appropriate signal to send to the common motor.
+ */
 class ESCStartupScript {
   private:
     /** Whether the ESCs are currently running. */
@@ -57,6 +71,14 @@ class ESCStartupScript {
      * before the actual motor signals are sent.
      */
     void enable() { this->enabled = true; }
+
+    /**
+     * Reset the ESC startup script with the given enabled status.
+     * 
+     * @param   enabled
+     *          Whether the startup script should be enabled.
+     */
+    void init(bool enabled);
 
     /**
      * Returns whether the startup script is enabled.

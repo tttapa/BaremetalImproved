@@ -271,46 +271,27 @@ if strcmp(droneState, 'Position')
         end
     end
     
-    if strcmp(struct, 'y')
-        if element == 1
-            string = 'measurement.x';
-        end
-        if element == 2
-            string = 'measurement.y';
-        end
-    end
-    
-    if strcmp(struct, 'att_x_hat')
-        string = strcat('orientation[', num2str(element), ']');
-    end
-    
-    if strcmp(struct, 'x_hat_copy')
-        if element == 1
-           string = 'stateEstimateCopy.q1';
+    if strcmp(struct, 'x_hat_blind_copy')
+       if element == 1
+           string = 'stateEstimateBlindCopy.x';
        end
        if element == 2
-           string = 'stateEstimateCopy.q2';
+           string = 'stateEstimateBlindCopy.y';
        end
        if element == 3
-           string = 'stateEstimateCopy.x';
+           string = 'stateEstimateBlindCopy.vx';
        end
        if element == 4
-           string = 'stateEstimateCopy.y';
-       end
-       if element == 5
-           string = 'stateEstimateCopy.vx';
-       end
-       if element == 6
-           string = 'stateEstimateCopy.vy';
+           string = 'stateEstimateBlindCopy.vy';
        end
     end
     
     if strcmp(struct, 'u')
         if element == 1
-            string = 'controlSignal.q1ref';
+            string = 'controlSignalBlind.q1';
         end
         if element == 2
-            string = 'controlSignal.q2ref';
+            string = 'controlSignalBlind.q2';
         end
     end
      

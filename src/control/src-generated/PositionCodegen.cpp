@@ -70,13 +70,13 @@
  * If the drone's velocity changes by more than 0.30 m/s between measurements,
  * and the velocity is moving away from 0 m/s, then reject the jump.
  */
-const real_t V_THRESHOLD_AWAY = 0.30;
+static constexpr real_t V_THRESHOLD_AWAY = 0.30;
 
 /**
  * If the drone's velocity changes by more than 0.50 m/s between measurements,
  * and the velocity is moving toward 0 m/s, then reject the jump.
  */
-const real_t V_THRESHOLD_TOWARDS = 0.50;
+static constexpr real_t V_THRESHOLD_TOWARDS = 0.50;
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
@@ -172,7 +172,24 @@ PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
     stateEstimate.y  = measurement.y;
 
     /* Drone configuration unused. */
-    (void)droneConfiguration;
+    (void) droneConfiguration;
 
     return stateEstimate;
 }
+
+PositionState codegenCurrentStateEstimateBlind(
+    PositionStateBlind stateEstimateBlind,
+    PositionControlSignalBlind controlSignalBlind) {
+
+    PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
+
+    stateEstimateBlind.x  = 0.00017318692182755456*controlSignalBlind.q2 + stateEstimateBlindCopy.x + 0.0042016806722689076*stateEstimateBlindCopy.vx;
+    stateEstimateBlind.y  = stateEstimateBlindCopy.y - 0.00017318692182755456*controlSignalBlind.q1 + 0.0042016806722689076*stateEstimateBlindCopy.vy;
+    stateEstimateBlind.vx = 0.082436974789915966*controlSignalBlind.q2 + stateEstimateBlindCopy.vx;
+    stateEstimateBlind.vy = stateEstimateBlindCopy.vy - 0.082436974789915966*controlSignalBlind.q1;
+
+    return {PositionState{controlSignalBlind.q1, controlSignalBlind.q2,
+                          stateEstimateBlind.x, stateEstimateBlind.y,
+                          stateEstimateBlind.vx, stateEstimateBlind.vy}};
+}
+

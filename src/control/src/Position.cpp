@@ -1,5 +1,4 @@
-#include <Configuration.hpp>
-#include <Globals.hpp>
+#include <MiscInstances.hpp>
 #include <Position.hpp>
 #include <Time.hpp>
 
@@ -7,7 +6,7 @@
  * The largest reference quaternion component that can be sent to the attitude
  * control system is 0.0436.
  */
-const real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
+static constexpr real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
 
 real_t dist(Position position1, Position position2) {
     return std::sqrt(distsq(position1, position2));
@@ -58,14 +57,14 @@ PositionControlSignal
 PositionController::updateControlSignal(PositionReference reference) {
 
     /* Calculate integral windup. */
-    this->integralWindup =
-        codegenIntegralWindup(this->integralWindup, reference,
-                              this->stateEstimate, getControllerConfiguration());
+    this->integralWindup = codegenIntegralWindup(
+        this->integralWindup, reference, this->stateEstimate,
+        configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    this->controlSignal =
-        codegenControlSignal(this->stateEstimate, reference,
-                             this->integralWindup, getControllerConfiguration());
+    this->controlSignal = codegenControlSignal(
+        this->stateEstimate, reference, this->integralWindup,
+        configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
     this->controlSignal = clampControlSignal(this->controlSignal);
@@ -79,8 +78,24 @@ void PositionController::updateObserver(Quaternion orientation,
     /* Calculate the current state estimate. */
     this->stateEstimate = codegenCurrentStateEstimate(
         this->stateEstimate, measurement, orientation,
-        currentTime - lastMeasurementTime, getControllerConfiguration());
+        currentTime - lastMeasurementTime,
+        configManager.getControllerConfiguration());
 
     /* Store the measurement time. */
     this->lastMeasurementTime = currentTime;
+}
+
+void PositionController::updateObserverBlind(Quaternion orientation) {
+
+    PositionStateBlind stateBlind = {
+        this->stateEstimate.x,
+        this->stateEstimate.y,
+        this->stateEstimate.vx,
+        this->stateEstimate.vy,
+    };
+    PositionControlSignalBlind controlSignalBlind = {orientation[1],
+                                                     orientation[2]};
+
+    this->stateEstimate =
+        codegenCurrentStateEstimateBlind(stateBlind, controlSignalBlind);
 }

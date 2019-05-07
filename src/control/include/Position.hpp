@@ -65,6 +65,18 @@ struct PositionControlSignal {
     real_t q2ref;  ///< Reference orientation q2 component (/).
 };
 
+struct PositionStateBlind {
+    real_t x;   ///< X position (m).
+    real_t y;   ///< Y position (m).
+    real_t vx;  ///< X velocity (m/s).
+    real_t vy;  ///< Y velocity (m/s).
+};
+
+struct PositionControlSignalBlind {
+    real_t q1;
+    real_t q2;
+};
+
 /**
  * Calculates the distance the two given positions in meters.
  * 
@@ -205,6 +217,23 @@ class PositionController {
         Quaternion orientation, real_t timeElapsed, int droneConfiguration);
 
     /**
+     * Calculate the current position estimate using the code generator. This
+     * function should be used during the first stage of takeoff and the second
+     * stage of landing when the drone is too close to the ground to measure
+     * the position.
+     * 
+     * @param   stateEstimateBlind
+     *          Last four components of the position controller's state
+     *          estimate, namely x, y, vx and vy.
+     * @param   controlSignalBlind
+     *          Struct containing the quaternion components q1 and q2 of the
+     *          drone's orientation estimate.
+     */
+    static PositionState codegenCurrentStateEstimateBlind(
+        PositionStateBlind stateEstimateBlind,
+        PositionControlSignalBlind controlSignalBlind);
+
+    /**
      * Shift the position controller's estimate of the position by the given
      * correction.
      * 
@@ -256,4 +285,12 @@ class PositionController {
      */
     void updateObserver(Quaternion orientation, real_t currentTime,
                         PositionMeasurement measurement);
+
+    /**
+     * Update the position observer 
+     * 
+     * @param   orientation
+     *          Current orientation of the drone.
+     */
+    void updateObserverBlind(Quaternion orientation);
 };
