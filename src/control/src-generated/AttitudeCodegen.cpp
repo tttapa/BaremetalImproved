@@ -150,14 +150,14 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
     switch (droneConfiguration) {
         case 1:
             prediction.q[1] = 0.000065847107510608714*controlSignal.ux + stateEstimate.q[1] + 0.0021008403361344538*stateEstimate.wx + 0.000013979844768739008*stateEstimate.nx;
-            prediction.q[2] = 0.000062167416208545293*controlSignal.uy + stateEstimate.q[2] + 0.0021008403361344538*stateEstimate.wy + 0.000013198618149309471*stateEstimate.ny;
+            prediction.q[2] = 0.000062167416208545279*controlSignal.uy + stateEstimate.q[2] + 0.0021008403361344538*stateEstimate.wy + 0.000013198618149309471*stateEstimate.ny;
             prediction.q[3] = 0.0010533908709510554*controlSignal.uz + stateEstimate.q[3] + 0.0021008403361344538*stateEstimate.wz - 0.0000082128410598254026*stateEstimate.q[0];
             prediction.wx   = 0.093105766159801776*controlSignal.ux + stateEstimate.wx + 0.013047814194874266*stateEstimate.nx;
-            prediction.wy   = 0.087902796874401098*controlSignal.uy + stateEstimate.wy + 0.012318671636925406*stateEstimate.ny;
-            prediction.wz   = 0.98495745014468827*controlSignal.uz + stateEstimate.wz - 0.0076652942813972298*stateEstimate.q[0];
+            prediction.wy   = 0.087902796874401085*controlSignal.uy + stateEstimate.wy + 0.012318671636925406*stateEstimate.ny;
+            prediction.wz   = 0.98495745014468838*controlSignal.uz + stateEstimate.wz - 0.0076652942813972298*stateEstimate.q[0];
             prediction.nx   = 13.184386754639419*controlSignal.ux + 0.8868778485230423*stateEstimate.nx;
-            prediction.ny   = 13.184386754639421*controlSignal.uy + 0.8868778485230423*stateEstimate.ny;
-            prediction.nz   = 13.184386754639419*controlSignal.uz + 0.8868778485230423*stateEstimate.q[0];
+            prediction.ny   = 13.184386754639419*controlSignal.uy + 0.8868778485230423*stateEstimate.ny;
+            prediction.nz   = 13.184386754639421*controlSignal.uz + 0.8868778485230423*stateEstimate.q[0];
             QUAT_0(prediction);
             innovation.q[1] = 0.00000022000000000000001*measurement.wx - 0.00000022000000000000001*stateEstimate.wx - 0.99019513999999997*measurement.q[0]*stateEstimate.q[1] + 0.99019513999999997*measurement.q[1]*stateEstimate.q[0] - 0.99019513999999997*measurement.q[4]*stateEstimate.q[3] + 0.99019513999999997*measurement.q[5]*stateEstimate.q[2];
             innovation.q[2] = 0.00000022000000000000001*measurement.wy - 0.00000022000000000000001*stateEstimate.wy - 0.99019513999999997*measurement.q[0]*stateEstimate.q[2] + 0.99019513999999997*measurement.q[4]*stateEstimate.q[0] + 0.99019513999999997*measurement.q[1]*stateEstimate.q[3] - 0.99019513999999997*measurement.q[5]*stateEstimate.q[1];
@@ -183,14 +183,14 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             break;
         case 2:
             prediction.q[1] = 0.000065847107510608714*controlSignal.ux + stateEstimate.q[1] + 0.0021008403361344538*stateEstimate.wx + 0.000013979844768739008*stateEstimate.nx;
-            prediction.q[2] = 0.000062167416208545293*controlSignal.uy + stateEstimate.q[2] + 0.0021008403361344538*stateEstimate.wy + 0.000013198618149309471*stateEstimate.ny;
+            prediction.q[2] = 0.000062167416208545279*controlSignal.uy + stateEstimate.q[2] + 0.0021008403361344538*stateEstimate.wy + 0.000013198618149309471*stateEstimate.ny;
             prediction.q[3] = 0.0010533908709510554*controlSignal.uz + stateEstimate.q[3] + 0.0021008403361344538*stateEstimate.wz - 0.0000082128410598254026*stateEstimate.q[0];
             prediction.wx   = 0.093105766159801776*controlSignal.ux + stateEstimate.wx + 0.013047814194874266*stateEstimate.nx;
-            prediction.wy   = 0.087902796874401098*controlSignal.uy + stateEstimate.wy + 0.012318671636925406*stateEstimate.ny;
-            prediction.wz   = 0.98495745014468827*controlSignal.uz + stateEstimate.wz - 0.0076652942813972298*stateEstimate.q[0];
+            prediction.wy   = 0.087902796874401085*controlSignal.uy + stateEstimate.wy + 0.012318671636925406*stateEstimate.ny;
+            prediction.wz   = 0.98495745014468838*controlSignal.uz + stateEstimate.wz - 0.0076652942813972298*stateEstimate.q[0];
             prediction.nx   = 13.184386754639419*controlSignal.ux + 0.8868778485230423*stateEstimate.nx;
-            prediction.ny   = 13.184386754639421*controlSignal.uy + 0.8868778485230423*stateEstimate.ny;
-            prediction.nz   = 13.184386754639419*controlSignal.uz + 0.8868778485230423*stateEstimate.q[0];
+            prediction.ny   = 13.184386754639419*controlSignal.uy + 0.8868778485230423*stateEstimate.ny;
+            prediction.nz   = 13.184386754639421*controlSignal.uz + 0.8868778485230423*stateEstimate.q[0];
             QUAT_0(prediction);
             innovation.q[1] = 0.00000022000000000000001*measurement.wx - 0.00000022000000000000001*stateEstimate.wx - 0.99019513999999997*measurement.q[0]*stateEstimate.q[1] + 0.99019513999999997*measurement.q[1]*stateEstimate.q[0] - 0.99019513999999997*measurement.q[4]*stateEstimate.q[3] + 0.99019513999999997*measurement.q[5]*stateEstimate.q[2];
             innovation.q[2] = 0.00000022000000000000001*measurement.wy - 0.00000022000000000000001*stateEstimate.wy - 0.99019513999999997*measurement.q[0]*stateEstimate.q[2] + 0.99019513999999997*measurement.q[4]*stateEstimate.q[0] + 0.99019513999999997*measurement.q[1]*stateEstimate.q[3] - 0.99019513999999997*measurement.q[5]*stateEstimate.q[1];
@@ -215,14 +215,14 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             break;
         case 3:
             prediction.q[1] = 0.000065847107510608714*controlSignal.ux + stateEstimate.q[1] + 0.0021008403361344538*stateEstimate.wx + 0.000013979844768739008*stateEstimate.nx;
-            prediction.q[2] = 0.000062167416208545293*controlSignal.uy + stateEstimate.q[2] + 0.0021008403361344538*stateEstimate.wy + 0.000013198618149309471*stateEstimate.ny;
+            prediction.q[2] = 0.000062167416208545279*controlSignal.uy + stateEstimate.q[2] + 0.0021008403361344538*stateEstimate.wy + 0.000013198618149309471*stateEstimate.ny;
             prediction.q[3] = 0.0010533908709510554*controlSignal.uz + stateEstimate.q[3] + 0.0021008403361344538*stateEstimate.wz - 0.0000082128410598254026*stateEstimate.q[0];
             prediction.wx   = 0.093105766159801776*controlSignal.ux + stateEstimate.wx + 0.013047814194874266*stateEstimate.nx;
-            prediction.wy   = 0.087902796874401098*controlSignal.uy + stateEstimate.wy + 0.012318671636925406*stateEstimate.ny;
-            prediction.wz   = 0.98495745014468827*controlSignal.uz + stateEstimate.wz - 0.0076652942813972298*stateEstimate.q[0];
+            prediction.wy   = 0.087902796874401085*controlSignal.uy + stateEstimate.wy + 0.012318671636925406*stateEstimate.ny;
+            prediction.wz   = 0.98495745014468838*controlSignal.uz + stateEstimate.wz - 0.0076652942813972298*stateEstimate.q[0];
             prediction.nx   = 13.184386754639419*controlSignal.ux + 0.8868778485230423*stateEstimate.nx;
-            prediction.ny   = 13.184386754639421*controlSignal.uy + 0.8868778485230423*stateEstimate.ny;
-            prediction.nz   = 13.184386754639419*controlSignal.uz + 0.8868778485230423*stateEstimate.q[0];
+            prediction.ny   = 13.184386754639419*controlSignal.uy + 0.8868778485230423*stateEstimate.ny;
+            prediction.nz   = 13.184386754639421*controlSignal.uz + 0.8868778485230423*stateEstimate.q[0];
             QUAT_0(prediction);
             innovation.q[1] = 0.00000022000000000000001*measurement.wx - 0.00000022000000000000001*stateEstimate.wx - 0.99019513999999997*measurement.q[0]*stateEstimate.q[1] + 0.99019513999999997*measurement.q[1]*stateEstimate.q[0] - 0.99019513999999997*measurement.q[4]*stateEstimate.q[3] + 0.99019513999999997*measurement.q[5]*stateEstimate.q[2];
             innovation.q[2] = 0.00000022000000000000001*measurement.wy - 0.00000022000000000000001*stateEstimate.wy - 0.99019513999999997*measurement.q[0]*stateEstimate.q[2] + 0.99019513999999997*measurement.q[4]*stateEstimate.q[0] + 0.99019513999999997*measurement.q[1]*stateEstimate.q[3] - 0.99019513999999997*measurement.q[5]*stateEstimate.q[1];
@@ -247,14 +247,14 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             break;
         case 4:
             prediction.q[1] = 0.000065847107510608714*controlSignal.ux + stateEstimate.q[1] + 0.0021008403361344538*stateEstimate.wx + 0.000013979844768739008*stateEstimate.nx;
-            prediction.q[2] = 0.000062167416208545293*controlSignal.uy + stateEstimate.q[2] + 0.0021008403361344538*stateEstimate.wy + 0.000013198618149309471*stateEstimate.ny;
+            prediction.q[2] = 0.000062167416208545279*controlSignal.uy + stateEstimate.q[2] + 0.0021008403361344538*stateEstimate.wy + 0.000013198618149309471*stateEstimate.ny;
             prediction.q[3] = 0.0010533908709510554*controlSignal.uz + stateEstimate.q[3] + 0.0021008403361344538*stateEstimate.wz - 0.0000082128410598254026*stateEstimate.q[0];
             prediction.wx   = 0.093105766159801776*controlSignal.ux + stateEstimate.wx + 0.013047814194874266*stateEstimate.nx;
-            prediction.wy   = 0.087902796874401098*controlSignal.uy + stateEstimate.wy + 0.012318671636925406*stateEstimate.ny;
-            prediction.wz   = 0.98495745014468827*controlSignal.uz + stateEstimate.wz - 0.0076652942813972298*stateEstimate.q[0];
+            prediction.wy   = 0.087902796874401085*controlSignal.uy + stateEstimate.wy + 0.012318671636925406*stateEstimate.ny;
+            prediction.wz   = 0.98495745014468838*controlSignal.uz + stateEstimate.wz - 0.0076652942813972298*stateEstimate.q[0];
             prediction.nx   = 13.184386754639419*controlSignal.ux + 0.8868778485230423*stateEstimate.nx;
-            prediction.ny   = 13.184386754639421*controlSignal.uy + 0.8868778485230423*stateEstimate.ny;
-            prediction.nz   = 13.184386754639419*controlSignal.uz + 0.8868778485230423*stateEstimate.q[0];
+            prediction.ny   = 13.184386754639419*controlSignal.uy + 0.8868778485230423*stateEstimate.ny;
+            prediction.nz   = 13.184386754639421*controlSignal.uz + 0.8868778485230423*stateEstimate.q[0];
             QUAT_0(prediction);
             innovation.q[1] = 0.00000022000000000000001*measurement.wx - 0.00000022000000000000001*stateEstimate.wx - 0.99019513999999997*measurement.q[0]*stateEstimate.q[1] + 0.99019513999999997*measurement.q[1]*stateEstimate.q[0] - 0.99019513999999997*measurement.q[4]*stateEstimate.q[3] + 0.99019513999999997*measurement.q[5]*stateEstimate.q[2];
             innovation.q[2] = 0.00000022000000000000001*measurement.wy - 0.00000022000000000000001*stateEstimate.wy - 0.99019513999999997*measurement.q[0]*stateEstimate.q[2] + 0.99019513999999997*measurement.q[4]*stateEstimate.q[0] + 0.99019513999999997*measurement.q[1]*stateEstimate.q[3] - 0.99019513999999997*measurement.q[5]*stateEstimate.q[1];

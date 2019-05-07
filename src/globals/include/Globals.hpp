@@ -10,10 +10,5 @@ real_t getRCTuner();
 FlightMode getRCFlightMode();
 WPTMode getRCWPTMode();
 
-QRFSMState readQRState();
-real_t readQRTargetX();
-real_t readQRTargetY();
-
 void setRCInput(RCInput input);
 
-void writeQRState(QRFSMState qrState);

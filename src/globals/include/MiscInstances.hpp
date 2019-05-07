@@ -16,6 +16,8 @@ extern ESCStartupScript escStartupScript;
 /** Instance of the gradual thrust change manager. */
 extern GradualThrustChangeManager gtcManager;
 
+/** Instance of the RC manager. */
+
 /**
  * Initialize the miscellaneous instances.
  */
