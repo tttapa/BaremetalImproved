@@ -197,7 +197,7 @@ for k = 1:length(configs)
     % Current controller
     s = configs(k);
     
-    % Navigation controller
+    % Position controller
     [controlSignal, integralWindup] = GeneratePositionController(s);
     controlSignalElements = symbolicVectorExpressionToStrings('Position', controlSignal); % Control output
     integralWindupElements = symbolicVectorExpressionToStrings('Position', integralWindup); % Integral increment
@@ -226,7 +226,7 @@ for k = 1:length(configs)
     
 end
 
-% Navigation observer
+% Position observer
 stateEstimate = GeneratePositionObserverBlind(s);
 stateEstimateElements = symbolicVectorExpressionToStrings('Position', stateEstimate); % New state estimate x_hat
 for i = 1:length(stateEstimateElements)
