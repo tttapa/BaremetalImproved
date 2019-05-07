@@ -91,12 +91,12 @@ AttitudeController::updateControlSignal(real_t commonThrust) {
     /* Calculate integral windup. */
     this->integralWindup =
         codegenIntegralWindup(this->integralWindup, this->reference,
-                              this->stateEstimate, getDroneConfiguration());
+                              this->stateEstimate, getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
     this->controlSignal =
         codegenControlSignal(this->stateEstimate, this->reference,
-                             this->integralWindup, getDroneConfiguration());
+                             this->integralWindup, getControllerConfiguration());
 
     /* Clamp control signal. */
     this->controlSignal = clampControlSignal(this->controlSignal, commonThrust);
@@ -108,7 +108,7 @@ void AttitudeController::updateObserver(AttitudeMeasurement measurement,
                                         real_t yawJumpToSubtract) {
     this->stateEstimate =
         codegenNextStateEstimate(this->stateEstimate, this->controlSignal,
-                                 measurement, getDroneConfiguration());
+                                 measurement, getControllerConfiguration());
 
     /* Update the EulerAngles representation as well! */
     this->orientationEuler = EulerAngles::quat2eul(this->stateEstimate.q);

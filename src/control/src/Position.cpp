@@ -60,12 +60,12 @@ PositionController::updateControlSignal(PositionReference reference) {
     /* Calculate integral windup. */
     this->integralWindup =
         codegenIntegralWindup(this->integralWindup, reference,
-                              this->stateEstimate, getDroneConfiguration());
+                              this->stateEstimate, getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
     this->controlSignal =
         codegenControlSignal(this->stateEstimate, reference,
-                             this->integralWindup, getDroneConfiguration());
+                             this->integralWindup, getControllerConfiguration());
 
     /* Clamp control signal. */
     this->controlSignal = clampControlSignal(this->controlSignal);
@@ -79,7 +79,7 @@ void PositionController::updateObserver(Quaternion orientation,
     /* Calculate the current state estimate. */
     this->stateEstimate = codegenCurrentStateEstimate(
         this->stateEstimate, measurement, orientation,
-        currentTime - lastMeasurementTime, getDroneConfiguration());
+        currentTime - lastMeasurementTime, getControllerConfiguration());
 
     /* Store the measurement time. */
     this->lastMeasurementTime = currentTime;
