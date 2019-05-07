@@ -1,4 +1,4 @@
-#include "../include/Globals.hpp"
+#include <Globals.hpp>
 
 static RCInput currentRCInput;
 

@@ -7,72 +7,6 @@
  */
 const int QUEUE_SIZE = 30;
 
-/** Armed beep 1 lasts 0.30 seconds. */
-const float ARMED_DURATION1 = 0.30;
-/** Armed beep 1 has a low pitch. */
-const int ARMED_PERIOD1 = 0x37800;
-/** Armed beep 1 has a medium volume. */
-const int ARMED_VOLUME1 = 0x20000;
-/** Armed beep 2 lasts 0.30 seconds. */
-const float ARMED_DURATION2 = 0.30;
-/** Armed beep 2 has a medium pitch. */
-const int ARMED_PERIOD2 = 0x27800;
-/** Armed beep 2 has a medium volume. */
-const int ARMED_VOLUME2 = 0x20000;
-/** Armed beep is followed by 0.40 seconds of silence. */
-const float ARMED_DELAY = 0.40;
-
-/** Configuration beep lasts 0.25 seconds. */
-const float CONFIG_DURATION = 0.25;
-/** Configuration beep has a low pitch. */
-const int CONFIG_PERIOD = 0x35000;
-/** Configuration beep is as loud as possible. */
-const int CONFIG_VOLUME = 0x32000;
-/** Configuration beeps have 0.20 seconds between them. */
-const float CONFIG_DELAY = 0.20;
-
-/** Disarmed beep 1 lasts 0.30 seconds. */
-const float DISARMED_DURATION1 = 0.30;
-/** Disarmed beep 1 has a medium pitch. */
-const int DISARMED_PERIOD1 = 0x27800;
-/** Disarmed beep 1 has a medium volume. */
-const int DISARMED_VOLUME1 = 0x20000;
-/** Disarmed beep 2 lasts 0.30 seconds. */
-const float DISARMED_DURATION2 = 0.30;
-/** Disarmed beep 2 has a low pitch. */
-const int DISARMED_PERIOD2 = 0x37800;
-/** Disarmed beep 2 has a medium volume. */
-const int DISARMED_VOLUME2 = 0x20000;
-/** Disarmed beep is followed by 0.40 seconds of silence. */
-const float DISARMED_DELAY = 0.40;
-
-/** Initiated beep lasts 0.05 seconds. */
-const float INITIATED_DURATION = 0.05;
-/** Initiated beep has a medium pitch. */
-const int INITIATED_PERIOD = 0x27800;
-/** Initiated beep has a loud volume. */
-const int INITIATED_VOLUME = 0x25000;
-/** Initiated beeps have 0.01 seconds between them. */
-const int INITIATED_DELAY = 0.01;
-
-/** Warning beep lasts 0.12 seconds. */
-const float WARNING_DURATION = 0.12;
-/** Warning beep has a high pitch. */
-const int WARNING_PERIOD = 0x21000;
-/** Warning beep has a medium volume. */
-const int WARNING_VOLUME = 0x20000;
-/** Warning beeps have 0.06 seconds between them. */
-const float WARNING_DELAY = 0.06;
-
-/** Navigation error beep lasts 0.50 seconds. */
-const float NAVERROR_DURATION = 0.5;
-/** Navigation error beep has a medium pitch. */
-const int NAVERROR_PERIOD = 0x25000;
-/** Navigation error beep is as loud as possible. */
-const int NAVERROR_VOLUME = 0x30000;
-/** Navigation error beeps have 0.50 seconds between them. */
-const float NAVERROR_DELAY = 0.5;
-
 /**
  * Instruction to be sent to the buzzer containing a duration (float), a buzzer
  * period (int) and a buzzer volume (int).
@@ -83,6 +17,11 @@ struct BuzzerInstruction {
     int volume;      ///< Volume of sound, represented as an integer.
 };
 
+/**
+ * Class to manage the sounds produced by the buzzer. To do this, it has a
+ * queue of BuzzerInstructions that it will play while there are still
+ * instructions left to play.
+ */
 class BuzzerManager {
 
   private:
@@ -96,7 +35,7 @@ class BuzzerManager {
     BuzzerInstruction currentInstruction;
 
     /** Whether there is an instruction playing on the buzzer. */
-    bool isInstructionBusy;
+    bool instructionBusy;
 
     /** Index in the beep queue where the next instruction will be placed. */
     int writeIndex;
@@ -114,12 +53,12 @@ class BuzzerManager {
     /**
      * Adds a pair of "armed" beeps to the beep queue.
      */
-    void addArmedBeep();
+    void addArmedBeeps();
 
     /**
      * Adds a pair of "disarmed" beeps to the beep queue.
      */
-    void addDisarmedBeep();
+    void addDisarmedBeeps();
 
     /**
      * Adds the given number of configuration beeps to the beep queue.
@@ -130,28 +69,14 @@ class BuzzerManager {
     void addConfigurationBeeps(int numberOfBeeps);
 
     /**
-     * Adds the given number of initiated beeps to the beep queue.
-     * 
-     * @param   numberOfBeeps
-     *          Number of initiated beeps to add to the beep queue.
+     * Adds 3 initiated beeps to the beep queue.
      */
-    void addInitiatedBeeps(int numberOfBeeps);
+    void addInitiatedBeeps();
 
     /**
-     * Adds the given number of navigation error beeps to the beep queue.
-     * 
-     * @param   numberOfBeeps
-     *          Number of navigation error beeps to add to the beep queue.
+     * Adds 2 warning beeps to the beep queue.
      */
-    void addNavigationErrorBeeps(int numberOfBeeps);
-
-    /**
-     * Adds the given number of warning beeps to the beep queue.
-     * 
-     * @param   numberOfBeeps
-     *          Number of warning beeps to add to the beep queue.
-     */
-    void addWarningBeeps(int numberOfBeeps);
+    void addWarningBeeps();
 
     /**
      * Clears the beep queue.
@@ -196,12 +121,17 @@ class BuzzerManager {
     bool incrementWriteIndex();
 
     /**
+     * Return whether there is currently an instruction playing on the buzzer.
+     */
+    bool isInstructionBusy() { return this->instructionBusy; }
+
+    /**
      * Check whether the beep queue is empty.
      * 
      * @return  true
      *          If the beep queue is empty.
      * @return  false
-     *          Otherwise.
+     *          Otherwise.s
      */
     bool isQueueEmpty();
 
@@ -214,6 +144,18 @@ class BuzzerManager {
      *          Otherwise.
      */
     bool isQueueFull();
+
+    /**
+     * Tries adding a navigation error beep to the queue. This is only possible
+     * if both the beep instruction and the delay instruction fit in the queue.
+     * 
+     * @return  true
+     *          If the navigation beep was successfully added.
+     * @return  false
+     *          If the beep queue could not have fit both the navigation beep
+     *          and the following delay, so nothing was added.
+     */
+    bool tryAddingNavigationErrorBeep();
 
     /**
      * Updates the signal sent to the buzzer and the beep queue based on the

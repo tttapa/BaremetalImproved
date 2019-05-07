@@ -1,3 +1,4 @@
+#pragma once
 #include <RCTypes.hpp>
 #include <real_t.h>
 

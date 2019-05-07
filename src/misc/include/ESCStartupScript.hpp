@@ -1,18 +1,12 @@
-#include <Attitude.hpp>
+#include <real_t.h>
 
-//**************************//
-//*** ESC STARTUP SCRIPT ***//
-//**************************//
-
-// CONSTANTS
-
-// PROTOTYPES
-void esc_start();
-void esc_update();
-
-int esc_isBusy;
-int esc_counter;
-
+/**
+ * Class to manage the startup and shutdown of the ESCs. When commercial ESCs
+ * are used, this class should be disabled. In this case the update() method
+ * will simply return the given common thrust, so it can still be used. When the
+ * class is enabled, it will manage the startup and shutdown script and return
+ * the appropriate signal to send to the common motor.
+ */
 class ESCStartupScript {
   private:
     /** Whether the ESCs are currently running. */

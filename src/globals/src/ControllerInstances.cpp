@@ -1,4 +1,4 @@
-#include "../include/ControllerInstances.hpp"
+#include <ControllerInstances.hpp>
 
 /** Instance of the attitude controller. */
 AttitudeController attitudeController;
@@ -15,7 +15,7 @@ AutonomousController autonomousController;
 /** Instance of the input bias handler. */
 InputBias inputBias;
 
-void initControllers() {
+void initControllerInstances() {
     attitudeController.init();
     altitudeController.init();
     positionController.init();

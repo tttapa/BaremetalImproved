@@ -1,7 +1,7 @@
 # Create library target and specify the implementation files to compile.
 add_library(misc
     src/BuzzerManager.cpp
-    src/Configuration.cpp
+    src/ConfigurationManager.cpp
     src/ESCStartupScript.cpp
     src/GradualThrustChange.cpp
     src/WPT.cpp
@@ -35,7 +35,6 @@ target_link_libraries(misc
     PUBLIC 
         time
         communication
-        control
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)

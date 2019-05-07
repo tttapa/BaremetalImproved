@@ -14,7 +14,7 @@ QRCommStruct qrComm;
 /** Instance of the logger struct for shared memory. */
 AccessControlledLogEntry loggerComm;
 
-void initCommunicationStructs() {
+void initSharedMemoryInstances() {
     testComm   = TestStruct::init();
     visionComm = VisionCommStruct::init();
     qrComm     = QRCommStruct::init();

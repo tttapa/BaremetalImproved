@@ -2,7 +2,77 @@
 #include "../../../src-vivado/output/buzzer/include/Buzzer.hpp"
 #include <BuzzerManager.hpp>
 
-void BuzzerManager::addArmedBeep() {
+/** Armed beep 1 lasts 0.30 seconds. */
+const float ARMED_DURATION1 = 0.30;
+/** Armed beep 1 has a low pitch. */
+const int ARMED_PERIOD1 = 0x37800;
+/** Armed beep 1 has a medium volume. */
+const int ARMED_VOLUME1 = 0x20000;
+/** Armed beep 2 lasts 0.30 seconds. */
+const float ARMED_DURATION2 = 0.30;
+/** Armed beep 2 has a medium pitch. */
+const int ARMED_PERIOD2 = 0x27800;
+/** Armed beep 2 has a medium volume. */
+const int ARMED_VOLUME2 = 0x20000;
+/** Armed beep is followed by 0.40 seconds of silence. */
+const float ARMED_DELAY = 0.40;
+
+/** Configuration beep lasts 0.25 seconds. */
+const float CONFIG_DURATION = 0.25;
+/** Configuration beep has a low pitch. */
+const int CONFIG_PERIOD = 0x35000;
+/** Configuration beep is as loud as possible. */
+const int CONFIG_VOLUME = 0x32000;
+/** Configuration beeps have 0.20 seconds between them. */
+const float CONFIG_DELAY = 0.20;
+
+/** Disarmed beep 1 lasts 0.30 seconds. */
+const float DISARMED_DURATION1 = 0.30;
+/** Disarmed beep 1 has a medium pitch. */
+const int DISARMED_PERIOD1 = 0x27800;
+/** Disarmed beep 1 has a medium volume. */
+const int DISARMED_VOLUME1 = 0x20000;
+/** Disarmed beep 2 lasts 0.30 seconds. */
+const float DISARMED_DURATION2 = 0.30;
+/** Disarmed beep 2 has a low pitch. */
+const int DISARMED_PERIOD2 = 0x37800;
+/** Disarmed beep 2 has a medium volume. */
+const int DISARMED_VOLUME2 = 0x20000;
+/** Disarmed beep is followed by 0.40 seconds of silence. */
+const float DISARMED_DELAY = 0.40;
+
+/** Drone initiated has 3 beeps. */
+const int NUM_INITIATED_BEEPS = 3;
+/** Initiated beep lasts 0.05 seconds. */
+const float INITIATED_DURATION = 0.05;
+/** Initiated beep has a medium pitch. */
+const int INITIATED_PERIOD = 0x27800;
+/** Initiated beep has a loud volume. */
+const int INITIATED_VOLUME = 0x25000;
+/** Initiated beeps have 0.01 seconds between them. */
+const int INITIATED_DELAY = 0.01;
+
+/** Warning for changing configuration has 2 beeps. */
+const int NUM_WARNING_BEEPS = 2;
+/** Warning beep lasts 0.12 seconds. */
+const float WARNING_DURATION = 0.12;
+/** Warning beep has a high pitch. */
+const int WARNING_PERIOD = 0x21000;
+/** Warning beep has a medium volume. */
+const int WARNING_VOLUME = 0x20000;
+/** Warning beeps have 0.06 seconds between them. */
+const float WARNING_DELAY = 0.06;
+
+/** Navigation error beep lasts 0.50 seconds. */
+const float NAVERROR_DURATION = 0.5;
+/** Navigation error beep has a medium pitch. */
+const int NAVERROR_PERIOD = 0x25000;
+/** Navigation error beep is as loud as possible. */
+const int NAVERROR_VOLUME = 0x30000;
+/** Navigation error beeps have 0.50 seconds between them. */
+const float NAVERROR_DELAY = 0.5;
+
+void BuzzerManager::addArmedBeeps() {
     if (getNumInstructionsUntilFull() >= 2) {
         /* First beep. */
         this->beepQueue[this->writeIndex].duration = ARMED_DURATION1;
@@ -25,7 +95,7 @@ void BuzzerManager::addArmedBeep() {
     }
 }
 
-void BuzzerManager::addDisarmedBeep() {
+void BuzzerManager::addDisarmedBeeps() {
     if (getNumInstructionsUntilFull() >= 2) {
         /* First beep. */
         this->beepQueue[this->writeIndex].duration = DISARMED_DURATION1;
@@ -65,8 +135,8 @@ void BuzzerManager::addConfigurationBeeps(int numberOfBeeps) {
     }
 }
 
-void BuzzerManager::addInitiatedBeeps(int numberOfBeeps) {
-    for (int i = 0; i < numberOfBeeps; i++) {
+void BuzzerManager::addInitiatedBeeps() {
+    for (int i = 0; i < NUM_INITIATED_BEEPS; i++) {
         if (!isQueueFull()) {
             this->beepQueue[this->writeIndex].duration = INITIATED_DURATION;
             this->beepQueue[this->writeIndex].period   = INITIATED_PERIOD;
@@ -82,25 +152,8 @@ void BuzzerManager::addInitiatedBeeps(int numberOfBeeps) {
     }
 }
 
-void BuzzerManager::addNavigationErrorBeeps(int numberOfBeeps) {
-    for (int i = 0; i < numberOfBeeps; i++) {
-        if (!isQueueFull()) {
-            this->beepQueue[this->writeIndex].duration = NAVERROR_DURATION;
-            this->beepQueue[this->writeIndex].period   = NAVERROR_PERIOD;
-            this->beepQueue[this->writeIndex].volume   = NAVERROR_VOLUME;
-            incrementWriteIndex();
-        }
-        if (!isQueueFull()) {
-            this->beepQueue[this->writeIndex].duration = NAVERROR_DELAY;
-            this->beepQueue[this->writeIndex].period   = 0;
-            this->beepQueue[this->writeIndex].volume   = 0;
-            incrementWriteIndex();
-        }
-    }
-}
-
-void BuzzerManager::addWarningBeeps(int numberOfBeeps) {
-    for (int i = 0; i < numberOfBeeps; i++) {
+void BuzzerManager::addWarningBeeps() {
+    for (int i = 0; i < NUM_WARNING_BEEPS; i++) {
         if (!isQueueFull()) {
             this->beepQueue[this->writeIndex].duration = WARNING_DURATION;
             this->beepQueue[this->writeIndex].period   = WARNING_PERIOD;
@@ -159,15 +212,34 @@ bool BuzzerManager::isQueueEmpty() {
 }
 
 bool BuzzerManager::isQueueFull() {
-    return this->writeIndex == this->readIndex &&
-           this->numInstructionsLeft > 0;
+    return this->writeIndex == this->readIndex && this->numInstructionsLeft > 0;
+}
+
+bool BuzzerManager::tryAddingNavigationErrorBeep() {
+    if (getNumInstructionsUntilFull() <= 2)
+        return false;
+
+    /* Add the navigation error beep. */
+    this->beepQueue[this->writeIndex].duration = NAVERROR_DURATION;
+    this->beepQueue[this->writeIndex].period   = NAVERROR_PERIOD;
+    this->beepQueue[this->writeIndex].volume   = NAVERROR_VOLUME;
+    incrementWriteIndex();
+
+    /* Add the delay after the beep. */
+    this->beepQueue[this->writeIndex].duration = NAVERROR_DELAY;
+    this->beepQueue[this->writeIndex].period   = 0;
+    this->beepQueue[this->writeIndex].volume   = 0;
+    incrementWriteIndex();
+
+    /* Successfully added navigation error beep. */
+    return true;
 }
 
 void BuzzerManager::updateBuzzer(float currentTime) {
 
     /* If there's no instruction currently running... */
     float elapsedTime = currentTime - this->beepStartTime;
-    if (!(isInstructionBusy &&
+    if (!(this->instructionBusy &&
           elapsedTime <= this->currentInstruction.duration)) {
 
         /* ... and there are instructions left, then start the next one. */
@@ -179,7 +251,7 @@ void BuzzerManager::updateBuzzer(float currentTime) {
         /* ... and there are no instructions left, turn off any sound. */
         else {
             this->currentInstruction = {0.0, 0, 0};
-            isInstructionBusy        = false;
+            this->instructionBusy    = false;
         }
     }
 

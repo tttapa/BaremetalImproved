@@ -1,6 +1,9 @@
 # Create library target and specify the implementation files to compile.
 add_library(globals
+    src/ControllerInstances.cpp
     src/Globals.cpp
+    src/MiscInstances.cpp
+    src/SharedMemoryInstance.cpp
 )
 
 # Set target include directories 
@@ -29,6 +32,7 @@ target_compile_features(globals PUBLIC cxx_std_17)
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(globals 
     PUBLIC 
+        misc
         utilities
         communication
 )

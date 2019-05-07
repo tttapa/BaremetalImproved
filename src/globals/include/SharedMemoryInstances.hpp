@@ -16,4 +16,4 @@ extern AccessControlledLogEntry loggerComm;
  * Initialize the structs used for communicating with the Linux core through
  * shared memory.
  */
-void initCommunicationStructs();
+void initSharedMemoryInstances();
