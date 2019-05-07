@@ -43,10 +43,3 @@ target_link_libraries(misc
 #     # that adds the tests.
 #     add_subdirectory(test) 
 # endif()
-
-# where is real_t defined?
-#my screen insv mjumping
-# my screen is jumping like crazysf
-# it jumps to the top with every keystroke
-# whut that's strange you wanna skype instead?
-#utilities is where it is
