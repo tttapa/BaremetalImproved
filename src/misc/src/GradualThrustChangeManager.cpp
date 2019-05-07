@@ -1,36 +1,35 @@
 #include <GradualThrustChangeManager.hpp>
 #include <MiscInstances.hpp>
+#include <Time.hpp>
 
-const real_t GTC_DURATION =
-    (TICKS_PER_SECOND * 1);  //*** 1000ms from u_hover --> u_thrust_joystick
+/** Gradual thrust change lasts 1.0 seconds. */
+const real_t GTC_DURATION = (TICKS_PER_SECOND * 1);
 
 void GradualThrustChangeManager::init() {
-    this->busy  = false;
+    this->busy    = false;
     this->counter = 0;
-    this->thrust  = 0; 
+    this->thrust  = 0;
 }
 
 void GradualThrustChangeManager::start(real_t startThrust) {
-    this->busy = true;
+    this->busy    = true;
     this->counter = 0;
-    this->thrust = startThrust;
+    this->thrust  = startThrust;
 }
 
 void GradualThrustChangeManager::update() {
 
-    // Compute the number of ticks left.
+    /* Compute the number of ticks left. */
     real_t ticksLeft = (real_t)(GTC_DURATION - this->counter);
 
-    // There are ticks left.
-    if (this->counter < GTC_DURATION) {
-        // Lineair interpolation.
+    /* If there are ticks left... */
+    if (this->counter < GTC_DURATION)
+        /* Linear interpolation. */
         this->thrust += (rcManager.getThrottle() - this->thrust) / ticksLeft;
-
-    // No ticks left. --> Manager is ready.
-    } else {
+    else
+        /* Gradual thrust change is finished. */
         this->busy = 0;
-    }
 
-    // Increment the counter.
+    /* Increment the counter. */
     this->counter += 1;
 }
