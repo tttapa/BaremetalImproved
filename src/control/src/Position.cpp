@@ -1,5 +1,5 @@
-#include <Configuration.hpp>
 #include <Globals.hpp>
+#include <MiscInstances.hpp>
 #include <Position.hpp>
 #include <Time.hpp>
 
@@ -58,14 +58,14 @@ PositionControlSignal
 PositionController::updateControlSignal(PositionReference reference) {
 
     /* Calculate integral windup. */
-    this->integralWindup =
-        codegenIntegralWindup(this->integralWindup, reference,
-                              this->stateEstimate, getControllerConfiguration());
+    this->integralWindup = codegenIntegralWindup(
+        this->integralWindup, reference, this->stateEstimate,
+        configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    this->controlSignal =
-        codegenControlSignal(this->stateEstimate, reference,
-                             this->integralWindup, getControllerConfiguration());
+    this->controlSignal = codegenControlSignal(
+        this->stateEstimate, reference, this->integralWindup,
+        configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
     this->controlSignal = clampControlSignal(this->controlSignal);
@@ -79,7 +79,8 @@ void PositionController::updateObserver(Quaternion orientation,
     /* Calculate the current state estimate. */
     this->stateEstimate = codegenCurrentStateEstimate(
         this->stateEstimate, measurement, orientation,
-        currentTime - lastMeasurementTime, getControllerConfiguration());
+        currentTime - lastMeasurementTime,
+        configManager.getControllerConfiguration());
 
     /* Store the measurement time. */
     this->lastMeasurementTime = currentTime;

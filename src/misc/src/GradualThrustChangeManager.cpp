@@ -1,14 +1,14 @@
 #include <Globals.hpp>
 #include <GradualThrustChangeManager.hpp>
 
-bool GradualThrustChangeManager::isBusy() { return this->isBusy; }
+bool GradualThrustChangeManager::isBusy() { return this->busy; }
 
 real_t GradualThrustChangeManager::getThrust() { return this->thrust; }
 
 void GradualThrustChangeManager::init() {
-    this->isBusy  = true;
+    this->busy  = true;
     this->counter = 0;
-    this->thrust  = alt_thrust; //TODO: hoe dit invullen? 
+    this->thrust  = 0; //TODO: hoe dit invullen? 
 }
 
 void GradualThrustChangeManager::update() {
@@ -17,7 +17,7 @@ void GradualThrustChangeManager::update() {
         //TODO: deze thrust komt van de RC.
         this->thrust += (getRCThrottle() - this->thrust) / ticksLeft;
     } else {
-        this->isBusy = 0;
+        this->busy = 0;
     }
     this->counter += 1;
 }

@@ -1,3 +1,7 @@
+#pragma once
+#include <real_t.h>
+
+
 // TODO: drone configurations vs controller configurations
 /** Everything enabled on the drone. */
 #define CONFIG_DEMO 0

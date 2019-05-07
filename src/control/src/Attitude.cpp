@@ -1,6 +1,6 @@
 #include <Attitude.hpp>
-#include <Configuration.hpp>
 #include <Globals.hpp>
+#include <MiscInstances.hpp>
 #include <Time.hpp>
 
 /**
@@ -78,25 +78,25 @@ void AttitudeController::init() {
 
     /* Reset the attitude controller. */
     this->stateEstimate    = {};
-    this->orientationEuler = EulerAngles({});
+    this->orientationEuler = {};
     this->integralWindup   = {};
     this->controlSignal    = {};
     this->reference        = {};
-    this->referenceEuler   = EulerAngles({});
+    this->referenceEuler   = {};
 }
 
 AttitudeControlSignal
 AttitudeController::updateControlSignal(real_t commonThrust) {
 
     /* Calculate integral windup. */
-    this->integralWindup =
-        codegenIntegralWindup(this->integralWindup, this->reference,
-                              this->stateEstimate, getControllerConfiguration());
+    this->integralWindup = codegenIntegralWindup(
+        this->integralWindup, this->reference, this->stateEstimate,
+        configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    this->controlSignal =
-        codegenControlSignal(this->stateEstimate, this->reference,
-                             this->integralWindup, getControllerConfiguration());
+    this->controlSignal = codegenControlSignal(
+        this->stateEstimate, this->reference, this->integralWindup,
+        configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
     this->controlSignal = clampControlSignal(this->controlSignal, commonThrust);
@@ -106,9 +106,9 @@ AttitudeController::updateControlSignal(real_t commonThrust) {
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement,
                                         real_t yawJumpToSubtract) {
-    this->stateEstimate =
-        codegenNextStateEstimate(this->stateEstimate, this->controlSignal,
-                                 measurement, getControllerConfiguration());
+    this->stateEstimate = codegenNextStateEstimate(
+        this->stateEstimate, this->controlSignal, measurement,
+        configManager.getControllerConfiguration());
 
     /* Update the EulerAngles representation as well! */
     this->orientationEuler = EulerAngles::quat2eul(this->stateEstimate.q);

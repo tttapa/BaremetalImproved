@@ -1,7 +1,7 @@
 #include "../../../src-vivado/main/include/PublicHardwareConstants.hpp"
 #include <Altitude.hpp>
-#include <Configuration.hpp>
 #include <Globals.hpp>
+#include <MiscInstances.hpp>
 
 /**
  * The largest marginal control signal that can be sent to the "common motor"
@@ -49,14 +49,14 @@ void AltitudeController::setReference(AltitudeReference reference) {
 AltitudeControlSignal AltitudeController::updateControlSignal() {
 
     /* Calculate integral windup. */
-    this->integralWindup =
-        codegenIntegralWindup(this->integralWindup, this->reference,
-                              this->stateEstimate, getControllerConfiguration());
+    this->integralWindup = codegenIntegralWindup(
+        this->integralWindup, this->reference, this->stateEstimate,
+        configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    this->controlSignal =
-        codegenControlSignal(this->stateEstimate, this->reference,
-                             this->integralWindup, getControllerConfiguration());
+    this->controlSignal = codegenControlSignal(
+        this->stateEstimate, this->reference, this->integralWindup,
+        configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
     this->controlSignal = clampControlSignal(this->controlSignal);
@@ -65,9 +65,9 @@ AltitudeControlSignal AltitudeController::updateControlSignal() {
 }
 
 void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
-    this->stateEstimate =
-        codegenNextStateEstimate(this->stateEstimate, this->controlSignal,
-                                 measurement, getControllerConfiguration());
+    this->stateEstimate = codegenNextStateEstimate(
+        this->stateEstimate, this->controlSignal, measurement,
+        configManager.getControllerConfiguration());
 }
 
 void AltitudeController::updateRCReference() {

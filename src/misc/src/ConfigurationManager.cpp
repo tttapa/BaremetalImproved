@@ -1,5 +1,5 @@
 #include <ConfigurationManager.hpp>
-#include <MiscInstances.hpp>    // TODO: maybe ConfigManager(buzzerManager)?
+#include <MiscInstances.hpp>  // TODO: maybe ConfigManager(buzzerManager)?
 #include <Time.hpp>
 
 /** 3 wiggles to sound configuration. */
@@ -55,14 +55,6 @@ void ConfigurationManager::update(real_t tunerValue, real_t commonThrust) {
 
     /* Update the wiggles in all cases. */
     updateWiggles(tunerValue);
-
-    //*** Is the throttle off?
-    int throttle_off;
-    if (thrust < 0.01) {
-        throttle_off = 1;
-    } else {
-        throttle_off = 0;
-    }
 }
 
 void ConfigurationManager::updateConfig(real_t tunerValue) {
@@ -95,7 +87,7 @@ void ConfigurationManager::updateConfig(real_t tunerValue) {
         if (getTime() - changedConfigurationTime >= AFTER_CONFIG_CHANGE_DELAY) {
             buzzerManager.addWarningBeeps();
             warningBeepsStartTime                  = getTime();
-            this->isWaitsingForConfigurationChange = true;
+            this->isWaitingForConfigurationChange = true;
         }
     }
 }

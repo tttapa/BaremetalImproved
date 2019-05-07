@@ -2,7 +2,7 @@
 
 // TODO: is this necessary, Pieter?
 /** Instance of the test struct for shared memory. */
-extern TestStruct testComm;
+// extern TestStruct testComm;
 
 /** Instance of the vision communication struct for shared memory. */
 extern VisionCommStruct visionComm;

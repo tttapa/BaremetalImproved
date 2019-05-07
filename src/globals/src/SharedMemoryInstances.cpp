@@ -2,7 +2,7 @@
 
 // TODO: is this necessary, Pieter?
 /** Instance of the test struct for shared memory. */
-TestStruct testComm;
+// TestStruct testComm;
 
 /** Instance of the vision communication struct for shared memory. */
 VisionCommStruct visionComm;
@@ -14,8 +14,9 @@ QRCommStruct qrComm;
 AccessControlledLogEntry loggerComm;
 
 void initSharedMemoryInstances() {
-    testComm   = TestStruct::init();
-    visionComm = VisionCommStruct::init();
-    qrComm     = QRCommStruct::init();
-    loggerComm = AccessControlledLogEntry::init();
+    // TODO: these don't exist??
+    //testComm   = TestStruct::init();
+    //visionComm = VisionCommStruct::init();
+    //qrComm     = QRCommStruct::init();
+    //loggerComm = AccessControlledLogEntry::init();
 }
