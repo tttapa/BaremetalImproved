@@ -1,4 +1,5 @@
 #pragma once
+#include <EulerAngles.hpp>
 #include <Quaternion.hpp>
 #include <real_t.h>
 
@@ -104,14 +105,61 @@ class AttitudeController {
     AttitudeState stateEstimate;
 
     /**
-     * Integral of the error of the quaternion components q1, q2 and q3.
+     * Estimate of the drone's orientation as EulerAngles. This representation
+     * facilitates the quaternion jumps when the state estimate's yaw becomes
+     * too large.
      */
+    EulerAngles orientationEuler;
+
+    /** Integral of the error of the quaternion components q1, q2 and q3. */
     AttitudeIntegralWindup integralWindup;
 
     /**
      * PWM control signals sent to the torque motors (3 components: ux, uy, uz).
      */
     AttitudeControlSignal controlSignal;
+
+    /** Reference orientation to track. */
+    AttitudeReference reference;
+
+    /**
+     * Reference orientation to track as EulerAngles. This is used to keep track
+     * of the reference yaw, which needs to be remembered between clock cycles.
+     * Also, this facilitates the quaternion jumps when the state estimate's yaw
+     * becomes too large, and this data will passed on to the logger.
+     */
+    EulerAngles referenceEuler;
+
+  public:
+    /**
+     * Using the given yaw jump, calculate the quaternion representation of the
+     * drone's orientation and the reference orientation. Then store these in
+     * the state estimate and in the controller's reference. This "yaw jumping"
+     * is used to keep the state estimate's orientation near the unit quaternion
+     * [1;0;0;0] in order to ensure the control system's stability.
+     * 
+     * @param   yawJumpRads
+     *          Radians to add to the EulerAngles representation of the drone's
+     *          orientation and the reference orientation.
+     */
+    void calculateJumpedQuaternions(real_t yawJumpRads);
+
+    /**
+     * Clamp the given attitude control signal such that the corrections are not
+     * dominated by the yaw component and such that each motor PWM duty cycle is
+     * in [0,1].
+     * 
+     * @param   controlSignal
+     *          Control signal to clamp.
+     * @param   commonThrust
+     *          Control signal to be sent to the "common motor": this must be in
+     *          [0,1].
+     * 
+     * @return  The clamped attitude control signal.
+     */
+    static AttitudeControlSignal
+    clampControlSignal(AttitudeControlSignal controlSignal,
+                       real_t commonThrust);
 
     /**
      * Calculate the current attitude control signal using the code generator.
@@ -128,7 +176,7 @@ class AttitudeController {
      * @return  The control signal to be sent to the "torque motors" until the
      *          next IMU measurement.
      */
-    AttitudeControlSignal codegenControlSignal(
+    static AttitudeControlSignal codegenControlSignal(
         AttitudeState stateEstimate, AttitudeReference reference,
         AttitudeIntegralWindup integralWindup, int droneConfiguration);
 
@@ -139,12 +187,15 @@ class AttitudeController {
      *          Integral windup from the last cycle.
      * @param   reference
      *          Reference orientation to track.
+     * @param   droneConfiguration
+     *          Configuration of the drone.
      * 
      * @return  The current integral windup.
      */
-    AttitudeIntegralWindup
+    static AttitudeIntegralWindup
     codegenIntegralWindup(AttitudeIntegralWindup integralWindup,
-                          AttitudeReference reference);
+                          AttitudeReference reference,
+                          AttitudeState stateEstimate, int droneConfiguration);
 
     /**
      * Calculate the next attitude estimate using the code generator. Because
@@ -165,33 +216,39 @@ class AttitudeController {
      * 
      * @return  The estimate of the next attitude state.
      */
-    AttitudeState codegenNextStateEstimate(AttitudeState stateEstimate,
-                                           AttitudeControlSignal controlSignal,
-                                           AttitudeMeasurement measurement,
-                                           int droneConfiguration);
+    static AttitudeState codegenNextStateEstimate(
+        AttitudeState stateEstimate, AttitudeControlSignal controlSignal,
+        AttitudeMeasurement measurement, int droneConfiguration);
 
     /**
-     * Clamp the given attitude control signal such that the corrections are not
-     * dominated by the yaw component and such that each motor PWM duty cycle is
-     * in [0,1].
-     * 
-     * @param   controlSignal
-     *          Control signal to clamp.
-     * @param   commonThrust
-     *          Control signal to be sent to the "common motor": this must be in
-     *          [0,1].
-     * 
-     * @return  The clamped attitude control signal.
+     * Returns the quaternion of the attitude controller's estimate of the
+     * drone's orientation. This value is "jumped" in order to keep the estimate
+     * near the unit quaternion [1;0;0;0].
      */
-    AttitudeControlSignal
-    clampControlSignal(AttitudeControlSignal controlSignal,
-                       real_t commonThrust);
+    Quaternion getOrientationQuat() { return this->stateEstimate.q; }
 
-  public:
     /**
-     * Returns the quaternion of the attitude controller's state estimate.
+     * Returns the EulerAngles representation of the attitude controller's
+     * estimate of the drone's orientation. This representation facilitates the
+     * quaternion jumps when the state estimate's yaw becomes too large.
      */
-    Quaternion getOrientationEstimate();
+    EulerAngles getOrientationEuler() { return this->orientationEuler; }
+
+    /**
+     * Returns the quaternion representation of the reference orientation. This
+     * value is "jumped" in order to keep the estimate near the unit quaternion
+     * [1;0;0;0].
+     */
+    Quaternion getReferenceQuat() { return this->reference.q; }
+
+    /**
+     * Returns the Euler representation of the reference orientation. This is
+     * used to keep track of the reference yaw, which needs to be remembered
+     * between clock cycles. Also, this facilitates the quaternion jumps when
+     * the state estimate's yaw becomes too large, and this data will passed on
+     * to the logger.
+     */
+    EulerAngles getReferenceEuler() { return this->referenceEuler; }
 
     /**
      * Reset the attitude controller to the initial state.
@@ -199,20 +256,43 @@ class AttitudeController {
     void init();
 
     /**
-     * Update the attitude controller with the given reference orientation. This
-     * function should be called at 238 Hz when the IMU receives a new
+     * Set the attitude controller's EulerAngles orientation estimate to the
+     * given EulerAngles. This representation facilitates the quaternion jumps
+     * when the state estimate's yaw becomes too large.
+     * 
+     * @param   orientationEuler
+     *          New orientation estimate as EulerAngles.
+     */
+    void setOrientationEuler(EulerAngles orientationEuler) {
+        this->orientationEuler = orientationEuler;
+    }
+
+    /**
+     * Set the attitude controller's EulerAngles reference orientation to the
+     * given EulerAngles. This is used to keep track of the reference yaw, which
+     * needs to be remembered between clock cycles. Also, this facilitates the
+     * quaternion jumps when the state estimate's yaw becomes too large, and
+     * this data will passed on to the logger.
+     * 
+     * @param   referenceEuler
+     *          New reference orientation to track as EulerAngles. 
+     */
+    void setReferenceEuler(EulerAngles referenceEuler) {
+        this->referenceEuler = referenceEuler;
+    }
+
+    /**
+     * Update the attitude controller with its current reference orientation.
+     * This function should be called at 238 Hz when the IMU receives a new
      * measurement.
      * 
-     * @param   reference
-     *          Reference orientation to track.
      * @param   commonThrust
      *          Control signal sent to the "common motor".
      *
      * @return  The control signal to be sent to the "torque motors" until the
      *          next IMU measurement.
      */
-    AttitudeControlSignal updateControlSignal(AttitudeReference reference,
-                                              real_t commonThrust);
+    AttitudeControlSignal updateControlSignal(real_t commonThrust);
 
     /**
      * Update the attitude observer with the given IMU measurement. This
@@ -224,6 +304,21 @@ class AttitudeController {
      * 
      * @param   measurement
      *          New measurement from the IMU.
+     * @param   yawJumpToSubtract
+     *          Yaw jump calculated in the beginning of the clock cycle.
      */
-    void updateObserver(AttitudeMeasurement measurement);
+    void updateObserver(AttitudeMeasurement measurement,
+                        real_t yawJumpToSubtract);
+
+    /**
+     * Update the attitude controller's reference orientation using the RC
+     * pitch, roll and yaw. The pitch and roll will be added to the input bias
+     * to attain the total reference pitch and roll. The reference yaw will be
+     * incremented or decremented by a small amount based on the RC yaw. When
+     * the RC yaw is in the dead zone [-5%, +5%], the reference yaw will not
+     * change. If the value of the RC yaw exceeds +5% (goes below -5%), then the
+     * reference yaw will increase (decrease). The maximum increase (decrease)
+     * speed is reached when the value of the RC yaw reaches +50% (-50%).
+     */
+    void updateRCReference();
 };

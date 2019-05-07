@@ -10,7 +10,7 @@
                 "${workspaceFolder}/src/matrix/include",
                 "${workspaceFolder}/build/googletest/googletest-src/googletest/include"
             ],
-            "defines": [],
+            "defines": ["BAREMETAL"],
             "cStandard": "c11",
             "cppStandard": "c++17",
             "browse": {

@@ -66,6 +66,18 @@
 #include <math.h>   /* fabs, copysign */
 #include <string.h> /* memcpy */
 
+/**
+ * If the drone's velocity changes by more than 0.30 m/s between measurements,
+ * and the velocity is moving away from 0 m/s, then reject the jump.
+ */
+static constexpr real_t V_THRESHOLD_AWAY = 0.30;
+
+/**
+ * If the drone's velocity changes by more than 0.50 m/s between measurements,
+ * and the velocity is moving toward 0 m/s, then reject the jump.
+ */
+static constexpr real_t V_THRESHOLD_TOWARDS = 0.50;
+
 /*
  * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template, or in the MATLAB code generator.
@@ -75,9 +87,8 @@ codegenControlSignal(PositionState stateEstimate, PositionReference reference,
                      PositionIntegralWindup integralWindup,
                      int droneConfiguration) {
 
+    /* Calculate controller output based on drone configuration. */
     PositionControlSignal controlSignal;
-
-    /* Calculate controller output. */
     switch (droneConfiguration) {
         case 1:
             controlSignal.q1ref = 0.14859985000000001*stateEstimate.y - 0.79794841000000005*stateEstimate.q1 - 0.14859985000000001*reference.y + 0.16614145*stateEstimate.vy - 0.001*integralWindup.y;
@@ -100,19 +111,14 @@ codegenControlSignal(PositionState stateEstimate, PositionReference reference,
     return controlSignal;
 }
 
-/* Don't use integral action if tunerValue < 0.0. */
-//if(tunerValue < 0.0)
-//	y_int_max = 0.0;
-// (void)tunerValue;
-
 PositionIntegralWindup
 codegenIntegralWindup(PositionIntegralWindup integralWindup,
                       PositionReference reference, PositionState stateEstimate,
                       int droneConfiguration) {
 
+    /* Set maximum integral windup based on drone configuration. */
     real_t maxIntegralWindup;
-
-    switch (configuration) {
+    switch (droneConfiguration) {
         case 1: maxIntegralWindup = 10; break;
         case 2: maxIntegralWindup = 10; break;
         case 3: maxIntegralWindup = 10; break;
@@ -120,6 +126,7 @@ codegenIntegralWindup(PositionIntegralWindup integralWindup,
         default: maxIntegralWindup = 0.0;
     }
 
+    /* Update integral windup. */
     integralWindup.x += 0.11764705882352941*reference.x - 0.11764705882352941*stateEstimate.x;
     integralWindup.y += 0.11764705882352941*reference.y - 0.11764705882352941*stateEstimate.y;
     if (fabs(integralWindup.x) > maxIntegralWindup)
@@ -137,112 +144,52 @@ codegenIntegralWindup(PositionIntegralWindup integralWindup,
 PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
                                           PositionMeasurement measurement,
                                           Quaternion orientation,
+                                          real_t timeElapsed,
                                           int droneConfiguration) {
 
-    // TODO: this shouldn't be necessary when IMP works without errors
+    /* Implement jump rejection to preserve a decent drone velocity. */
+    real_t vx0 = stateEstimate.vx;
+    real_t vy0 = stateEstimate.vy;
+    real_t vx1 = (measurement.x - stateEstimate.x) / timeElapsed;
+    real_t vy1 = (measurement.y - stateEstimate.y) / timeElapsed;
 
-    // Don't fuck up the observer's velocity if IMP sends weird data
+    /* Jump rejection on x-velocity. */
+    if (fabs(vx1) - fabs(vx0) <= 0 && fabs(vx1 - vx0) < V_THRESHOLD_TOWARDS)
+        stateEstimate.vx = vx1;
+    else if (fabs(vx1) - fabs(vx0) >= 0 && fabs(vx1 - vx0) < V_THRESHOLD_AWAY)
+        stateEstimate.vx = vx1;
 
-    // Calculate velocity
-    float vThresholdAway    = 0.30;  // 30 cm/s away from 0: ignore
-    float vThresholdTowards = 0.50;  // 40 cm/s towards 0: ignore
+    /* Jump rejection on y-velocity. */
+    if (fabs(vy1) - fabs(vy0) <= 0 && fabs(vy1 - vy0) < V_THRESHOLD_TOWARDS)
+        stateEstimate.vy = vy1;
+    else if (fabs(vy1) - fabs(vy0) >= 0 && fabs(vy1 - vy0) < V_THRESHOLD_AWAY)
+        stateEstimate.vy = vy1;
 
-    //TODO: Ts ook meegeven?
-    float vx = (measurement.x - stateEstimate.x) / Ts;
-    float vy = (measurement.y - stateEstimate.y) / Ts;
-
-    // X Towards
-    if (fabs(vx) - fabs(stateEstimate.vx) <= 0 &&
-        fabs(vx - stateEstimate.vx) < vThresholdTowards) {
-        stateEstimate.vx = vx;
-        // X Away
-    } else if (fabs(vx) - fabs(stateEstimate.vx) >= 0 &&
-               fabs(vx - stateEstimate.vx) < vThresholdAway) {
-        stateEstimate.vx = vx;
-    }
-
-    // Y Towards
-    if (fabs(vx) - fabs(stateEstimate.vy) <= 0 &&
-        fabs(vy - stateEstimate.vy) < vThresholdTowards) {
-        stateEstimate.vy = vy;
-        // Y Away
-    } else if (fabs(vx) - fabs(stateEstimate.vy) >= 0 &&
-               fabs(vy - stateEstimate.vy) < vThresholdAway) {
-        stateEstimate.vy = vy;
-    }
-
-    /*
-    if(fabs(vx - x_hat[4]) < vThreshold)
-        x_hat[4] = vx;
-    if(fabs(vy - x_hat[5]) < vThreshold)
-        x_hat[5] = vy;
-    */
-
-    // TODO: only do this if IMP works perfectly!
-    /*
-    // Calculate velocity
-    x_hat[4] = (y[0] - x_hat[2]) / Ts;
-    x_hat[5] = (y[1] - x_hat[3]) / Ts;
-    */
-
-    // Set orientation and position
+    /* Set orientation and position. */
     stateEstimate.q1 = orientation[1];
     stateEstimate.q2 = orientation[2];
     stateEstimate.x  = measurement.x;
     stateEstimate.y  = measurement.y;
 
+    /* Drone configuration unused. */
+    (void) droneConfiguration;
+
     return stateEstimate;
 }
 
-/*
- * @note    This is an automatically generated function. Do not edit it here,
- *          edit it in the template.
- */
-/*
-void updateNavigationObserver(NavigationState x_hat,
-                              const_NavigationControl u,
-                              const_NavigationOutput y, 
-                              const_AttitudeState att_x_hat, float Ts, 
-                              int configuration) {
+PositionState codegenCurrentStateEstimateBlind(
+    PositionStateBlind stateEstimateBlind,
+    PositionControlSignalBlind controlSignalBlind) {
 
-    NavigationState x_hat_copy;
-    memcpy(x_hat_copy, x_hat, sizeof(x_hat_copy));
+    PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
 
-    switch(configuration) {
-        case 1:
-            x_hat[0] = 0.99999*orientation[2] - 0.99999*stateEstimateCopy.q1 + 3.0*Ts*controlSignal.q1ref - 1.0*stateEstimateCopy.q1*(3.0*Ts - 1.0);
-            x_hat[1] = 0.99999*orientation[3] - 0.99999*stateEstimateCopy.q2 + 3.0*Ts*controlSignal.q2ref - 1.0*stateEstimateCopy.q2*(3.0*Ts - 1.0);
-            x_hat[2] = 0.27854194999999998*measurement.x + 0.00000060999999999999998*orientation[3] - 0.00000060999999999999998*stateEstimateCopy.q2 + 0.72145805000000002*stateEstimateCopy.x + Ts*stateEstimateCopy.vx;
-            x_hat[3] = 0.27854194999999998*measurement.y - 0.00000060999999999999998*orientation[2] + 0.00000060999999999999998*stateEstimateCopy.q1 + 0.72145805000000002*stateEstimateCopy.y + Ts*stateEstimateCopy.vy;
-            x_hat[4] = 0.026860019999999998*measurement.x + 0.00001364*orientation[3] - 0.00001364*stateEstimateCopy.q2 - 0.026860019999999998*stateEstimateCopy.x + stateEstimateCopy.vx + 19.62*Ts*stateEstimateCopy.q2;
-            x_hat[5] = 0.026860019999999998*measurement.y - 0.00001364*orientation[2] + 0.00001364*stateEstimateCopy.q1 - 0.026860019999999998*stateEstimateCopy.y + stateEstimateCopy.vy - 19.62*Ts*stateEstimateCopy.q1;
-            break;
-        case 2:
-            x_hat[0] = 0.99999*orientation[2] - 0.99999*stateEstimateCopy.q1 + 3.0*Ts*controlSignal.q1ref - 1.0*stateEstimateCopy.q1*(3.0*Ts - 1.0);
-            x_hat[1] = 0.99999*orientation[3] - 0.99999*stateEstimateCopy.q2 + 3.0*Ts*controlSignal.q2ref - 1.0*stateEstimateCopy.q2*(3.0*Ts - 1.0);
-            x_hat[2] = 0.27854194999999998*measurement.x + 0.00000060999999999999998*orientation[3] - 0.00000060999999999999998*stateEstimateCopy.q2 + 0.72145805000000002*stateEstimateCopy.x + Ts*stateEstimateCopy.vx;
-            x_hat[3] = 0.27854194999999998*measurement.y - 0.00000060999999999999998*orientation[2] + 0.00000060999999999999998*stateEstimateCopy.q1 + 0.72145805000000002*stateEstimateCopy.y + Ts*stateEstimateCopy.vy;
-            x_hat[4] = 0.026860019999999998*measurement.x + 0.00001364*orientation[3] - 0.00001364*stateEstimateCopy.q2 - 0.026860019999999998*stateEstimateCopy.x + stateEstimateCopy.vx + 19.62*Ts*stateEstimateCopy.q2;
-            x_hat[5] = 0.026860019999999998*measurement.y - 0.00001364*orientation[2] + 0.00001364*stateEstimateCopy.q1 - 0.026860019999999998*stateEstimateCopy.y + stateEstimateCopy.vy - 19.62*Ts*stateEstimateCopy.q1;
-            break;
-        case 3:
-            x_hat[0] = 0.99999*orientation[2] - 0.99999*stateEstimateCopy.q1 + 3.0*Ts*controlSignal.q1ref - 1.0*stateEstimateCopy.q1*(3.0*Ts - 1.0);
-            x_hat[1] = 0.99999*orientation[3] - 0.99999*stateEstimateCopy.q2 + 3.0*Ts*controlSignal.q2ref - 1.0*stateEstimateCopy.q2*(3.0*Ts - 1.0);
-            x_hat[2] = 0.27854194999999998*measurement.x + 0.00000060999999999999998*orientation[3] - 0.00000060999999999999998*stateEstimateCopy.q2 + 0.72145805000000002*stateEstimateCopy.x + Ts*stateEstimateCopy.vx;
-            x_hat[3] = 0.27854194999999998*measurement.y - 0.00000060999999999999998*orientation[2] + 0.00000060999999999999998*stateEstimateCopy.q1 + 0.72145805000000002*stateEstimateCopy.y + Ts*stateEstimateCopy.vy;
-            x_hat[4] = 0.026860019999999998*measurement.x + 0.00001364*orientation[3] - 0.00001364*stateEstimateCopy.q2 - 0.026860019999999998*stateEstimateCopy.x + stateEstimateCopy.vx + 19.62*Ts*stateEstimateCopy.q2;
-            x_hat[5] = 0.026860019999999998*measurement.y - 0.00001364*orientation[2] + 0.00001364*stateEstimateCopy.q1 - 0.026860019999999998*stateEstimateCopy.y + stateEstimateCopy.vy - 19.62*Ts*stateEstimateCopy.q1;
-            break;
-        case 4:
-            x_hat[0] = 0.99999*orientation[2] - 0.99999*stateEstimateCopy.q1 + 3.0*Ts*controlSignal.q1ref - 1.0*stateEstimateCopy.q1*(3.0*Ts - 1.0);
-            x_hat[1] = 0.99999*orientation[3] - 0.99999*stateEstimateCopy.q2 + 3.0*Ts*controlSignal.q2ref - 1.0*stateEstimateCopy.q2*(3.0*Ts - 1.0);
-            x_hat[2] = 0.27854194999999998*measurement.x + 0.00000060999999999999998*orientation[3] - 0.00000060999999999999998*stateEstimateCopy.q2 + 0.72145805000000002*stateEstimateCopy.x + Ts*stateEstimateCopy.vx;
-            x_hat[3] = 0.27854194999999998*measurement.y - 0.00000060999999999999998*orientation[2] + 0.00000060999999999999998*stateEstimateCopy.q1 + 0.72145805000000002*stateEstimateCopy.y + Ts*stateEstimateCopy.vy;
-            x_hat[4] = 0.026860019999999998*measurement.x + 0.00001364*orientation[3] - 0.00001364*stateEstimateCopy.q2 - 0.026860019999999998*stateEstimateCopy.x + stateEstimateCopy.vx + 19.62*Ts*stateEstimateCopy.q2;
-            x_hat[5] = 0.026860019999999998*measurement.y - 0.00001364*orientation[2] + 0.00001364*stateEstimateCopy.q1 - 0.026860019999999998*stateEstimateCopy.y + stateEstimateCopy.vy - 19.62*Ts*stateEstimateCopy.q1;
-            break;
-    }
+    stateEstimateBlind.x  = 0.00017318692182755456*controlSignalBlind.q2 + stateEstimateBlindCopy.x + 0.0042016806722689076*stateEstimateBlindCopy.vx;
+    stateEstimateBlind.y  = stateEstimateBlindCopy.y - 0.00017318692182755456*controlSignalBlind.q1 + 0.0042016806722689076*stateEstimateBlindCopy.vy;
+    stateEstimateBlind.vx = 0.082436974789915966*controlSignalBlind.q2 + stateEstimateBlindCopy.vx;
+    stateEstimateBlind.vy = stateEstimateBlindCopy.vy - 0.082436974789915966*controlSignalBlind.q1;
 
-
+    return {PositionState{controlSignalBlind.q1, controlSignalBlind.q2,
+                          stateEstimateBlind.x, stateEstimateBlind.y,
+                          stateEstimateBlind.vx, stateEstimateBlind.vy}};
 }
-*/
+

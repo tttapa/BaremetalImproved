@@ -8,7 +8,8 @@ struct EulerAngles {
     real_t roll;   ///< X"
 
     /** Convert a quaternion to Euler angles. */
-    USE_CONSTEXPR EulerAngles(Quaternion q) : EulerAngles{quat2eul(q)} {}
+    USE_CONSTEXPR EulerAngles(Quaternion q = Quaternion::unit())
+        : EulerAngles{quat2eul(q)} {}
     /** Initialize Euler Angles. */
     USE_CONSTEXPR EulerAngles(real_t yaw, real_t pitch, real_t roll)
         : yaw{yaw}, pitch{pitch}, roll{roll} {}

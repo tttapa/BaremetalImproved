@@ -1,5 +1,4 @@
-#include <Configuration.hpp>
-#include <Globals.hpp>
+#include <MiscInstances.hpp>
 #include <Position.hpp>
 #include <Time.hpp>
 
@@ -7,7 +6,7 @@
  * The largest reference quaternion component that can be sent to the attitude
  * control system is 0.0436.
  */
-const real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
+static constexpr real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
 
 real_t dist(Position position1, Position position2) {
     return std::sqrt(distsq(position1, position2));
@@ -41,41 +40,62 @@ PositionController::clampControlSignal(PositionControlSignal controlSignal) {
 
 void PositionController::correctPosition(real_t correctionX,
                                          real_t correctionY) {
-    PositionController::stateEstimate.x += correctionX;
-    PositionController::stateEstimate.y += correctionY;
+    this->stateEstimate.x += correctionX;
+    this->stateEstimate.y += correctionY;
 }
 
 void PositionController::init() {
+
     /* Reset the position controller. */
-    PositionController::stateEstimate       = {};
-    PositionController::integralWindup      = {};
-    PositionController::controlSignal       = {};
-    PositionController::lastMeasurementTime = 0.0;
+    this->stateEstimate       = {};
+    this->integralWindup      = {};
+    this->controlSignal       = {};
+    this->lastMeasurementTime = 0.0;
 }
 
 PositionControlSignal
 PositionController::updateControlSignal(PositionReference reference) {
 
     /* Calculate integral windup. */
-    PositionController::integralWindup =
-        codegenIntegralWindup(PositionController::integralWindup, reference);
+    this->integralWindup = codegenIntegralWindup(
+        this->integralWindup, reference, this->stateEstimate,
+        configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    PositionController::controlSignal = codegenControlSignal(
-        PositionController::stateEstimate, reference,
-        PositionController::integralWindup, getDroneConfiguration());
+    this->controlSignal = codegenControlSignal(
+        this->stateEstimate, reference, this->integralWindup,
+        configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
-    PositionController::controlSignal =
-        clampControlSignal(PositionController::controlSignal);
+    this->controlSignal = clampControlSignal(this->controlSignal);
 
-    return PositionController::controlSignal;
+    return this->controlSignal;
 }
 
 void PositionController::updateObserver(Quaternion orientation,
+                                        real_t currentTime,
                                         PositionMeasurement measurement) {
     /* Calculate the current state estimate. */
-    PositionController::stateEstimate = codegenCurrentStateEstimate(
-        PositionController::stateEstimate, measurement, orientation,
-        getDroneConfiguration());
+    this->stateEstimate = codegenCurrentStateEstimate(
+        this->stateEstimate, measurement, orientation,
+        currentTime - lastMeasurementTime,
+        configManager.getControllerConfiguration());
+
+    /* Store the measurement time. */
+    this->lastMeasurementTime = currentTime;
+}
+
+void PositionController::updateObserverBlind(Quaternion orientation) {
+
+    PositionStateBlind stateBlind = {
+        this->stateEstimate.x,
+        this->stateEstimate.y,
+        this->stateEstimate.vx,
+        this->stateEstimate.vy,
+    };
+    PositionControlSignalBlind controlSignalBlind = {orientation[1],
+                                                     orientation[2]};
+
+    this->stateEstimate =
+        codegenCurrentStateEstimateBlind(stateBlind, controlSignalBlind);
 }

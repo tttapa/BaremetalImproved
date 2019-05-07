@@ -6,7 +6,7 @@
  * Altitude reference height to track, consisting of a single float.
  */
 struct AltitudeReference {
-    real_t z; ///< Height (m).
+    real_t z;  ///< Height (m).
 };
 
 /**
@@ -14,7 +14,7 @@ struct AltitudeReference {
  * the height of the drone, measured in meters.
  */
 struct AltitudeMeasurement {
-    real_t z; ///< Height (m).
+    real_t z;  ///< Height (m).
 };
 
 /**
@@ -26,38 +26,24 @@ struct AltitudeMeasurement {
  * drone, measured in m/s.
  */
 struct AltitudeState {
-    real_t nt; ///< Common motor marginal angular velocity (rad/s).
-    real_t z;  ///< Height (m).
-    real_t vz; ///< Velocity (m/s).
+    real_t nt;  ///< Common motor marginal angular velocity (rad/s).
+    real_t z;   ///< Height (m).
+    real_t vz;  ///< Velocity (m/s).
 };
 
 /**
  * Integral of the error of the height of the drone.
  */
 struct AltitudeIntegralWindup {
-    real_t z; ///< Height (m).
+    real_t z;  ///< Height (m).
 };
 
 /**
  * Marginal PWM control signal sent to the common motor.
  */
 struct AltitudeControlSignal {
-    real_t ut; ///< Common motor marginal signal (/).
+    real_t ut;  ///< Common motor marginal signal (/).
 };
-
-/**
- * Update the reference height using the RC throttle. When the RC throttle is in
- * the dead zone [25%, 75%], the reference height will not change. If the value
- * of the RC throttle exceeds 75% (goes below 25%), then the reference height
- * will increase (decrease). The maximum increase (decrease) speed is reached
- * when the value of the RC throttle reaches 100% (0%).
- * 
- * @param   reference
- *          Reference height from the previous cycle.
- * 
- * @return  The updated reference height.
- */
-AltitudeReference rcUpdateReferenceHeight(AltitudeReference reference);
 
 /**
  * Class to control the altitude of the drone. The first part is an observer to
@@ -87,11 +73,23 @@ class AltitudeController {
      */
     AltitudeIntegralWindup integralWindup;
 
-    /**
-     * Marginal PWM control signal sent to the "common motor".
-     */
+    /** Marginal PWM control signal sent to the "common motor". */
     AltitudeControlSignal controlSignal;
 
+    /** Reference height to track in meters. */
+    AltitudeReference reference;
+
+  public:
+    /**
+     * Clamp the given altitude control signal in [-0.10,+0.10].
+     * 
+     * @param   controlSignal
+     *          Control signal to clamp.
+     * 
+     * @return  The clamped altitude control signal.
+     */
+    static AltitudeControlSignal
+    clampControlSignal(AltitudeControlSignal controlSignal);
     /**
      * Calculate the current altitude control signal using the code generator.
      * 
@@ -107,7 +105,7 @@ class AltitudeController {
      * @return  The marginal control signal to be sent to the "common motor"
      *          until the next sonar measurement.
      */
-    AltitudeControlSignal codegenControlSignal(
+    static AltitudeControlSignal codegenControlSignal(
         AltitudeState stateEstimate, AltitudeReference reference,
         AltitudeIntegralWindup integralWindup, int droneConfiguration);
 
@@ -121,7 +119,7 @@ class AltitudeController {
      * 
      * @return  The current integral windup.
      */
-    AltitudeIntegralWindup
+    static AltitudeIntegralWindup
     codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
                           AltitudeReference reference,
                           AltitudeState stateEstimate, int droneConfiguration);
@@ -145,40 +143,33 @@ class AltitudeController {
      * 
      * @return  The estimate of the next altitude state.
      */
-    AltitudeState codegenNextStateEstimate(AltitudeState stateEstimate,
-                                           AltitudeControlSignal controlSignal,
-                                           AltitudeMeasurement measurement,
-                                           int droneConfiguration);
+    static AltitudeState codegenNextStateEstimate(
+        AltitudeState stateEstimate, AltitudeControlSignal controlSignal,
+        AltitudeMeasurement measurement, int droneConfiguration);
 
-    /**
-     * Clamp the given altitude control signal in [-0.10,+0.10].
-     * 
-     * @param   controlSignal
-     *          Control signal to clamp.
-     * 
-     * @return  The clamped altitude control signal.
-     */
-    AltitudeControlSignal
-    clampControlSignal(AltitudeControlSignal controlSignal);
-
-  public:
     /**
      * Reset the altitude controller.
      */
     void init();
 
     /**
-     * Update the altitude controller with the given reference height. This
-     * function should only be called when there is a new measurement from the
-     * sonar.
+     * Set the altitude controller's reference height.
      * 
      * @param   reference
-     *          The reference height to track.
-     *
+     *          New reference height to track in meters.
+     */
+    void setReference(AltitudeReference reference);
+
+    /**
+     * Update the altitude controller with the altitude controller's reference
+     * height. Use updateRCReference() to update the reference heigth based on
+     * the RC throttle and setReference() to set it directly.  This function
+     * should only be called when there is a new measurement from the sonar.
+     * 
      * @return  The marginal control signal to be sent to the "common motor"
      *          until the next sonar measurement.
      */
-    AltitudeControlSignal updateControlSignal(AltitudeReference reference);
+    AltitudeControlSignal updateControlSignal();
 
     /**
      * Update the altitude observer with the given measurement height. This
@@ -192,4 +183,14 @@ class AltitudeController {
      *          New height measurement from the sonar.
      */
     void updateObserver(AltitudeMeasurement measurement);
+
+    /**
+     * Update the altitude controller's reference height using the RC throttle.
+     * When the RC throttle is in the dead zone [25%, 75%], the reference height
+     * will not change. If the value of the RC throttle exceeds 75% (goes below
+     * 25%), then the reference height will increase (decrease). The maximum
+     * increase (decrease) speed is reached when the value of the RC throttle
+     * reaches 100% (0%).
+     */
+    void updateRCReference();
 };

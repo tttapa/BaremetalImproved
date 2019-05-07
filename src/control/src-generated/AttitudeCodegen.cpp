@@ -80,9 +80,8 @@ AttitudeControlSignal AttitudeController::codegenControlSignal(
     AttitudeState stateEstimate, AttitudeReference reference,
     AttitudeIntegralWindup integralWindup, int droneConfiguration) {
 
+    /* Calculate control signal based on drone configuration. */
     AttitudeControlSignal controlSignal;
-
-    /* Generated calculations for control signal. */
     switch (droneConfiguration) {
         case 1:
             controlSignal.ux = 0.8*integralWindup.q1 - 0.014676*stateEstimate.nx - 0.23209235*stateEstimate.wx - 2.1641921399999999*reference.q[0]*stateEstimate.q[1] + 2.1641921399999999*reference.q[1]*stateEstimate.q[0] - 2.1641921399999999*reference.q[2]*stateEstimate.q[3] + 2.1641921399999999*reference.q[3]*stateEstimate.q[2];
@@ -109,17 +108,12 @@ AttitudeControlSignal AttitudeController::codegenControlSignal(
     return controlSignal;
 }
 
-/* Don't use integral action if tunerValue < 0.0. */
-//if(tunerValue < 0.0)
-//	y_int_max = 0.0;
-// (void) tunerValue;
-
-AttitudeIntegralWindup AtttitudeController::codegenIntegralWindup(
+AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
     AttitudeIntegralWindup integralWindup, AttitudeReference reference,
     AttitudeState stateEstimate, int droneConfiguration) {
 
+    /* Set maximum integral windup based on drone configuration. */
     real_t maxIntegralWindup;
-
     switch (droneConfiguration) {
         case 1: maxIntegralWindup = 10; break;
         case 2: maxIntegralWindup = 10; break;
@@ -128,6 +122,7 @@ AttitudeIntegralWindup AtttitudeController::codegenIntegralWindup(
         default: maxIntegralWindup = 0.0;
     }
 
+    /* Update integral windup. */
     integralWindup.q1 += 0.0042016806722689076*reference.q[1] - 0.0042016806722689076*stateEstimate.q[1];
     integralWindup.q2 += 0.0042016806722689076*reference.q[2] - 0.0042016806722689076*stateEstimate.q[2];
     integralWindup.q3 += 0.0042016806722689076*reference.q[3] - 0.0042016806722689076*stateEstimate.q[3];
@@ -149,10 +144,9 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
     AttitudeState stateEstimate, AttitudeControlSignal controlSignal,
     AttitudeMeasurement measurement, int droneConfiguration) {
 
+    /* Calculate next state using Kalman Filter based on drone configuration. */
     AttitudeState prediction; /* = Ax + Bu */
     AttitudeState innovation; /* = L (y - Cx) */
-
-    /* Generated calculations for Kalman filter. */
     switch (droneConfiguration) {
         case 1:
             prediction.q[1] = 0.000065847107510608714*controlSignal.ux + stateEstimate.q[1] + 0.0021008403361344538*stateEstimate.wx + 0.000013979844768739008*stateEstimate.nx;
@@ -175,7 +169,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             innovation.ny   = 0.14864647*measurement.wy - 0.14864647*stateEstimate.wy - 0.00015477000000000001*measurement.q[0]*stateEstimate.q[2] + 0.00015477000000000001*measurement.q[4]*stateEstimate.q[0] + 0.00015477000000000001*measurement.q[1]*stateEstimate.q[3] - 0.00015477000000000001*measurement.q[5]*stateEstimate.q[1];
             innovation.nz   = 0.041807249999999997*measurement.wz - 0.041807249999999997*stateEstimate.wz - 0.000044450000000000003*measurement.q[0]*stateEstimate.q[3] - 0.000044450000000000003*measurement.q[1]*stateEstimate.q[2] + 0.000044450000000000003*measurement.q[4]*stateEstimate.q[1] + 0.000044450000000000003*measurement.q[5]*stateEstimate.q[0];
             QUAT_0(innovation);
-            /* TODO: This last part is the same for all configurations */
+            // TODO: This last part is the same for all configurations
             stateEstimate.q[0] = prediction.q[0]*innovation.q[0] - 1.0*prediction.q[1]*innovation.q[1] - 1.0*prediction.q[2]*innovation.q[2] - 1.0*prediction.q[3]*innovation.q[3];
             stateEstimate.q[1] = prediction.q[0]*innovation.q[1] + prediction.q[1]*innovation.q[0] + prediction.q[2]*innovation.q[3] - 1.0*prediction.q[3]*innovation.q[2];
             stateEstimate.q[2] = prediction.q[0]*innovation.q[2] + prediction.q[2]*innovation.q[0] - 1.0*prediction.q[1]*innovation.q[3] + prediction.q[3]*innovation.q[1];

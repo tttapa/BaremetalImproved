@@ -15,7 +15,8 @@ add_subdirectory(utilities)
 add_subdirectory(quaternion)
 add_subdirectory(misc)
 add_subdirectory(control)
-add_subdirectory(globals)
+add_subdirectory(communication)
+add_subdirectory(instances)
 add_subdirectory(time)
 
 # add_custom_target(vivado-link

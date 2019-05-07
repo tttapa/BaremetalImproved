@@ -46,6 +46,7 @@ add_library(control
     src-generated/PositionCodegen.cpp
     src/TiltCorrection.cpp
     src/Autonomous.cpp
+    src/InputBias/InputBias.cpp
 )
 
 # Set target include directories 
@@ -73,12 +74,13 @@ target_compile_features(control PUBLIC cxx_std_17)
 #   Libraries that are used in the public header files should be public,
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(control 
-    PUBLIC 
+    PUBLIC
+        misc
         quaternion
         utilities
     PRIVATE
-        configuration
-        globals
+        communication
+        instances
         time
 )
 
