@@ -18,11 +18,11 @@ add_subdirectory(control)
 add_subdirectory(globals)
 add_subdirectory(time)
 
-add_custom_target(vivado-link
-        COMMAND ar x $<TARGET_FILE:greet>
-        COMMAND ar x $<TARGET_FILE:test-vivado>
-        COMMAND ar qc libvivado-link.a *.obj
-        COMMAND rm *.obj
-        WORKING_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
-        DEPENDS greet test-vivado
-)
+# add_custom_target(vivado-link
+#         COMMAND ar x $<TARGET_FILE:greet>
+#         COMMAND ar x $<TARGET_FILE:test-vivado>
+#         COMMAND ar qc libvivado-link.a *.obj
+#         COMMAND rm *.obj
+#         WORKING_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
+#         DEPENDS greet test-vivado
+# )
