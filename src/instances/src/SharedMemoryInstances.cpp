@@ -1,22 +1,20 @@
 #include <SharedMemoryInstances.hpp>
 
-// TODO: is this necessary, Pieter?
 /** Instance of the test struct for shared memory. */
-// TestStruct testComm;
+volatile TestStruct *testComm;
 
 /** Instance of the vision communication struct for shared memory. */
-VisionCommStruct visionComm;
+volatile VisionCommStruct *visionComm;
 
 /** Instance of the QR communication struct for shared memory. */
-QRCommStruct qrComm;
+volatile QRCommStruct *qrComm;
 
 /** Instance of the logger struct for shared memory. */
-AccessControlledLogEntry loggerComm;
+volatile AccessControlledLogEntry *loggerComm;
 
 void initSharedMemoryInstances() {
-    // TODO: these don't exist??
-    //testComm   = TestStruct::init();
-    //visionComm = VisionCommStruct::init();
-    //qrComm     = QRCommStruct::init();
-    //loggerComm = AccessControlledLogEntry::init();
+    testComm   = TestStruct::init();
+    visionComm = VisionCommStruct::init();
+    qrComm     = QRCommStruct::init();
+    loggerComm = AccessControlledLogEntry::init();
 }

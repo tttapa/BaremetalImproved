@@ -167,7 +167,7 @@ void AutonomousController::startNavigating(Position nextQRPosition) {
 void AutonomousController::updateQRFSM() {
 
     /* Load the QR state from shared memory. */
-    this->qrState = qrComm.getQRState();
+    this->qrState = qrComm->getQRState();
 
     /* Don't update QR FSM if the drone is not in CONVERGING state. */
     if (this->autonomousState != CONVERGING)
@@ -200,7 +200,7 @@ void AutonomousController::updateQRFSM() {
             /* Let the Image Processing team take a picture if we have converged
                on our target. */
             if (getElapsedTime() > CONVERGENCE_DURATION)
-                qrComm.setQRStateRequest();
+                qrComm->setQRStateRequest();
             break;
         case QRFSMState::NEW_TARGET:
             /* Reset error count and search count. */
@@ -217,8 +217,8 @@ void AutonomousController::updateQRFSM() {
             /* Tell the autonomous controller's FSM to start navigating to the
                position of the next QR code sent by the Cryptography team. */
             /* Switch this FSM to QR_IDLE. */
-            startNavigating(qrComm.getTargetPosition());
-            qrComm.setQRStateIdle();
+            startNavigating(qrComm->getTargetPosition());
+            qrComm->setQRStateIdle();
             break;
         case QRFSMState::LAND:
             /* Reset error count and search count. */
@@ -228,7 +228,7 @@ void AutonomousController::updateQRFSM() {
             /* Tell the autonomous controller's FSM to start landing. */
             /* Switch this FSM to QR_IDLE. */
             startLanding(false, {});
-            qrComm.setQRStateIdle();
+            qrComm->setQRStateIdle();
             break;
         case QRFSMState::QR_UNKNOWN:
             /* Reset error count and search count. */
@@ -238,7 +238,7 @@ void AutonomousController::updateQRFSM() {
             // TODO: what do we do with unknown QR data?
 
             /* Switch this FSM to QR_IDLE. */
-            qrComm.setQRStateIdle();
+            qrComm->setQRStateIdle();
             break;
         case QRFSMState::ERROR:
             // TODO: instead of trying 3 times, check if there's a QR Code
@@ -247,7 +247,7 @@ void AutonomousController::updateQRFSM() {
             this->qrErrorCount++;
             if (this->qrErrorCount <= MAX_QR_ERROR_COUNT) {
                 /* Tell IMP to try again. */
-                qrComm.setQRStateRequest();
+                qrComm->setQRStateRequest();
             } else {
 
                 /* Start (or continue) spiral-searching for QR code. */
@@ -264,14 +264,14 @@ void AutonomousController::updateQRFSM() {
                 /* Switch this FSM to QR_IDLE. */
                 if (this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
                     setNextTarget(nextSearchTarget);
-                    qrComm.setQRStateIdle();
+                    qrComm->setQRStateIdle();
                 }
 
                 /* We've run out of tiles to search, so have the drone land. */
                 /* Switch this FSM to QR_IDLE. */
                 else {
                     startLanding(false, {});
-                    qrComm.setQRStateIdle();
+                    qrComm->setQRStateIdle();
                 }
             }
             break;
