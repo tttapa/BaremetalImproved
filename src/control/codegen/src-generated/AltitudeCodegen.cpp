@@ -46,10 +46,8 @@ AltitudeControlSignal AltitudeController::codegenControlSignal(
     AltitudeState stateEstimate, AltitudeReference reference,
     AltitudeIntegralWindup integralWindup, int droneConfiguration) {
 
+	/* Calculate controller output based on drone configuration. */
     AltitudeControlSignal controlSignal;
-
-    /* Set maximum integral windup. *
-	 * Calculate controller output. */
     switch (droneConfiguration) {
         case 1: controlSignal.ut = 0.14309672000000001*reference.z - 0.00147842*stateEstimate.nt - 0.14309672000000001*stateEstimate.z - 0.14969718000000001*stateEstimate.vz + 0.01*integralWindup.z; break;
         case 2: controlSignal.ut = 0.14309672000000001*reference.z - 0.00147842*stateEstimate.nt - 0.14309672000000001*stateEstimate.z - 0.14969718000000001*stateEstimate.vz + 0.01*integralWindup.z; break;
@@ -60,19 +58,12 @@ AltitudeControlSignal AltitudeController::codegenControlSignal(
     return controlSignal;
 }
 
-/* Don't use integral action if tunerValue < 0.0. */
-//if(tunerValue < 0.0)
-//	integralWindup_max = 0.0;
-//(void) tunerValue;
+AltitudeIntegralWindup AltitudeController::codegenIntegralWindup(
+    AltitudeIntegralWindup integralWindup, AltitudeReference reference,
+    AltitudeState stateEstimate, int droneConfiguration) {
 
-AltitudeIntegralWindup
-AltitudeController::codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
-                                          AltitudeReference reference,
-                                          AltitudeState stateEstimate,
-                                          int droneConfiguration) {
-
+    /* Set maximum integral windup based on drone configuration. */
     real_t maxIntegralWindup;
-
     switch (droneConfiguration) {
         case 1: maxIntegralWindup = 10; break;
         case 2: maxIntegralWindup = 10; break;
@@ -81,35 +72,31 @@ AltitudeController::codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
         default: maxIntegralWindup = 0.0;
     }
 
+    /* Update integral windup. */
     integralWindup.z += 0.05*reference.z - 0.05*stateEstimate.z;
     if (fabs(integralWindup.z) > maxIntegralWindup)
         integralWindup.z = copysign(maxIntegralWindup, integralWindup.z);
+
+    return integralWindup;
 }
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template, or in the MATLAB code generator.
  */
-AltitudeState AltitudeController::codegenNextStateEstimate(AltitudeState stateEstimate,
-                                       AltitudeControlSignal controlSignal,
-                                       AltitudeMeasurement measurement,
-                                       int droneConfiguration) {
+AltitudeState AltitudeController::codegenNextStateEstimate(
+    AltitudeState stateEstimate, AltitudeControlSignal controlSignal,
+    AltitudeMeasurement measurement, int droneConfiguration) {
 
-    /*  vx, vy estimate: should be more than 1 sample for proper function */
-    //stateEstimate[2] = (y[0] - stateEstimate[1]) / altTs;
-
-    //stateEstimate[0] = 0.0;
-    //stateEstimate[1] = y[0];
-
-    // Trust model if the sonar returns 0 as height
-    // TODO: what if sonar becomes detached and we don't receive any more data? then altitude will drift!
+    /* Trust model if the sonar returns 0 as height. */
+    // TODO: what if sonar becomes detached and we don't receive any more data?
+    // TODO: then altitude will drift!
     if (measurement.z < 0.01)
         measurement.z = stateEstimate.z;
 
-    //TODO:  wat is dit? 
-    AltitudeState stateEstimateCopy;
-    memcpy(stateEstimateCopy, stateEstimate, sizeof(stateEstimateCopy));
-
+    /* Calculate next state using Kalman Filter based on drone configuration. */
+    //TODO: maybe make this newStateEstimate (nitpicky...)
+    AltitudeState stateEstimateCopy = stateEstimate;
     switch (droneConfiguration) {
         case 1:
             stateEstimate.nt = 88.61867170271104*controlSignal.ut + 0.00141277*measurement.z + 0.23965103644177566*stateEstimateCopy.nt - 0.00141277*stateEstimateCopy.z;

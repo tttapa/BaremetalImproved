@@ -1,4 +1,4 @@
-function [result_u, result_y_int_inc] = GenerateNavigationController(s)
+function [result_u, result_y_int_inc] = GeneratePositionController(s)
 %myFun - Code generator for the navigation controller
 %
 % Syntax: u = GenerateNavigationController(s)
@@ -7,8 +7,8 @@ function [result_u, result_y_int_inc] = GenerateNavigationController(s)
 % integral controller matrix `lqi.K`
 
 % Round matrices
-G = round(s.nav.lqr.G, 8);
-K = round(s.nav.lqi.K, 8);
+G = round(s.pos.lqr.G, 8);
+K = round(s.pos.lqi.K, 8);
 
 % Create syms
 r     = sym('vector__ref',   [2, 1], 'real');
@@ -23,9 +23,9 @@ u_eq = eq(7:end);
 
 % Calculate error
 x_err = x_hat - x_eq;
-y = s.nav.Cd * x_hat;
+y = s.pos.Cd * x_hat;
 y_err = r(3:4) - y(3:4);
-result_y_int_inc = y_err * s.nav.Ts;
+result_y_int_inc = y_err * s.pos.Ts;
 err = [ x_err; y_int ];
 
 % Calculate output

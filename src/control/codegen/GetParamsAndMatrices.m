@@ -180,96 +180,96 @@ s.alt.kal.L = dlqe(s.alt.Ad, s.alt.kal.G, s.alt.Cd, diag(s.alt.kal.Q), diag(s.al
 %% Position
 %TODO fs nog invullen
 % TODO: lambda?
-% s.nav.lambda = 1.2; % TODO: 3.5?
-s.nav.lambda = 3.0;
-s.nav.fs = 8.5;
-s.nav.Ts = 1.0 / s.nav.fs;
+% s.pos.lambda = 1.2; % TODO: 3.5?
+s.pos.lambda = 3.0;
+s.pos.fs = 8.5;
+s.pos.Ts = 1.0 / s.pos.fs;
 
-s.nav.Aa = [-s.nav.lambda,      0,         0, 0, 0, 0;
-            0,            -s.nav.lambda,   0, 0, 0, 0;
+s.pos.Aa = [-s.pos.lambda,      0,         0, 0, 0, 0;
+            0,            -s.pos.lambda,   0, 0, 0, 0;
             0,                  0,         0, 0, 1, 0;
             0,                  0,         0, 0, 0, 1;
             0,                2*p.g,       0, 0, 0, 0;
             -2*p.g,             0,         0, 0, 0, 0];
         
-s.nav.Ba = [s.nav.lambda,       0;
-            0,            s.nav.lambda;
+s.pos.Ba = [s.pos.lambda,       0;
+            0,            s.pos.lambda;
             0,                  0;
             0,                  0;
             0,                  0;
             0,                  0];
         
-s.nav.Ca = [eye(4),zeros(4, 2)];
-s.nav.Da = zeros(4, 2);
+s.pos.Ca = [eye(4),zeros(4, 2)];
+s.pos.Da = zeros(4, 2);
 
-continuousSys = ss(s.nav.Aa, s.nav.Ba, s.nav.Ca, s.nav.Da);
-discreteSys = c2d(continuousSys, s.nav.Ts, method);
+continuousSys = ss(s.pos.Aa, s.pos.Ba, s.pos.Ca, s.pos.Da);
+discreteSys = c2d(continuousSys, s.pos.Ts, method);
 
-s.nav.Ad = discreteSys.A;
-s.nav.Bd = discreteSys.B;
-s.nav.Cd = discreteSys.C;
-s.nav.Dd = discreteSys.D;
+s.pos.Ad = discreteSys.A;
+s.pos.Bd = discreteSys.B;
+s.pos.Cd = discreteSys.C;
+s.pos.Dd = discreteSys.D;
 
 
 
 % Blind position
-s.nav.ABlinda = [0, 0, 1, 0;
+s.pos.ABlinda = [0, 0, 1, 0;
                  0, 0, 0, 1;
                  0, 0, 0, 0;
                  0, 0, 0, 0];
 
-s.nav.BBlinda = [0, 0;
+s.pos.BBlinda = [0, 0;
                  0, 0;
                  0, 2*p.g;
                  -2*p.g, 0];
 
-s.nav.CBlinda = [];
-s.nav.DBlinda = [];
+s.pos.CBlinda = [];
+s.pos.DBlinda = [];
 
-continuousSys = ss(s.nav.ABlinda, s.nav.BBlinda, s.nav.CBlinda, s.nav.DBlinda);
+continuousSys = ss(s.pos.ABlinda, s.pos.BBlinda, s.pos.CBlinda, s.pos.DBlinda);
 discreteSys = c2d(continuousSys, s.att.Ts, method);
 
-s.nav.ABlindd = discreteSys.A;
-s.nav.BBlindd = discreteSys.B;
-s.nav.CBlindd = discreteSys.C;
-s.nav.DBlindd = discreteSys.D;
+s.pos.ABlindd = discreteSys.A;
+s.pos.BBlindd = discreteSys.B;
+s.pos.CBlindd = discreteSys.C;
+s.pos.DBlindd = discreteSys.D;
 
 % LQI
 
-s.nav.lqr.W = [ s.nav.Ad - eye(6), s.nav.Bd;
-                s.nav.Cd,          s.nav.Dd ];
-s.nav.lqr.OI = [zeros(6, 4);
+s.pos.lqr.W = [ s.pos.Ad - eye(6), s.pos.Bd;
+                s.pos.Cd,          s.pos.Dd ];
+s.pos.lqr.OI = [zeros(6, 4);
                   eye(4)  ];
-s.nav.lqr.G = s.nav.lqr.W \ s.nav.lqr.OI;
+s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
 
 
 % TODO: lqi???
-%s.nav.lqi.Q = blkdiag(s.nav.lqr.Q, 0.5, 0.5); %Ik heb 0.5 overgenomen van altitude, klopt dit?
-%s.nav.lqi.R = s.nav.lqr.R;
-%s.nav.lqi.K = dlqi(s.nav.Ad, s.nav.Bd, s.nav.Cd, s.nav.Dd, s.nav.lqi.Q, s.nav.lqi.R, s.nav.Ts);
+%s.pos.lqi.Q = blkdiag(s.pos.lqr.Q, 0.5, 0.5); %Ik heb 0.5 overgenomen van altitude, klopt dit?
+%s.pos.lqi.R = s.pos.lqr.R;
+%s.pos.lqi.K = dlqi(s.pos.Ad, s.pos.Bd, s.pos.Cd, s.pos.Dd, s.pos.lqi.Q, s.pos.lqi.R, s.pos.Ts);
 
 % Navigation LQR from simulation
-%s.nav.lqr.Q = diag([0.001,0.001,0.05,0.05,0.001,0.001]);
-%s.nav.lqr.R = eye(2);
-%s.nav.lqr.K = -dlqr(s.nav.Ad, s.nav.Bd, s.nav.lqr.Q, s.nav.lqr.R);
-%s.nav.lqi.I = 0.01 * [0, -1; 1, 0];
-%s.nav.lqi.max_integral = 10;
-%s.nav.lqi.K = [s.nav.lqr.K, s.nav.lqi.I];
+%s.pos.lqr.Q = diag([0.001,0.001,0.05,0.05,0.001,0.001]);
+%s.pos.lqr.R = eye(2);
+%s.pos.lqr.K = -dlqr(s.pos.Ad, s.pos.Bd, s.pos.lqr.Q, s.pos.lqr.R);
+%s.pos.lqi.I = 0.01 * [0, -1; 1, 0];
+%s.pos.lqi.max_integral = 10;
+%s.pos.lqi.K = [s.pos.lqr.K, s.pos.lqi.I];
 
 % Navigation LQRs from simulation 2.0 (w/noise & forward-euler KF)
-s.nav.lqr.Q = diag([0.01,0.01,1.6,1.6,0.4,0.4]);
-s.nav.lqr.R = 30.0*eye(2);
-s.nav.lqr.K = -dlqr(s.nav.Ad, s.nav.Bd, s.nav.lqr.Q, s.nav.lqr.R);
-s.nav.lqi.I = 0.01 * [0, -1; 1, 0];
-s.nav.lqi.max_integral = 10;
-s.nav.lqi.K = [s.nav.lqr.K, s.nav.lqi.I];
+s.pos.lqr.Q = diag([0.01,0.01,1.6,1.6,0.4,0.4]);
+s.pos.lqr.R = 30.0*eye(2);
+s.pos.lqr.K = -dlqr(s.pos.Ad, s.pos.Bd, s.pos.lqr.Q, s.pos.lqr.R);
+s.pos.lqi.I = 0.01 * [0, -1; 1, 0];
+s.pos.lqi.max_integral = 10;
+s.pos.lqi.K = [s.pos.lqr.K, s.pos.lqi.I];
 
 
 % Kalman
-s.nav.kal.Q = [1e-4, 1e-4, 0.1, 0.1, 0.001, 0.001];
-s.nav.kal.R = [1e-9, 1e-9,   1,   1];
-s.nav.kal.G = eye(6);
-s.nav.kal.L = dlqe(s.nav.Ad, s.nav.kal.G, s.nav.Cd, diag(s.nav.kal.Q), diag(s.nav.kal.R));
+s.pos.kal.Q = [1e-4, 1e-4, 0.1, 0.1, 0.001, 0.001];
+s.pos.kal.R = [1e-9, 1e-9,   1,   1];
+s.pos.kal.G = eye(6);
+s.pos.kal.L = dlqe(s.pos.Ad, s.pos.kal.G, s.pos.Cd, diag(s.pos.kal.Q), diag(s.pos.kal.R));
 
 
 end

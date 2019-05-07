@@ -108,7 +108,24 @@ PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
     stateEstimate.y  = measurement.y;
 
     /* Drone configuration unused. */
-    (void)droneConfiguration;
+    (void) droneConfiguration;
 
     return stateEstimate;
 }
+
+PositionState codegenCurrentStateEstimateBlind(
+    PositionStateBlind stateEstimateBlind,
+    PositionControlSignalBlind controlSignalBlind) {
+
+    PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
+
+    stateEstimateBlind.x  = $x0;
+    stateEstimateBlind.y  = $x1;
+    stateEstimateBlind.vx = $x2;
+    stateEstimateBlind.vy = $x3;
+
+    return {PositionState{controlSignalBlind.q1, controlSignalBlind.q2,
+                          stateEstimateBlind.x, stateEstimateBlind.y,
+                          stateEstimateBlind.vx, stateEstimateBlind.vy}};
+}
+

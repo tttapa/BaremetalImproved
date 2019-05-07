@@ -16,56 +16,56 @@ p = quat_params();
 
 % Config 1: current config
 s1 = s;
-s1.nav.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s1.nav.lqr.K = 200.0*eye(2);
-s1.nav.lqr.K = -dlqr(s1.nav.Ad, s1.nav.Bd, s1.nav.lqr.Q, s1.nav.lqr.R);
-s1.nav.lqi.I = 0.001*[0,-1;1,0];
-s1.nav.lqi.max_integral = 10;
-s1.nav.lqi.K = [s1.nav.lqr.K, s1.nav.lqi.I];
+s1.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
+s1.pos.lqr.K = 200.0*eye(2);
+s1.pos.lqr.K = -dlqr(s1.pos.Ad, s1.pos.Bd, s1.pos.lqr.Q, s1.pos.lqr.R);
+s1.pos.lqi.I = 0.001*[0,-1;1,0];
+s1.pos.lqi.max_integral = 10;
+s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 
-%s1.nav.lqr.Q = diag([0.01,0.01,0.10,0.10,0.002,0.002]);
-%s1.nav.lqr.R = 30.0*eye(2);
-%s1.nav.lqr.K = -dlqr(s1.nav.Ad, s1.nav.Bd, s1.nav.lqr.Q, s1.nav.lqr.R);
-%s1.nav.lqi.I = 0.01 * [0, -1; 1, 0];
-%s1.nav.lqi.max_integral = 10;
-%s1.nav.lqi.K = [s1.nav.lqr.K, s1.nav.lqi.I];
+%s1.pos.lqr.Q = diag([0.01,0.01,0.10,0.10,0.002,0.002]);
+%s1.pos.lqr.R = 30.0*eye(2);
+%s1.pos.lqr.K = -dlqr(s1.pos.Ad, s1.pos.Bd, s1.pos.lqr.Q, s1.pos.lqr.R);
+%s1.pos.lqi.I = 0.01 * [0, -1; 1, 0];
+%s1.pos.lqi.max_integral = 10;
+%s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 
 
 % Config 2
 s2 = s;
-s2.nav.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s2.nav.lqr.K = 350.0*eye(2);
-s2.nav.lqr.K = -dlqr(s2.nav.Ad, s2.nav.Bd, s2.nav.lqr.Q, s2.nav.lqr.R);
-s2.nav.lqi.I = 0.001*[0,-1;1,0];
-s2.nav.lqi.max_integral = 10;
-s2.nav.lqi.K = [s2.nav.lqr.K, s2.nav.lqi.I];
+s2.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
+s2.pos.lqr.K = 350.0*eye(2);
+s2.pos.lqr.K = -dlqr(s2.pos.Ad, s2.pos.Bd, s2.pos.lqr.Q, s2.pos.lqr.R);
+s2.pos.lqi.I = 0.001*[0,-1;1,0];
+s2.pos.lqi.max_integral = 10;
+s2.pos.lqi.K = [s2.pos.lqr.K, s2.pos.lqi.I];
 
-%s2.nav.lqr.Q = diag([0.001,0.001,0.1,0.1,0.001,0.001]);
-%s2.nav.lqr.R = 15.0*eye(2);
-%s2.nav.lqr.K = -dlqr(s2.nav.Ad, s2.nav.Bd, s2.nav.lqr.Q, s2.nav.lqr.R);
-%s2.nav.lqi.I = 0.01 * [0, -1; 1, 0];
-%s2.nav.lqi.max_integral = 10;
-%s2.nav.lqi.K = [s2.nav.lqr.K, s2.nav.lqi.I];
+%s2.pos.lqr.Q = diag([0.001,0.001,0.1,0.1,0.001,0.001]);
+%s2.pos.lqr.R = 15.0*eye(2);
+%s2.pos.lqr.K = -dlqr(s2.pos.Ad, s2.pos.Bd, s2.pos.lqr.Q, s2.pos.lqr.R);
+%s2.pos.lqi.I = 0.01 * [0, -1; 1, 0];
+%s2.pos.lqi.max_integral = 10;
+%s2.pos.lqi.K = [s2.pos.lqr.K, s2.pos.lqi.I];
 
 
 % Config 3
 s3 = s;
-s3.nav.lqr.Q = diag([1.0,1.0,0.3,0.3,0.001,0.001]);
-s3.nav.lqr.R = 15.0*eye(2);
-s3.nav.lqr.K = -dlqr(s3.nav.Ad, s3.nav.Bd, s3.nav.lqr.Q, s3.nav.lqr.R);
-s3.nav.lqi.I = 0.01 * [0, -1; 1, 0];
-s3.nav.lqi.max_integral = 10;
-s3.nav.lqi.K = [s3.nav.lqr.K, s3.nav.lqi.I];
+s3.pos.lqr.Q = diag([1.0,1.0,0.3,0.3,0.001,0.001]);
+s3.pos.lqr.R = 15.0*eye(2);
+s3.pos.lqr.K = -dlqr(s3.pos.Ad, s3.pos.Bd, s3.pos.lqr.Q, s3.pos.lqr.R);
+s3.pos.lqi.I = 0.01 * [0, -1; 1, 0];
+s3.pos.lqi.max_integral = 10;
+s3.pos.lqi.K = [s3.pos.lqr.K, s3.pos.lqi.I];
 
 
 % Config 4
 s4 = s;
-s4.nav.lqr.Q = diag([0.01,0.01,0.3,0.3,0.001,0.001]);
-s4.nav.lqr.R = 30.0*eye(2);
-s4.nav.lqr.K = -dlqr(s4.nav.Ad, s4.nav.Bd, s4.nav.lqr.Q, s4.nav.lqr.R);
-s4.nav.lqi.I = 0.01 * [0, -1; 1, 0];
-s4.nav.lqi.max_integral = 10;
-s4.nav.lqi.K = [s4.nav.lqr.K, s4.nav.lqi.I];
+s4.pos.lqr.Q = diag([0.01,0.01,0.3,0.3,0.001,0.001]);
+s4.pos.lqr.R = 30.0*eye(2);
+s4.pos.lqr.K = -dlqr(s4.pos.Ad, s4.pos.Bd, s4.pos.lqr.Q, s4.pos.lqr.R);
+s4.pos.lqi.I = 0.01 * [0, -1; 1, 0];
+s4.pos.lqi.max_integral = 10;
+s4.pos.lqi.K = [s4.pos.lqr.K, s4.pos.lqi.I];
 
 %s1 = s3;
 %s2 = s3;
@@ -198,7 +198,7 @@ for k = 1:length(configs)
     s = configs(k);
     
     % Navigation controller
-    [controlSignal, integralWindup] = GenerateNavigationController(s);
+    [controlSignal, integralWindup] = GeneratePositionController(s);
     controlSignalElements = symbolicVectorExpressionToStrings('Position', controlSignal); % Control output
     integralWindupElements = symbolicVectorExpressionToStrings('Position', integralWindup); % Integral increment
 
@@ -212,17 +212,17 @@ for k = 1:length(configs)
         template = replace(template, tag, integralWindupElements(i));
     end
     tag = strcat('$c', num2str(k), '$maxWindup');
-    template = replace(template, tag, num2str(s.nav.lqi.max_integral));
+    template = replace(template, tag, num2str(s.pos.lqi.max_integral));
     
     % Extend automatic signature with current controller
     fprintf(outputFid,  ' *\r\n');
     fprintf(outputFid, [' * Configuration ', char(num2str(k)), ': \r\n']);
     fprintf(outputFid,  ' * Q = \r\n');
-    fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.nav.lqr.Q, 1)) '\r\n'], s.nav.lqr.Q');
+    fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.pos.lqr.Q, 1)) '\r\n'], s.pos.lqr.Q');
     fprintf(outputFid,  ' * R = \r\n');
-    fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.nav.lqr.R, 1)) '\r\n'], s.nav.lqr.R');
+    fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.pos.lqr.R, 1)) '\r\n'], s.pos.lqr.R');
     fprintf(outputFid,  ' * I = \r\n');
-    fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.nav.lqi.I, 1)) '\r\n'], s.nav.lqi.I');
+    fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.pos.lqi.I, 1)) '\r\n'], s.pos.lqi.I');
     
 end
 
