@@ -1,7 +1,6 @@
 #include <BaremetalCommunicationDef.hpp>
 #include <SharedMemoryInstances.hpp>
 
-// TODO: is this necessary, Pieter?
 /** Instance of the test struct for shared memory. */
 TestStruct testComm;
 

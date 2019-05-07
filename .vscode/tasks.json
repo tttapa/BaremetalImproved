@@ -67,7 +67,7 @@
         {
             "label": "Run CMake ZYBO Baremetal (Docker)",
             "type": "shell",
-            "command": "docker exec -it -w  ${workspaceFolder}/build baremetal-devenv cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-ZYBO-Baremetal.cmake ..",
+            "command": "docker exec -it -w  ${workspaceFolder}/build baremetal-devenv cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-ZYBO-Baremetal.cmake -DCMAKE_INSTALL_PREFIX=${workspaceFolder}/install-vivado ..",
             "windows": {
                 "command": "docker exec -it -w  /home/develop/eagle/build baremetal-devenv cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-ZYBO-Baremetal.cmake ..",
             },
