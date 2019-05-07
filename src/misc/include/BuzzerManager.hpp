@@ -121,6 +121,11 @@ class BuzzerManager {
     bool incrementWriteIndex();
 
     /**
+     * Reset the buzzer manager.
+     */
+    void init() { clearBeepQueue(); }
+
+    /**
      * Return whether there is currently an instruction playing on the buzzer.
      */
     bool isInstructionBusy() { return this->instructionBusy; }

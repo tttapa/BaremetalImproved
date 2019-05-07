@@ -13,8 +13,8 @@ ESCStartupScript escStartupScript;
 GradualThrustChangeManager gtcManager;
 
 void initMiscInstances() {
-    buzzerManager::init();
-    configManager::init();
-    escStartupScript::init();
-    gtcManager::init();
+    buzzerManager.init();
+    configManager.init();
+    escStartupScript.init(true);
+    gtcManager.init();
 }

@@ -53,6 +53,14 @@ class ESCStartupScript {
     void enable() { this->enabled = true; }
 
     /**
+     * Reset the ESC startup script with the given enabled status.
+     * 
+     * @param   enabled
+     *          Whether the startup script should be enabled.
+     */
+    void init(bool enabled);
+
+    /**
      * Returns whether the startup script is enabled.
      */
     bool isEnabled() { return this->enabled; }

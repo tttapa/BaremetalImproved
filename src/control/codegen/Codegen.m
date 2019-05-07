@@ -202,9 +202,6 @@ for k = 1:length(configs)
     controlSignalElements = symbolicVectorExpressionToStrings('Position', controlSignal); % Control output
     integralWindupElements = symbolicVectorExpressionToStrings('Position', integralWindup); % Integral increment
 
-    % Navigation observer
-    stateEstimate = GenerateNavigationObserver(s);
-    stateEstimateElements = symbolicVectorExpressionToStrings('Position', stateEstimate); % New state estimate x_hat
 
     for i = 1:length(controlSignalElements)
         tag = strcat('$c', num2str(k), '$u', num2str(i - 1));
@@ -213,10 +210,6 @@ for k = 1:length(configs)
     for i = 1:length(integralWindupElements)
         tag = strcat('$c', num2str(k), '$i', num2str(i - 1));
         template = replace(template, tag, integralWindupElements(i));
-    end
-    for i = 1:length(stateEstimateElements)
-        tag = strcat('$c', num2str(k), '$x', num2str(i - 1));
-        template = replace(template, tag, stateEstimateElements(i));
     end
     tag = strcat('$c', num2str(k), '$maxWindup');
     template = replace(template, tag, num2str(s.nav.lqi.max_integral));
@@ -232,6 +225,16 @@ for k = 1:length(configs)
     fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.nav.lqi.I, 1)) '\r\n'], s.nav.lqi.I');
     
 end
+
+% Navigation observer
+stateEstimate = GeneratePositionObserverBlind(s);
+stateEstimateElements = symbolicVectorExpressionToStrings('Position', stateEstimate); % New state estimate x_hat
+for i = 1:length(stateEstimateElements)
+    tag = strcat('$x', num2str(i - 1));
+    template = replace(template, tag, stateEstimateElements(i));
+end
+
+% Integral windup
 for i = 1:length(integralWindupElements)
     tag = strcat('$int', num2str(i - 1));
     template = replace(template, tag, integralWindupElements(i));

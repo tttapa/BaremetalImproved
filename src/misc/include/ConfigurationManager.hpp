@@ -103,4 +103,4 @@ class ConfigurationManager {
      *          Current signal to be sent to the "common motor".
      */
     void update(real_t tunerValue, real_t commonThrust);
-}
+};

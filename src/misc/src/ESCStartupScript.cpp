@@ -20,6 +20,13 @@ const float COMMON_THRUST_THRESHOLD = 0.105;
  */
 const float STARTUP_COMMON_THRUST = 0.215;
 
+void ESCStartupScript::init(bool enabled) {
+    this->enabled        = enabled;
+    this->escsRunning    = false;
+    this->shutdownActive = false;
+    this->startupActive  = false;
+}
+
 real_t ESCStartupScript::update(real_t commonThrust) {
 
     /* If the script is disabled, bypass this script. */
@@ -29,16 +36,16 @@ real_t ESCStartupScript::update(real_t commonThrust) {
     /* Begin the startup script if the ESCs are not running, and the pilot
        raises the throttle enough. */
     if (!escsRunning && commonThrust >= COMMON_THRUST_THRESHOLD) {
-        escsRunning   = true;
-        startupActive  = true;
+        escsRunning      = true;
+        startupActive    = true;
         startupStartTime = getTime();
     }
 
     /* Begin the shutdown script if the ESCs are running, and the pilot lowers
        the throttle enough. */
     if (escsRunning && commonThrust < COMMON_THRUST_THRESHOLD) {
-        escsRunning    = true;
-        shutdownActive  = true;
+        escsRunning       = true;
+        shutdownActive    = true;
         shutdownStartTime = getTime();
     }
 
@@ -50,7 +57,7 @@ real_t ESCStartupScript::update(real_t commonThrust) {
 
         /* End script. */
         startupActive = false;
-        escsRunning  = true;
+        escsRunning   = true;
     }
 
     /* Shutdown script active? */
@@ -61,7 +68,7 @@ real_t ESCStartupScript::update(real_t commonThrust) {
 
         /* End script. */
         shutdownActive = false;
-        escsRunning   = false;
+        escsRunning    = false;
     }
 
     /* No scripts are active, so are the ESCs running? */

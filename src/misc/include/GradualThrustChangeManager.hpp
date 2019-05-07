@@ -5,7 +5,7 @@ const real_t GTC_DURATION =
 
 class GradualThrustChangeManager {
   private:
-    bool isBusy;
+    bool busy;
     int counter;
     real_t thrust;
 
@@ -14,4 +14,4 @@ class GradualThrustChangeManager {
     real_t getThrust();
     void init();
     void update();
-}
+};

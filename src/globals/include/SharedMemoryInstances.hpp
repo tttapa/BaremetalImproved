@@ -1,3 +1,4 @@
+#include <BaremetalCommunicationDef.hpp>
 
 // TODO: is this necessary, Pieter?
 /** Instance of the test struct for shared memory. */

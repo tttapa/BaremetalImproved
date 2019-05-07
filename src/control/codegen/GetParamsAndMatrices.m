@@ -177,7 +177,7 @@ s.alt.kal.L = dlqe(s.alt.Ad, s.alt.kal.G, s.alt.Cd, diag(s.alt.kal.Q), diag(s.al
 %s.alt.kal.L = dlqe(s.alt.Ad, s.alt.kal.G, s.alt.Cd, diag(s.alt.kal.Q), diag(s.alt.kal.R));
 
 
-%% Navigation
+%% Position
 %TODO fs nog invullen
 % TODO: lambda?
 % s.nav.lambda = 1.2; % TODO: 3.5?
@@ -209,6 +209,30 @@ s.nav.Ad = discreteSys.A;
 s.nav.Bd = discreteSys.B;
 s.nav.Cd = discreteSys.C;
 s.nav.Dd = discreteSys.D;
+
+
+
+% Blind position
+s.nav.ABlinda = [0, 0, 1, 0;
+                 0, 0, 0, 1;
+                 0, 0, 0, 0;
+                 0, 0, 0, 0];
+
+s.nav.BBlinda = [0, 0;
+                 0, 0;
+                 0, 2*p.g;
+                 -2*p.g, 0];
+
+s.nav.CBlinda = [];
+s.nav.DBlinda = [];
+
+continuousSys = ss(s.nav.ABlinda, s.nav.BBlinda, s.nav.CBlinda, s.nav.DBlinda);
+discreteSys = c2d(continuousSys, s.att.Ts, method);
+
+s.nav.ABlindd = discreteSys.A;
+s.nav.BBlindd = discreteSys.B;
+s.nav.CBlindd = discreteSys.C;
+s.nav.DBlindd = discreteSys.D;
 
 % LQI
 

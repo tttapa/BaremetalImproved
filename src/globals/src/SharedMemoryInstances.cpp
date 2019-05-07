@@ -1,4 +1,3 @@
-#include <BaremetalCommunicationDef.hpp>
 #include <SharedMemoryInstances.hpp>
 
 // TODO: is this necessary, Pieter?

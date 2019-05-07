@@ -35,6 +35,7 @@ target_link_libraries(globals
         misc
         utilities
         communication
+        control
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)
