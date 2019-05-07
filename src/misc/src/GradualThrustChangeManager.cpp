@@ -1,4 +1,3 @@
-#include <Globals.hpp>
 #include <GradualThrustChangeManager.hpp>
 #include <MiscInstances.hpp>
 

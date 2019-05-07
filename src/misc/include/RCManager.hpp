@@ -66,7 +66,7 @@ class RCManager {
     /**
      * Reset the RC manager's RCInput.
      */
-    real_t init();
+    void init();
 
     /**
      * Set the RC manager's RCInput to the given RCInput.
