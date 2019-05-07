@@ -60,20 +60,14 @@ class ConfigurationManager {
     /**
      * Update the controller configuration based on the value of the RC tuner
      * knob.
-     * 
-     * @param   tunerValue
-     *          Current value of the RC tuner knob.
      */
-    void updateConfig(real_t tunerValue);
+    void updateConfig();
 
     /**
      * Update the wiggle counter based on the value of the RC tuner knob and
      * sound the current controller configuration if there are enough wiggles.
-     * 
-     * @param   tunerValue
-     *          Current value of the RC tuner knob.
      */
-    void updateWiggles(real_t tunerValue);
+    void updateWiggles();
 
   public:
     /**
@@ -101,10 +95,8 @@ class ConfigurationManager {
      * knob. The configuration can be changed if the common thrust is near zero.
      * However, the wiggle will always work.
      * 
-     * @param   tunerValue
-     *          Current value of the RC tuner knob.
      * @param   commonThrust
      *          Current signal to be sent to the "common motor".
      */
-    void update(real_t tunerValue, real_t commonThrust);
+    void update(real_t commonThrust);
 };

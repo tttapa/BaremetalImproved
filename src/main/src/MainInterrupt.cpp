@@ -105,10 +105,14 @@ void updateMainFSM() {
        current state of the controllers. */
     AttitudeControlSignal uxyz;
     real_t uc;
+    static ucLast = 0.0;    ///< Remember last cycle's common thrust for GTC.
     switch (rcManager.getFlightMode()) {
         case FlightMode::MANUAL:
             // TODO: arming check
-            // TODO: gradual thrust change if last mode was altitude-hold
+
+            /* Start gradual thrust change if last mode was altitude hold. */
+            gtcManager.start(ucLast);
+
             /* Common thrust comes directly from the RC. */
             uc = rcManager.getThrottle();
 
@@ -137,6 +141,8 @@ void updateMainFSM() {
             break;
         case FlightMode::AUTONOMOUS:
             // TODO: when should we initGround or initAir?
+            if(previousFlightMode == FlightMode::ALTITUDE_HOLD)
+                autonomousController.initAir(Position{0.5, 0.5});
             // TODO: should we tell IMP to reset their measurement?
             if (hasNewIMPMeasurement) {
 
@@ -191,17 +197,34 @@ void updateMainFSM() {
             break;
     }
 
+    /* Remember common thrust for next clock cycle, which is needed to start the
+       Gradual Thrust Change (GTC). */
+    ucLast = uc;
+
+    /* Pass the common thrust through the ESC startup script if it's enabled. */
+    if(escStartupScript.isEnabled())
+        uc = escStartupScript.update(uc);
+
+    /* Gradual thrust change active? */
+    if(gtcManager.isBusy()) {}
+        gtcManager.update();
+        uc = gtcManager.getThrust();
+    }
+
     /* Transform the motor signals and output to the motors. */
     MotorDutyCycles dutyCycles = transformAttitudeControlSignal(uxyz, uc);
     outputMotorPWM(dutyCycles.v0, dutyCycles.v1, dutyCycles.v2, dutyCycles.v2);
 
+    /* Update the controller configuration if the common thrust is near zero. */
+    configManager.update(uc);
+
+    /* Update the buzzer. */
+    buzzerManager.update();
+
     // TODO: kill if the drone tilts too far? (droneControllersActivated flag)
-    // TODO: gradual thrust change
-    // TODO: update buzzer
-    // TODO: escs startup script
-    // TODO: update configuration
 
     /* Update input biases. */
+    // TODO: remember input bias so we can fly immediately in autonomous
     inputBias.updatePitchBias(attitudeController.getReferenceEuler().pitch,
                               rcManager.getFlightMode());
     inputBias.updateRollBias(attitudeController.getReferenceEuler().roll,

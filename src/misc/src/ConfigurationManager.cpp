@@ -47,17 +47,19 @@ void ConfigurationManager::previousConfiguration() {
         controllerConfiguration = NUM_CONTROLLER_CONFIGS;
 }
 
-void ConfigurationManager::update(real_t tunerValue, real_t commonThrust) {
+void ConfigurationManager::update(real_t commonThrust) {
 
     /* Only update the configuration if the common thrust is near zero. */
     if (commonThrust < 0.03)
-        updateConfig(tunerValue);
+        updateConfig();
 
     /* Update the wiggles in all cases. */
-    updateWiggles(tunerValue);
+    updateWiggles();
 }
 
-void ConfigurationManager::updateConfig(real_t tunerValue) {
+void ConfigurationManager::updateConfig() {
+
+    real_t tunerValue = rcManager.getTuner();
 
     /* Only do configuration if we're in the changing zone. */
     if (tunerValue < CONFIG_UPPER_THRESHOLD &&
@@ -92,7 +94,9 @@ void ConfigurationManager::updateConfig(real_t tunerValue) {
     }
 }
 
-void ConfigurationManager::updateWiggles(real_t tunerValue) {
+void ConfigurationManager::updateWiggles() {
+
+    real_t tunerValue = rcManager.getTuner();
 
     /* Only do wiggles if the buzzer is not busy. */
     if (buzzerManager.isInstructionBusy())

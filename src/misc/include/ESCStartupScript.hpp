@@ -1,3 +1,4 @@
+#pragma once
 #include <real_t.h>
 
 /** The startup script lasts 5.0 seconds. */

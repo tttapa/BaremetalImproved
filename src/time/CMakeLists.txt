@@ -1,4 +1,3 @@
-# TODO: Bas moved this to vivado-src, so idk what needs to change
 # Create library target and specify the implementation files to compile.
 add_library(time 
     src/Time.cpp

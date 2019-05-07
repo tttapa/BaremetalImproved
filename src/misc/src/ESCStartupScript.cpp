@@ -1,4 +1,5 @@
 #include <ESCStartupScript.hpp>
+#include <MiscInstances.hpp>
 #include <Time.hpp>
 
 void ESCStartupScript::init(bool enabled) {
@@ -39,6 +40,9 @@ real_t ESCStartupScript::update(real_t commonThrust) {
         /* End script. */
         startupActive = false;
         escsRunning   = true;
+
+        /* Start gradual thrust change from the current common thrust. */
+        gtcManager.start(STARTUP_COMMON_THRUST);
     }
 
     /* Shutdown script active? */

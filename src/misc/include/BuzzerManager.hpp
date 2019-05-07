@@ -165,9 +165,6 @@ class BuzzerManager {
     /**
      * Updates the signal sent to the buzzer and the beep queue based on the
      * current time.
-     * 
-     * @param   currentTime
-     *          Current time in seconds.
      */
-    void updateBuzzer(float currentTime);
+    void updateBuzzer();
 };

@@ -1,4 +1,6 @@
 #include <BaremetalCommunicationDef.hpp>
+#include <SharedStruct.hpp>
+#include <LogEntry.h>
 
 // TODO: is this necessary, Pieter?
 /** Instance of the test struct for shared memory. */

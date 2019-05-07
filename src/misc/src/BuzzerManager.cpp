@@ -1,6 +1,7 @@
 // Original: BareMetal/src/control/buzzercodesiel.c
 #include "../../../src-vivado/output/buzzer/include/Buzzer.hpp"
 #include <BuzzerManager.hpp>
+#include <Time.hpp>
 
 /** Armed beep 1 lasts 0.30 seconds. */
 static constexpr  float ARMED_DURATION1 = 0.30;
@@ -235,10 +236,10 @@ bool BuzzerManager::tryAddingNavigationErrorBeep() {
     return true;
 }
 
-void BuzzerManager::updateBuzzer(float currentTime) {
+void BuzzerManager::updateBuzzer() {
 
     /* If there's no instruction currently running... */
-    float elapsedTime = currentTime - this->beepStartTime;
+    float elapsedTime = getTime() - this->beepStartTime;
     if (!(this->instructionBusy &&
           elapsedTime <= this->currentInstruction.duration)) {
 
