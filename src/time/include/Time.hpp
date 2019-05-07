@@ -1,10 +1,6 @@
 #pragma once
 #include <real_t.h>
-
-/**********************************************************************************************************************
-*   This file maintains the drone's internal clock.
-*   Author:
-***********************************************************************************************************************/
+#include <cstdint>
 
 /** Clock is updated when interrupts occur at 238 Hz. */
 const real_t TICKS_PER_SECOND = 238.0;
@@ -18,9 +14,14 @@ void incrementTickCount();
 /**
  * Get the tick counter;
  */
-int getTickCount();
+uint32_t getTickCount();
 
 /**
  * Get the time since startup in seconds.
  */
 real_t getTime();
+
+/**
+ * Get the number of milliseconds since boot.
+ */
+uint64_t getMillis();
