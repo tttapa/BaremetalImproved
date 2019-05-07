@@ -1,5 +1,5 @@
 #include <ConfigurationManager.hpp>
-#include <MiscInstances.hpp>  // TODO: maybe ConfigManager(buzzerManager)?
+#include <MiscInstances.hpp>
 #include <Time.hpp>
 
 /** 3 wiggles to sound configuration. */
@@ -86,7 +86,7 @@ void ConfigurationManager::updateConfig(real_t tunerValue) {
            last configuration change. */
         if (getTime() - changedConfigurationTime >= AFTER_CONFIG_CHANGE_DELAY) {
             buzzerManager.addWarningBeeps();
-            warningBeepsStartTime                  = getTime();
+            warningBeepsStartTime                 = getTime();
             this->isWaitingForConfigurationChange = true;
         }
     }

@@ -216,7 +216,22 @@ class PositionController {
         PositionState stateEstimate, PositionMeasurement measurement,
         Quaternion orientation, real_t timeElapsed, int droneConfiguration);
 
-    static PositionStateBlind codegenCurrentStateEstimateBlind();
+    /**
+     * Calculate the current position estimate using the code generator. This
+     * function should be used during the first stage of takeoff and the second
+     * stage of landing when the drone is too close to the ground to measure
+     * the position.
+     * 
+     * @param   stateEstimateBlind
+     *          Last four components of the position controller's state
+     *          estimate, namely x, y, vx and vy.
+     * @param   controlSignalBlind
+     *          Struct containing the quaternion components q1 and q2 of the
+     *          drone's orientation estimate.
+     */
+    static PositionState codegenCurrentStateEstimateBlind(
+        PositionStateBlind stateEstimateBlind,
+        PositionControlSignalBlind controlSignalBlind);
 
     /**
      * Shift the position controller's estimate of the position by the given
@@ -270,4 +285,12 @@ class PositionController {
      */
     void updateObserver(Quaternion orientation, real_t currentTime,
                         PositionMeasurement measurement);
+
+    /**
+     * Update the position observer 
+     * 
+     * @param   orientation
+     *          Current orientation of the drone.
+     */
+    void updateObserverBlind(Quaternion orientation);
 };

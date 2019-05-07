@@ -3,7 +3,7 @@
 #include <Time.hpp>
 
 /** Gradual thrust change lasts 1.0 seconds. */
-const real_t GTC_DURATION = (TICKS_PER_SECOND * 1);
+const real_t GTC_DURATION = TICKS_PER_SECOND * 1.0;
 
 void GradualThrustChangeManager::init() {
     this->busy    = false;

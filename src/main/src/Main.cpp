@@ -10,7 +10,6 @@
 #include "../../../src-vivado/main/include/Platform.hpp"
 #include "../../../src-vivado/sensors/imu/include/IMU.hpp"
 #include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
-#include "../../init/include/Init.hpp"
 #include <SharedMemoryInstances.hpp>
 
 /**

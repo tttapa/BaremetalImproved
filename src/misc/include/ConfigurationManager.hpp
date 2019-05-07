@@ -19,10 +19,10 @@
  * There are 5 controller configurations, the last of which being the
  * calibration mode.
  */
-constexpr int NUM_CONTROLLER_CONFIGS = 5;
+const int NUM_CONTROLLER_CONFIGS = 5;
 
 /** The final controller configuration (5) is calibration mode. */
-constexpr int CALIBRATION_MODE = NUM_CONTROLLER_CONFIGS;
+const int CALIBRATION_MODE = NUM_CONTROLLER_CONFIGS;
 
 class ConfigurationManager {
   private:

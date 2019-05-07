@@ -6,7 +6,7 @@
  * The largest reference quaternion component that can be sent to the attitude
  * control system is 0.0436.
  */
-const real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
+static constexpr real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
 
 real_t dist(Position position1, Position position2) {
     return std::sqrt(distsq(position1, position2));
@@ -83,4 +83,19 @@ void PositionController::updateObserver(Quaternion orientation,
 
     /* Store the measurement time. */
     this->lastMeasurementTime = currentTime;
+}
+
+void PositionController::updateObserverBlind(Quaternion orientation) {
+
+    PositionStateBlind stateBlind = {
+        this->stateEstimate.x,
+        this->stateEstimate.y,
+        this->stateEstimate.vx,
+        this->stateEstimate.vy,
+    };
+    PositionControlSignalBlind controlSignalBlind = {orientation[1],
+                                                     orientation[2]};
+
+    this->stateEstimate =
+        codegenCurrentStateEstimateBlind(stateBlind, controlSignalBlind);
 }

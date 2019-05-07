@@ -1,5 +1,24 @@
 #include <real_t.h>
 
+/** The startup script lasts 5.0 seconds. */
+const float STARTUP_DURATION = 5.0;
+
+/** The shutdown script lasts 0.5 seconds. */
+const float SHUTDOWN_DURATION = 0.50;
+
+/**
+ * The startup script begins as soon as the common thrust exceeds 0.105, or a
+ * 50% PWM duty cycle. The shutdown script will begin as soon as it goes below
+ * this value. During the shutdown script this value will be held for 0.5 s.
+ */
+const float COMMON_THRUST_THRESHOLD = 0.105;
+
+/**
+ * During the duration of the startup script, a common thrust of 0.215 or a 55%
+ * PWM duty cycle will be sent to the ESCs.
+ */
+const float STARTUP_COMMON_THRUST = 0.215;
+
 /**
  * Class to manage the startup and shutdown of the ESCs. When commercial ESCs
  * are used, this class should be disabled. In this case the update() method

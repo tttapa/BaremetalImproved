@@ -6,7 +6,7 @@
  * The largest control signal that can be sent to the "yaw torque motor" is
  * 0.10.
  */
-const real_t YAW_SIGNAL_CLAMP = 0.10;
+static constexpr real_t YAW_SIGNAL_CLAMP = 0.10;
 
 /**
  * The most the drone can tilt is 0.1745 rad (10 deg). If the hardware constants
@@ -14,16 +14,16 @@ const real_t YAW_SIGNAL_CLAMP = 0.10;
  * (pitch) will be 10 degrees when the pilot pushes the tilt stick completely to
  * the right (downwards).
  */
-const real_t MAXIMUM_REFERENCE_TILT = 0.1745;
+static constexpr real_t MAXIMUM_REFERENCE_TILT = 0.1745;
 
 /** The maximum speed of the reference yaw is 0.80 rad/s. */
-const real_t RC_REFERENCE_YAW_MAX_SPEED = 0.80;
+static constexpr real_t RC_REFERENCE_YAW_MAX_SPEED = 0.80;
 
 /** The threshold to start decreasing the reference yaw is -0.05. */
-const real_t RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
+static constexpr real_t RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
 
 /** The threshold to start increasing the reference yaw is +0.05. */
-const real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
+static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 
 MotorDutyCycles
 transformAttitudeControlSignal(AttitudeControlSignal controlSignal,

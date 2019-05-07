@@ -6,22 +6,22 @@
  * The largest marginal control signal that can be sent to the "common motor"
  * is 0.10.
  */
-const real_t MARGINAL_SIGNAL_CLAMP = 0.10;
+static constexpr real_t MARGINAL_SIGNAL_CLAMP = 0.10;
 
 /** The maximum height at which the drone may hover is 1.75 meters. */
-const real_t MAXIMUM_REFERENCE_HEIGHT = 1.75;
+static constexpr real_t MAXIMUM_REFERENCE_HEIGHT = 1.75;
 
 /** The minimum height at which the drone may hover is 0.25 meters. */
-const real_t MINIMUM_REFERENCE_HEIGHT = 0.25;
+static constexpr real_t MINIMUM_REFERENCE_HEIGHT = 0.25;
 
 /** The maximum speed of the reference height is 0.25 m/s. */
-const real_t RC_HEIGHT_REFERENCE_MAX_SPEED = 0.25;
+static constexpr real_t RC_HEIGHT_REFERENCE_MAX_SPEED = 0.25;
 
 /** The threshold to start decreasing the reference height is 0.25. */
-const real_t RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.25;
+static constexpr real_t RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.25;
 
 /** The threshold to start increasing the reference height is 0.75. */
-const real_t RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.75;
+static constexpr real_t RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.75;
 
 AltitudeControlSignal
 AltitudeController::clampControlSignal(AltitudeControlSignal controlSignal) {

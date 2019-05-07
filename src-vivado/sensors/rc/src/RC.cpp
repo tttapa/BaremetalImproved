@@ -67,19 +67,19 @@ float getRCValue(int address) {
 }
 
 /**
- * Returns the flight mode in {0,1,2}.
+ * Returns the flight mode as a FlightMode.
  * 
- * @return  0
+ * @return  FlightMode::MANUAL
  *          If the value of the flight mode is in the first third of the RC
  *          range.
- * @return  1
+ * @return  FlightMode::ALTITUDE_HOLD
  *          If the value of the flight mode is in the second third of the RC
  *          range.
- * @return  2
+ * @return  FlightMode::AUTONOMOUS
  *          If the value of the flight mode is in the last third of the RC
  *          range.
  */
-int getFlightMode(float flightModeValue) {
+FlightMode getFlightMode(float flightModeValue) {
 
     float threshold1 = (RC_HIGH - RC_LOW) * 1.0 / 3.0;
     float threshold2 = (RC_HIGH - RC_LOW) * 2.0 / 3.0;
@@ -110,16 +110,16 @@ int getFlightMode(float flightModeValue) {
 }
 
 /**
- * Returns the Wireless Power Transfer mode in {0,1}.
+ * Returns the Wireless Power Transfer mode as a WPTMode.
  * 
- * @return  0
+ * @return  WPTMode::OFF
  *          If the value of the flight mode is in the first half of the RC
  *          range.
- * @return  1
+ * @return  WPTMode::ON
  *          If the value of the flight mode is in the second half of the RC
  *          range.
  */
-int getWPTMode(float wptValue) {
+WPTMode getWPTMode(float wptValue) {
 
     int newWPTMode;
     if (wptValue < RC_MID)
@@ -237,7 +237,7 @@ RCValues readRC() {
 
     throttle = throttle * MAX_THROTTLE;
 
-    return RCValues{
+    return RCInput{
         throttle,
         pitch,
         roll,

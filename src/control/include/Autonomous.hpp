@@ -29,7 +29,7 @@ struct AutonomousOutput {
     /** Whether the position controller should be updated. */
     bool updatePositionController;
 
-    /** // TODO: trust accelerometer
+    /**
      * If this is true, then the drone should trust the accelerometer's ax and
      * ay data to determine the position.
      */

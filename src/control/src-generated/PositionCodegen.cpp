@@ -70,13 +70,13 @@
  * If the drone's velocity changes by more than 0.30 m/s between measurements,
  * and the velocity is moving away from 0 m/s, then reject the jump.
  */
-const real_t V_THRESHOLD_AWAY = 0.30;
+static constexpr real_t V_THRESHOLD_AWAY = 0.30;
 
 /**
  * If the drone's velocity changes by more than 0.50 m/s between measurements,
  * and the velocity is moving toward 0 m/s, then reject the jump.
  */
-const real_t V_THRESHOLD_TOWARDS = 0.50;
+static constexpr real_t V_THRESHOLD_TOWARDS = 0.50;
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,

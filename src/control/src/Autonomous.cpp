@@ -11,32 +11,32 @@
  * If the drone is stays with 0.10 meters of its destination for a period of
  * time, then it will have converged on its target.
  */
-const real_t CONVERGENCE_DISTANCE = 0.10;
+static constexpr real_t CONVERGENCE_DISTANCE = 0.10;
 
 /**
  * If the drone is stays with a certain distance of its destination for 1
  * second, then it will have converged on its target.
  */
-const real_t CONVERGENCE_DURATION = 1.0;
+static constexpr real_t CONVERGENCE_DURATION = 1.0;
 
 /**
  * The blind stage of the landing, meaning the sonar is not accurate anymore,
  * lasts 2.5 seconds.
  */
-const real_t LANDING_BLIND_DURATION = 2.5;
+static constexpr real_t LANDING_BLIND_DURATION = 2.5;
 
 /**
  * During the blind stage of the landing, meaning the sonar is not accurate
  * anymore, a marginal signal of 1% below the hovering signal will be sent to
  * the "common motor".
  */
-const real_t LANDING_BLIND_MARGINAL_THRUST = -0.01;
+static constexpr real_t LANDING_BLIND_MARGINAL_THRUST = -0.01;
 
 /**
  * In the first stage of the landing procedure, when the sonar is accurate, the
  * reference height will decrease until it hits 0.25 meters.
  */
-const real_t LANDING_LOWEST_REFERENCE_HEIGHT = 0.25;
+static constexpr real_t LANDING_LOWEST_REFERENCE_HEIGHT = 0.25;
 ;
 
 /**
@@ -44,28 +44,27 @@ const real_t LANDING_LOWEST_REFERENCE_HEIGHT = 0.25;
  * reference height will decrease at a speed of 0.25 m/s until it hits the
  * minimum value, see getLandingLowestReferenceHeight().
  */
-const real_t LANDING_REFERENCE_HEIGHT_DECREASE_SPEED = 0.25;
+static constexpr real_t LANDING_REFERENCE_HEIGHT_DECREASE_SPEED = 0.25;
 
 /**
  * If the autonomous controller is in the state LOITERING, NAVIGATING or
  * CONVERGING, then the drone will land if the throttle value goes below
  * 0.05.
  */
-const real_t LANDING_THROTTLE = 0.05;
+static constexpr real_t LANDING_THROTTLE = 0.05;
 
 /**
  * The autonomous controller will loiter for 15 seconds before navigating.
  */
-const real_t LOITER_DURATION = 15.0;
+static constexpr real_t LOITER_DURATION = 15.0;
 
 /**
  * If the Cryptography team fails to decrypt the image sent by the Image
  * Processing team 3 times in a row, then it's likely that the drone is not
  * directly above the QR code. Therefore, it will start searching for it.
  */
-const int MAX_QR_ERROR_COUNT = 3;
+static constexpr int MAX_QR_ERROR_COUNT = 3;
 
-// TODO: either 25 for radius 2 or 49 for radius 3
 /**
  * If the Cryptography team fails to decrypt the image sent by the Image
  * Processing team too many times, then it's likely that the drone is not 
@@ -73,38 +72,38 @@ const int MAX_QR_ERROR_COUNT = 3;
  * 25 failed tiles (radius 2 around proposed QR position), the drone will stop
  * searching and attempt to land.
  */
-const int MAX_QR_SEARCH_COUNT = 25;
+static constexpr int MAX_QR_SEARCH_COUNT = 25;
 
 /**
  * When the drone is navigating in autonomous mode, the reference will travel at
  * a speed of 0.5 m/s.
  */
-const real_t NAVIGATION_SPEED = 0.5;
+static constexpr real_t NAVIGATION_SPEED = 0.5;
 
 /** The normal reference height for the drone in autonomous mode is 1 meter. */
-const real_t REFERENCE_HEIGHT = 1.0;
+static constexpr real_t REFERENCE_HEIGHT = 1.0;
 
 /**
  * The blind stage of the takeoff, meaning the sonar is not yet accurate,
  * lasts 0.5 seconds.
  */
-const real_t TAKEOFF_BLIND_DURATION = 0.5;
+static constexpr real_t TAKEOFF_BLIND_DURATION = 0.5;
 
 /**
  * During the blind stage of the takeoff, meaning the sonar is not yet accurate,
  * a marginal signal of 3% above the hovering signal will be sent to the "common
  * motor".
  */
-const real_t TAKEOFF_BLIND_MARGINAL_THRUST = 0.03;
+static constexpr real_t TAKEOFF_BLIND_MARGINAL_THRUST = 0.03;
 
 /** The entire takeoff will last 2 seconds. */
-const real_t TAKEOFF_DURATION = 2.0;
+static constexpr real_t TAKEOFF_DURATION = 2.0;
 
 /**
  * If the autonomous controller is in the state IDLE_GROUND, then the drone
  * will take off if the throttle value exceeds 0.50.
  */
-const real_t TAKEOFF_THROTTLE = 0.50;
+static constexpr real_t TAKEOFF_THROTTLE = 0.50;
 
 bool isValidSearchTarget(Position position) {
     return position.x >= X_MIN && position.x <= X_MAX && position.y >= Y_MIN &&
@@ -155,8 +154,6 @@ void AutonomousController::startLanding(bool shouldLandAtCurrentPosition,
                                         Position currentPosition) {
     if (shouldLandAtCurrentPosition)
         setNextTarget(currentPosition);
-
-    // TODO: landing script init
     setAutonomousState(LANDING);
 }
 
@@ -237,12 +234,16 @@ void AutonomousController::updateQRFSM() {
             /* Reset error count and search count. */
             this->qrErrorCount    = 0;
             this->qrTilesSearched = 0;
+            
             // TODO: what do we do with unknown QR data?
 
             /* Switch this FSM to QR_IDLE. */
             qrComm.setQRStateIdle();
             break;
         case QRFSMState::ERROR:
+            // TODO: instead of trying 3 times, check if there's a QR Code
+            // TODO: if QR code, then try up to 15 times, then quit (land)
+            // TODO: if no QR code (3 times?), then start searching
             this->qrErrorCount++;
             if (this->qrErrorCount <= MAX_QR_ERROR_COUNT) {
                 /* Tell IMP to try again. */
@@ -339,13 +340,15 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
             break;
 
         case PRE_TAKEOFF:
-            /* Instruction: // TODO: startup script */
-            // TODO: write Enes startup script somewhere else
-            // TODO: call it during manual mode
-            // TODO: call Enes startup script here too
+            /* Instruction: send startup thrust until startup has finished. */
+            bypassAltitudeController = true;
+            commonThrust             = STARTUP_COMMON_THRUST;
+            updatePositionController = false;
 
             /* Switch to TAKEOFF when PRE_TAKEOFF script has finished. */
-            setAutonomousState(TAKEOFF);
+            if (escStartupScript.areESCsRunning() &&
+                !escStartupScript.isStartupActive())
+                setAutonomousState(TAKEOFF);
             break;
 
         case TAKEOFF:

@@ -5,8 +5,8 @@
 #include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
 #include <BaremetalCommunicationDef.hpp>
 #include <ControllerInstances.hpp>
-#include <Globals.hpp>
 #include <MainInterrupt.hpp>
+#include <MiscInstances.hpp>
 #include <SharedMemoryInstances.hpp>
 #include <TiltCorrection.hpp>
 
@@ -27,6 +27,31 @@ real_t calculateYawJump(float yaw) {
 
     /* Return the yaw jump. */
     return modYaw - yaw;
+}
+
+void updateLEDs(bool isInterruptRunning, bool isControllerArmed,
+                bool isAutonomous, bool isWPTActive) {
+
+    int ledOutput = 0x0;
+
+    /* LED 0 is lit when the interrupts are running too slowly. */
+    if (isInterruptRunning)
+        ledOutput += 0x1;
+
+    /* LED 1 is lit when the controller is armed. */
+    if (isControllerArmed)
+        ledOutput += 0x2;
+
+    /* LED 2 is lit when the drone is in autonomous mode. */
+    if (isAutonomous)
+        ledOutput += 0x4;
+
+    /* LED 3 is lit when wireless power transfer is active. */
+    if (isWPTActive)
+        ledOutput += 0x8;
+
+    /* Write value to LEDs. */
+    writeValueToLEDs(ledOutput);
 }
 
 // Called by src-vivado every 238 Hz after initialization/calibration is complete.
@@ -125,12 +150,11 @@ void updateMainFSM() {
 
                     /* Calculate current position state estimate. */
                     if (output.trustAccelerometerForPosition)
-                        // TODO: accelerometer estimate
-                        ;
-                    else
-                        positionController.updateObserver(
-                            attitudeController.getOrientationEstimate(),
-                            getTime(), {correctedPositionMeasurement});
+                        positionController.updateObserverBlind();
+                    ;
+                    else positionController.updateObserver(
+                        attitudeController.getOrientationEstimate(), getTime(),
+                        {correctedPositionMeasurement});
 
                     /* Calculate control signal. */
                     q12ref = positionController.updateControlSignal(
@@ -200,10 +224,17 @@ void update() {
     /* Update the drone's clock. */
     incrementTickCount();
 
+    /* Whether an interrupt is currently running. */
+    static bool isInterruptRunning = false;
     /* IMU bias should be calculated before use. */
     static bool isIMUCalibrated = false;
     /* AHRS should calibrate with accelerometer before use. */
     static bool isAHRSInitialized = false;
+
+    /* Update LEDs. */
+    updateLEDs(isInterruptRunning, armedManager.isArmed(),
+               rcManager.getFlightMode() == FlightMode::AUTONOMOUS,
+               rcManager.getWPTMode() == WPTMode::ON);
 
     /* Phase 1: Calibrate IMU. */
     if (!isIMUCalibrated) {
@@ -219,6 +250,9 @@ void update() {
         updateMainFSM();
     }
 
-    /* Test pin low to probe length of interrupt. */
-    writeValueToTestPin(false);
+    /* Output to LEDS. */
+    updateLEDs()
+
+        /* Test pin low to probe length of interrupt. */
+        writeValueToTestPin(false);
 }

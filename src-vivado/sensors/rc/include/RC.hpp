@@ -1,5 +1,5 @@
 #pragma once
-#include <Globals.hpp>
+#include <RCManager.hpp>
 
 /**
  * Read the RC voltages from the registers.
@@ -9,4 +9,4 @@
  *          [-0.5,+0,5], and for the flight mode in {0,1,2} and WPT mode in
  *          {0,1}.
  */
-RCValues readRC();
+RCInput readRC();
