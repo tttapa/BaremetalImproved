@@ -80,7 +80,7 @@ target_link_libraries(control
         utilities
     PRIVATE
         communication
-        globals
+        instances
         time
 )
 
