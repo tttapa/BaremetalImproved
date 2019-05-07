@@ -3,7 +3,7 @@ add_library(misc
     src/BuzzerManager.cpp
     src/ConfigurationManager.cpp
     src/ESCStartupScript.cpp
-    src/GradualThrustChange.cpp
+    src/GradualThrustChangeManager.cpp
     src/WPT.cpp
 )
 

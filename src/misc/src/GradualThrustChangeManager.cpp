@@ -1,19 +1,14 @@
 #include <Globals.hpp>
 #include <GradualThrustChangeManager.hpp>
 
-bool GradualThrustChangeManager::isBusy() {
-    return this->isBusy;
-}
+bool GradualThrustChangeManager::isBusy() { return this->isBusy; }
 
-real_t GradualThrustChangeManager::getThrust() {
-    return this->thrust;
-}
+real_t GradualThrustChangeManager::getThrust() { return this->thrust; }
 
-void GradualThrustChangeManager::init()
-    AltitudeControlSignal controlSignal) {
+void GradualThrustChangeManager::init() {
     this->isBusy  = true;
     this->counter = 0;
-    this->thrust  = controlSignal.ut;
+    this->thrust  = alt_thrust; //TODO: hoe dit invullen? 
 }
 
 void GradualThrustChangeManager::update() {
