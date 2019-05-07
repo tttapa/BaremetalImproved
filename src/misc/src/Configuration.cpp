@@ -3,7 +3,7 @@
 /** Current controller configuration in {1,2,...,NUM_CONTROLLER_CONFIGS}. */
 static int controllerConfiguration = 1;
 
-Configuration getControllerConfiguration() { return controllerConfiguration; }
+int getControllerConfiguration() { return controllerConfiguration; }
 
 void initControllerConfiguration() { controllerConfiguration = 1; }
 

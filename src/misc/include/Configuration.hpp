@@ -15,15 +15,15 @@
  * There are 5 controller configurations, the last of which being the
  * calibration mode.
  */
-constexpr NUM_CONTROLLER_CONFIGS = 5;
+constexpr int NUM_CONTROLLER_CONFIGS = 5;
 
 /** The final controller configuration (5) is calibration mode. */
-constexpr CALIBRATION_MODE = NUM_CONTROLLER_CONFIGS;
+constexpr int CALIBRATION_MODE = NUM_CONTROLLER_CONFIGS;
 
 /**
  * Returns the current controller configuration.
  */
-Configuration getControllerConfiguration();
+int getControllerConfiguration();
 
 /**
  * Resets the controller configuration to 1.

@@ -35,6 +35,7 @@ target_link_libraries(misc
     PUBLIC 
         time
         communication
+        control
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)
