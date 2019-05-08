@@ -68,7 +68,7 @@ struct AttitudeControlSignal {
  * 
  * @return  The duty cycles to the four motors.
  */
-MotorDutyCycles
+MotorSignals
 transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
                                real_t commonThrust);
 

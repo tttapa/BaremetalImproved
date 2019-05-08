@@ -219,14 +219,14 @@ void updateMainFSM() {
     setCommonThrust(uc);
 
     /* Transform the motor signals and output to the motors. */
-    MotorDutyCycles dutyCycles = transformAttitudeControlSignal(uxyz, uc);
+    MotorSignals motorSignals = transformAttitudeControlSignal(uxyz, uc);
     printf("Time %.2f\t, mode %d\t, uc %.2f\t, ux %.2f\t, uy %.2f\t, uz %.2f, "
            "v0 %.2f\t, v1 %.2f\t, v2 %.2f\t, v3 %.2f\n",
            getTime(), (int)(getFlightMode()), uc, uxyz.ux, uxyz.uy, uxyz.uz,
-           dutyCycles.v0, dutyCycles.v1, dutyCycles.v2, dutyCycles.v3);
-    setDutyCycles(dutyCycles);
+           motorSignals.v0, motorSignals.v1, motorSignals.v2, motorSignals.v3);
+    setMotorSignals(motorSignals);
     if (armedManager.isArmed())
-        outputMotorPWM(dutyCycles);
+        outputMotorPWM(motorSignals);
 
     /* Update the controller configuration if the common thrust is near zero. */
     configManager.update(uc);

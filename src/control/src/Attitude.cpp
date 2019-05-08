@@ -26,10 +26,10 @@ static constexpr real_t RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
 /** The threshold to start increasing the reference yaw is +0.05. */
 static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 
-MotorDutyCycles
+MotorSignals
 transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
                                real_t commonThrust) {
-    return MotorDutyCycles{
+    return MotorSignals{
         commonThrust + controlSignal.ux + controlSignal.uy - controlSignal.uz,
         commonThrust + controlSignal.ux - controlSignal.uy + controlSignal.uz,
         commonThrust - controlSignal.ux + controlSignal.uy + controlSignal.uz,

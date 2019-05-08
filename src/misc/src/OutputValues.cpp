@@ -4,12 +4,12 @@
 real_t commonThrust;
 
 /** Current duty cycles sent to the 4 ESCs. */
-MotorDutyCycles dutyCycles;
+MotorSignals motorSignals;
 
 real_t getCommonThrust() { return commonThrust; }
 
-MotorDutyCycles getDutyCycles() { return dutyCycles; }
+MotorSignals getMotorSignals() { return motorSignals; }
 
 void setCommonThrust(real_t value) { commonThrust = value; }
 
-void setDutyCycles(MotorDutyCycles value) { dutyCycles = value; }
+void setMotorSignals(MotorSignals value) { motorSignals = value; }

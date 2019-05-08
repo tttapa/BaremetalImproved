@@ -27,7 +27,7 @@ struct LEDInstruction {
  * (front-left, front-right, back-left, back-right). The four values should
  * be in [0, 1].
  */
-struct MotorDutyCycles {
+struct MotorSignals {
     real_t v0;  ///< Front-left motor duty cycle in [0,1].
     real_t v1;  ///< Front-right motor duty cycle in [0,1].
     real_t v2;  ///< Back-left motor duty cycle in [0,1].

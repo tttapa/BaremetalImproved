@@ -5,8 +5,8 @@
 // TODO: comment
 real_t getCommonThrust();
 
-MotorDutyCycles getDutyCycles();
+MotorSignals getMotorSignals();
 
 void setCommonThrust(real_t value);
 
-void setDutyCycles(MotorDutyCycles value);
+void setMotorSignals(MotorSignals value);

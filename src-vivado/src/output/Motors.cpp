@@ -26,10 +26,10 @@ uint32_t * const DUTY_CYCLE_2_ADDR = ((uint32_t *) XPAR_PWM_AXI_TRIPLE_0_0) + 3;
 uint32_t * const DUTY_CYCLE_3_ADDR = ((uint32_t *) XPAR_PWM_AXI_TRIPLE_3_0) + 1;
 
 /** Lowest PWM duty cycle sent to the ESCs. */
-const float MIN_DUTY_CYCLE = 45.0;
+const float MIN_DUTY_CYCLE = 0.45;
 
 /** Highest PWM duty cycle sent to the ESCs. */
-const float MAX_DUTY_CYCLE = 92.0;
+const float MAX_DUTY_CYCLE = 0.92;
 
 /** Dead PWM signal is always off. */
 const float DEAD_DUTY_CYCLE = 0.0;
@@ -37,12 +37,14 @@ const float DEAD_DUTY_CYCLE = 0.0;
 /** PWM frequency sent to the ESCs. */
 const float PWM_FREQUENCY = 500.0;
 
-void outputMotorPWM(MotorDutyCycles dutyCycles) {
+void outputMotorPWM(MotorSignals motorSignals) {
 
-    float v0 = dutyCycles.v0;
-    float v1 = dutyCycles.v1;
-    float v2 = dutyCycles.v2;
-    float v3 = dutyCycles.v3;
+    /* Scale motor signals to duty cycle limits. */
+    float v0, v1, v2, v3;
+    v0 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE)*motorSignals.v0;
+    v1 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE)*motorSignals.v1;
+    v2 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE)*motorSignals.v2;
+    v3 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE)*motorSignals.v3;
 
     /* Clamp duty cycles. */
     if (v0 < MIN_DUTY_CYCLE)
