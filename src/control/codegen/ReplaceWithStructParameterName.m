@@ -103,10 +103,10 @@ if strcmp(droneState, 'Attitude')
           string = 'measurement.q[1]';
        end
        if element == 3 
-          string = 'measurement.q[4]';
+          string = 'measurement.q[2]';
        end
        if element == 4
-          string = 'measurement.q[5]';
+          string = 'measurement.q[3]';
        end
        if element == 5
           string = 'measurement.wx';
