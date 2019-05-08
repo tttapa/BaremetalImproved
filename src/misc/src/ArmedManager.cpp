@@ -23,8 +23,10 @@ void ArmedManager::update() {
 
     /* Only do arming/disarming if we're in the changing zone. */
     if (throttle > THROTTLE_THRESHOLD ||
-        (yaw > YAW_LOWER_THRESHOLD && yaw < YAW_UPPER_THRESHOLD))
+        (yaw > YAW_LOWER_THRESHOLD && yaw < YAW_UPPER_THRESHOLD)) {
+        this->isWaitingForChange = false;
         return;
+    }
 
     /* If we're waiting for the armed status to change. */
     if (this->isWaitingForChange) {
