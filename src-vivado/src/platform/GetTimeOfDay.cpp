@@ -2,6 +2,7 @@
 #include "xparameters.h"
 #include "xtime_l.h"
 
+#if 0 // TODO
 extern "C" int _gettimeofday(struct timeval *tp, struct timezone *tzp) {
 	(void) tzp;
     XTime tStart;
@@ -10,3 +11,4 @@ extern "C" int _gettimeofday(struct timeval *tp, struct timezone *tzp) {
     tp->tv_sec  = tStart / COUNTS_PER_SECOND;
     return 0;
 }
+#endif
