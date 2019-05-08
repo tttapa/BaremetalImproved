@@ -6,10 +6,10 @@
 *   This file should NEVER be changed by the students.
 *   Author: w. devries
 *******************************************************************/
-#include <platform/Interrupt.hpp>
 #include "IIC.hpp"
 #include <MainInterrupt.hpp> /* update() is called at 238 Hz. */
 #include <iostream>
+#include <platform/Interrupt.hpp>
 #include <xiicps.h>
 #include <xparameters.h>
 #include <xscugic.h>
@@ -41,7 +41,7 @@ static XIicPs Iic0;
  * 			A pointer to the XIicPs instance.
  */
 void int_gyr(void *InstancePtr) {
-	(void) InstancePtr; // TODO
+    (void) InstancePtr;  // TODO
     // TODO: update the main program
     /* update the FSM */
     std::cout << "update" << std::endl;
@@ -305,7 +305,7 @@ bool initIMUInterruptSystem() {
     return true;
 }
 
-void iicWriteToReg(u8 register_addr, u8 u8Data, u16 deviceAddress) {
+void iicWriteToReg(u8 register_addr, u8 u8Data, u16 deviceAddr) {
     // Wait for the I2C to end the last operation
     while (XIicPs_BusIsBusy(&Iic0))
         ;
@@ -315,14 +315,13 @@ void iicWriteToReg(u8 register_addr, u8 u8Data, u16 deviceAddress) {
     u8 buf[] = {register_addr, u8Data};
 
     // Execute read procedure
-    int status = XIicPs_MasterSendPolled(&Iic0, buf, 2, deviceAddress);
+    int status = XIicPs_MasterSendPolled(&Iic0, buf, 2, deviceAddr);
     if (status != XST_SUCCESS)
         xil_printf("error in master send polled\r\n");
     //xil_printf("done writing data 0x%x to: 0x%x \n", u8Data, register_addr);
 }
 
-void iicReadReg(u8 *recv_buffer, u8 register_addr, u16 deviceAddress,
-                int size) {
+void iicReadReg(u8 *recv_buffer, u8 register_addr, u16 deviceAddr, int size) {
     //while(XIicPs_BusIsBusy(&Iic0))
     //	xil_printf("waiting for bus (reading task)\n");
     u8 buf[] = {register_addr};
@@ -333,11 +332,11 @@ void iicReadReg(u8 *recv_buffer, u8 register_addr, u16 deviceAddress,
                    register_addr);
 
     int status;
-    status = XIicPs_MasterSendPolled(&Iic0, buf, 1, deviceAddress);
+    status = XIicPs_MasterSendPolled(&Iic0, buf, 1, deviceAddr);
     if (status != XST_SUCCESS)
         xil_printf("Send failed %d\r\n", status);
 
-    status = XIicPs_MasterRecvPolled(&Iic0, recv_buffer, size, deviceAddress);
+    status = XIicPs_MasterRecvPolled(&Iic0, recv_buffer, size, deviceAddr);
     if (status != XST_SUCCESS)
         xil_printf("Receive failed %d\r\n", status);
 }
