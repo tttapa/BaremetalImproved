@@ -6,14 +6,15 @@
 *   all of the components on the Zybo, starts the interrupts and runs a loop
 *   that logs data.
 ******************************************************************************/
+#include <output/Motors.hpp>
+#include <platform/Interrupt.hpp>
+#include <platform/Platform.hpp>
+#include <sensors/IMU.hpp>
+#include <sensors/Sonar.hpp>
+
 #include <ControllerInstances.hpp>
-#include <IMU.hpp>
-#include <Interrupt.hpp>
 #include <Main.hpp>
-#include <Motors.hpp>
-#include <Platform.hpp>
 #include <SharedMemoryInstances.hpp>
-#include <Sonar.hpp>
 
 /**
  * Entry point to BareMetal program.
@@ -33,7 +34,7 @@ int main(void) {
     initIMU();
 
     /* Reset PWM output. */
-    outputMotorPWM(0, 0, 0, 0);
+    outputMotorPWM({0, 0, 0, 0});
 
     /* Initialize the controllers and input bias. */
     initControllerInstances();

@@ -1,5 +1,6 @@
 #pragma once
 #include <EulerAngles.hpp>
+#include <OutputTypes.hpp>
 #include <Quaternion.hpp>
 #include <real_t.h>
 
@@ -54,18 +55,6 @@ struct AttitudeControlSignal {
     real_t ux;  ///< X motor signal (/).
     real_t uy;  ///< Y motor signal (/).
     real_t uz;  ///< Z motor signal (/).
-};
-
-/**
- * Four floats representing the duty cycles to be sent to the four motors
- * (front-left, front-right, back-left, back-right). The four values should
- * be in [0, 1].
- */
-struct MotorDutyCycles {
-    real_t v0;  ///< Front-left motor duty cycle in [0,1].
-    real_t v1;  ///< Front-right motor duty cycle in [0,1].
-    real_t v2;  ///< Back-left motor duty cycle in [0,1].
-    real_t v3;  ///< Back-right motor duty cycle in [0,1].
 };
 
 /**

@@ -33,12 +33,7 @@ target_link_libraries(main
         quaternion
         communication
         instances
-        main-vivado
-        ahrs-vivado
-        imu-vivado
-        rc-vivado
-        sonar-vivado
-        motors-vivado
+        src-vivado
 )
 
 if(NOT CMAKE_CROSSCOMPILING)
@@ -46,3 +41,14 @@ if(NOT CMAKE_CROSSCOMPILING)
     # that adds the tests.
     # add_subdirectory(test) 
 endif()
+
+install(TARGETS main
+        EXPORT main
+        ARCHIVE DESTINATION lib
+        INCLUDES DESTINATION include)
+install(EXPORT main DESTINATION lib)
+install(
+FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Main.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/MainInterrupt.hpp
+DESTINATION include)

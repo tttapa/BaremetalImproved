@@ -41,7 +41,9 @@ target_link_libraries(misc
         communication
         instances
         control
-        imu-vivado # TODO: remove type definitions from vivado 
+        vivado-types
+    PRIVATE
+        src-vivado
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)

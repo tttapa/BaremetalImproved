@@ -1,5 +1,4 @@
-// Original: BareMetal/src/control/buzzercodesiel.c
-#include "../../../src-vivado/output/buzzer/include/Buzzer.hpp"
+#include <output/Buzzer.hpp>
 #include <BuzzerManager.hpp>
 #include <Time.hpp>
 
@@ -257,5 +256,5 @@ void BuzzerManager::update() {
     }
 
     /* Output the current instruction. */
-    outputBuzzerPWM(currentInstruction.period, currentInstruction.volume);
+    outputBuzzerPWM(currentInstruction);
 }

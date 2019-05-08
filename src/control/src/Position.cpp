@@ -40,8 +40,8 @@ PositionController::clampControlSignal(PositionControlSignal controlSignal) {
 
 void PositionController::correctPosition(real_t correctionX,
                                          real_t correctionY) {
-    this->stateEstimate.x += correctionX;
-    this->stateEstimate.y += correctionY;
+    this->stateEstimate.p.x += correctionX;
+    this->stateEstimate.p.y += correctionY;
 }
 
 void PositionController::init() {
@@ -91,8 +91,7 @@ void PositionController::updateObserver(Quaternion orientation,
 void PositionController::updateObserverBlind(Quaternion orientation) {
 
     PositionStateBlind stateBlind = {
-        this->stateEstimate.x,
-        this->stateEstimate.y,
+        this->stateEstimate.p,
         this->stateEstimate.vx,
         this->stateEstimate.vy,
     };

@@ -1,4 +1,4 @@
-#include "../../../src-vivado/main/include/PublicHardwareConstants.hpp"
+#include <PublicHardwareConstants.hpp>
 #include <Altitude.hpp>
 #include <MiscInstances.hpp>
 #include <RCValues.hpp>

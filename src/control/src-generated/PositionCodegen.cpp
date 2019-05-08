@@ -91,20 +91,20 @@ codegenControlSignal(PositionState stateEstimate, PositionReference reference,
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q1ref = 0.14859985000000001*stateEstimate.y - 0.79794841000000005*stateEstimate.q1 - 0.14859985000000001*reference.y + 0.16614145*stateEstimate.vy - 0.001*integralWindup.y;
-            controlSignal.q2ref = 0.14859985000000001*reference.x - 0.79794841000000005*stateEstimate.q2 - 0.14859985000000001*stateEstimate.x - 0.16614145*stateEstimate.vx + 0.001*integralWindup.x;
+            controlSignal.q1ref = 0.14859985000000001*stateEstimate.p.y - 0.79794841000000005*stateEstimate.q1 - 0.14859985000000001*reference.p.y + 0.16614145*stateEstimate.vy - 0.001*integralWindup.y;
+            controlSignal.q2ref = 0.14859985000000001*reference.p.x - 0.79794841000000005*stateEstimate.q2 - 0.14859985000000001*stateEstimate.p.x - 0.16614145*stateEstimate.vx + 0.001*integralWindup.x;
             break;
         case 2:
-            controlSignal.q1ref = 0.14859985000000001*stateEstimate.y - 0.79794841000000005*stateEstimate.q1 - 0.14859985000000001*reference.y + 0.16614145*stateEstimate.vy - 0.001*integralWindup.y;
-            controlSignal.q2ref = 0.14859985000000001*reference.x - 0.79794841000000005*stateEstimate.q2 - 0.14859985000000001*stateEstimate.x - 0.16614145*stateEstimate.vx + 0.001*integralWindup.x;
+            controlSignal.q1ref = 0.14859985000000001*stateEstimate.p.y - 0.79794841000000005*stateEstimate.q1 - 0.14859985000000001*reference.p.y + 0.16614145*stateEstimate.vy - 0.001*integralWindup.y;
+            controlSignal.q2ref = 0.14859985000000001*reference.p.x - 0.79794841000000005*stateEstimate.q2 - 0.14859985000000001*stateEstimate.p.x - 0.16614145*stateEstimate.vx + 0.001*integralWindup.x;
             break;
         case 3:
-            controlSignal.q1ref = 0.12327784*stateEstimate.y - 0.72226261999999997*stateEstimate.q1 - 0.12327784*reference.y + 0.14728732*stateEstimate.vy - 0.01*integralWindup.y;
-            controlSignal.q2ref = 0.12327784*reference.x - 0.72226261999999997*stateEstimate.q2 - 0.12327784*stateEstimate.x - 0.14728732*stateEstimate.vx + 0.01*integralWindup.x;
+            controlSignal.q1ref = 0.12327784*stateEstimate.p.y - 0.72226261999999997*stateEstimate.q1 - 0.12327784*reference.p.y + 0.14728732*stateEstimate.vy - 0.01*integralWindup.y;
+            controlSignal.q2ref = 0.12327784*reference.p.x - 0.72226261999999997*stateEstimate.q2 - 0.12327784*stateEstimate.p.x - 0.14728732*stateEstimate.vx + 0.01*integralWindup.x;
             break;
         case 4:
-            controlSignal.q1ref = 0.089303110000000005*stateEstimate.y - 0.60622721999999996*stateEstimate.q1 - 0.089303110000000005*reference.y + 0.12103102*stateEstimate.vy - 0.01*integralWindup.y;
-            controlSignal.q2ref = 0.089303110000000005*reference.x - 0.60622721999999996*stateEstimate.q2 - 0.089303110000000005*stateEstimate.x - 0.12103102*stateEstimate.vx + 0.01*integralWindup.x;
+            controlSignal.q1ref = 0.089303110000000005*stateEstimate.p.y - 0.60622721999999996*stateEstimate.q1 - 0.089303110000000005*reference.p.y + 0.12103102*stateEstimate.vy - 0.01*integralWindup.y;
+            controlSignal.q2ref = 0.089303110000000005*reference.p.x - 0.60622721999999996*stateEstimate.q2 - 0.089303110000000005*stateEstimate.p.x - 0.12103102*stateEstimate.vx + 0.01*integralWindup.x;
             break;
         default: controlSignal = {};
     }
@@ -127,8 +127,8 @@ codegenIntegralWindup(PositionIntegralWindup integralWindup,
     }
 
     /* Update integral windup. */
-    integralWindup.x += 0.11764705882352941*reference.x - 0.11764705882352941*stateEstimate.x;
-    integralWindup.y += 0.11764705882352941*reference.y - 0.11764705882352941*stateEstimate.y;
+    integralWindup.x += 0.11764705882352941*reference.p.x - 0.11764705882352941*stateEstimate.p.x;
+    integralWindup.y += 0.11764705882352941*reference.p.y - 0.11764705882352941*stateEstimate.p.y;
     if (fabs(integralWindup.x) > maxIntegralWindup)
         integralWindup.x = copysign(maxIntegralWindup, integralWindup.x);
     if (fabs(integralWindup.y) > maxIntegralWindup)
@@ -150,8 +150,8 @@ PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
     /* Implement jump rejection to preserve a decent drone velocity. */
     real_t vx0 = stateEstimate.vx;
     real_t vy0 = stateEstimate.vy;
-    real_t vx1 = (measurement.x - stateEstimate.x) / timeElapsed;
-    real_t vy1 = (measurement.y - stateEstimate.y) / timeElapsed;
+    real_t vx1 = (measurement.p.x - stateEstimate.p.x) / timeElapsed;
+    real_t vy1 = (measurement.p.y - stateEstimate.p.y) / timeElapsed;
 
     /* Jump rejection on x-velocity. */
     if (fabs(vx1) - fabs(vx0) <= 0 && fabs(vx1 - vx0) < V_THRESHOLD_TOWARDS)
@@ -168,8 +168,8 @@ PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
     /* Set orientation and position. */
     stateEstimate.q1 = orientation[1];
     stateEstimate.q2 = orientation[2];
-    stateEstimate.x  = measurement.x;
-    stateEstimate.y  = measurement.y;
+    stateEstimate.p.x  = measurement.p.x;
+    stateEstimate.p.y  = measurement.p.y;
 
     /* Drone configuration unused. */
     (void) droneConfiguration;
@@ -183,13 +183,13 @@ PositionState codegenCurrentStateEstimateBlind(
 
     PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
 
-    stateEstimateBlind.x  = 0.00017318692182755456*controlSignalBlind.q2 + stateEstimateBlindCopy.x + 0.0042016806722689076*stateEstimateBlindCopy.vx;
-    stateEstimateBlind.y  = stateEstimateBlindCopy.y - 0.00017318692182755456*controlSignalBlind.q1 + 0.0042016806722689076*stateEstimateBlindCopy.vy;
+    stateEstimateBlind.p.x  = 0.00017318692182755456*controlSignalBlind.q2 + stateEstimateBlindCopy.p.x + 0.0042016806722689076*stateEstimateBlindCopy.vx;
+    stateEstimateBlind.p.y  = stateEstimateBlindCopy.p.y - 0.00017318692182755456*controlSignalBlind.q1 + 0.0042016806722689076*stateEstimateBlindCopy.vy;
     stateEstimateBlind.vx = 0.082436974789915966*controlSignalBlind.q2 + stateEstimateBlindCopy.vx;
     stateEstimateBlind.vy = stateEstimateBlindCopy.vy - 0.082436974789915966*controlSignalBlind.q1;
 
     return {PositionState{controlSignalBlind.q1, controlSignalBlind.q2,
-                          stateEstimateBlind.x, stateEstimateBlind.y,
+                          stateEstimateBlind.p,
                           stateEstimateBlind.vx, stateEstimateBlind.vy}};
 }
 

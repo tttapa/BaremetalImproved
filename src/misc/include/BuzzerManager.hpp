@@ -1,4 +1,5 @@
-// Original: BareMetal/src/control/timers.h
+#pragma once
+#include <OutputTypes.hpp>
 #include <Time.hpp>
 
 /**
@@ -6,16 +7,6 @@
  * and the user tries to add another instruction, the buffer will not change.
  */
 const int QUEUE_SIZE = 30;
-
-/**
- * Instruction to be sent to the buzzer containing a duration (float), a buzzer
- * period (int) and a buzzer volume (int).
- */
-struct BuzzerInstruction {
-    float duration;  ///< Duration of instruction in seconds.
-    int period;      ///< Period of sound, represented as an integer.
-    int volume;      ///< Volume of sound, represented as an integer.
-};
 
 /**
  * Class to manage the sounds produced by the buzzer. To do this, it has a

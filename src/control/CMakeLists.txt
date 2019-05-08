@@ -78,10 +78,12 @@ target_link_libraries(control
         misc
         quaternion
         utilities
+        vivado-types
     PRIVATE
         communication
         instances
         time
+        src-vivado
 )
 
 if(NOT CMAKE_CROSSCOMPILING)

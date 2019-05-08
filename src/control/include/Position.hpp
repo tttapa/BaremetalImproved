@@ -16,21 +16,19 @@ const real_t Y_MAX = 4.0;
 const real_t Y_MIN = -4.0;
 
 /**
-z * Position (x,y) reference to track, consisting of two floats. This value
- * is measured in meters.
+ * Position (x,y) reference to track, consisting of a position. This value is
+ * measured in meters.
  */
 struct PositionReference {
-    real_t x;  ///< X position (m).
-    real_t y;  ///< Y position (m).
+    Position p; ///< Position (x,y) in meters.
 };
 
 /** 
- * Measurement from the Image Processing team, consisting of two floats
- * representing the global position in meters.
+ * Measurement from the Image Processing team, consisting of a position which
+ * represents the global position in meters.
  */
 struct PositionMeasurement {
-    real_t x;  ///< X position (m).
-    real_t y;  ///< Y position (m).
+    Position p; ///< Position (x,y) in meters.
 };
 
 /**
@@ -42,8 +40,7 @@ struct PositionMeasurement {
 struct PositionState {
     real_t q1;  ///< Orientation q1 component (/).
     real_t q2;  ///< Orientation q2 component (/).
-    real_t x;   ///< X position (m).
-    real_t y;   ///< Y position (m).
+    Position p; ///< Position (x,y) in meters.
     real_t vx;  ///< X velocity (m/s).
     real_t vy;  ///< Y velocity (m/s).
 };
@@ -66,8 +63,7 @@ struct PositionControlSignal {
 };
 
 struct PositionStateBlind {
-    real_t x;   ///< X position (m).
-    real_t y;   ///< Y position (m).
+    Position p; ///< Position (x,y) in meters.
     real_t vx;  ///< X velocity (m/s).
     real_t vy;  ///< Y velocity (m/s).
 };
@@ -253,7 +249,7 @@ class PositionController {
      * Get the position controller's reference position.
      */
     Position getReferencePosition() {
-        return {this->reference.x, this->reference.y};
+        return this->reference.p;
     }
 
     /**

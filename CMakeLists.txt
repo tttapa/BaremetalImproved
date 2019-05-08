@@ -89,9 +89,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
 #################################   LIBRARIES   ################################
 ################################################################################
 
-# add_subdirectory("src")
-add_subdirectory("src-shared")
-add_subdirectory("src-control")
+add_subdirectory("src")
 add_subdirectory("src-vivado")
 
 ################################################################################

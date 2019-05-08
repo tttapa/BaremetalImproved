@@ -9,10 +9,13 @@
  * @todo    Fix all comments
 ***********************************************************************************************************************/
 #pragma once
+
 #include <EulerAngles.hpp>
-#include <IMU.hpp>
 #include <Quaternion.hpp>
 #include <SensorTypes.hpp>
+
+// TODO: separate all include directives src/src-vivado
+#include <sensors/IMU.hpp>
 
 /**
  * Add the given yaw to the Euler representation of the AHRS's orientation, then

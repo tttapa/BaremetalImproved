@@ -86,8 +86,8 @@ PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
     /* Implement jump rejection to preserve a decent drone velocity. */
     real_t vx0 = stateEstimate.vx;
     real_t vy0 = stateEstimate.vy;
-    real_t vx1 = (measurement.x - stateEstimate.x) / timeElapsed;
-    real_t vy1 = (measurement.y - stateEstimate.y) / timeElapsed;
+    real_t vx1 = (measurement.p.x - stateEstimate.p.x) / timeElapsed;
+    real_t vy1 = (measurement.p.y - stateEstimate.p.y) / timeElapsed;
 
     /* Jump rejection on x-velocity. */
     if (fabs(vx1) - fabs(vx0) <= 0 && fabs(vx1 - vx0) < V_THRESHOLD_TOWARDS)
@@ -104,8 +104,8 @@ PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
     /* Set orientation and position. */
     stateEstimate.q1 = orientation[1];
     stateEstimate.q2 = orientation[2];
-    stateEstimate.x  = measurement.x;
-    stateEstimate.y  = measurement.y;
+    stateEstimate.p.x  = measurement.p.x;
+    stateEstimate.p.y  = measurement.p.y;
 
     /* Drone configuration unused. */
     (void) droneConfiguration;
@@ -119,13 +119,13 @@ PositionState codegenCurrentStateEstimateBlind(
 
     PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
 
-    stateEstimateBlind.x  = $x0;
-    stateEstimateBlind.y  = $x1;
+    stateEstimateBlind.p.x  = $x0;
+    stateEstimateBlind.p.y  = $x1;
     stateEstimateBlind.vx = $x2;
     stateEstimateBlind.vy = $x3;
 
     return {PositionState{controlSignalBlind.q1, controlSignalBlind.q2,
-                          stateEstimateBlind.x, stateEstimateBlind.y,
+                          stateEstimateBlind.p,
                           stateEstimateBlind.vx, stateEstimateBlind.vy}};
 }
 

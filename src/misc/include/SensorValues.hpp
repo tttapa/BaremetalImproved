@@ -1,6 +1,6 @@
 #pragma once
 #include <BaremetalCommunicationDef.hpp>
-#include <IMU.hpp>
+#include <sensors/IMU.hpp>
 #include <Quaternion.hpp>
 #include <real_t.h>
 

@@ -1,17 +1,18 @@
-#include <AHRS.hpp>
-#include <AxiGpio.hpp>
+#include <output/Motors.hpp>
+#include <platform/AxiGpio.hpp>
+#include <sensors/AHRS.hpp>
+#include <sensors/IMU.hpp>
+#include <sensors/RC.hpp>
+#include <sensors/Sonar.hpp>
+
 #include <BaremetalCommunicationDef.hpp>
 #include <ControllerInstances.hpp>
-#include <IMU.hpp>
 #include <MainInterrupt.hpp>
 #include <MiscInstances.hpp>
-#include <Motors.hpp>
 #include <OutputValues.hpp>
-#include <RC.hpp>
 #include <RCValues.hpp>
 #include <SensorValues.hpp>
 #include <SharedMemoryInstances.hpp>
-#include <Sonar.hpp>
 #include <TiltCorrection.hpp>
 
 /* Whether an interrupt is currently running. */
@@ -36,33 +37,6 @@ real_t calculateYawJump(float yaw) {
 
     /* Return the yaw jump. */
     return modYaw - yaw;
-}
-
-void updateLEDs(bool isInterruptRunning, bool isControllerArmed,
-                bool isAutonomous, bool isWPTActive) {
-
-    int ledOutput = 0x0;
-
-    // TODO: cleanup
-
-    /* LED 0 is lit when the interrupts are running too slowly. */
-    if (isInterruptRunning)
-        ledOutput += 0x1;
-
-    /* LED 1 is lit when the controller is armed. */
-    if (isControllerArmed)
-        ledOutput += 0x2;
-
-    /* LED 2 is lit when the drone is in autonomous mode. */
-    if (isAutonomous)
-        ledOutput += 0x4;
-
-    /* LED 3 is lit when wireless power transfer is active. */
-    if (isWPTActive)
-        ledOutput += 0x8;
-
-    /* Write value to LEDs. */
-    writeValueToLEDs(ledOutput);
 }
 
 // Called by src-vivado every 238 Hz after initialization/calibration is complete.
@@ -180,14 +154,12 @@ void updateMainFSM() {
                     else
                         positionController.updateObserver(
                             attitudeController.getOrientationQuat(), getTime(),
-                            {getCorrectedPositionMeasurement().x,
-                             getCorrectedPositionMeasurement().y});
+                            {getCorrectedPositionMeasurement()});
                     // TODO: adapter
 
                     /* Calculate control signal. */
                     q12ref = positionController.updateControlSignal(
-                        {output.referencePosition.x,
-                         output.referencePosition.y});
+                        {output.referencePosition});
                 } else {
                     q12ref = {0.0, 0.0};
                 }
@@ -249,8 +221,7 @@ void updateMainFSM() {
     MotorDutyCycles dutyCycles = transformAttitudeControlSignal(uxyz, uc);
     setDutyCycles(dutyCycles);
     if (armedManager.isArmed())
-        outputMotorPWM(dutyCycles.v0, dutyCycles.v1, dutyCycles.v2,
-                       dutyCycles.v2);
+        outputMotorPWM(dutyCycles);
 
     /* Update the controller configuration if the common thrust is near zero. */
     configManager.update(uc);
@@ -299,9 +270,9 @@ void update() {
     static bool isAHRSInitialized = false;
 
     /* Update LEDs. */
-    updateLEDs(isInterruptRunning, armedManager.isArmed(),
-               getFlightMode() == FlightMode::AUTONOMOUS,
-               getWPTMode() == WPTMode::ON);
+    writeToLEDs({isInterruptRunning, armedManager.isArmed(),
+                 getFlightMode() == FlightMode::AUTONOMOUS,
+                 getWPTMode() == WPTMode::ON});
 
     /* Phase 1: Calibrate IMU. */
     if (!isIMUCalibrated) {
