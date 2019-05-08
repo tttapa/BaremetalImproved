@@ -288,13 +288,19 @@ bool initInterrupt() {
     /* Initialize Integrated Integrated Circuits (IIC). */
     iicConfig(XPAR_XIICPS_0_DEVICE_ID, &Iic0);
 
+    /* Setup successful. */
+    return true;
+}
+
+bool initIMUInterruptSystem() {
+
     /* Initialize IMU interrupt. */
     if (setupIMUInterruptSystem() != XST_SUCCESS) {
         xil_printf("setup IMU interrupt system failed \r\n");
         return false;
     }
 
-    /* Setup successul. */
+    /* Setup successful. */
     return true;
 }
 
