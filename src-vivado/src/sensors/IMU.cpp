@@ -233,10 +233,13 @@ bool calibrateIMUStep() {
         /* Turn off all LEDs. */
         writeToLEDs({0, 0, 0, 0});
         xil_printf("calibrated IMU \r\n");
+
+        /* Initialization successful. */
+        return true;
     }
 
-    /* Initialization successful. */
-    return true;
+    /* Initialization still busy. */
+    return false;
 }
 
 bool initIMU() {
