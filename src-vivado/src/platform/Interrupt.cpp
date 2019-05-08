@@ -311,7 +311,6 @@ void iicWriteToReg(u8 register_addr, u8 u8Data, u16 deviceAddress) {
     int status = XIicPs_MasterSendPolled(&Iic0, buf, 2, deviceAddress);
     if (status != XST_SUCCESS)
         xil_printf("error in master send polled\r\n");
-
     //xil_printf("done writing data 0x%x to: 0x%x \n", u8Data, register_addr);
 }
 

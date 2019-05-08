@@ -16,7 +16,7 @@
  * @param   device
  *          Gyr/Acc if 1, Magnetometer if 0.
  */
-void iicWriteToReg(u8 register_addr, u8 u8Data, int device);
+void iicWriteToReg(u8 register_addr, u8 u8Data, u16 device);
 
 /**
  * Read from one of the registers of the IMU.
