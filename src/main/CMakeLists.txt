@@ -49,6 +49,6 @@ install(TARGETS main
 install(EXPORT main DESTINATION lib)
 install(
 FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/Main.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Main.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/MainInterrupt.hpp
 DESTINATION include)
