@@ -5,7 +5,7 @@
  * to create the appropriate PWM waves for each of the motors.
  * 
  * @param   motorSignals
- *          MotorDutyCyles to send to the four ESCs (front-left, front-right,
+ *          MotorSignals to send to the four ESCs (front-left, front-right,
  *          back-left, back-right, each of which in [0,1]).
  */
 void outputMotorPWM(MotorSignals motorSignals);
