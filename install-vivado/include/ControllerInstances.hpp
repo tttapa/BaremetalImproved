@@ -2,7 +2,7 @@
 #include <Altitude.hpp>
 #include <Attitude.hpp>
 #include <Autonomous.hpp>
-#include <InputBias.hpp>
+#include <InputBias/InputBias.hpp>
 #include <Position.hpp>
 
 /** Instance of the attitude controller. */

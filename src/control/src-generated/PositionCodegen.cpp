@@ -83,9 +83,10 @@ static constexpr real_t V_THRESHOLD_TOWARDS = 0.50;
  *          edit it in the template, or in the MATLAB code generator.
  */
 PositionControlSignal
-codegenControlSignal(PositionState stateEstimate, PositionReference reference,
-                     PositionIntegralWindup integralWindup,
-                     int droneConfiguration) {
+PositionController::codegenControlSignal(PositionState stateEstimate, 
+                                         PositionReference reference,
+                                         PositionIntegralWindup integralWindup,
+                                         int droneConfiguration) {
 
     /* Calculate controller output based on drone configuration. */
     PositionControlSignal controlSignal;
@@ -112,9 +113,10 @@ codegenControlSignal(PositionState stateEstimate, PositionReference reference,
 }
 
 PositionIntegralWindup
-codegenIntegralWindup(PositionIntegralWindup integralWindup,
-                      PositionReference reference, PositionState stateEstimate,
-                      int droneConfiguration) {
+PositionController::codegenIntegralWindup(PositionIntegralWindup integralWindup,
+                                          PositionReference reference,
+                                          PositionState stateEstimate,
+                                          int droneConfiguration) {
 
     /* Set maximum integral windup based on drone configuration. */
     real_t maxIntegralWindup;
@@ -141,11 +143,12 @@ codegenIntegralWindup(PositionIntegralWindup integralWindup,
  * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template.
  */
-PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
-                                          PositionMeasurement measurement,
-                                          Quaternion orientation,
-                                          real_t timeElapsed,
-                                          int droneConfiguration) {
+PositionState 
+PositionController::codegenCurrentStateEstimate(PositionState stateEstimate,
+                                                PositionMeasurement measurement,
+                                                Quaternion orientation,
+                                                real_t timeElapsed,
+                                                int droneConfiguration) {
 
     /* Implement jump rejection to preserve a decent drone velocity. */
     real_t vx0 = stateEstimate.vx;
@@ -177,9 +180,10 @@ PositionState codegenCurrentStateEstimate(PositionState stateEstimate,
     return stateEstimate;
 }
 
-PositionState codegenCurrentStateEstimateBlind(
-    PositionStateBlind stateEstimateBlind,
-    PositionControlSignalBlind controlSignalBlind) {
+PositionState 
+PositionController::codegenCurrentStateEstimateBlind(
+        PositionStateBlind stateEstimateBlind,
+        PositionControlSignalBlind controlSignalBlind) {
 
     PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
 

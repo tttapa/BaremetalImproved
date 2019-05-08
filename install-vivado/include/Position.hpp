@@ -188,7 +188,8 @@ class PositionController {
     static PositionIntegralWindup
     codegenIntegralWindup(PositionIntegralWindup integralWindup,
                           PositionReference reference,
-                          PositionState stateEstimate, int droneConfiguration);
+                          PositionState stateEstimate, 
+                          int droneConfiguration);
 
     /**
      * Calculate the current position estimate using the code generator. Because
