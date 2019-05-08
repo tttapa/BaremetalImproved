@@ -268,32 +268,32 @@ bool initIMU() {
     /* See https://www.st.com/resource/en/datasheet/DM00103319.pdf */
 
     /* 238 Hz gyro output data rate (ODR), max 2000 degrees/s,  14 Hz cutoff. */
-    iicWriteToReg(CTRL_REG1_G, 0b10011000, 1);
+    iicWriteToReg(CTRL_REG1_G, 0b10011000, LSM9DS1_GX_ADDR);
 
     /* Low-power mode disabled, high-pass filter disabled, 15 Hz cutoff. */
-    iicWriteToReg(CTRL_REG3_G, 0b00000000, 1);
+    iicWriteToReg(CTRL_REG3_G, 0b00000000, LSM9DS1_GX_ADDR);
 
     /* Positive signs for pitch (x), roll(y) and yaw (z), standard
 	   orientation. */
-    iicWriteToReg(ORIENT_CFG_G, 0b00000000, 1);
+    iicWriteToReg(ORIENT_CFG_G, 0b00000000, LSM9DS1_GX_ADDR);
 
     /* Enable pitch, roll, yaw output, interrupt request latched, interrupt
 	   generator uses 6D for position recognition. */
-    iicWriteToReg(CTRL_REG4, 0b00111010, 1);
+    iicWriteToReg(CTRL_REG4, 0b00111010, LSM9DS1_GX_ADDR);
 
     /* No data decimation, enable ax, ay, az output. */
-    iicWriteToReg(CTRL_REG5_XL, 0b00111000, 1);
+    iicWriteToReg(CTRL_REG5_XL, 0b00111000, LSM9DS1_GX_ADDR);
 
     /* 238 Hz accel output data rate (ODR), max +/- 16 g, 105 Hz bandwith. */
-    iicWriteToReg(CTRL_REG6_XL, 0b10001000, 1);
+    iicWriteToReg(CTRL_REG6_XL, 0b10001000, LSM9DS1_GX_ADDR);
 
     /* Accel high-resolution mode disabled, (238/50) Hz low-pass cutoff
 	   frequency (bypassed), high-pass filter bypassed for interrupt. */
-    iicWriteToReg(CTRL_REG7_XL, 0b00000000, 1);
+    iicWriteToReg(CTRL_REG7_XL, 0b00000000, LSM9DS1_GX_ADDR);
 
     /* Continuous FIFO mode: if FIFO is full, the new sample overwrites the
 	   older samples, flag=1 if FIFO contains at least 2 elements (unused). */
-    iicWriteToReg(FIFO_CTRL, 0b11000010, 1);
+    iicWriteToReg(FIFO_CTRL, 0b11000010, LSM9DS1_GX_ADDR);
 
     /* Initialize calibration variables. */
     calibrationStepCounter = 0;
@@ -319,7 +319,7 @@ bool initIMU() {
     xil_printf("Starting interrupts\r\n");
 
     /* Enable interrupts when accelerometer has a measurement. */
-    iicWriteToReg(INT1_CTRL, 0x01, 1);
+    iicWriteToReg(INT1_CTRL, 0x01, LSM9DS1_GX_ADDR);
 
     /* Initialization successful. */
     return true;
