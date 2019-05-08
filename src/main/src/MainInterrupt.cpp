@@ -208,6 +208,7 @@ void updateMainFSM() {
 
     /* Drone calibration? */
     if (configManager.getControllerConfiguration() == CALIBRATION_MODE) {
+        printf("CALIBRATION MODE!!!");
         if (getThrottle() >= 0.50)
             uc = 1.0;
         else
