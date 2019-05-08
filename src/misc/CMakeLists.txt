@@ -41,6 +41,7 @@ target_link_libraries(misc
         communication
         instances
         control
+        imu-vivado # TODO: remove type definitions from vivado 
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)
@@ -61,6 +62,6 @@ FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ConfigurationManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ESCStartupScript.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GradualThrustChangeManager.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/RCManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/RCValues.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/WPT.hpp
 DESTINATION include)

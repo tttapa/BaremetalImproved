@@ -5,7 +5,7 @@
 *   This file should normally not be changed by the students.
 *   Author: w. devries, p. coppens
 ***********************************************************************************************************************/
-#include "../include/RC.hpp"
+#include <RC.hpp>
 #include "../../../main/src/PrivateHardwareConstants.hpp"
 #include <xil_io.h>
 

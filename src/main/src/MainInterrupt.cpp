@@ -1,14 +1,23 @@
-#include "../../../src-vivado/output/motors/include/Motors.hpp"
-#include "../../../src-vivado/sensors/ahrs/include/AHRS.hpp"
-#include "../../../src-vivado/sensors/imu/include/IMU.hpp"
-#include "../../../src-vivado/sensors/rc/include/RC.hpp"
-#include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
+#include <AHRS.hpp>
+#include <AxiGpio.hpp>
 #include <BaremetalCommunicationDef.hpp>
 #include <ControllerInstances.hpp>
+#include <IMU.hpp>
 #include <MainInterrupt.hpp>
 #include <MiscInstances.hpp>
+#include <Motors.hpp>
+#include <OutputValues.hpp>
+#include <RC.hpp>
+#include <RCValues.hpp>
+#include <SensorValues.hpp>
 #include <SharedMemoryInstances.hpp>
+#include <Sonar.hpp>
 #include <TiltCorrection.hpp>
+
+/* Whether an interrupt is currently running. */
+static bool isInterruptRunning = false;
+
+void mainLoop() { isInterruptRunning = false; }
 
 real_t calculateYawJump(float yaw) {
 
@@ -33,6 +42,8 @@ void updateLEDs(bool isInterruptRunning, bool isControllerArmed,
                 bool isAutonomous, bool isWPTActive) {
 
     int ledOutput = 0x0;
+
+    // TODO: cleanup
 
     /* LED 0 is lit when the interrupts are running too slowly. */
     if (isInterruptRunning)
@@ -73,14 +84,14 @@ void updateMainFSM() {
     /* Read IMU measurement and update the AHRS. */
     setIMUMeasurement(readIMU());
     setAHRSQuat(updateAHRS(getIMUMeasurement()));
-    setJumpedAHRSQuat(getJumpedOrientation(yawJump));
+    setJumpedAHRSQuat(getJumpedOrientation(getYawJump()));
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement = readSonar();
     if (hasNewSonarMeasurement) {
         setSonarMeasurement(getFilteredSonarMeasurement());
         setCorrectedSonarMeasurement(getCorrectedHeight(
-            getSonarMeasurement(), attitudeController.getOrientationEstimate());
+            getSonarMeasurement(), attitudeController.getOrientationQuat()));
     }
 
     /* Read IMP measurement from shared memory and correct it using the sonar
@@ -91,9 +102,12 @@ void updateMainFSM() {
         VisionData visionData = visionComm->read();
         setPositionMeasurement(visionData.position);
         setYawMeasurement(visionData.yawAngle);
-        setCorrectedPositionMeasurement(getCorrectedPosition(
+        ColVector<2> correctedPosition = getCorrectedPosition(
             ColVector<2>{visionData.position.x, visionData.position.y},
-            sonarMeasurement, attitudeController.getOrientationEstimate()));
+            getSonarMeasurement(), attitudeController.getOrientationQuat());
+        setCorrectedPositionMeasurement(
+            {correctedPosition[0],
+             correctedPosition[1]});  // TODO: adapter function
     }
 
     /* Save the measurements for the logger. */
@@ -101,9 +115,10 @@ void updateMainFSM() {
     /* Implement main FSM logic. The transformed motor signals will be
        calculated based on the current flight mode, the measurements and the
        current state of the controllers. */
-    AttitudeControlSignal uxyz;
-    real_t uc;
-    static ucLast = 0.0;  ///< Remember last cycle's common thrust for GTC.
+    AttitudeControlSignal uxyz;  // TODO: variable names
+    real_t uc = 0.0;
+    /// Remember last cycle's common thrust for GTC.
+    static real_t ucLast = 0.0;
     switch (getFlightMode()) {
         case FlightMode::MANUAL:
 
@@ -143,14 +158,15 @@ void updateMainFSM() {
         case FlightMode::AUTONOMOUS:
             // TODO: when should we initGround or initAir?
             if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
-                autonomousController.initAir(Position{0.5, 0.5});
+                autonomousController.initAir(Position{0.5, 0.5},
+                                             {getCorrectedSonarMeasurement()});
             // TODO: should we tell IMP to reset their measurement?
             if (hasNewIMPMeasurement) {
                 // TODO: in autonomous mode, update AHRS's yaw
 
                 /* Autonomous controller, using position of the drone. */
-                AutonomousOutput output =
-                    autonomousController.update(correctedPositionMeasurement);
+                AutonomousOutput output = autonomousController.update(
+                    getCorrectedPositionMeasurement());
 
                 /* Position controller, using AutonomousOutput. */
                 PositionControlSignal q12ref;
@@ -158,16 +174,20 @@ void updateMainFSM() {
 
                     /* Calculate current position state estimate. */
                     if (output.trustAccelerometerForPosition)
-                        positionController.updateObserverBlind();
+                        positionController.updateObserverBlind(
+                            attitudeController.getOrientationQuat());
 
                     else
                         positionController.updateObserver(
-                            attitudeController.getOrientationEstimate(),
-                            getTime(), {correctedPositionMeasurement});
+                            attitudeController.getOrientationQuat(), getTime(),
+                            {getCorrectedPositionMeasurement().x,
+                             getCorrectedPositionMeasurement().y});
+                    // TODO: adapter
 
                     /* Calculate control signal. */
                     q12ref = positionController.updateControlSignal(
-                        {output.referencePosition});
+                        {output.referencePosition.x,
+                         output.referencePosition.y});
                 } else {
                     q12ref = {0.0, 0.0};
                 }
@@ -185,11 +205,11 @@ void updateMainFSM() {
                 real_t q1        = q12ref.q1ref;
                 real_t q2        = q12ref.q2ref;
                 real_t q0        = 1 - sqrt(q1 * q1 + q2 * q2);
+                real_t yaw       = 0.0;
                 real_t pitch     = inputBias.getPitchBias();
                 real_t roll      = inputBias.getRollBias();
                 Quaternion quat1 = Quaternion(q0, q1, q2, 0);
-                Quaternion quat2 = EulerAngles::eul2quat(0.0, pitch, roll);
-                attitudeController.setReference(quat1 + quat2);
+                Quaternion quat2 = EulerAngles::eul2quat({yaw, pitch, roll});
                 attitudeController.setReferenceEuler({quat1 + quat2});
                 uxyz = attitudeController.updateControlSignal(uc);
             }
@@ -249,8 +269,17 @@ void updateMainFSM() {
     inputBias.updateThrustBias(uc);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
-    attitudeController.updateObserver({orientationMeasurement}, yawJump);
-    altitudeController.updateObserver({correctedSonarMeasurement});
+    // TODO: make sure this is correct... attitude should update its euler
+    //       representation with getJumpedOrientation() - previousOrientation
+    attitudeController.updateObserver(
+        {
+            getJumpedAHRSQuat(),
+            getGyroMeasurement().gx,
+            getGyroMeasurement().gy,
+            getGyroMeasurement().gz,
+        },
+        getYawJump());
+    altitudeController.updateObserver({getCorrectedSonarMeasurement()});
 
     /* Store flight mode. */
     previousFlightMode = getFlightMode();
@@ -264,8 +293,6 @@ void update() {
     /* Update the drone's clock. */
     incrementTickCount();
 
-    /* Whether an interrupt is currently running. */
-    static bool isInterruptRunning = false;
     /* IMU bias should be calculated before use. */
     static bool isIMUCalibrated = false;
     /* AHRS should calibrate with accelerometer before use. */
@@ -278,11 +305,11 @@ void update() {
 
     /* Phase 1: Calibrate IMU. */
     if (!isIMUCalibrated) {
-        isIMUCalibrated = calibrateIMU();
+        isIMUCalibrated = calibrateIMUStep();
     }
     /* Phase 2: Initialize AHRS. */
     else if (!isAHRSInitialized) {
-        initAHRS();
+        initAHRS(readIMU());
         isAHRSInitialized = true;
     }
     /* Phase 3: Main operation. */
@@ -290,9 +317,6 @@ void update() {
         updateMainFSM();
     }
 
-    /* Output to LEDS. */
-    updateLEDs()
-
-        /* Test pin low to probe length of interrupt. */
-        writeValueToTestPin(false);
+    /* Test pin low to probe length of interrupt. */
+    writeValueToTestPin(false);
 }

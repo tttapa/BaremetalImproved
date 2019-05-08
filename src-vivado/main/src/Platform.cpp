@@ -6,7 +6,7 @@
 *
 *   This file should NEVER be changed by the students.
 *******************************************************************************/
-#include "../include/Platform.hpp"
+#include <Platform.hpp>
 #include "xil_cache.h"
 #include "xil_cache_l.h"
 #include "xil_exception.h"

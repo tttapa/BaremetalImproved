@@ -1,4 +1,4 @@
-#include "../include/WPT.hpp"
+#include <WPT.hpp>
 #include "../../../main/src/PrivateHardwareConstants.hpp"
 
 /** Address of the PWM period of the WPT. */

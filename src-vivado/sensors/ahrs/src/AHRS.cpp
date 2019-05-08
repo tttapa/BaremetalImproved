@@ -6,7 +6,7 @@
  *  This file should NEVER be changed by the students
  *  Author: p. coppens
 ********************************************************************************/
-#include "../include/AHRS.hpp"
+#include <AHRS.hpp>
 #include "MadgwickFilter.hpp"
 #include <xil_io.h>
 

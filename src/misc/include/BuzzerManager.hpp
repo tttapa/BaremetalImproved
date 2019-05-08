@@ -166,5 +166,5 @@ class BuzzerManager {
      * Updates the signal sent to the buzzer and the beep queue based on the
      * current time.
      */
-    void updateBuzzer();
+    void update();
 };

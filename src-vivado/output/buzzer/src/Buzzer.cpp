@@ -1,4 +1,4 @@
-#include "../include/Buzzer.hpp"
+#include <Buzzer.hpp>
 #include <xparameters.h>
 
 /** Address to set the period of the buzzer. */

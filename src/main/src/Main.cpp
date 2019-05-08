@@ -6,11 +6,14 @@
 *   all of the components on the Zybo, starts the interrupts and runs a loop
 *   that logs data.
 ******************************************************************************/
-#include "../../../src-vivado/main/include/Interrupt.hpp"
-#include "../../../src-vivado/main/include/Platform.hpp"
-#include "../../../src-vivado/sensors/imu/include/IMU.hpp"
-#include "../../../src-vivado/sensors/sonar/include/Sonar.hpp"
+#include <ControllerInstances.hpp>
+#include <IMU.hpp>
+#include <Interrupt.hpp>
+#include <Main.hpp>
+#include <Motors.hpp>
+#include <Platform.hpp>
 #include <SharedMemoryInstances.hpp>
+#include <Sonar.hpp>
 
 /**
  * Entry point to BareMetal program.
@@ -29,17 +32,14 @@ int main(void) {
     initSonar();
     initIMU();
 
-    /* Initialize communication with other core. */
-    initCommunication();
-
     /* Reset PWM output. */
-    pwmOutput(0, 0, 0, 0);
+    outputMotorPWM(0, 0, 0, 0);
 
     /* Initialize the controllers and input bias. */
-    initControllers();
+    initControllerInstances();
 
     /* Initialize the communication with the Linux core. */
-    initCommunicationStructs();
+    initSharedMemoryInstances();
 
     /* Initialize interrupt system. */
     if (initInterrupt() == false)
@@ -47,11 +47,10 @@ int main(void) {
 
     //-------------------- MAIN EXECUTION -------------------
     while (true) {
-
-        // Wait for next interrupt...
+        mainLoop();  // TODO
     }
 
     /* For completeness. */
-    cleanup_platform();
+    cleanupPlatform();
     return 1;
 }

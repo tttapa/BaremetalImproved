@@ -6,7 +6,7 @@
 *   This file should normally not be changed by the students.
 *   Author: w. devries
 ***********************************************************************************************************************/
-#include "../include/IMU.hpp"
+#include <IMU.hpp>
 #include "../../../main/include/AxiGpio.hpp"
 #include "../../../main/include/Interrupt.hpp"
 #include "../../../main/src/IIC.hpp"

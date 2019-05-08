@@ -1,5 +1,5 @@
 // Original: BareMetal/src/sonar/sonar.c
-#include "../include/Sonar.hpp"
+#include <Sonar.hpp>
 #include "../../../main/src/PrivateHardwareConstants.hpp"
 #include "MedianFilter.hpp"
 #include <cmath>

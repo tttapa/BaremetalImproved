@@ -22,10 +22,10 @@ static real_t correctedSonarMeasurement;
 static real_t yawMeasurement;
 
 /** Current value of the position measurement. */
-static real_t positionMeasurement;
+static Position positionMeasurement;
 
 /** Current value of the corrected position measurement. */
-static real_t correctedPositionMeasurement;
+static Position correctedPositionMeasurement;
 
 real_t getYawJump() { return yawJump; }
 
@@ -49,9 +49,9 @@ real_t getCorrectedSonarMeasurement() { return correctedSonarMeasurement; }
 
 real_t getYawMeasurement() { return yawMeasurement; }
 
-real_t getPositionMeasurement() { return positionMeasurement; }
+Position getPositionMeasurement() { return positionMeasurement; }
 
-real_t getCorrectedPositionMeasurement() {
+Position getCorrectedPositionMeasurement() {
     return correctedPositionMeasurement;
 }
 
@@ -71,8 +71,9 @@ void setCorrectedSonarMeasurement(real_t value) {
 
 void setYawMeasurement(real_t value) { yawMeasurement = value; }
 
-void setPositionMeasurement(real_t value) { positionMeasurement = value; }
+void setPositionMeasurement(Position value) { positionMeasurement = value; }
 
-void setCorrectedPositionMeasurement(real_t value) {
+// TODO: calculate corrected position automatically
+void setCorrectedPositionMeasurement(Position value) {
     correctedPositionMeasurement = value;
 }

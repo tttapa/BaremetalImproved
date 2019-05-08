@@ -1,5 +1,6 @@
 #pragma once
-#include "../../../src-vivado/sensors/imu/include/IMU.hpp"
+#include <BaremetalCommunicationDef.hpp>
+#include <IMU.hpp>
 #include <Quaternion.hpp>
 #include <real_t.h>
 
@@ -22,9 +23,9 @@ real_t getCorrectedSonarMeasurement();
 
 real_t getYawMeasurement();
 
-real_t getPositionMeasurement();
+Position getPositionMeasurement();
 
-real_t getCorrectedPositionMeasurement();
+Position getCorrectedPositionMeasurement();
 
 void setYawJump(real_t value);
 
@@ -40,6 +41,6 @@ void setCorrectedSonarMeasurement(real_t value);
 
 void setYawMeasurement(real_t value);
 
-void setPositionMeasurement(real_t value);
+void setPositionMeasurement(Position value);
 
-void setCorrectedPositionMeasurement(real_t value);
+void setCorrectedPositionMeasurement(Position value);

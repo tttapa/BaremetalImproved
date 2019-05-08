@@ -1,4 +1,4 @@
-#include "../include/AxiGpio.hpp" /* Header file */
+#include <AxiGpio.hpp.hpp> /* Header file */
 #include "PrivateHardwareConstants.hpp"  /* Registers & channels */
 #include <xgpio.h>                /* AXI GPIO functions */
 #include <xparameters.h>          /* Project parameters */
