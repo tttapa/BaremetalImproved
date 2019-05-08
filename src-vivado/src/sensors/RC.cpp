@@ -45,8 +45,11 @@ const float RC_HIGH = 0.001890;
 /* Center value of the interval [RC_LOW, RC_HIGH]. */
 const float RC_MID = (RC_LOW + RC_HIGH) / 2.0;
 
+/* Size of RC mid margin deadzone. */
+const float RC_MARGIN = (RC_HIGH - RC_LOW) / 5.0;
+
 /* Size of RC knob/joystick deadzone. */
-const float RC_MARGIN = (RC_HIGH - RC_LOW) / 40.0;
+const float RC_DEADZONE = (RC_HIGH - RC_LOW) / 40.0;
 
 /* Value if RC knob/joystick is not available. */
 const float RC_DEAD = 0.0;
@@ -163,14 +166,12 @@ float clamp(float x) {
  *  @return clamped value.
  */
 float clampMid(float x) {
-    // TODO:
-    //       x in (-inf, LOW-MARGIN) -> MID
-    //       x in [LOW-MARGIN, LOW) -> LOW
-    //       x in [LOW, HIGH] -> x
-    //       x in (HIGH, HIGH+MARGIN] -> HIGH
-    //       x in (HIGH+MARGIN, inf) -> MID
     if (x < RC_LOW - RC_MARGIN || x > RC_HIGH + RC_MARGIN)
         return RC_MID;
+    if (x < RC_LOW)
+        return RC_LOW;
+    if (x > RC_HIGH)
+        return RC_HIGH;
     return x;
 }
 
@@ -182,8 +183,7 @@ float clampMid(float x) {
 float rescale(float x) {
 
     /* Upper edge of deadzone. */
-    // TODO: change this to "RC_DEADZONE_SIZE"
-    float low = RC_LOW + RC_MARGIN;
+    float low = RC_LOW + RC_DEADZONE;
 
     /* Out of range. */
     if (x < low)
@@ -203,9 +203,8 @@ float rescale(float x) {
 float rescaleMid(float x) {
 
     /* Edges of deadzone. */
-    // TODO: change this to "RC_DEADZONE_SIZE"
-    float midlow  = RC_MID - RC_MARGIN;
-    float midhigh = RC_MID + RC_MARGIN;
+    float midlow  = RC_MID - RC_DEADZONE;
+    float midhigh = RC_MID + RC_DEADZONE;
 
     /* Out of range. */
     if (x < RC_LOW)
@@ -227,10 +226,9 @@ RCInput readRC() {
 
     /* Get all of the RC controls. */
     float throttle = rescale(clamp(getRCValue(THROTTLE_ADDR)));
-    float pitch    = rescaleMid(clampMid(getRCValue(PITCH_ADDR)));
-    float roll     = rescaleMid(clampMid(getRCValue(ROLL_ADDR)));
-    float yaw      = rescaleMid(clampMid(getRCValue(YAW_ADDR)));
-    // TODO: dead should stay mid, but margin should increase
+    float pitch    = rescaleMid(clampMid(-getRCValue(PITCH_ADDR)));
+    float roll     = rescaleMid(clampMid(-getRCValue(ROLL_ADDR)));
+    float yaw      = rescaleMid(clampMid(-getRCValue(YAW_ADDR)));
     float tuner           = rescaleMid(clampMid(getRCValue(TUNER_ADDR)));
     float flightModeValue = rescale(clamp(getRCValue(FLIGHT_MODE_ADDR)));
     float wptValue        = rescale(clamp(getRCValue(WPT_MODE_ADDR)));
