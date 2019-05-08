@@ -240,10 +240,10 @@ if strcmp(droneState, 'Position')
            string = 'stateEstimate.q2';
        end
        if element == 3
-           string = 'stateEstimate.x';
+           string = 'stateEstimate.p.x';
        end
        if element == 4
-           string = 'stateEstimate.y';
+           string = 'stateEstimate.p.y';
        end
        if element == 5
            string = 'stateEstimate.vx';
@@ -255,10 +255,10 @@ if strcmp(droneState, 'Position')
     
     if strcmp(struct, 'ref')
        if element == 1
-          string = 'reference.x';
+          string = 'reference.p.x';
        end
        if element == 2
-          string = 'reference.y';
+          string = 'reference.p.y';
        end
     end
     
@@ -273,10 +273,10 @@ if strcmp(droneState, 'Position')
     
     if strcmp(struct, 'x_hat_blind_copy')
        if element == 1
-           string = 'stateEstimateBlindCopy.x';
+           string = 'stateEstimateBlindCopy.p.x';
        end
        if element == 2
-           string = 'stateEstimateBlindCopy.y';
+           string = 'stateEstimateBlindCopy.p.y';
        end
        if element == 3
            string = 'stateEstimateBlindCopy.vx';

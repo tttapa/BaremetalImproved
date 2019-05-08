@@ -180,14 +180,12 @@ void updateMainFSM() {
                     else
                         positionController.updateObserver(
                             attitudeController.getOrientationQuat(), getTime(),
-                            {getCorrectedPositionMeasurement().x,
-                             getCorrectedPositionMeasurement().y});
+                            {getCorrectedPositionMeasurement()});
                     // TODO: adapter
 
                     /* Calculate control signal. */
                     q12ref = positionController.updateControlSignal(
-                        {output.referencePosition.x,
-                         output.referencePosition.y});
+                        {output.referencePosition});
                 } else {
                     q12ref = {0.0, 0.0};
                 }
