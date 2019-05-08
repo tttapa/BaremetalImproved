@@ -16,7 +16,7 @@
 #include <TiltCorrection.hpp>
 
 /** Whether an interrupt is currently running. */
-bool isInterruptRunning = false;
+volatile bool isInterruptRunning = false;
 
 real_t calculateYawJump(float yaw) {
 
@@ -273,6 +273,9 @@ void update() {
     writeToLEDs({isInterruptRunning, armedManager.isArmed(),
                  getFlightMode() == FlightMode::AUTONOMOUS,
                  getWPTMode() == WPTMode::ON});
+
+    /* Set isInterruptRunning to true, mainLoop will set it to false. */
+    isInterruptRunning = true;
 
     /* Phase 1: Calibrate IMU. */
     if (!isIMUCalibrated) {
