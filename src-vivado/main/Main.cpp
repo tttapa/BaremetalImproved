@@ -25,6 +25,16 @@ int main(void) {
     if (initInterrupt() == false)
         return 1;
 
+    /* Initialize AXI GPIOs. */
+    if (initAxiGpio() == false)
+        return 1;
+
+    /* Initialize the controllers and input bias. */
+    initControllerInstances();
+
+    /* Initialize the communication with the Linux core. */
+    initSharedMemoryInstances();
+
     /* Initialize the sensors. AHRS will be initialized after IMU is calibrated.  */
     initSonar();
     initIMU();
@@ -33,12 +43,6 @@ int main(void) {
 
     /* Reset PWM output. */
     outputMotorPWM({0, 0, 0, 0});
-
-    /* Initialize the controllers and input bias. */
-    initControllerInstances();
-
-    /* Initialize the communication with the Linux core. */
-    initSharedMemoryInstances();
 
 
     //-------------------- MAIN EXECUTION -------------------
