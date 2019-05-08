@@ -15,10 +15,8 @@
 #include <SharedMemoryInstances.hpp>
 #include <TiltCorrection.hpp>
 
-/* Whether an interrupt is currently running. */
-static bool isInterruptRunning = false;
-
-void mainLoop() { isInterruptRunning = false; }
+/** Whether an interrupt is currently running. */
+bool isInterruptRunning = false;
 
 real_t calculateYawJump(float yaw) {
 
