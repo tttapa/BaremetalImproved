@@ -104,5 +104,8 @@ FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/Autonomous.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/Position.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/TiltCorrection.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/InputBias/InputBias.hpp
 DESTINATION include)
+install(
+FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/InputBias/InputBias.hpp
+DESTINATION include/InputBias)

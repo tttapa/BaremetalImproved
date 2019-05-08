@@ -254,11 +254,12 @@ void updateMainFSM() {
 
     /* Store flight mode. */
     previousFlightMode = getFlightMode();
+
+    /* Print. */
+    printf("Time %f\t, thrust %f\t, yaw %f\t, pitch %f\t, roll %f\n", getTime(), getThrottle(), getYaw(), getPitch(), getRoll());
 }
 
-void update() {
-
-    std::cout << "Update called";
+void updateFSM() {
 
     /* Test pin high to probe length of interrupt. */
     writeValueToTestPin(true);
@@ -278,18 +279,15 @@ void update() {
 
     /* Phase 1: Calibrate IMU. */
     if (!isIMUCalibrated) {
-        std::cout << " in Phase 1" << std::endl;
         isIMUCalibrated = calibrateIMUStep();
     }
     /* Phase 2: Initialize AHRS. */
     else if (!isAHRSInitialized) {
-        std::cout << " in Phase 2" << std::endl;
         initAHRS(readIMU());
         isAHRSInitialized = true;
     }
     /* Phase 3: Main operation. */
     else {
-        std::cout << " in Phase 3" << std::endl;
         updateMainFSM();
     }
 

@@ -41,11 +41,9 @@ static XIicPs Iic0;
  * 			A pointer to the XIicPs instance.
  */
 void int_gyr(void *InstancePtr) {
-    (void) InstancePtr;  // TODO
-    // TODO: update the main program
+    (void) InstancePtr;
     /* update the FSM */
-    std::cout << "update" << std::endl;
-    // update();
+    updateFSM();
 }
 
 /**

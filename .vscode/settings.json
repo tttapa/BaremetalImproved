@@ -38,7 +38,11 @@
         "type_traits": "cpp",
         "tuple": "cpp",
         "typeinfo": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "cstdarg": "cpp",
+        "cstring": "cpp",
+        "strstream": "cpp",
+        "typeindex": "cpp"
     },
     "explorer.sortOrder": "filesFirst",
     "C_Cpp.default.cppStandard": "c++17",
