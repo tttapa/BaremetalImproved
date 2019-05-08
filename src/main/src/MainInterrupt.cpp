@@ -219,6 +219,10 @@ void updateMainFSM() {
 
     /* Transform the motor signals and output to the motors. */
     MotorDutyCycles dutyCycles = transformAttitudeControlSignal(uxyz, uc);
+    printf("Time %.2f\t, uc %.2f\t, ux %.2f\t, uy %.2f\t, uz %.2f, v0 %.2f\t, "
+           "v1 %.2f\t, v2 %.2f\t, v3 %.2f\n",
+           getTime(), uc, uxyz.ux, uxyz.uy, uxyz.uz, dutyCycles.v0,
+           dutyCycles.v1, dutyCycles.v2, dutyCycles.v3);
     setDutyCycles(dutyCycles);
     if (armedManager.isArmed())
         outputMotorPWM(dutyCycles);
@@ -256,7 +260,8 @@ void updateMainFSM() {
     previousFlightMode = getFlightMode();
 
     /* Print. */
-    printf("Time %f\t, thrust %f\t, yaw %f\t, pitch %f\t, roll %f\n", getTime(), getThrottle(), getYaw(), getPitch(), getRoll());
+    /*printf("Time %f\t, thrust %f\t, yaw %f\t, pitch %f\t, roll %f\n", getTime(),
+           getThrottle(), getYaw(), getPitch(), getRoll());*/
 }
 
 void updateFSM() {
