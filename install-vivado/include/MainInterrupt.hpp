@@ -1,7 +1,7 @@
 #pragma once
 
 /** Whether an interrupt is currently running. */
-extern bool isInterruptRunning;
+extern volatile bool isInterruptRunning;
 
 /**
  * @file    MainInterrupt.hpp
