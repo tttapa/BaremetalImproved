@@ -1,4 +1,5 @@
 #include <output/Motors.hpp>
+#include <platform/AxiGpio.hpp>
 #include <platform/Interrupt.hpp>
 #include <platform/Platform.hpp>
 #include <sensors/IMU.hpp>
