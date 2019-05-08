@@ -15,6 +15,8 @@
 #include <SharedMemoryInstances.hpp>
 #include <TiltCorrection.hpp>
 
+#include <iostream>
+
 /** Whether an interrupt is currently running. */
 bool isInterruptRunning = false;
 

@@ -61,7 +61,7 @@ endif()
 ################################################################################
 
 # Use C++ 17
-set (CMAKE_CXX_STANDARD 17)
+# set (CMAKE_CXX_STANDARD 17)
 
 # Optimize during linking stage
 # set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) # LTO
@@ -78,7 +78,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 -Wno-missing-braces \
 -Wno-unknown-pragmas \
 -fdiagnostics-show-option \
--DBAREMETAL")
+-DBAREMETAL \
+-std=c++17")
 
 # Compiler flags for C
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \

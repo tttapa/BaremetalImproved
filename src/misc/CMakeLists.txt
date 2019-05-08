@@ -28,7 +28,7 @@ target_include_directories(misc
 )
 
 # Tell CMake to compile this library with C++17 features enabled
-target_compile_features(misc PUBLIC cxx_std_17)
+# target_compile_features(misc PUBLIC cxx_std_17)
 
 # Link the library with its dependencies.
 #   This manages both the include directories of the dependencies, as well as  
