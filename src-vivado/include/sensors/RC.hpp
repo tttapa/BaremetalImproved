@@ -1,5 +1,5 @@
 #pragma once
-#include <OutputTypes.hpp>
+#include <SensorTypes.hpp>
 
 /**
  * Read the RC voltages from the registers.

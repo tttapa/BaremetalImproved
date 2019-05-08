@@ -6,7 +6,7 @@
 *   Author: w. devries, p. coppens
 ***********************************************************************************************************************/
 #include "../PrivateHardwareConstants.hpp"
-#include <RC.hpp>
+#include <sensors/RC.hpp>
 #include <xil_io.h>
 
 /**
@@ -16,25 +16,25 @@
 const float MAX_THROTTLE = 0.80;
 
 /* Address of the RC's throttle: PIN T14 (JD1). */
-const int THROTTLE_ADDR = XPAR_RC_0_S00_AXI_BASEADDR;
+uint32_t * const THROTTLE_ADDR = (uint32_t *) XPAR_RC_0_S00_AXI_BASEADDR;
 
 /* Address of the RC's roll: PIN T15 (JD2). */
-const int ROLL_ADDR = XPAR_RC_0_S00_AXI_BASEADDR + 0x04;
+uint32_t * const ROLL_ADDR = ((uint32_t *) XPAR_RC_0_S00_AXI_BASEADDR) + 1;
 
 /* Address of the RC's pitch: PIN P14 (JD3). */
-const int PITCH_ADDR = XPAR_RC_0_S00_AXI_BASEADDR + 0x08;
+uint32_t * const PITCH_ADDR = ((uint32_t *) XPAR_RC_0_S00_AXI_BASEADDR) + 2;
 
 /* Address of the RC's yaw: PIN R14 (JD4). */
-const int YAW_ADDR = XPAR_RC_0_S00_AXI_BASEADDR + 0x0C;
+uint32_t * const YAW_ADDR = ((uint32_t *) XPAR_RC_0_S00_AXI_BASEADDR) + 3;
 
 /* Address of the RC's flight mode: PIN U15 (JD6). */
-const int FLIGHT_MODE_ADDR = XPAR_RC_1_S00_AXI_BASEADDR;
+uint32_t * const FLIGHT_MODE_ADDR = (uint32_t *) XPAR_RC_1_S00_AXI_BASEADDR;
 
 /* Address of the RC's WPT mode: PIN V17 (JD7). */
-const int WPT_MODE_ADDR = XPAR_RC_1_S00_AXI_BASEADDR + 0x08;
+uint32_t * const WPT_MODE_ADDR = ((uint32_t *) XPAR_RC_1_S00_AXI_BASEADDR) + 2;
 
 /* Address of the RC's tuner knob: */
-const int TUNER_ADDR = XPAR_RC_1_S00_AXI_BASEADDR + 0x0C;
+uint32_t * const TUNER_ADDR = ((uint32_t *) XPAR_RC_1_S00_AXI_BASEADDR) + 3;
 
 /* Value if RC knob/joystick is at its lowest value. */
 const float RC_LOW = 0.001109;
@@ -52,8 +52,8 @@ const float RC_MARGIN = (RC_HIGH - RC_LOW) / 40.0;
 const float RC_DEAD = 0.0;
 
 // The last mode that the drone was in at the last interrupt.
-int lastFlightMode = 0;
-int lastWPTMode    = 0;
+FlightMode lastFlightMode = FlightMode::UNINITIALIZED;
+WPTMode lastWPTMode    = WPTMode::OFF;
 
 int newFlightModeCounter = 0;
 int newWPTModeCounter    = 0;
@@ -62,8 +62,8 @@ int newWPTModeCounter    = 0;
  * Reads the voltage from the given RC address. If RC_LOW and RC_HIGH are
  * defined correctly, then the result should be in [RC_LOW, RC_HIGH].
  */
-float getRCValue(int address) {
-    return (float) Xil_In32(address) / CLOCK_FREQUENCY;
+float getRCValue(uint32_t *address) {
+    return (float) Xil_In32((uintptr_t)address) / CLOCK_FREQUENCY;
 }
 
 /**
@@ -85,13 +85,13 @@ FlightMode getFlightMode(float flightModeValue) {
     float threshold2 = (RC_HIGH - RC_LOW) * 2.0 / 3.0;
 
     // Get the current mode from RC
-    int newFlightMode;
+    FlightMode newFlightMode;
     if (flightModeValue < threshold1)
-        newFlightMode = 0;
+        newFlightMode = FlightMode::MANUAL;
     else if (flightModeValue < threshold2)
-        newFlightMode = 1;
+        newFlightMode = FlightMode::ALTITUDE_HOLD;
     else
-        newFlightMode = 2;
+        newFlightMode = FlightMode::AUTONOMOUS;
 
     // TODO: can this be smaller
     int MODE_DELAY = 50;
@@ -121,11 +121,11 @@ FlightMode getFlightMode(float flightModeValue) {
  */
 WPTMode getWPTMode(float wptValue) {
 
-    int newWPTMode;
+    WPTMode newWPTMode;
     if (wptValue < RC_MID)
-        newWPTMode = 0;
+        newWPTMode = WPTMode::OFF;
     else
-        newWPTMode = 1;
+        newWPTMode = WPTMode::ON;
 
     // TODO: can this be smaller
     int MODE_DELAY = 50;
@@ -223,7 +223,7 @@ float rescaleMid(float x) {
     return 0;
 }
 
-RCValues readRC() {
+RCInput readRC() {
 
     /* Get all of the RC controls. */
     float throttle = rescale(clamp(getRCValue(THROTTLE_ADDR)));

@@ -1,11 +1,12 @@
 #include "../PrivateHardwareConstants.hpp"
 #include <WPT.hpp>
+#include <cstdint>
 
 /** Address of the PWM period of the WPT. */
-const int PERIOD_ADDR = XPAR_PWM_AXI_TRIPLE_4_0;
+uint32_t * const PERIOD_ADDR = (uint32_t *) XPAR_PWM_AXI_TRIPLE_4_0;
 
 /** Address of the PWM duty cycle of the WPT. */
-const int DUTY_CYCLE_ADDR = XPAR_PWM_AXI_TRIPLE_4_0 + 0x04;
+uint32_t * const DUTY_CYCLE_ADDR = ((uint32_t *) XPAR_PWM_AXI_TRIPLE_4_0) + 1;
 
 /** PWM frequency sent to the WPT team. */
 const float PWM_FREQUENCY = 500.0;

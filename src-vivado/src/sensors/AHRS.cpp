@@ -7,7 +7,7 @@
  *  Author: p. coppens
 ********************************************************************************/
 #include "MadgwickFilter.hpp"
-#include <AHRS.hpp>
+#include <sensors/AHRS.hpp>
 #include <SensorTypes.hpp>
 #include <xil_io.h>
 

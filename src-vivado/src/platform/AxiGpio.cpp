@@ -1,5 +1,5 @@
-#include "PrivateHardwareConstants.hpp" /* Registers & channels */
-#include <AxiGpio.hpp>                  /* Header file */
+#include "../PrivateHardwareConstants.hpp" /* Registers & channels */
+#include <platform/AxiGpio.hpp>                  /* Header file */
 #include <xgpio.h>                      /* AXI GPIO functions */
 #include <xparameters.h>                /* Project parameters */
 #include <xscugic.h>                    /* Xilinx functions */

@@ -30,4 +30,4 @@ void iicWriteToReg(u8 register_addr, u8 u8Data, int device);
  * @param   size
  *          Amount of bytes to read.
  */
-void iicReadReg(u8 *recv_buffer, u8 register_addr, int device, int size);
+void iicReadReg(u8 *recv_buffer, u8 register_addr, u16 device, int size);

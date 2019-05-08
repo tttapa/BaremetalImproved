@@ -5,7 +5,7 @@
 #include <sensors/Sonar.hpp>
 
 #include <ControllerInstances.hpp>
-#include <Main.hpp>
+#include <MainLoop.hpp>
 #include <SharedMemoryInstances.hpp>
 
 /**

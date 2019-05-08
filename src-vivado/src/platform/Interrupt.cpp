@@ -6,7 +6,7 @@
 *   This file should NEVER be changed by the students.
 *   Author: w. devries
 *******************************************************************/
-#include <Interrupt.hpp>
+#include <platform/Interrupt.hpp>
 #include "IIC.hpp"
 #include <MainInterrupt.hpp> /* update() is called at 238 Hz. */
 #include <iostream>

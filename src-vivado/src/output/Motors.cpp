@@ -1,29 +1,29 @@
 #include "../PrivateHardwareConstants.hpp"
-#include <Motors.hpp>
+#include <output/Motors.hpp>
 
 /**
  * Address of PWM period for the front-left (0), front-right (1) and
  * back-left (2) motors.
  */
-const int PERIOD_012_ADDR = XPAR_PWM_AXI_TRIPLE_0_0;
+uint32_t * const PERIOD_012_ADDR = (uint32_t *) XPAR_PWM_AXI_TRIPLE_0_0;
 
 /**
  * Address of PWM period for the back-right (3) motor. This has a different
  * address because a different GPIO block is used for the back-right motor.
  */
-const int PERIOD_3_ADDR = XPAR_PWM_AXI_TRIPLE_3_0;
+uint32_t * const PERIOD_3_ADDR = (uint32_t *) XPAR_PWM_AXI_TRIPLE_3_0;
 
 /** Address of PWM duty cycle for the front-left (0) motor. */
-const int DUTY_CYCLE_0_ADDR = XPAR_PWM_AXI_TRIPLE_0_0 + 0x04;
+uint32_t * const DUTY_CYCLE_0_ADDR = ((uint32_t *) XPAR_PWM_AXI_TRIPLE_0_0) + 1;
 
 /** Address of PWM duty cycle for the front-left (0) motor. */
-const int DUTY_CYCLE_1_ADDR = XPAR_PWM_AXI_TRIPLE_0_0 + 0x08;
+uint32_t * const DUTY_CYCLE_1_ADDR = ((uint32_t *) XPAR_PWM_AXI_TRIPLE_0_0) + 2;
 
 /** Address of PWM duty cycle for the front-left (0) motor. */
-const int DUTY_CYCLE_2_ADDR = XPAR_PWM_AXI_TRIPLE_0_0 + 0x0C;
+uint32_t * const DUTY_CYCLE_2_ADDR = ((uint32_t *) XPAR_PWM_AXI_TRIPLE_0_0) + 3;
 
 /** Address of PWM duty cycle for the front-left (0) motor. */
-const int DUTY_CYCLE_3_ADDR = XPAR_PWM_AXI_TRIPLE_3_0 + 0x04;
+uint32_t * const DUTY_CYCLE_3_ADDR = ((uint32_t *) XPAR_PWM_AXI_TRIPLE_3_0) + 1;
 
 /** Lowest PWM duty cycle sent to the ESCs. */
 const float MIN_DUTY_CYCLE = 45.0;

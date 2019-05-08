@@ -1,12 +1,13 @@
 // Original: BareMetal/src/sonar/sonar.c
 #include "../PrivateHardwareConstants.hpp"
 #include "MedianFilter.hpp"
-#include <Sonar.hpp>
+#include <sensors/Sonar.hpp>
 #include <cmath>
 #include <xil_io.h>
+#include <PublicHardwareConstants.hpp>
 
 /** Address of the sonar : // TODO: what pin? */
-const int SONAR_ADDR = XPAR_RC_1_S00_AXI_BASEADDR + 0x04;
+uint32_t * const SONAR_ADDR = ((uint32_t *) XPAR_RC_1_S00_AXI_BASEADDR) + 1;
 
 /** Conversion factor to meters. */
 const float PWM_TO_HEIGHT = 0.005787;  // TODO: is this correct?
@@ -62,7 +63,7 @@ bool readSonar() {
 
     /* Check if there is a new measurement available. */
     newSonarRaw =
-        (float) Xil_In32(SONAR_ADDR) / (CLOCK_FREQUENCY * PWM_TO_HEIGHT);
+        (float) Xil_In32((uintptr_t)SONAR_ADDR) / (CLOCK_FREQUENCY * PWM_TO_HEIGHT);
     if (fabs(newSonarRaw - oldSonarRaw) <= 0.00000001)
         return false;
 

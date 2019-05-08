@@ -6,11 +6,11 @@
 *   This file should normally not be changed by the students.
 *   Author: w. devries
 ***********************************************************************************************************************/
-#include "../platform/IIC.hpp"
+#include "../platform/IIC.hpp" // TODO
 #include "LSM9DS1_Registers.h"
-#include <AxiGpio.hpp>
-#include <IMU.hpp>
-#include <Interrupt.hpp>
+#include <platform/AxiGpio.hpp>
+#include <sensors/IMU.hpp>
+#include <platform/Interrupt.hpp>
 #include <Quaternion.hpp>
 #include <sleep.h>  // TODO: is usleep() necessary?
 #include <xil_io.h>
@@ -186,7 +186,12 @@ bool calibrateIMUStep() {
     ledValue += (ledIndex >= 2 && ledIndex <= 6 ? 0x2 : 0);
     ledValue += (ledIndex >= 3 && ledIndex <= 5 ? 0x4 : 0);
     ledValue += (ledIndex == 4 ? 0x8 : 0);
-    writeValueToLEDs(ledValue);
+    writeToLEDs({
+    	ledIndex >= 1,
+		ledIndex >= 2 && ledIndex <= 6,
+		ledIndex >= 3 && ledIndex <= 5 ,
+		ledIndex == 4,
+    });
 
     /* Increment counter. */
     calibrationStepCounter++;
@@ -226,7 +231,7 @@ bool calibrateIMUStep() {
         accelBiasNorm = norm(accelBiasAverage);
 
         /* Turn off all LEDs. */
-        writeValueToLEDs(0);
+        writeToLEDs({0, 0, 0, 0});
         xil_printf("calibrated IMU \r\n");
     }
 
