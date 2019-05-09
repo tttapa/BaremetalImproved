@@ -203,11 +203,6 @@ bool calibrateIMUStep() {
         accelRawSum[0] += rawAccel.axInt;
         accelRawSum[1] += rawAccel.ayInt;
         accelRawSum[2] += rawAccel.azInt;
-
-        // TODO: print measurement
-        printf("gx %d\t, gy %d\t, gz %d\t, ax %d\t, ay %d\t, az %d\n",
-               rawGyro.gxInt, rawGyro.gyInt, rawGyro.gzInt, rawAccel.axInt,
-               rawAccel.ayInt, rawAccel.azInt);
     }
 
     /* Final calibration step reached. */
