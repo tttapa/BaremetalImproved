@@ -23,6 +23,7 @@ const real_t Y_MIN = -4.0;
  */
 struct PositionReference {
     PositionReference(Position p) : p{p} {}
+    PositionReference() = default;
     Position p;  ///< Position (x,y) in meters.
 };
 
@@ -32,6 +33,7 @@ struct PositionReference {
  */
 struct PositionMeasurement {
     PositionMeasurement(Position p) : p{p} {}
+    PositionMeasurement() = default;
     Position p;  ///< Position (x,y) in meters.
 };
 
@@ -44,6 +46,7 @@ struct PositionMeasurement {
 struct PositionState {
     PositionState(real_t q1, real_t q2, Position p, real_t vx, real_t vy)
         : q1{q1}, q2{q2}, p{p}, vx{vx}, vy{vy} {}
+    PositionState() = default;
     real_t q1;   ///< Orientation q1 component (/).
     real_t q2;   ///< Orientation q2 component (/).
     Position p;  ///< Position (x,y) in meters.
@@ -56,6 +59,7 @@ struct PositionState {
  */
 struct PositionIntegralWindup {
     PositionIntegralWindup(real_t x, real_t y) : x{x}, y{y} {}
+    PositionIntegralWindup() = default;
     real_t x;  ///< X position (m).
     real_t y;  ///< Y position (m).
 };
@@ -67,6 +71,7 @@ struct PositionIntegralWindup {
 struct PositionControlSignal {
     PositionControlSignal(real_t q1ref, real_t q2ref)
         : q1ref{q1ref}, q2ref{q2ref} {}
+    PositionControlSignal() = default;
     real_t q1ref;  ///< Reference orientation q1 component (/).
     real_t q2ref;  ///< Reference orientation q2 component (/).
 };
@@ -74,6 +79,7 @@ struct PositionControlSignal {
 struct PositionStateBlind {
     PositionStateBlind(Position p, real_t vx, real_t vy)
         : p{p}, vx{vx}, vy{vy} {}
+    PositionStateBlind() = default;
     Position p;  ///< Position (x,y) in meters.
     real_t vx;   ///< X velocity (m/s).
     real_t vy;   ///< Y velocity (m/s).
@@ -81,6 +87,7 @@ struct PositionStateBlind {
 
 struct PositionControlSignalBlind {
     PositionControlSignalBlind(real_t q1, real_t q2) : q1{q1}, q2{q2} {}
+    PositionControlSignalBlind() = default;
     real_t q1;
     real_t q2;
 };

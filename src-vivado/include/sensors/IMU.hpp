@@ -7,6 +7,7 @@
 struct RawAccelMeasurement {
     RawAccelMeasurement(int axInt, int ayInt, int azInt)
         : axInt{axInt}, ayInt{ayInt}, azInt{azInt} {}
+    RawAccelMeasurement() = default;
     int axInt;  ///< Raw 16-bit reading of the acceleration along the x-axis.
     int ayInt;  ///< Raw 16-bit reading of the acceleration along the y-axis.
     int azInt;  ///< Raw 16-bit reading of the acceleration along the z-axis.
@@ -16,6 +17,7 @@ struct RawAccelMeasurement {
 struct RawGyroMeasurement {
     RawGyroMeasurement(int gxInt, int gyInt, int gzInt)
         : gxInt{gxInt}, gyInt{gyInt}, gzInt{gzInt} {}
+    RawGyroMeasurement() = default;
     int gxInt;  ///< Raw 16-bit reading of the angular vel. about the x-axis.
     int gyInt;  ///< Raw 16-bit reading of the angular vel. about the y-axis.
     int gzInt;  ///< Raw 16-bit reading of the angular vel. about the z-axis.

@@ -44,6 +44,7 @@ struct RCInput {
             real_t tuner, FlightMode flightMode, WPTMode wptMode)
         : throttle{throttle}, roll{roll}, pitch{pitch}, yaw{yaw}, tuner{tuner},
           flightMode{flightMode}, wptMode{wptMode} {}
+    RCInput() = default;
     real_t throttle;        ///< Value of the RC throttle in [0,1].
     real_t roll;            ///< Value of the RC roll in [0,1].
     real_t pitch;           ///< Value of the RC pitch in [0,1].
