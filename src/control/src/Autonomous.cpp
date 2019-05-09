@@ -138,7 +138,7 @@ Position AutonomousController::getNextSearchTarget() {
         x += dx;
         y += dy;
     }
-    return Position{x, y};
+    return Position(x, y);
 }
 
 void AutonomousController::setAutonomousState(AutonomousState nextState) {
@@ -414,8 +414,8 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                      this->navigationTime;
                 dy = (nextTarget.y - previousTarget.y) * getElapsedTime() /
                      this->navigationTime;
-                referencePosition = {previousTarget.x + dx,
-                                     previousTarget.y + dy};
+                referencePosition =
+                    Position(previousTarget.x + dx, previousTarget.y + dy);
             }
 
             /* Finished navigating... Instruction = hover at (position, height)
