@@ -6,6 +6,7 @@
 struct AccelMeasurement {
     AccelMeasurement(real_t ax, real_t ay, real_t az)
         : ax{ax}, ay{ay}, az{az} {}
+    AccelMeasurement() = default;
     real_t ax;  ///< Acceleration along the x-axis in g.
     real_t ay;  ///< Acceleration along the y-axis in g.
     real_t az;  ///< Acceleration along the z-axis in g.
@@ -14,6 +15,7 @@ struct AccelMeasurement {
 /* Angular velocity measurement in rad/s. */
 struct GyroMeasurement {
     GyroMeasurement(real_t gx, real_t gy, real_t gz) : gx{gx}, gy{gy}, gz{gz} {}
+    GyroMeasurement() = default;
     real_t gx;  ///< Angular velocity about the x-axis in rad/s.
     real_t gy;  ///< Angular velocity about the y-axis in rad/s.
     real_t gz;  ///< Angular velocity about the z-axis in rad/s.

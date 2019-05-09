@@ -48,8 +48,8 @@ void updateMainFSM() {
 
     /* Values to be calculated each iteration. */
     AttitudeControlSignal uxyz;
-    real_t uc;
     static real_t ucLast = 0.0; /* Remember last common thrust for GTC. */
+    real_t uc            = ucLast;
 
     /* Keep the attitude controller's state estimate near the unit quaternion
        [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
@@ -68,13 +68,10 @@ void updateMainFSM() {
     Quaternion jumpedAhrsQuat     = getJumpedOrientation(yawJump);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
-    bool hasNewSonarMeasurement = readSonar();
-    real_t sonarMeasurement, correctedSonarMeasurement;
-    if (hasNewSonarMeasurement) {
-        sonarMeasurement          = getFilteredSonarMeasurement();
-        correctedSonarMeasurement = getCorrectedHeight(
-            sonarMeasurement, attitudeController.getOrientationQuat());
-    }
+    bool hasNewSonarMeasurement      = readSonar();
+    real_t sonarMeasurement          = getFilteredSonarMeasurement();
+    real_t correctedSonarMeasurement = getCorrectedHeight(
+        sonarMeasurement, attitudeController.getOrientationQuat());
 
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
@@ -135,10 +132,9 @@ void updateMainFSM() {
                 /* Common thrust is calculated by the altitude controller. */
                 uc = inputBias.getThrustBias() +
                      altitudeController.updateControlSignal().ut;
-
-                /* Calculate the torque motor signals. */
-                uxyz = attitudeController.updateControlSignal(uc);
             }
+            /* Calculate the torque motor signals. */
+            uxyz = attitudeController.updateControlSignal(uc);
         } break;
         case FlightMode::AUTONOMOUS: {
             // TODO: when should we initGround or initAir?
@@ -197,10 +193,11 @@ void updateMainFSM() {
                 uxyz = attitudeController.updateControlSignal(uc);
             }
         } break;
-        case FlightMode::UNINITIALIZED:
+        default:  // case FlightMode::UNINITIALIZED:
             /* We will never get here because readRC() cannot return an
             uninitialized flight mode. */
-            break;
+            uxyz = {0, 0, 0};
+            uc   = 0.0;
     }
 
     /* Remember common thrust for next clock cycle, which is needed to start the
