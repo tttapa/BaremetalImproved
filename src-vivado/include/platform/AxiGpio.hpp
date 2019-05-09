@@ -21,7 +21,8 @@
 bool initAxiGpio();
 
 /**
- * Generate a heartbeat by writing 0, then 1 to the heartbeat channel.
+ * Generate a heartbeat by writing 0, then 1 to the heartbeat channel. This is
+ * used to activate the kill switch when the software hangs.
  */
 void generateHeartbeat();
 

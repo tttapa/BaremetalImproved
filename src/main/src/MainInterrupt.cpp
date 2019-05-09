@@ -258,6 +258,9 @@ void update() {
 
     std::cout << "Update called";
 
+    /* Generate heartbeat, so kill switch is activated when software hangs. */
+    generateHeartbeat();
+
     /* Test pin high to probe length of interrupt. */
     writeValueToTestPin(true);
 

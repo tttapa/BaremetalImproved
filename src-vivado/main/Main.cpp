@@ -1,4 +1,6 @@
+#include <output/Buzzer.hpp>
 #include <output/Motors.hpp>
+#include <output/WPT.hpp>
 #include <platform/AxiGpio.hpp>
 #include <platform/Interrupt.hpp>
 #include <platform/Platform.hpp>
@@ -44,7 +46,8 @@ int main(void) {
 
     /* Reset PWM output. */
     outputMotorPWM({0, 0, 0, 0});
-
+    outputBuzzerPWM({0, 0, 0});
+    outputWPT(0);
 
     //-------------------- MAIN EXECUTION -------------------
     std::cout << "Main Execution started" << std::endl;
