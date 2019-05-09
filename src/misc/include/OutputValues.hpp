@@ -1,7 +1,7 @@
 #pragma once
 
 /* Includes from src. */
-#include <Attitude.hpp>
+#include <OutputTypes.hpp>
 #include <real_t.h>
 
 // TODO: comment

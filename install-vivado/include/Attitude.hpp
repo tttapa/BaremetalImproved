@@ -218,6 +218,9 @@ class AttitudeController {
         AttitudeState stateEstimate, AttitudeControlSignal controlSignal,
         AttitudeMeasurement measurement, int droneConfiguration);
 
+    // TODO: comment, and add these to altitude and position too!
+    AttitudeControlSignal getControlSignal() { return this->controlSignal; }
+
     /**
      * Returns the quaternion of the attitude controller's estimate of the
      * drone's orientation. This value is "jumped" in order to keep the estimate
@@ -247,6 +250,9 @@ class AttitudeController {
      * to the logger.
      */
     EulerAngles getReferenceEuler() { return this->referenceEuler; }
+
+    // TODO: comment
+    AttitudeState getStateEstimate() { return this->stateEstimate; }
 
     /**
      * Reset the attitude controller to the initial state.

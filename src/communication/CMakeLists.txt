@@ -26,10 +26,10 @@ target_include_directories(communication
 #   the actual linking of the other libraries.
 #   Libraries that are used in the public header files should be public,
 #   libraries that are only used in the implementation files should be private.
-# target_link_libraries(communication 
-#     PUBLIC 
-#         other-library
-# )
+target_link_libraries(communication 
+    PRIVATE 
+        instances
+)
 
 # Run CMake again in the `test` folder, to discover the CMakeLists.txt file that
 # adds the tests.
