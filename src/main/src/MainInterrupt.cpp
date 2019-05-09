@@ -45,54 +45,60 @@ void updateMainFSM() {
     /* Previous flight mode initialized when the function is first called. */
     static FlightMode previousFlightMode = FlightMode::UNINITIALIZED;
 
+    /* Values to be calculated each iteration. */
+    IMUMeasurement imuMeasurement;
+    Quaternion ahrsQuat, jumpedAhrsQuat;
+    bool hasNewSonarMeasurement, hasNewIMPMeasurement;
+    real_t yawJump, sonarMeasurement, correctedSonarMeasurement, yawMeasurement;
+    Position positionMeasurement, correctedPositionMeasurement;
+    AttitudeControlSignal uxyz;
+    real_t uc;
+    static real_t ucLast = 0.0; /* Remember last common thrust for GTC. */
+
     /* Keep the attitude controller's state estimate near the unit quaternion
        [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
        passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
        versa. */
-    setYawJump(calculateYawJump(attitudeController.getOrientationEuler().yaw));
-    attitudeController.calculateJumpedQuaternions(getYawJump());
+    yawJump = calculateYawJump(attitudeController.getOrientationEuler().yaw);
+    attitudeController.calculateJumpedQuaternions(yawJump);
 
     /* Read RC data and update the global struct. */
     setRCInput(readRC());
 
     /* Read IMU measurement and update the AHRS. */
-    setIMUMeasurement(readIMU());
-    setAHRSQuat(updateAHRS(getIMUMeasurement()));
-    setJumpedAHRSQuat(getJumpedOrientation(getYawJump()));
+    imuMeasurement = readIMU();
+    ahrsQuat       = updateAHRS(imuMeasurement);
+    jumpedAhrsQuat = getJumpedOrientation(yawJump);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
-    bool hasNewSonarMeasurement = readSonar();
+    hasNewSonarMeasurement = readSonar();
+    sonarMeasurement, correctedSonarMeasurement;
     if (hasNewSonarMeasurement) {
-        setSonarMeasurement(getFilteredSonarMeasurement());
-        setCorrectedSonarMeasurement(getCorrectedHeight(
-            getSonarMeasurement(), attitudeController.getOrientationQuat()));
+        sonarMeasurement          = getFilteredSonarMeasurement();
+        correctedSonarMeasurement = getCorrectedHeight(
+            sonarMeasurement, attitudeController.getOrientationQuat()));
     }
 
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
-    bool hasNewIMPMeasurement = false;
+    Position positionMeasurement, correctedPositionMeasurement;
+    yawMeasurement;
     if (visionComm->isDoneWriting()) {
-        hasNewIMPMeasurement  = true;
-        VisionData visionData = visionComm->read();
-        setPositionMeasurement(visionData.position);
-        setYawMeasurement(visionData.yawAngle);
+        hasNewIMPMeasurement           = true;
+        VisionData visionData          = visionComm->read();
+        positionMeasurement            = visionData.position;
+        yawMeasurement                 = visionData.yawAngle;
         ColVector<2> correctedPosition = getCorrectedPosition(
-            ColVector<2>{visionData.position.x, visionData.position.y},
-            getSonarMeasurement(), attitudeController.getOrientationQuat());
-        setCorrectedPositionMeasurement(
-            {correctedPosition[0],
-             correctedPosition[1]});  // TODO: adapter function
+            ColVector<2>{positionMeasurement.x, positionMeasurement.y},
+            sonarMeasurement, attitudeController.getOrientationQuat());
+        correctedPositionMeasurement = {
+            correctedPosition[0],
+            correctedPosition[1]};  // TODO: adapter function
     }
-
-    /* Save the measurements for the logger. */
 
     /* Implement main FSM logic. The transformed motor signals will be
        calculated based on the current flight mode, the measurements and the
        current state of the controllers. */
-    AttitudeControlSignal uxyz;  // TODO: variable names
-    real_t uc = 0.0;
-    /// Remember last cycle's common thrust for GTC.
-    static real_t ucLast = 0.0;
     switch (getFlightMode()) {
         case FlightMode::MANUAL:
 
@@ -103,8 +109,15 @@ void updateMainFSM() {
             /* Start gradual thrust change if last mode was altitude hold. */
             gtcManager.start(ucLast);
 
-            /* Common thrust comes directly from the RC. */
-            uc = getThrottle();
+            /* Common thrust comes directly from the RC, but leave some margin
+               for two reasons. Firstly, it is not safe to fly at 100% thrust.
+               Secondly, if that were to happen, then there would be no room for
+               the attitude controller to make adjustments. */
+            const float MAX_THROTTLE = 0.80;
+            if (getThrottle() <= MAX_THROTTLE)
+                uc = getThrottle();
+            else
+                uc = MAX_THROTTLE;
 
             /* Update the attitude controller's reference using the RC. */
             attitudeController.updateRCReference();
@@ -133,14 +146,14 @@ void updateMainFSM() {
             // TODO: when should we initGround or initAir?
             if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
                 autonomousController.initAir(Position{0.5, 0.5},
-                                             {getCorrectedSonarMeasurement()});
+                                             {correctedSonarMeasurement});
             // TODO: should we tell IMP to reset their measurement?
             if (hasNewIMPMeasurement) {
                 // TODO: in autonomous mode, update AHRS's yaw
 
                 /* Autonomous controller, using position of the drone. */
-                AutonomousOutput output = autonomousController.update(
-                    getCorrectedPositionMeasurement());
+                AutonomousOutput output =
+                    autonomousController.update(correctedPositionMeasurement);
 
                 /* Position controller, using AutonomousOutput. */
                 PositionControlSignal q12ref;
@@ -154,7 +167,7 @@ void updateMainFSM() {
                     else
                         positionController.updateObserver(
                             attitudeController.getOrientationQuat(), getTime(),
-                            {getCorrectedPositionMeasurement()});
+                            {correctedPositionMeasurement});
                     // TODO: adapter
 
                     /* Calculate control signal. */
@@ -215,16 +228,12 @@ void updateMainFSM() {
             uc = 0.0;
     }
 
-    /* Save the common thrust for the logger. */
-    setCommonThrust(uc);
-
     /* Transform the motor signals and output to the motors. */
     MotorSignals motorSignals = transformAttitudeControlSignal(uxyz, uc);
     printf("Time %.2f\t, mode %d\t, uc %.2f\t, ux %.2f\t, uy %.2f\t, uz %.2f, "
            "v0 %.2f\t, v1 %.2f\t, v2 %.2f\t, v3 %.2f\n",
-           getTime(), (int)(getFlightMode()), uc, uxyz.ux, uxyz.uy, uxyz.uz,
+           getTime(), (int) (getFlightMode()), uc, uxyz.ux, uxyz.uy, uxyz.uz,
            motorSignals.v0, motorSignals.v1, motorSignals.v2, motorSignals.v3);
-    setMotorSignals(motorSignals);
     if (armedManager.isArmed())
         outputMotorPWM(motorSignals);
 
@@ -247,22 +256,30 @@ void updateMainFSM() {
     /* Update the Kalman Filters (the position controller doesn't use one). */
     // TODO: make sure this is correct... attitude should update its euler
     //       representation with getJumpedOrientation() - previousOrientation
-    attitudeController.updateObserver(
-        {
-            getJumpedAHRSQuat(),
-            getGyroMeasurement().gx,
-            getGyroMeasurement().gy,
-            getGyroMeasurement().gz,
-        },
-        getYawJump());
-    altitudeController.updateObserver({getCorrectedSonarMeasurement()});
+    attitudeController.updateObserver({jumpedAHRSQuat, imuMeasurement.gx,
+                                       imuMeasurement.gy, imuMeasurement.gz},
+                                      yawJump);
+    altitudeController.updateObserver({correctedSonarMeasurement});
+
+    /* Logger. */
+    setYawJump(yawJump);
+    setIMUMeasurement(imuMeasurement);
+    setAHRSQuat(ahrsQuat);
+    setJumpedAHRSQuat(jumpedAhrsQuat);
+    if (hasNewSonarMeasurement) {
+        setSonarMeasurement(sonarMeasurement);
+        setCorrectedSonarMeasurement(correctedSonarMeasurement);
+    }
+    if (hasNewIMPMeasurement) {
+        setPositionMeasurement(positionMeasurement);
+        setYawMeasurement(yawMeasurement);
+        setCorrectedPositionMeasurement(correctedPositionMeasurement);
+    }
+    setCommonThrust(uc);
+    setMotorSignals(motorSignals);
 
     /* Store flight mode. */
     previousFlightMode = getFlightMode();
-
-    /* Print. */
-    /*printf("Time %f\t, thrust %f\t, yaw %f\t, pitch %f\t, roll %f\n", getTime(),
-           getThrottle(), getYaw(), getPitch(), getRoll());*/
 }
 
 void updateFSM() {

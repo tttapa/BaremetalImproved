@@ -26,9 +26,8 @@ static constexpr real_t RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
 /** The threshold to start increasing the reference yaw is +0.05. */
 static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 
-MotorSignals
-transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
-                               real_t commonThrust) {
+MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
+                                            real_t commonThrust) {
     return MotorSignals{
         commonThrust + controlSignal.ux + controlSignal.uy - controlSignal.uz,
         commonThrust + controlSignal.ux - controlSignal.uy + controlSignal.uz,
@@ -45,14 +44,12 @@ void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {
          this->referenceEuler.roll});
 }
 
-AttitudeControlSignal
-AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
-                                       real_t commonThrust) {
+void AttitudeController::clampControlSignal(real_t commonThrust) {
 
     /* Load values from the attitude controller. */
-    real_t ux = controlSignal.ux;
-    real_t uy = controlSignal.uy;
-    real_t uz = controlSignal.uz;
+    real_t ux = this->controlSignal.ux;
+    real_t uy = this->controlSignal.uy;
+    real_t uz = this->controlSignal.uz;
 
     /* Clamp the yaw torque motor separately to ensure ux, uy compensation. */
     if (uz > YAW_SIGNAL_CLAMP)
@@ -71,7 +68,7 @@ AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
         uz *= factor;
     }
 
-    return AttitudeControlSignal{ux, uy, uz};
+    this->controlSignal = AttitudeControlSignal{ux, uy, uz};
 }
 
 void AttitudeController::init() {
@@ -89,24 +86,25 @@ AttitudeControlSignal
 AttitudeController::updateControlSignal(real_t commonThrust) {
 
     /* Calculate integral windup. */
-    this->integralWindup = codegenIntegralWindup(
+    this->integralWindup = AttitudeController::codegenIntegralWindup(
         this->integralWindup, this->reference, this->stateEstimate,
         configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    this->controlSignal = codegenControlSignal(
+    this->controlSignal = AttitudeController::codegenControlSignal(
         this->stateEstimate, this->reference, this->integralWindup,
         configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
-    this->controlSignal = clampControlSignal(this->controlSignal, commonThrust);
+    this->clampControlSignal(commonThrust);
 
+    /* Return the updated control signal. */
     return this->controlSignal;
 }
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement,
                                         real_t yawJumpToSubtract) {
-    this->stateEstimate = codegenNextStateEstimate(
+    this->stateEstimate = AttitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());
 

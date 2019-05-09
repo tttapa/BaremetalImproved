@@ -81,15 +81,10 @@ class AltitudeController {
 
   public:
     /**
-     * Clamp the given altitude control signal in [-0.10,+0.10].
-     * 
-     * @param   controlSignal
-     *          Control signal to clamp.
-     * 
-     * @return  The clamped altitude control signal.
+     * Clamp the current altitude control signal in [-0.10,+0.10].
      */
-    static AltitudeControlSignal
-    clampControlSignal(AltitudeControlSignal controlSignal);
+    void clampControlSignal();
+
     /**
      * Calculate the current altitude control signal using the code generator.
      * 

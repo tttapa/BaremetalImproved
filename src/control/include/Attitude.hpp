@@ -68,9 +68,8 @@ struct AttitudeControlSignal {
  * 
  * @return  The duty cycles to the four motors.
  */
-MotorSignals
-transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
-                               real_t commonThrust);
+MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
+                                            real_t commonThrust);
 
 /**
  * Class to control the attitude of the drone. The first part is an observer to
@@ -134,21 +133,15 @@ class AttitudeController {
     void calculateJumpedQuaternions(real_t yawJumpRads);
 
     /**
-     * Clamp the given attitude control signal such that the corrections are not
-     * dominated by the yaw component and such that each motor PWM duty cycle is
-     * in [0,1].
+     * Clamp the current attitude control signal such that the corrections are
+     * not dominated by the yaw component and such that each motor PWM duty
+     * cycle is in [0,1].
      * 
-     * @param   controlSignal
-     *          Control signal to clamp.
      * @param   commonThrust
      *          Control signal to be sent to the "common motor": this must be in
      *          [0,1].
-     * 
-     * @return  The clamped attitude control signal.
      */
-    static AttitudeControlSignal
-    clampControlSignal(AttitudeControlSignal controlSignal,
-                       real_t commonThrust);
+    void clampControlSignal(real_t commonThrust);
 
     /**
      * Calculate the current attitude control signal using the code generator.

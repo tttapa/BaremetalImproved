@@ -21,14 +21,14 @@ static constexpr float CONFIG_CHANGE_DELAY = 1.5;
  */
 static constexpr float AFTER_CONFIG_CHANGE_DELAY = 0.5;
 
-/** Threshold for incrementing the cofiguration is 0.40. */
-static constexpr float CONFIG_UPPER_THRESHOLD = 0.40;
-/** Threshold for decrementing the cofiguration is -0.40. */
-static constexpr float CONFIG_LOWER_THRESHOLD = -0.40;
-/** Upper threshold for counting wiggles is 0.04. */
-static constexpr float WIGGLE_UPPER_THRESHOLD = 0.04;
-/** Lower threshold for counting wiggles is -0.04. */
-static constexpr float WIGGLE_LOWER_THRESHOLD = -0.04;
+/** Threshold for incrementing the cofiguration is 0.80. */
+static constexpr float CONFIG_UPPER_THRESHOLD = 0.80;
+/** Threshold for decrementing the cofiguration is -0.80. */
+static constexpr float CONFIG_LOWER_THRESHOLD = -0.80;
+/** Upper threshold for counting wiggles is 0.08. */
+static constexpr float WIGGLE_UPPER_THRESHOLD = 0.08;
+/** Lower threshold for counting wiggles is -0.08. */
+static constexpr float WIGGLE_LOWER_THRESHOLD = -0.08;
 
 /** Configuration can only be changed when the RC throttle is below 0.03. */
 static constexpr float THROTTLE_THRESHOLD = 0.03;

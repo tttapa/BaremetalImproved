@@ -18,24 +18,15 @@ real_t distsq(Position position1, Position position2) {
     return dx * dx + dy * dy;
 }
 
-PositionControlSignal
-PositionController::clampControlSignal(PositionControlSignal controlSignal) {
-
-    /* Load values from the position controller. */
-    real_t q1ref = controlSignal.q1ref;
-    real_t q2ref = controlSignal.q2ref;
-
-    /* Clamp q1ref and q2ref. */
-    if (q1ref > REFERENCE_QUATERNION_CLAMP)
-        q1ref = REFERENCE_QUATERNION_CLAMP;
-    if (q1ref < -REFERENCE_QUATERNION_CLAMP)
-        q1ref = -REFERENCE_QUATERNION_CLAMP;
-    if (q2ref > REFERENCE_QUATERNION_CLAMP)
-        q2ref = REFERENCE_QUATERNION_CLAMP;
-    if (q2ref < -REFERENCE_QUATERNION_CLAMP)
-        q2ref = -REFERENCE_QUATERNION_CLAMP;
-
-    return PositionControlSignal{q1ref, q2ref};
+void PositionController::clampControlSignal() {
+    if (this->controlSignal.q1ref > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q1ref = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q1ref < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q1ref = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q2ref > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q2ref = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q2ref < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q2ref = -REFERENCE_QUATERNION_CLAMP;
 }
 
 void PositionController::correctPosition(real_t correctionX,
@@ -60,18 +51,19 @@ PositionController::updateControlSignal(PositionReference reference) {
     this->reference = reference;
 
     /* Calculate integral windup. */
-    this->integralWindup = codegenIntegralWindup(
+    this->integralWindup = PositionController::codegenIntegralWindup(
         this->integralWindup, reference, this->stateEstimate,
         configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    this->controlSignal = codegenControlSignal(
+    this->controlSignal = PositionController::codegenControlSignal(
         this->stateEstimate, reference, this->integralWindup,
         configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
-    this->controlSignal = clampControlSignal(this->controlSignal);
+    this->clampControlSignal();
 
+    /* Return the updated control signal. */
     return this->controlSignal;
 }
 
@@ -79,7 +71,7 @@ void PositionController::updateObserver(Quaternion orientation,
                                         real_t currentTime,
                                         PositionMeasurement measurement) {
     /* Calculate the current state estimate. */
-    this->stateEstimate = codegenCurrentStateEstimate(
+    this->stateEstimate = PositionController::codegenCurrentStateEstimate(
         this->stateEstimate, measurement, orientation,
         currentTime - lastMeasurementTime,
         configManager.getControllerConfiguration());

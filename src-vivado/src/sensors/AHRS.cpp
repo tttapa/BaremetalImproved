@@ -28,7 +28,6 @@ void initAHRS(IMUMeasurement imu) {
     /* Use accelerometer values to ensure that the initial quaternion is
 	   oriented correctly. */
     ColVector<3> accel = {imu.ax, imu.ay, imu.az};
-
     orientation = Quaternion::fromDirection(accel);
 
     /* AHRS is now initialized. */

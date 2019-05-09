@@ -20,7 +20,7 @@ const real_t Y_MIN = -4.0;
  * measured in meters.
  */
 struct PositionReference {
-    Position p; ///< Position (x,y) in meters.
+    Position p;  ///< Position (x,y) in meters.
 };
 
 /** 
@@ -28,7 +28,7 @@ struct PositionReference {
  * represents the global position in meters.
  */
 struct PositionMeasurement {
-    Position p; ///< Position (x,y) in meters.
+    Position p;  ///< Position (x,y) in meters.
 };
 
 /**
@@ -38,11 +38,11 @@ struct PositionMeasurement {
  * two floats represent the horizontal velocity of the drone in m/s.
  */
 struct PositionState {
-    real_t q1;  ///< Orientation q1 component (/).
-    real_t q2;  ///< Orientation q2 component (/).
-    Position p; ///< Position (x,y) in meters.
-    real_t vx;  ///< X velocity (m/s).
-    real_t vy;  ///< Y velocity (m/s).
+    real_t q1;   ///< Orientation q1 component (/).
+    real_t q2;   ///< Orientation q2 component (/).
+    Position p;  ///< Position (x,y) in meters.
+    real_t vx;   ///< X velocity (m/s).
+    real_t vy;   ///< Y velocity (m/s).
 };
 
 /**
@@ -63,9 +63,9 @@ struct PositionControlSignal {
 };
 
 struct PositionStateBlind {
-    Position p; ///< Position (x,y) in meters.
-    real_t vx;  ///< X velocity (m/s).
-    real_t vy;  ///< Y velocity (m/s).
+    Position p;  ///< Position (x,y) in meters.
+    real_t vx;   ///< X velocity (m/s).
+    real_t vy;   ///< Y velocity (m/s).
 };
 
 struct PositionControlSignalBlind {
@@ -142,15 +142,9 @@ class PositionController {
 
   public:
     /**
-     * Clamp the given position control signal in [-0.0436,+0.0436].
-     * 
-     * @param   controlSignal
-     *          Control signal to clamp.
-     * 
-     * @return  The clamped position control signal.
+     * Clamp the current position control signal in [-0.0436,+0.0436].
      */
-    static PositionControlSignal
-    clampControlSignal(PositionControlSignal controlSignal);
+    void clampControlSignal();
 
     /**
      * Calculate the current position control signal using the code generator.
@@ -188,8 +182,7 @@ class PositionController {
     static PositionIntegralWindup
     codegenIntegralWindup(PositionIntegralWindup integralWindup,
                           PositionReference reference,
-                          PositionState stateEstimate, 
-                          int droneConfiguration);
+                          PositionState stateEstimate, int droneConfiguration);
 
     /**
      * Calculate the current position estimate using the code generator. Because
@@ -249,9 +242,7 @@ class PositionController {
     /**
      * Get the position controller's reference position.
      */
-    Position getReferencePosition() {
-        return this->reference.p;
-    }
+    Position getReferencePosition() { return this->reference.p; }
 
     /**
      * Reset the position controller.

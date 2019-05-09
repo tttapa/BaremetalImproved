@@ -18,12 +18,12 @@ struct GyroMeasurement {
 
 /* Measured IMU angular velocity (gx,gy,gz) and acceleration (ax,ay,az). */
 struct IMUMeasurement {
-    real_t gx;  ///< Acceleration along the x-axis in g.
-    real_t gy;  ///< Acceleration along the y-axis in g.
-    real_t gz;  ///< Acceleration along the z-axis in g.
-    real_t ax;  ///< Angular velocity about the x-axis in rad/s.
-    real_t ay;  ///< Angular velocity about the y-axis in rad/s.
-    real_t az;  ///< Angular velocity about the z-axis in rad/s.
+    real_t gx;  ///< Angular velocity about the x-axis in rad/s.
+    real_t gy;  ///< Angular velocity about the y-axis in rad/s.
+    real_t gz;  ///< Angular velocity about the z-axis in rad/s.
+    real_t ax;  ///< Acceleration along the x-axis in g.
+    real_t ay;  ///< Acceleration along the y-axis in g.
+    real_t az;  ///< Acceleration along the z-axis in g.
 };
 
 /**

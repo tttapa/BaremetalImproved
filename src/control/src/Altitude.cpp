@@ -1,6 +1,6 @@
-#include <PublicHardwareConstants.hpp>
 #include <Altitude.hpp>
 #include <MiscInstances.hpp>
+#include <PublicHardwareConstants.hpp>
 #include <RCValues.hpp>
 
 /**
@@ -24,13 +24,11 @@ static constexpr real_t RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.25;
 /** The threshold to start increasing the reference height is 0.75. */
 static constexpr real_t RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.75;
 
-AltitudeControlSignal
-AltitudeController::clampControlSignal(AltitudeControlSignal controlSignal) {
-    if (controlSignal.ut > MARGINAL_SIGNAL_CLAMP)
-        return AltitudeControlSignal{MARGINAL_SIGNAL_CLAMP};
-    if (controlSignal.ut < -MARGINAL_SIGNAL_CLAMP)
-        return AltitudeControlSignal{-MARGINAL_SIGNAL_CLAMP};
-    return AltitudeControlSignal{controlSignal.ut};
+void AltitudeController::clampControlSignal() {
+    if (this->controlSignal.ut > MARGINAL_SIGNAL_CLAMP)
+        this->controlSignal.ut = MARGINAL_SIGNAL_CLAMP;
+    if (this->controlSignal.ut < -MARGINAL_SIGNAL_CLAMP)
+        this->controlSignal.ut = -MARGINAL_SIGNAL_CLAMP;
 }
 
 void AltitudeController::init() {
@@ -49,23 +47,24 @@ void AltitudeController::setReference(AltitudeReference reference) {
 AltitudeControlSignal AltitudeController::updateControlSignal() {
 
     /* Calculate integral windup. */
-    this->integralWindup = codegenIntegralWindup(
+    this->integralWindup = AltitudeController::codegenIntegralWindup(
         this->integralWindup, this->reference, this->stateEstimate,
         configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    this->controlSignal = codegenControlSignal(
+    this->controlSignal = AltitudeController::codegenControlSignal(
         this->stateEstimate, this->reference, this->integralWindup,
         configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
-    this->controlSignal = clampControlSignal(this->controlSignal);
+    this->clampControlSignal();
 
+    /* Return the updated control signal. */
     return this->controlSignal;
 }
 
 void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
-    this->stateEstimate = codegenNextStateEstimate(
+    this->stateEstimate = AltitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());
 }
