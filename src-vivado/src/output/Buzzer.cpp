@@ -13,3 +13,7 @@ void outputBuzzerPWM(BuzzerInstruction instruction) {
     *PERIOD_ADDR = instruction.period;
     *VOLUME_ADDR = instruction.volume;
 }
+
+void outputBuzzerPWM(float duration, int period, int volume) {
+    outputBuzzerPWM({duration, period, volume});
+}

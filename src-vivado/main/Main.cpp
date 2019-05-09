@@ -46,8 +46,8 @@ int main(void) {
         return 1;
 
     /* Reset PWM output. */
-    outputMotorPWM({0, 0, 0, 0});
-    outputBuzzerPWM({0, 0, 0});
+    outputMotorPWM(0, 0, 0, 0);
+    outputBuzzerPWM(0, 0, 0);
     outputWPT(0);
 
     //-------------------- MAIN EXECUTION -------------------

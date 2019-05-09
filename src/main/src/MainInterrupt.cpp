@@ -144,7 +144,7 @@ void updateMainFSM() {
             // TODO: when should we initGround or initAir?
             if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
                 autonomousController.initAir(Position{0.5, 0.5},
-                                             {correctedSonarMeasurement});
+                                             correctedSonarMeasurement);
             // TODO: should we tell IMP to reset their measurement?
             if (hasNewIMPMeasurement) {
                 // TODO: in autonomous mode, update AHRS's yaw
@@ -179,7 +179,7 @@ void updateMainFSM() {
                 if (output.bypassAltitudeController) {
                     uc = output.commonThrust;
                 } else {
-                    altitudeController.setReference({output.referenceHeight});
+                    altitudeController.setReference(output.referenceHeight);
                     uc = inputBias.getThrustBias() +
                          altitudeController.updateControlSignal().ut;
                 }
@@ -193,7 +193,7 @@ void updateMainFSM() {
                 real_t roll      = inputBias.getRollBias();
                 Quaternion quat1 = Quaternion(q0, q1, q2, 0);
                 Quaternion quat2 = EulerAngles::eul2quat({yaw, pitch, roll});
-                attitudeController.setReferenceEuler({quat1 + quat2});
+                attitudeController.setReferenceEuler(quat1 + quat2);
                 uxyz = attitudeController.updateControlSignal(uc);
             }
         } break;
@@ -257,7 +257,7 @@ void updateMainFSM() {
     attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gx,
                                        imuMeasurement.gy, imuMeasurement.gz},
                                       yawJump);
-    altitudeController.updateObserver({correctedSonarMeasurement});
+    altitudeController.updateObserver(correctedSonarMeasurement);
 
     /* Logger. */
     setYawJump(yawJump);
@@ -289,9 +289,9 @@ void updateFSM() {
     writeValueToTestPin(true);
 
     /* Update LEDs. */
-    writeToLEDs({isInterruptRunning, armedManager.isArmed(),
-                 getFlightMode() == FlightMode::AUTONOMOUS,
-                 getWPTMode() == WPTMode::ON});
+    writeToLEDs(isInterruptRunning, armedManager.isArmed(),
+                getFlightMode() == FlightMode::AUTONOMOUS,
+                getWPTMode() == WPTMode::ON);
 
     /* Set isInterruptRunning to true, mainLoop will set it to false. */
     isInterruptRunning = true;
