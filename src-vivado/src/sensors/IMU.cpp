@@ -161,10 +161,10 @@ RawAccelMeasurement readAccel() {
 ColVector<3> getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
                                  float biasNorm) {
     /* Accelerometer measurements with bias removed in g. */
-    ColVector<3> correctedAccel = biasQuat.rotate(ColVector<3>{
-        +calcAccel(raw.axInt),  // TODO: check signs
-        -calcAccel(raw.ayInt),
-        +calcAccel(raw.azInt),
+    ColVector<3> correctedAccel = (-biasQuat).rotate(ColVector<3>{
+        -calcAccel(raw.axInt),  // TODO: check signs
+        +calcAccel(raw.ayInt),
+        -calcAccel(raw.azInt),
     });
     correctedAccel /= biasNorm;
     return correctedAccel;
