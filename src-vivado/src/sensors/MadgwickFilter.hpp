@@ -20,12 +20,15 @@ extern volatile float beta;
 
 /**
  * Apply Madgwick's algorithm using only the measurement data from the gyroscope
- * and the accelerometer (and the given orientation).
+ * and the accelerometer (and the given orientation). Note that this
+ * implementation of Madgwick's algorithm requires a "flipped" az with respect
+ * to IMUMeasurement. The user should not flip az: it will be done in the
+ * implementation.
  * 
  * @param   orientation
- *          Last orientation of the drone
+ *          Last orientation of the drone.
  * @param   imu
- *          Current measurement of the IMU (gyro+accel)
+ *          Current measurement of the IMU (gyro+accel).
  * 
  * @return  The updated drone orientation, according to Madgwick's algorithm.
  */

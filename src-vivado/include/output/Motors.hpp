@@ -26,4 +26,4 @@ void outputMotorPWM(MotorSignals motorSignals);
  * @param   v3
  *          Signal to send to the back-right motor in [0,1].
  */
-void outputMotorPWM(float v0, float v1, float v2, float v3) {
+void outputMotorPWM(float v0, float v1, float v2, float v3);

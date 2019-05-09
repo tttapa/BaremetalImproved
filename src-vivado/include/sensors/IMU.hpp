@@ -1,26 +1,27 @@
 #pragma once
+#include <cstdint>
 
 /* Includes from src. */
 #include <SensorTypes.hpp>  ///< IMUMeasurement
 
 /* Raw 16-bit signed data from the accelerometer. */
 struct RawAccelMeasurement {
-    RawAccelMeasurement(int axInt, int ayInt, int azInt)
+    RawAccelMeasurement(int16_t axInt, int16_t ayInt, int16_t azInt)
         : axInt{axInt}, ayInt{ayInt}, azInt{azInt} {}
     RawAccelMeasurement() = default;
-    int axInt;  ///< Raw 16-bit reading of the acceleration along the x-axis.
-    int ayInt;  ///< Raw 16-bit reading of the acceleration along the y-axis.
-    int azInt;  ///< Raw 16-bit reading of the acceleration along the z-axis.
+    int16_t axInt;  ///< Raw 16-bit reading of the acceleration along the x-axis.
+    int16_t ayInt;  ///< Raw 16-bit reading of the acceleration along the y-axis.
+    int16_t azInt;  ///< Raw 16-bit reading of the acceleration along the z-axis.
 };
 
 /* Raw 16-bit signed data from the gyroscope. */
 struct RawGyroMeasurement {
-    RawGyroMeasurement(int gxInt, int gyInt, int gzInt)
+    RawGyroMeasurement(int16_t gxInt, int16_t gyInt, int16_t gzInt)
         : gxInt{gxInt}, gyInt{gyInt}, gzInt{gzInt} {}
     RawGyroMeasurement() = default;
-    int gxInt;  ///< Raw 16-bit reading of the angular vel. about the x-axis.
-    int gyInt;  ///< Raw 16-bit reading of the angular vel. about the y-axis.
-    int gzInt;  ///< Raw 16-bit reading of the angular vel. about the z-axis.
+    int16_t gxInt;  ///< Raw 16-bit reading of the angular vel. about the x-axis.
+    int16_t gyInt;  ///< Raw 16-bit reading of the angular vel. about the y-axis.
+    int16_t gzInt;  ///< Raw 16-bit reading of the angular vel. about the z-axis.
 };
 
 /**

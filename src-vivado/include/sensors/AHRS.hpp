@@ -8,6 +8,11 @@
 /* Includes from src-vivado. */
 #include <sensors/IMU.hpp>
 
+// TODO: comments
+EulerAngles getOrientationEuler();
+Quaternion getOrientationQuat();
+void resetAHRSOrientation();
+
 /**
  * Add the given yaw to the Euler representation of the AHRS's orientation, then
  * return the quaternion representation of that orientation.

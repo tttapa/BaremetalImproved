@@ -25,16 +25,16 @@ real_t calculateYawJump(float yaw) {
 
     /* Whenever the yaw passes 10 degrees (0.1745 rad), it will jump to -10
        degrees and vice versa. */
-    static constexpr real_t MAX_YAW_RADS = 0.1745;
+    static constexpr real_t MAX_RADS = 0.1745;
 
     /* The size of the interval is 2*MAX_YAW. */
-    real_t size = 2 * MAX_YAW_RADS;
+    real_t size = 2 * MAX_RADS;
 
-    /* Calculate yaw value in [0, 2*MAX_YAW]. */
-    real_t modYaw = fmod(fmod(yaw, size) + size, size);
-
-    /* Calculate yaw value in [-MAX_YAW, +MAX_YAW]. */
-    modYaw -= MAX_YAW_RADS;
+    /* Inner mod gives [0, 2*MAX_RADS) for positive numbers and (-2*MAX_RADS,0]
+       for negative numbers. Adding MAX_RADS and modding by 2*MAX_RADS ensures
+       that yaw+MAX_RADS maps to [0, 2*MAX_RADS). Subtracting MAX_RADS maps
+       yaw to [-MAX_RADS, +MAX_RADS]. */
+    real_t modYaw = fmod(fmod(yaw + MAX_RADS, size) + size, size) - MAX_RADS;
 
     /* Return the yaw jump. */
     return modYaw - yaw;
@@ -67,6 +67,26 @@ void updateMainFSM() {
     Quaternion ahrsQuat           = updateAHRS(imuMeasurement);
     Quaternion jumpedAhrsQuat     = getJumpedOrientation(yawJump);
 
+    static int printCounter = 0;
+    if (printCounter++ >= 100) {
+        printCounter = 0;
+        printf("yawJump %.2f,\tahrsquat q0 %.2f,\tq1 %.2f,\tq2 %.2f,\t q3 "
+               "%.2f,\tahrseul yaw %.2f,\tpitch %.2f,\troll %.2f,\tattquat q0 "
+               "%.2f,\tq1 %.2f,\t q2 %.2f,\tq3 %.2f,\tatteul yaw %.2f,\tpitch "
+               "%.2f,\troll %.2f,\n",
+               yawJump, getOrientationQuat()[0], getOrientationQuat()[1],
+               getOrientationQuat()[2], getOrientationQuat()[3],
+               getOrientationEuler().yaw, getOrientationEuler().pitch,
+               getOrientationEuler().roll,
+               attitudeController.getOrientationQuat()[0],
+               attitudeController.getOrientationQuat()[1],
+               attitudeController.getOrientationQuat()[2],
+               attitudeController.getOrientationQuat()[3],
+               attitudeController.getOrientationEuler().yaw,
+               attitudeController.getOrientationEuler().pitch,
+               attitudeController.getOrientationEuler().roll);
+    }
+
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement      = readSonar();
     real_t sonarMeasurement          = getFilteredSonarMeasurement();
@@ -89,6 +109,8 @@ void updateMainFSM() {
         correctedPositionMeasurement = {
             correctedPosition[0],
             correctedPosition[1]};  // TODO: adapter function
+        printf("NEW IMU MEASUREMENT! (%.2f, %.2f)",
+               correctedPositionMeasurement.x, correctedPositionMeasurement.y);
     }
 
     /* Implement main FSM logic. The transformed motor signals will be
@@ -102,17 +124,23 @@ void updateMainFSM() {
             armedManager.update();
 
             /* Start gradual thrust change if last mode was altitude hold. */
-            gtcManager.start(ucLast);
+            if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
+                gtcManager.start(ucLast);
 
             /* Common thrust comes directly from the RC, but leave some margin
                for two reasons. Firstly, it is not safe to fly at 100% thrust.
                Secondly, if that were to happen, then there would be no room for
                the attitude controller to make adjustments. */
             const float MAX_THROTTLE = 0.80;
-            if (getThrottle() <= MAX_THROTTLE)
+            if (getThrottle() < 0.01) {
+                uc = 0.0;
+                attitudeController.init(); /* Reset attitude observer. */
+                resetAHRSOrientation();    /* Reset AHRS to [1000]. */
+            } else if (getThrottle() <= MAX_THROTTLE) {
                 uc = getThrottle();
-            else
+            } else {
                 uc = MAX_THROTTLE;
+            }
 
             /* Update the attitude controller's reference using the RC. */
             attitudeController.updateRCReference();
@@ -225,10 +253,17 @@ void updateMainFSM() {
 
     /* Transform the motor signals and output to the motors. */
     MotorSignals motorSignals = transformAttitudeControlSignal(uxyz, uc);
-    printf("Time %.2f\t, mode %d\t, uc %.2f\t, ux %.2f\t, uy %.2f\t, uz %.2f, "
-           "v0 %.2f\t, v1 %.2f\t, v2 %.2f\t, v3 %.2f\n",
-           getTime(), (int) (getFlightMode()), uc, uxyz.ux, uxyz.uy, uxyz.uz,
-           motorSignals.v0, motorSignals.v1, motorSignals.v2, motorSignals.v3);
+    /*
+    printf(
+        "Time %.2f\t, config %d\t, uc %.2f\t, ux %.2f\t, uy %.2f\t, uz %.2f, "
+        //"q0 %.2f\t, q1 %.2f\t, q2 %.2f\t, q3 %.2f\n",
+        "jumped ahrs q0 %.3f\t, q1 %.3f\t, q2 %.3f\t, q3 %.3f\n",
+        getTime(), (int) (configManager.getControllerConfiguration()), uc,
+        uxyz.ux, uxyz.uy, uxyz.uz, jumpedAhrsQuat[0], jumpedAhrsQuat[1],
+        jumpedAhrsQuat[2], jumpedAhrsQuat[3]); */
+    //ahrsQuat[0], ahrsQuat[1], ahrsQuat[2], ahrsQuat[3]);
+    //imuMeasurement.ax, imuMeasurement.ay, imuMeasurement.az,
+    //imuMeasurement.gx, imuMeasurement.gy, imuMeasurement.gz);
     if (armedManager.isArmed())
         outputMotorPWM(motorSignals);
 

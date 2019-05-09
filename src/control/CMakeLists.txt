@@ -3,7 +3,7 @@ execute_process(COMMAND which matlab
 
 if (NOT MATLAB_EXEC STREQUAL "")
 
-file(GLOB MATLAB_CODEGEN_SCRIPTS_DEP RELATIVE codegen *.m)
+file(GLOB MATLAB_CODEGEN_SCRIPTS_DEP ${CMAKE_CURRENT_SOURCE_DIR}/codegen/*.m)
 
 add_custom_command(
     OUTPUT
