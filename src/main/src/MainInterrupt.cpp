@@ -67,26 +67,6 @@ void updateMainFSM() {
     Quaternion ahrsQuat           = updateAHRS(imuMeasurement);
     Quaternion jumpedAhrsQuat     = getJumpedOrientation(yawJump);
 
-    static int printCounter = 0;
-    if (printCounter++ >= 100) {
-        printCounter = 0;
-        printf("yawJump %.2f,\tahrsquat q0 %.2f,\tq1 %.2f,\tq2 %.2f,\t q3 "
-               "%.2f,\tahrseul yaw %.2f,\tpitch %.2f,\troll %.2f,\tattquat q0 "
-               "%.2f,\tq1 %.2f,\t q2 %.2f,\tq3 %.2f,\tatteul yaw %.2f,\tpitch "
-               "%.2f,\troll %.2f,\n",
-               yawJump, getOrientationQuat()[0], getOrientationQuat()[1],
-               getOrientationQuat()[2], getOrientationQuat()[3],
-               getOrientationEuler().yaw, getOrientationEuler().pitch,
-               getOrientationEuler().roll,
-               attitudeController.getOrientationQuat()[0],
-               attitudeController.getOrientationQuat()[1],
-               attitudeController.getOrientationQuat()[2],
-               attitudeController.getOrientationQuat()[3],
-               attitudeController.getOrientationEuler().yaw,
-               attitudeController.getOrientationEuler().pitch,
-               attitudeController.getOrientationEuler().roll);
-    }
-
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement      = readSonar();
     real_t sonarMeasurement          = getFilteredSonarMeasurement();
@@ -109,8 +89,6 @@ void updateMainFSM() {
         correctedPositionMeasurement = {
             correctedPosition[0],
             correctedPosition[1]};  // TODO: adapter function
-        printf("NEW IMU MEASUREMENT! (%.2f, %.2f)",
-               correctedPositionMeasurement.x, correctedPositionMeasurement.y);
     }
 
     /* Implement main FSM logic. The transformed motor signals will be
@@ -244,7 +222,6 @@ void updateMainFSM() {
 
     /* Drone calibration? */
     if (configManager.getControllerConfiguration() == CALIBRATION_MODE) {
-        printf("CALIBRATION MODE!!!");
         if (getThrottle() >= 0.50)
             uc = 1.0;
         else
@@ -253,17 +230,6 @@ void updateMainFSM() {
 
     /* Transform the motor signals and output to the motors. */
     MotorSignals motorSignals = transformAttitudeControlSignal(uxyz, uc);
-    /*
-    printf(
-        "Time %.2f\t, config %d\t, uc %.2f\t, ux %.2f\t, uy %.2f\t, uz %.2f, "
-        //"q0 %.2f\t, q1 %.2f\t, q2 %.2f\t, q3 %.2f\n",
-        "jumped ahrs q0 %.3f\t, q1 %.3f\t, q2 %.3f\t, q3 %.3f\n",
-        getTime(), (int) (configManager.getControllerConfiguration()), uc,
-        uxyz.ux, uxyz.uy, uxyz.uz, jumpedAhrsQuat[0], jumpedAhrsQuat[1],
-        jumpedAhrsQuat[2], jumpedAhrsQuat[3]); */
-    //ahrsQuat[0], ahrsQuat[1], ahrsQuat[2], ahrsQuat[3]);
-    //imuMeasurement.ax, imuMeasurement.ay, imuMeasurement.az,
-    //imuMeasurement.gx, imuMeasurement.gy, imuMeasurement.gz);
     if (armedManager.isArmed())
         outputMotorPWM(motorSignals);
 
