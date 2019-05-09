@@ -9,39 +9,39 @@
 /** Armed beep 1 lasts 0.30 seconds. */
 static constexpr float ARMED_DURATION1 = 0.30;
 /** Armed beep 1 has a low pitch. */
-static constexpr int ARMED_PERIOD1 = 0x27800; //0x37800;
+static constexpr int ARMED_PERIOD1 = 0x37800;
 /** Armed beep 1 has a medium volume. */
-static constexpr int ARMED_VOLUME1 = 0x25000; //0x20000;
+static constexpr int ARMED_VOLUME1 = 0x20000;
 /** Armed beep 2 lasts 0.30 seconds. */
 static constexpr float ARMED_DURATION2 = 0.30;
 /** Armed beep 2 has a medium pitch. */
-static constexpr int ARMED_PERIOD2 = 0x27800; //0x27800;
+static constexpr int ARMED_PERIOD2 = 0x27800;
 /** Armed beep 2 has a medium volume. */
-static constexpr int ARMED_VOLUME2 = 0x25000; //0x20000;
+static constexpr int ARMED_VOLUME2 = 0x20000;
 /** Armed beep is followed by 0.40 seconds of silence. */
 static constexpr float ARMED_DELAY = 0.40;
 
 /** Configuration beep lasts 0.25 seconds. */
 static constexpr float CONFIG_DURATION = 0.25;
 /** Configuration beep has a low pitch. */
-static constexpr int CONFIG_PERIOD = 0x27800; //0x35000;
+static constexpr int CONFIG_PERIOD = 0x35000;
 /** Configuration beep is as loud as possible. */
-static constexpr int CONFIG_VOLUME = 0x25000; //0x32000;
+static constexpr int CONFIG_VOLUME = 0x32000;
 /** Configuration beeps have 0.20 seconds between them. */
 static constexpr float CONFIG_DELAY = 0.20;
 
 /** Disarmed beep 1 lasts 0.30 seconds. */
 static constexpr float DISARMED_DURATION1 = 0.30;
 /** Disarmed beep 1 has a medium pitch. */
-static constexpr int DISARMED_PERIOD1 = 0x27800; //0x27800;
+static constexpr int DISARMED_PERIOD1 = 0x27800;
 /** Disarmed beep 1 has a medium volume. */
-static constexpr int DISARMED_VOLUME1 = 0x25000; //0x20000;
+static constexpr int DISARMED_VOLUME1 = 0x20000;
 /** Disarmed beep 2 lasts 0.30 seconds. */
 static constexpr float DISARMED_DURATION2 = 0.30;
 /** Disarmed beep 2 has a low pitch. */
-static constexpr int DISARMED_PERIOD2 = 0x27800; //0x37800;
+static constexpr int DISARMED_PERIOD2 = 0x37800;
 /** Disarmed beep 2 has a medium volume. */
-static constexpr int DISARMED_VOLUME2 = 0x25000; //0x20000;
+static constexpr int DISARMED_VOLUME2 = 0x20000;
 /** Disarmed beep is followed by 0.40 seconds of silence. */
 static constexpr float DISARMED_DELAY = 0.40;
 
@@ -50,9 +50,9 @@ static constexpr int NUM_INITIATED_BEEPS = 3;
 /** Initiated beep lasts 0.05 seconds. */
 static constexpr float INITIATED_DURATION = 0.05;
 /** Initiated beep has a medium pitch. */
-static constexpr int INITIATED_PERIOD = 0x27800; //0x27800;
+static constexpr int INITIATED_PERIOD = 0x27800;
 /** Initiated beep has a loud volume. */
-static constexpr int INITIATED_VOLUME = 0x25000; //0x25000;
+static constexpr int INITIATED_VOLUME = 0x25000;
 /** Initiated beeps have 0.01 seconds between them. */
 static constexpr int INITIATED_DELAY = 0.01;
 
@@ -61,18 +61,18 @@ static constexpr int NUM_WARNING_BEEPS = 2;
 /** Warning beep lasts 0.12 seconds. */
 static constexpr float WARNING_DURATION = 0.12;
 /** Warning beep has a high pitch. */
-static constexpr int WARNING_PERIOD = 0x27800; //0x21000;
+static constexpr int WARNING_PERIOD = 0x21000;
 /** Warning beep has a medium volume. */
-static constexpr int WARNING_VOLUME = 0x25000; //0x20000;
+static constexpr int WARNING_VOLUME = 0x20000;
 /** Warning beeps have 0.06 seconds between them. */
 static constexpr float WARNING_DELAY = 0.06;
 
 /** Navigation error beep lasts 0.50 seconds. */
 static constexpr float NAVERROR_DURATION = 0.5;
 /** Navigation error beep has a medium pitch. */
-static constexpr int NAVERROR_PERIOD = 0x27800; //0x25000;
+static constexpr int NAVERROR_PERIOD = 0x25000;
 /** Navigation error beep is as loud as possible. */
-static constexpr int NAVERROR_VOLUME = 0x25000; //0x30000;
+static constexpr int NAVERROR_VOLUME = 0x30000;
 /** Navigation error beeps have 0.50 seconds between them. */
 static constexpr float NAVERROR_DELAY = 0.5;
 
@@ -248,6 +248,7 @@ void BuzzerManager::update() {
 
         /* ... and there are instructions left, then start the next one. */
         if (!isQueueEmpty()) {
+            this->beepStartTime      = getTime();
             this->currentInstruction = this->beepQueue[readIndex];
             incrementReadIndex();
         }

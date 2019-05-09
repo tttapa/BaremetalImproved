@@ -159,6 +159,9 @@ class AltitudeController {
      */
     real_t getReferenceHeight() { return this->reference.z; }
 
+    // TODO: comment
+    AltitudeState getStateEstimate() { return this->stateEstimate; }
+
     /**
      * Reset the altitude controller.
      */

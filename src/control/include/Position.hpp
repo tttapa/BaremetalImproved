@@ -263,6 +263,9 @@ class PositionController {
      */
     Position getReferencePosition() { return this->reference.p; }
 
+    // TODO: comment
+    PositionState getStateEstimate() { return this->stateEstimate; }
+
     /**
      * Reset the position controller.
      */
