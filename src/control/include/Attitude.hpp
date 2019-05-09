@@ -1,6 +1,8 @@
 #pragma once
+
+/* Includes from src. */
 #include <EulerAngles.hpp>
-#include <OutputTypes.hpp>
+#include <OutputTypes.hpp>  ///< MotorSignals
 #include <Quaternion.hpp>
 #include <real_t.h>
 

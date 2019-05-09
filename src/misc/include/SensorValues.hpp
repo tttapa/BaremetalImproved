@@ -1,8 +1,12 @@
 #pragma once
-#include <BaremetalCommunicationDef.hpp>
-#include <sensors/IMU.hpp>
+
+/* Includes from src. */
+#include <BaremetalCommunicationDef.hpp>  ///< Position
 #include <Quaternion.hpp>
 #include <real_t.h>
+
+/* Includes from src-vivado. */
+#include <sensors/IMU.hpp>  ///< AccelMeasurement, GyroMeasurement
 
 // TODO: comment this...
 real_t getYawJump();

@@ -1,5 +1,7 @@
 #pragma once
-#include <BaremetalCommunicationDef.hpp>
+
+/* Includes from src. */
+#include <BaremetalCommunicationDef.hpp>  ///< Position
 #include <Quaternion.hpp>
 #include <real_t.h>
 
@@ -276,12 +278,10 @@ class PositionController {
      * 
      * @param   orientation
      *          Current orientation of the drone.
-     * @param   currentTime
-     *          Current time in seconds.
      * @param   measurement
      *          New position measurement from the Image Processing team.
      */
-    void updateObserver(Quaternion orientation, real_t currentTime,
+    void updateObserver(Quaternion orientation,
                         PositionMeasurement measurement);
 
     /**

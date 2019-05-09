@@ -1,5 +1,5 @@
 #pragma once
-#include <BaremetalCommunicationDef.hpp>
+#include <BaremetalCommunicationDef.hpp>  ///< FlightMode, WPTMode
 #include <real_t.h>
 
 /* Acceleration measurement in g. */

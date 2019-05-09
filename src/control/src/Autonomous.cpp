@@ -1,8 +1,9 @@
 #include <Autonomous.hpp>
-#include <BaremetalCommunicationDef.hpp>
+
+/* Includes from src. */
 #include <ControllerInstances.hpp>
 #include <InputBias/InputBias.hpp>
-#include <MiscInstances.hpp>
+#include <MiscInstances.hpp>  ///< ESCStartupScript instance
 #include <Position.hpp>
 #include <SharedMemoryInstances.hpp>
 #include <Time.hpp>
@@ -234,7 +235,7 @@ void AutonomousController::updateQRFSM() {
             /* Reset error count and search count. */
             this->qrErrorCount    = 0;
             this->qrTilesSearched = 0;
-            
+
             // TODO: what do we do with unknown QR data?
 
             /* Switch this FSM to QR_IDLE. */

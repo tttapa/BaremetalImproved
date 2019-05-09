@@ -1,7 +1,8 @@
 #include <Attitude.hpp>
-#include <MiscInstances.hpp>
+
+/* Includes from src. */
+#include <MiscInstances.hpp>  ///< ConfigurationManager instance
 #include <RCValues.hpp>
-#include <Time.hpp>
 
 /**
  * The largest control signal that can be sent to the "yaw torque motor" is

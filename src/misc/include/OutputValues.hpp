@@ -1,6 +1,8 @@
 #pragma once
-#include <real_t.h>
+
+/* Includes from src. */
 #include <Attitude.hpp>
+#include <real_t.h>
 
 // TODO: comment
 real_t getCommonThrust();

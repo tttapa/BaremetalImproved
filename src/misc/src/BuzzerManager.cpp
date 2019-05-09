@@ -1,6 +1,10 @@
-#include <output/Buzzer.hpp>
 #include <BuzzerManager.hpp>
+
+/* Includes from src. */
 #include <Time.hpp>
+
+/* Includes from src-vivado. */
+#include <output/Buzzer.hpp>
 
 /** Armed beep 1 lasts 0.30 seconds. */
 static constexpr float ARMED_DURATION1 = 0.30;

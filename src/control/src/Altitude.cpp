@@ -1,7 +1,11 @@
 #include <Altitude.hpp>
-#include <MiscInstances.hpp>
-#include <PublicHardwareConstants.hpp>
+
+/* Includes from src. */
+#include <MiscInstances.hpp>  ///< ConfigurationManager instance
 #include <RCValues.hpp>
+
+/* Includes from src-vivado. */
+#include <PublicHardwareConstants.hpp>  ///< SONAR_FREQUENCY
 
 /**
  * The largest marginal control signal that can be sent to the "common motor"

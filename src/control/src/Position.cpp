@@ -1,5 +1,7 @@
-#include <MiscInstances.hpp>
 #include <Position.hpp>
+
+/* Includes from src. */
+#include <MiscInstances.hpp>
 #include <Time.hpp>
 
 /**
@@ -68,16 +70,15 @@ PositionController::updateControlSignal(PositionReference reference) {
 }
 
 void PositionController::updateObserver(Quaternion orientation,
-                                        real_t currentTime,
                                         PositionMeasurement measurement) {
     /* Calculate the current state estimate. */
     this->stateEstimate = PositionController::codegenCurrentStateEstimate(
         this->stateEstimate, measurement, orientation,
-        currentTime - lastMeasurementTime,
+        getTime() - lastMeasurementTime,
         configManager.getControllerConfiguration());
 
     /* Store the measurement time. */
-    this->lastMeasurementTime = currentTime;
+    this->lastMeasurementTime = getTime();
 }
 
 void PositionController::updateObserverBlind(Quaternion orientation) {

@@ -1,7 +1,9 @@
 #pragma once
+
+/* Includes from src. */
 #include <Altitude.hpp>
+#include <BaremetalCommunicationDef.hpp>  ///< QRFSMState, Position
 #include <Position.hpp>
-#include <BaremetalCommunicationDef.hpp>
 
 /**
  * Output of the autonomous control system, which consists of a reference
@@ -244,8 +246,7 @@ class AutonomousController {
      * @param   referenceHeight
      *          Reference height of the drone during autonomous mode.
      */
-    void initAir(Position currentPosition,
-                 AltitudeReference referenceHeight);
+    void initAir(Position currentPosition, AltitudeReference referenceHeight);
 
     /**
      * Reset the autonomous controller to the IDLE_GROUND state and set the
