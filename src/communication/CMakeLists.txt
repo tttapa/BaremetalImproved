@@ -1,5 +1,6 @@
 # Create library target and specify the implementation files to compile.
-add_library(communication INTERFACE)
+add_library(communication
+    src/logger.drone.cpp)
 
 # Set target include directories 
 #   These are the folders where the compiler will search for included header 
@@ -10,13 +11,15 @@ add_library(communication INTERFACE)
 #   to compile the implementation files of the library, users of the library
 #   should not include them.
 target_include_directories(communication
-    INTERFACE
+    PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE
+        src
 )
 
 # Tell CMake to compile this library with C++17 features enabled
-# target_compile_features(communication INTERFACE cxx_std_17)
+# target_compile_features(communication PUBLIC cxx_std_17)
 
 # Link the library with its dependencies.
 #   This manages both the include directories of the dependencies, as well as  
@@ -34,6 +37,7 @@ target_include_directories(communication
 
 install(TARGETS communication
         EXPORT communication
+        ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
 install(EXPORT communication DESTINATION lib)
 install(
