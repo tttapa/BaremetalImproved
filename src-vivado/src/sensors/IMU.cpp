@@ -161,7 +161,7 @@ RawAccelMeasurement readAccel() {
 ColVector<3> getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
                                  float biasNorm) {
     /* Accelerometer measurements with bias removed in g. */
-    ColVector<3> correctedAccel = (-biasQuat).rotate(ColVector<3>{
+    ColVector<3> correctedAccel = (biasQuat).rotate(ColVector<3>{
         -calcAccel(raw.axInt),  // TODO: check signs
         +calcAccel(raw.ayInt),
         -calcAccel(raw.azInt),
@@ -222,9 +222,9 @@ bool calibrateIMUStep() {
 
         /* Calculate accelerometer bias quaternion. */
         ColVector<3> accelBiasAverage = {
-            +calcAccel(accelRawSum[0] * factor),
-            -calcAccel(accelRawSum[1] * factor),
-            +calcAccel(accelRawSum[2] * factor),
+            -calcAccel(accelRawSum[0] * factor),
+            +calcAccel(accelRawSum[1] * factor),
+            -calcAccel(accelRawSum[2] * factor),
         };
         accelBiasQuat = Quaternion::fromDirection(accelBiasAverage);
         accelBiasNorm = norm(accelBiasAverage);
