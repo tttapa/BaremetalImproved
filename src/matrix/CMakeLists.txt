@@ -8,7 +8,7 @@ target_include_directories(matrix
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
-# target_compile_features(matrix INTERFACE cxx_std_17)
+target_compile_features(matrix INTERFACE cxx_std_17)
 
 target_link_libraries(matrix INTERFACE utilities)
 

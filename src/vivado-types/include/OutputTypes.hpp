@@ -8,6 +8,7 @@
 struct BuzzerInstruction {
     BuzzerInstruction(real_t duration, int period, int volume)
         : duration{duration}, period{period}, volume{volume} {}
+    BuzzerInstruction() = default;
     real_t duration;  ///< Duration of instruction in seconds.
     int period;       ///< Period of sound, represented as an integer.
     int volume;       ///< Volume of sound, represented as an integer.
