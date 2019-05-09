@@ -258,6 +258,9 @@ class PositionController {
      */
     void correctPosition(real_t correctionX, real_t correctionY);
 
+    // TODO: comment
+    PositionControlSignal getControlSignal() { return this->controlSignal; }
+
     /**
      * Get the position controller's reference position.
      */
