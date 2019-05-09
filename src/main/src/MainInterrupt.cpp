@@ -273,14 +273,6 @@ void updateFSM() {
     /* Test pin high to probe length of interrupt. */
     writeValueToTestPin(true);
 
-    /* Update the drone's clock. */
-    incrementTickCount();
-
-    /* IMU bias should be calculated before use. */
-    static bool isIMUCalibrated = false;
-    /* AHRS should calibrate with accelerometer before use. */
-    static bool isAHRSInitialized = false;
-
     /* Update LEDs. */
     writeToLEDs({isInterruptRunning, armedManager.isArmed(),
                  getFlightMode() == FlightMode::AUTONOMOUS,
@@ -288,6 +280,14 @@ void updateFSM() {
 
     /* Set isInterruptRunning to true, mainLoop will set it to false. */
     isInterruptRunning = true;
+
+    /* Update the drone's clock. */
+    incrementTickCount();
+
+    /* IMU bias should be calculated before use. */
+    static bool isIMUCalibrated = false;
+    /* AHRS should calibrate with accelerometer before use. */
+    static bool isAHRSInitialized = false;
 
     /* Phase 1: Calibrate IMU. */
     if (!isIMUCalibrated) {
