@@ -100,7 +100,9 @@
             },
             "options": {
                 "cwd": "${workspaceFolder}/build",
-                "env": {"PATH": "/users/start2017/r0663636/opt/gcc-arm-8.3-2019.03-x86_64-arm-eabi/bin:${env:PATH}"}
+                "env": {
+                    "PATH": "/users/start2017/r0663636/opt/gcc-arm-8.3-2019.03-x86_64-arm-eabi/bin:${env:PATH}"
+                }
             },
             "problemMatcher": [],
         },
@@ -139,13 +141,27 @@
         {
             "label": "Build All (Local)",
             "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "command": "make -j$(nproc)",
             "options": {
                 "cwd": "${workspaceFolder}/build"
             },
-            // "dependsOn": [
-            //     "Run MATLAB Code Generator"
-            // ],
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Install All (Local)",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "make -j$(nproc) install",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
             "problemMatcher": "$gcc"
         },
         {

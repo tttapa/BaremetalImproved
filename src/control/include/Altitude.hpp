@@ -9,6 +9,7 @@
  */
 struct AltitudeReference {
     AltitudeReference(real_t z) : z{z} {}
+    AltitudeReference() = default;
     real_t z;  ///< Height (m).
 };
 
@@ -18,6 +19,7 @@ struct AltitudeReference {
  */
 struct AltitudeMeasurement {
     AltitudeMeasurement(real_t z) : z{z} {}
+    AltitudeMeasurement() = default;
     real_t z;  ///< Height (m).
 };
 
@@ -31,6 +33,7 @@ struct AltitudeMeasurement {
  */
 struct AltitudeState {
     AltitudeState(real_t nt, real_t z, real_t vz) : nt{nt}, z{z}, vz{vz} {}
+    AltitudeState() = default;
     real_t nt;  ///< Common motor marginal angular velocity (rad/s).
     real_t z;   ///< Height (m).
     real_t vz;  ///< Velocity (m/s).
@@ -41,6 +44,7 @@ struct AltitudeState {
  */
 struct AltitudeIntegralWindup {
     AltitudeIntegralWindup(real_t z) : z{z} {}
+    AltitudeIntegralWindup() = default;
     real_t z;  ///< Height (m).
 };
 
@@ -49,6 +53,7 @@ struct AltitudeIntegralWindup {
  */
 struct AltitudeControlSignal {
     AltitudeControlSignal(real_t ut) : ut{ut} {}
+    AltitudeControlSignal() = default;
     real_t ut;  ///< Common motor marginal signal (/).
 };
 

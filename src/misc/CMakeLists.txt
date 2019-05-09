@@ -8,7 +8,6 @@ add_library(misc
     src/OutputValues.cpp
     src/RCValues.cpp
     src/SensorValues.cpp
-    src/WPT.cpp
 )
 
 # Set target include directories 
@@ -65,5 +64,4 @@ FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ESCStartupScript.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GradualThrustChangeManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/RCValues.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/WPT.hpp
 DESTINATION include)

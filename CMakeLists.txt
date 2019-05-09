@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.10)
 
 project(BareMetal-Improved)
 
@@ -64,7 +64,7 @@ endif()
 # set (CMAKE_CXX_STANDARD 17)
 
 # Optimize during linking stage
-# set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) # LTO
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) # LTO
 
 # Allow linking the compiled code into a shared library (for Python modules)
 # set(CMAKE_POSITION_INDEPENDENT_CODE ON)
