@@ -1,13 +1,5 @@
 #pragma once
 
-// TODO: append author
-/*******************************************************************************
-*   Sonar header file
-*   This file contains all methods used to read inputs from the sonar
-*   and to apply a median filter and a peak filter on these measurements.
-*   author: w. devries, p. coppens
-*******************************************************************************/
-
 /**
  * Read the raw measurement from the sonar, apply the median/peak filters and
  * store the result locally.

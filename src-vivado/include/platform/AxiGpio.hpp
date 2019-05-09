@@ -1,19 +1,7 @@
-// TODO: should the files be commented like this?
-// TODO: see https://developer.lsst.io/v/DM-5063/docs/cpp_docs.html
-/**
- * @file ExampleClass.cc
- *
- * @brief This message displayed in Doxygen Files index
- *
- * @ingroup PackageName
- * (Note: this needs exactly one @defgroup somewhere)
- *
- * @author Joe Smith
- * Contact: js@lsst.org
- *
- */
 #pragma once
-#include <OutputTypes.hpp>
+
+/* Includes from src. */
+#include <OutputTypes.hpp>  ///< LEDInstruction
 
 /**
  * Initialise AXI GPIO pins.

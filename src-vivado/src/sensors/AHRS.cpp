@@ -1,14 +1,9 @@
-// Original: BareMetal/src/AHRS/ahrs.c
-/*******************************************************************************
- *  Attitude and heading reference system source code
- *  This module takes IMU readings and tracks the orientation of the quadcopter.
- *  There is no magnetometer, so some drift around the Z axis is to be expected.
- *  This file should NEVER be changed by the students
- *  Author: p. coppens
-********************************************************************************/
-#include "MadgwickFilter.hpp"
 #include <sensors/AHRS.hpp>
-#include <SensorTypes.hpp>
+
+/* Includes from src-vivado. */
+#include "MadgwickFilter.hpp"
+
+/* Includes from Xilinx. */
 #include <xil_io.h>
 
 /** Orientation of the drone, represented by EulerAngles. */
@@ -28,7 +23,7 @@ void initAHRS(IMUMeasurement imu) {
     /* Use accelerometer values to ensure that the initial quaternion is
 	   oriented correctly. */
     ColVector<3> accel = {imu.ax, imu.ay, imu.az};
-    orientation = Quaternion::fromDirection(accel);
+    orientation        = Quaternion::fromDirection(accel);
 
     /* AHRS is now initialized. */
     xil_printf("AHRS init ok\r\n");

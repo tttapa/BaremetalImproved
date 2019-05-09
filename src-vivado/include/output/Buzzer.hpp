@@ -1,4 +1,7 @@
-#include <OutputTypes.hpp>
+#pragma once
+
+/* Includes from src. */
+#include <OutputTypes.hpp>  ///< BuzzerInstruction
 
 /**
  * Outputs a PWM signal to the buzzer with the given period and the

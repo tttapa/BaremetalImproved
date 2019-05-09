@@ -1,12 +1,9 @@
-// Original: BareMetal/src/RC/RC.c
-/**********************************************************************************************************************
-*   Radio Control source file
-*   This file contains all parameters used to read input from the RC.
-*   This file should normally not be changed by the students.
-*   Author: w. devries, p. coppens
-***********************************************************************************************************************/
-#include "../PrivateHardwareConstants.hpp"
 #include <sensors/RC.hpp>
+
+/* Includes from src-vivado. */
+#include "../PrivateHardwareConstants.hpp"
+
+/* Includes from Xilinx. */
 #include <xil_io.h>
 
 /** Address of the RC's throttle: PIN T14 (JD1). */

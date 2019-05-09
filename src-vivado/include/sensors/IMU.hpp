@@ -1,5 +1,7 @@
 #pragma once
-#include <SensorTypes.hpp>
+
+/* Includes from src. */
+#include <SensorTypes.hpp>  ///< IMUMeasurement
 
 /* Raw 16-bit signed data from the accelerometer. */
 struct RawAccelMeasurement {

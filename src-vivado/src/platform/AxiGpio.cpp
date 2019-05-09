@@ -1,8 +1,12 @@
-#include "../PrivateHardwareConstants.hpp" /* Registers & channels */
-#include <platform/AxiGpio.hpp>                  /* Header file */
-#include <xgpio.h>                      /* AXI GPIO functions */
-#include <xparameters.h>                /* Project parameters */
-#include <xscugic.h>                    /* Xilinx functions */
+#include <platform/AxiGpio.hpp>
+
+/* Includes from src-vivado. */
+#include "../PrivateHardwareConstants.hpp"
+
+/* Includes from Xilinx. */
+#include <xgpio.h>
+#include <xparameters.h>
+#include <xscugic.h>
 
 /* Port used for LEDs in LED GPIO. */
 const int LED_CHANNEL = 1;

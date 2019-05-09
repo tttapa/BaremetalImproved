@@ -1,17 +1,15 @@
-// Original: BareMetal/src/IMU/IMU.c
+#include <sensors/IMU.hpp>
 
-/**********************************************************************************************************************
-*   IMU device driver source
-*   This file contains all functions required to use the IMU.
-*   This file should normally not be changed by the students.
-*   Author: w. devries
-***********************************************************************************************************************/
-#include "../platform/IIC.hpp" // TODO
+/* Includes from src. */
+#include <Quaternion.hpp>
+
+/* Includes from src-vivado. */
+#include "../platform/IIC.hpp"
 #include "LSM9DS1_Registers.h"
 #include <platform/AxiGpio.hpp>
-#include <sensors/IMU.hpp>
 #include <platform/Interrupt.hpp>
-#include <Quaternion.hpp>
+
+/* Includes from Xilinx. */
 #include <sleep.h>  // TODO: is usleep() necessary?
 #include <xil_io.h>
 #include <xparameters.h>
@@ -187,10 +185,10 @@ bool calibrateIMUStep() {
     ledValue += (ledIndex >= 3 && ledIndex <= 5 ? 0x4 : 0);
     ledValue += (ledIndex == 4 ? 0x8 : 0);
     writeToLEDs({
-    	ledIndex >= 1,
-		ledIndex >= 2 && ledIndex <= 6,
-		ledIndex >= 3 && ledIndex <= 5 ,
-		ledIndex == 4,
+        ledIndex >= 1,
+        ledIndex >= 2 && ledIndex <= 6,
+        ledIndex >= 3 && ledIndex <= 5,
+        ledIndex == 4,
     });
 
     /* Increment counter. */
