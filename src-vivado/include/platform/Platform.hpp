@@ -52,9 +52,8 @@ void cleanupPlatform();
 
 // Constant definitions (platform configuration)
 // =============================================================================
-// TODO: I don't think we need these
 #define STDOUT_IS_PS7_UART
-#define UART_DEVICE_ID 0
+#define UART_DEVICE_ID 0    // TODO: I don't think we need this one
 
 /*******************************************************************************
  *   Inter-processor communication header file

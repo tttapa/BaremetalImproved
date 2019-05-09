@@ -113,7 +113,8 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 	return orientation;
 }
 
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
 //---------------------------------------------------------------------------------------------------
 // Fast inverse square-root
 // See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
@@ -136,6 +137,7 @@ float invSqrt(float x) {
 #endif
 
 }
+#pragma GCC diagnostic pop
 
 //====================================================================================================
 // END OF CODE

@@ -16,7 +16,7 @@
 #include <TiltCorrection.hpp>
 
 /** Whether an interrupt is currently running. */
-bool isInterruptRunning = false;
+volatile bool isInterruptRunning = false;
 
 real_t calculateYawJump(float yaw) {
 
@@ -256,6 +256,11 @@ void updateMainFSM() {
 
 void update() {
 
+    std::cout << "Update called";
+
+    /* Generate heartbeat, so kill switch is activated when software hangs. */
+    generateHeartbeat();
+
     /* Test pin high to probe length of interrupt. */
     writeValueToTestPin(true);
 
@@ -272,17 +277,23 @@ void update() {
                  getFlightMode() == FlightMode::AUTONOMOUS,
                  getWPTMode() == WPTMode::ON});
 
+    /* Set isInterruptRunning to true, mainLoop will set it to false. */
+    isInterruptRunning = true;
+
     /* Phase 1: Calibrate IMU. */
     if (!isIMUCalibrated) {
+        std::cout << " in Phase 1" << std::endl;
         isIMUCalibrated = calibrateIMUStep();
     }
     /* Phase 2: Initialize AHRS. */
     else if (!isAHRSInitialized) {
+        std::cout << " in Phase 2" << std::endl;
         initAHRS(readIMU());
         isAHRSInitialized = true;
     }
     /* Phase 3: Main operation. */
     else {
+        std::cout << " in Phase 3" << std::endl;
         updateMainFSM();
     }
 

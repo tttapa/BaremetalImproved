@@ -1,4 +1,7 @@
+#include <output/Buzzer.hpp>
 #include <output/Motors.hpp>
+#include <output/WPT.hpp>
+#include <platform/AxiGpio.hpp>
 #include <platform/Interrupt.hpp>
 #include <platform/Platform.hpp>
 #include <sensors/IMU.hpp>
@@ -8,20 +11,26 @@
 #include <MainLoop.hpp>
 #include <SharedMemoryInstances.hpp>
 
+#include <iostream>
+
 /**
  * @brief   Main entry point to the Baremetal applications.
  */
 int main(void) {
 
+	std::cout << "Hello World from Baremetal" << std::endl;
+
     /* Initialize Xilinx platform and IPC. */
     initPlatform();
 
-    /* Initialize the sensors. AHRS will be initialized after IMU is calibrated.  */
-    initSonar();
-    initIMU();
 
-    /* Reset PWM output. */
-    outputMotorPWM({0, 0, 0, 0});
+    /* Initialize interrupt system. */
+    if (initInterrupt() == false)
+        return 1;
+
+    /* Initialize AXI GPIOs. */
+    if (initAxiGpio() == false)
+        return 1;
 
     /* Initialize the controllers and input bias. */
     initControllerInstances();
@@ -29,11 +38,19 @@ int main(void) {
     /* Initialize the communication with the Linux core. */
     initSharedMemoryInstances();
 
-    /* Initialize interrupt system. */
-    if (initInterrupt() == false)
-        return 1;
+    /* Initialize the sensors. AHRS will be initialized after IMU is calibrated.  */
+    initSonar();
+    initIMU();
+    if(initIMUInterruptSystem() == false)
+    	return 1;
+
+    /* Reset PWM output. */
+    outputMotorPWM({0, 0, 0, 0});
+    outputBuzzerPWM({0, 0, 0});
+    outputWPT(0);
 
     //-------------------- MAIN EXECUTION -------------------
+    std::cout << "Main Execution started" << std::endl;
     while (true) {
         mainLoop();  // TODO
     }

@@ -1,13 +1,13 @@
 // Original: BareMetal/src/sonar/sonar.c
 #include "../PrivateHardwareConstants.hpp"
 #include "MedianFilter.hpp"
-#include <sensors/Sonar.hpp>
-#include <cmath>
-#include <xil_io.h>
 #include <PublicHardwareConstants.hpp>
+#include <cmath>
+#include <sensors/Sonar.hpp>
+#include <xil_io.h>
 
 /** Address of the sonar : // TODO: what pin? */
-uint32_t * const SONAR_ADDR = ((uint32_t *) XPAR_RC_1_S00_AXI_BASEADDR) + 1;
+uint32_t *const SONAR_ADDR = ((uint32_t *) XPAR_RC_1_S00_AXI_BASEADDR) + 1;
 
 /** Conversion factor to meters. */
 const float PWM_TO_HEIGHT = 0.005787;  // TODO: is this correct?
@@ -44,6 +44,9 @@ float measurements[MAX_MF_LENGTH];
 /** Latest measurement of the sonar after median/peak filters. */
 float filteredSonarMeasurement;
 
+/** Whether the sonar is initialized. */
+bool isSonarInitialized = false;
+
 /** 
  * Counter to keep track of the number of large measurement jumps ( > 50cm ), 
  * used in peak filter.
@@ -62,19 +65,27 @@ bool readSonar() {
     static float oldSonarRaw = -1;
 
     /* Check if there is a new measurement available. */
-    newSonarRaw =
-        (float) Xil_In32((uintptr_t)SONAR_ADDR) / (CLOCK_FREQUENCY * PWM_TO_HEIGHT);
+    newSonarRaw = (float) Xil_In32((uintptr_t) SONAR_ADDR) /
+                  (CLOCK_FREQUENCY * PWM_TO_HEIGHT);
     if (fabs(newSonarRaw - oldSonarRaw) <= 0.00000001)
         return false;
 
     /* Save the new measurement. */
     oldSonarRaw = newSonarRaw;
 
-    /* Add the measurement to the median filter. */
-    addMFMeasurement(measurements, MAX_MF_LENGTH, newSonarRaw);
+    /* On initialization, fill the buffer with the measured value. */
+    if (!isSonarInitialized) {
+        initMF(measurements, MAX_MF_LENGTH, newSonarRaw);
+        isSonarInitialized = true;
+    } else {
+        addMFMeasurement(measurements, MAX_MF_LENGTH, newSonarRaw);
+    }
+
+    /* Get the median of the last 5 measurements (less latency than taking the
+       median of the entire buffer). */
     newSonarRaw = getMedian(measurements, MAX_MF_LENGTH, MF_BUFFER_SIZE_SMALL);
 
-    /* Apply peak filter. */
+    /* Apply peak filter (only if filteredSonarMeasurement is not zero). */
     float diff = fabs(newSonarRaw - filteredSonarMeasurement);
     if (diff > MAX_JUMP && jumpCounter < MAX_JUMP_COUNT) {
         jumpCounter++;
@@ -94,11 +105,8 @@ float getFilteredSonarMeasurementAccurate() {
 }
 
 void initSonar() {
-
-    /* Read the current sonar raw measurement. */
+    /* Initialize the sonar. Fill the sonar measurement buffer with the current
+       measurement value so that the median filter works properly. */
+    isSonarInitialized = false;
     readSonar();
-
-    /* Fill the sonar measurement buffer with the current measurement value so
-       that the median filter functions properly. */
-    initMF(measurements, MAX_MF_LENGTH, getFilteredSonarMeasurement());
 }
