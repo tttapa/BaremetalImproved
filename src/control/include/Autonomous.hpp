@@ -11,6 +11,16 @@
  * bypassed and which common thrust should be used if it is bypassed.
  */
 struct AutonomousOutput {
+    AutonomousOutput(bool bypassAltitudeController,
+                     AltitudeReference referenceHeight, real_t commonThrust,
+                     bool updatePositionController,
+                     bool trustAccelerometerForPosition,
+                     Position referencePosition)
+        : bypassAltitudeController{bypassAltitudeController},
+          referenceHeight{referenceHeight}, commonThrust{commonThrust},
+          updatePositionController{updatePositionController},
+          trustAccelerometerForPosition{trustAccelerometerForPosition},
+          referencePosition{referencePosition} {}
 
     /**
      * Whether the altitude controller should be bypassed. If this is true, then

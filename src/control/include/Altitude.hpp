@@ -8,6 +8,7 @@
  * Altitude reference height to track, consisting of a single float.
  */
 struct AltitudeReference {
+    AltitudeReference(real_t z) : z{z} {}
     real_t z;  ///< Height (m).
 };
 
@@ -16,6 +17,7 @@ struct AltitudeReference {
  * the height of the drone, measured in meters.
  */
 struct AltitudeMeasurement {
+    AltitudeMeasurement(real_t z) : z{z} {}
     real_t z;  ///< Height (m).
 };
 
@@ -28,6 +30,7 @@ struct AltitudeMeasurement {
  * drone, measured in m/s.
  */
 struct AltitudeState {
+    AltitudeState(real_t nt, real_t z, real_t vz) : nt{nt}, z{z}, vz{vz} {}
     real_t nt;  ///< Common motor marginal angular velocity (rad/s).
     real_t z;   ///< Height (m).
     real_t vz;  ///< Velocity (m/s).
@@ -37,6 +40,7 @@ struct AltitudeState {
  * Integral of the error of the height of the drone.
  */
 struct AltitudeIntegralWindup {
+    AltitudeIntegralWindup(real_t z) : z{z} {}
     real_t z;  ///< Height (m).
 };
 
@@ -44,6 +48,7 @@ struct AltitudeIntegralWindup {
  * Marginal PWM control signal sent to the common motor.
  */
 struct AltitudeControlSignal {
+    AltitudeControlSignal(real_t ut) : ut{ut} {}
     real_t ut;  ///< Common motor marginal signal (/).
 };
 

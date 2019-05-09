@@ -10,6 +10,7 @@
  * Attitude reference to track, consisting of a single quaternion.
  */
 struct AttitudeReference {
+    AttitudeReference(Quaternion q) : q{q} {}
     Quaternion q;  ///< Orientation.
 };
 
@@ -19,6 +20,8 @@ struct AttitudeReference {
  * rad/s.
  */
 struct AttitudeMeasurement {
+    AttitudeMeasurement(Quaternion q, real_t wx, real_t wy, real_t wz)
+        : q{q}, wx{wx}, wy{wy}, wz{wz} {}
     Quaternion q;  ///< Orientation.
     real_t wx;     ///< X angular velocity (rad/s).
     real_t wy;     ///< Y angular velocity (rad/s).
@@ -32,6 +35,8 @@ struct AttitudeMeasurement {
  * nx, ny, nz).
  */
 struct AttitudeState {
+    AttitudeState(Quaternion q, real_t wx, real_t wy, real_t wz)
+        : q{q}, wx{wx}, wy{wy}, wz{wz}, nx{nx}, ny{ny}, nz{nz} {}
     Quaternion q;  ///< Orientation.
     real_t wx;     ///< X angular velocity (rad/s).
     real_t wy;     ///< Y angular velocity (rad/s).
@@ -45,6 +50,8 @@ struct AttitudeState {
  * Integral of the error of the quaternion components q1, q2 and q3.
  */
 struct AttitudeIntegralWindup {
+    AttitudeIntegralWindup(real_t q1, real_t q2, real_t q3)
+        : q1{q1}, q2{q2}, q3{q3} {}
     real_t q1;  ///< Orientation q1 component.
     real_t q2;  ///< Orientation q2 component.
     real_t q3;  ///< Orientation q3 component.
@@ -54,6 +61,8 @@ struct AttitudeIntegralWindup {
  * PWM control signals sent to the torque motors (3 components: ux, uy, uz).
  */
 struct AttitudeControlSignal {
+    AttitudeControlSignal(real_t ux, real_t uy, real_t uz)
+        : ux{ux}, uy{uy}, uz{uz} {}
     real_t ux;  ///< X motor signal (/).
     real_t uy;  ///< Y motor signal (/).
     real_t uz;  ///< Z motor signal (/).

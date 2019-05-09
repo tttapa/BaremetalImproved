@@ -22,6 +22,7 @@ const real_t Y_MIN = -4.0;
  * measured in meters.
  */
 struct PositionReference {
+    PositionReference(Position p) : p{p} {}
     Position p;  ///< Position (x,y) in meters.
 };
 
@@ -30,6 +31,7 @@ struct PositionReference {
  * represents the global position in meters.
  */
 struct PositionMeasurement {
+    PositionMeasurement(Position p) : p{p} {}
     Position p;  ///< Position (x,y) in meters.
 };
 
@@ -40,6 +42,8 @@ struct PositionMeasurement {
  * two floats represent the horizontal velocity of the drone in m/s.
  */
 struct PositionState {
+    PositionState(real_t q1, real_t q2, Position p, real_t vx, real_t vy)
+        : q1{q1}, q2{q2}, p{p}, vx{vx}, vy{vy} {}
     real_t q1;   ///< Orientation q1 component (/).
     real_t q2;   ///< Orientation q2 component (/).
     Position p;  ///< Position (x,y) in meters.
@@ -51,6 +55,7 @@ struct PositionState {
  * Integral of the error of the global position of the drone.
  */
 struct PositionIntegralWindup {
+    PositionIntegralWindup(real_t x, real_t y) : x{x}, y{y} {}
     real_t x;  ///< X position (m).
     real_t y;  ///< Y position (m).
 };
@@ -60,17 +65,22 @@ struct PositionIntegralWindup {
  * attitude controller.
  */
 struct PositionControlSignal {
+    PositionControlSignal(real_t q1ref, real_t q2ref)
+        : q1ref{q1ref}, q2ref{q2ref} {}
     real_t q1ref;  ///< Reference orientation q1 component (/).
     real_t q2ref;  ///< Reference orientation q2 component (/).
 };
 
 struct PositionStateBlind {
+    PositionStateBlind(Position p, real_t vx, real_t vy)
+        : p{p}, vx{vx}, vy{vy} {}
     Position p;  ///< Position (x,y) in meters.
     real_t vx;   ///< X velocity (m/s).
     real_t vy;   ///< Y velocity (m/s).
 };
 
 struct PositionControlSignalBlind {
+    PositionControlSignalBlind(real_t q1, real_t q2) : q1{q1}, q2{q2} {}
     real_t q1;
     real_t q2;
 };

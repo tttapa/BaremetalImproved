@@ -5,6 +5,8 @@
 
 /* Raw 16-bit signed data from the accelerometer. */
 struct RawAccelMeasurement {
+    RawAccelMeasurement(int axInt, int ayInt, int azInt)
+        : axInt{axInt}, ayInt{ayInt}, azInt{azInt} {}
     int axInt;  ///< Raw 16-bit reading of the acceleration along the x-axis.
     int ayInt;  ///< Raw 16-bit reading of the acceleration along the y-axis.
     int azInt;  ///< Raw 16-bit reading of the acceleration along the z-axis.
@@ -12,6 +14,8 @@ struct RawAccelMeasurement {
 
 /* Raw 16-bit signed data from the gyroscope. */
 struct RawGyroMeasurement {
+    RawGyroMeasurement(int gxInt, int gyInt, int gzInt)
+        : gxInt{gxInt}, gyInt{gyInt}, gzInt{gzInt} {}
     int gxInt;  ///< Raw 16-bit reading of the angular vel. about the x-axis.
     int gyInt;  ///< Raw 16-bit reading of the angular vel. about the y-axis.
     int gzInt;  ///< Raw 16-bit reading of the angular vel. about the z-axis.
