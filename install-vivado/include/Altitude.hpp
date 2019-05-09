@@ -1,4 +1,6 @@
 #pragma once
+
+/* Includes from src. */
 #include <Quaternion.hpp>
 #include <real_t.h>
 
@@ -6,6 +8,8 @@
  * Altitude reference height to track, consisting of a single float.
  */
 struct AltitudeReference {
+    AltitudeReference(real_t z) : z{z} {}
+    AltitudeReference() = default;
     real_t z;  ///< Height (m).
 };
 
@@ -14,6 +18,8 @@ struct AltitudeReference {
  * the height of the drone, measured in meters.
  */
 struct AltitudeMeasurement {
+    AltitudeMeasurement(real_t z) : z{z} {}
+    AltitudeMeasurement() = default;
     real_t z;  ///< Height (m).
 };
 
@@ -26,6 +32,8 @@ struct AltitudeMeasurement {
  * drone, measured in m/s.
  */
 struct AltitudeState {
+    AltitudeState(real_t nt, real_t z, real_t vz) : nt{nt}, z{z}, vz{vz} {}
+    AltitudeState() = default;
     real_t nt;  ///< Common motor marginal angular velocity (rad/s).
     real_t z;   ///< Height (m).
     real_t vz;  ///< Velocity (m/s).
@@ -35,6 +43,8 @@ struct AltitudeState {
  * Integral of the error of the height of the drone.
  */
 struct AltitudeIntegralWindup {
+    AltitudeIntegralWindup(real_t z) : z{z} {}
+    AltitudeIntegralWindup() = default;
     real_t z;  ///< Height (m).
 };
 
@@ -42,6 +52,8 @@ struct AltitudeIntegralWindup {
  * Marginal PWM control signal sent to the common motor.
  */
 struct AltitudeControlSignal {
+    AltitudeControlSignal(real_t ut) : ut{ut} {}
+    AltitudeControlSignal() = default;
     real_t ut;  ///< Common motor marginal signal (/).
 };
 
@@ -81,15 +93,10 @@ class AltitudeController {
 
   public:
     /**
-     * Clamp the given altitude control signal in [-0.10,+0.10].
-     * 
-     * @param   controlSignal
-     *          Control signal to clamp.
-     * 
-     * @return  The clamped altitude control signal.
+     * Clamp the current altitude control signal in [-0.10,+0.10].
      */
-    static AltitudeControlSignal
-    clampControlSignal(AltitudeControlSignal controlSignal);
+    void clampControlSignal();
+
     /**
      * Calculate the current altitude control signal using the code generator.
      * 

@@ -21,6 +21,7 @@ struct BuzzerInstruction {
 struct LEDInstruction {
     LEDInstruction(bool led1, bool led2, bool led3, bool led4)
         : led1{led1}, led2{led2}, led3{led3}, led4{led4} {}
+    LEDInstruction() = default;
     bool led1;  ///< Whether the first LED should be lit.
     bool led2;  ///< Whether the second LED should be lit.
     bool led3;  ///< Whether the third LED should be lit.
@@ -35,6 +36,7 @@ struct LEDInstruction {
 struct MotorSignals {
     MotorSignals(real_t v0, real_t v1, real_t v2, real_t v3)
         : v0{v0}, v1{v1}, v2{v2}, v3{v3} {}
+    MotorSignals() = default;
     real_t v0;  ///< Front-left motor duty cycle in [0,1].
     real_t v1;  ///< Front-right motor duty cycle in [0,1].
     real_t v2;  ///< Back-left motor duty cycle in [0,1].

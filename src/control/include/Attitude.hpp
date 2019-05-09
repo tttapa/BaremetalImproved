@@ -11,6 +11,7 @@
  */
 struct AttitudeReference {
     AttitudeReference(Quaternion q) : q{q} {}
+    AttitudeReference() = default;
     Quaternion q;  ///< Orientation.
 };
 
@@ -22,6 +23,7 @@ struct AttitudeReference {
 struct AttitudeMeasurement {
     AttitudeMeasurement(Quaternion q, real_t wx, real_t wy, real_t wz)
         : q{q}, wx{wx}, wy{wy}, wz{wz} {}
+    AttitudeMeasurement() = default;
     Quaternion q;  ///< Orientation.
     real_t wx;     ///< X angular velocity (rad/s).
     real_t wy;     ///< Y angular velocity (rad/s).
@@ -37,6 +39,7 @@ struct AttitudeMeasurement {
 struct AttitudeState {
     AttitudeState(Quaternion q, real_t wx, real_t wy, real_t wz)
         : q{q}, wx{wx}, wy{wy}, wz{wz}, nx{nx}, ny{ny}, nz{nz} {}
+    AttitudeState() = default;
     Quaternion q;  ///< Orientation.
     real_t wx;     ///< X angular velocity (rad/s).
     real_t wy;     ///< Y angular velocity (rad/s).
@@ -52,6 +55,7 @@ struct AttitudeState {
 struct AttitudeIntegralWindup {
     AttitudeIntegralWindup(real_t q1, real_t q2, real_t q3)
         : q1{q1}, q2{q2}, q3{q3} {}
+    AttitudeIntegralWindup() = default;
     real_t q1;  ///< Orientation q1 component.
     real_t q2;  ///< Orientation q2 component.
     real_t q3;  ///< Orientation q3 component.
@@ -63,6 +67,7 @@ struct AttitudeIntegralWindup {
 struct AttitudeControlSignal {
     AttitudeControlSignal(real_t ux, real_t uy, real_t uz)
         : ux{ux}, uy{uy}, uz{uz} {}
+    AttitudeControlSignal() = default;
     real_t ux;  ///< X motor signal (/).
     real_t uy;  ///< Y motor signal (/).
     real_t uz;  ///< Z motor signal (/).

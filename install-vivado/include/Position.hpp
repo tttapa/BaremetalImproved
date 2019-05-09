@@ -1,5 +1,7 @@
 #pragma once
-#include <BaremetalCommunicationDef.hpp>
+
+/* Includes from src. */
+#include <BaremetalCommunicationDef.hpp>  ///< Position
 #include <Quaternion.hpp>
 #include <real_t.h>
 
@@ -20,7 +22,9 @@ const real_t Y_MIN = -4.0;
  * measured in meters.
  */
 struct PositionReference {
-    Position p; ///< Position (x,y) in meters.
+    PositionReference(Position p) : p{p} {}
+    PositionReference() = default;
+    Position p;  ///< Position (x,y) in meters.
 };
 
 /** 
@@ -28,7 +32,9 @@ struct PositionReference {
  * represents the global position in meters.
  */
 struct PositionMeasurement {
-    Position p; ///< Position (x,y) in meters.
+    PositionMeasurement(Position p) : p{p} {}
+    PositionMeasurement() = default;
+    Position p;  ///< Position (x,y) in meters.
 };
 
 /**
@@ -38,17 +44,22 @@ struct PositionMeasurement {
  * two floats represent the horizontal velocity of the drone in m/s.
  */
 struct PositionState {
-    real_t q1;  ///< Orientation q1 component (/).
-    real_t q2;  ///< Orientation q2 component (/).
-    Position p; ///< Position (x,y) in meters.
-    real_t vx;  ///< X velocity (m/s).
-    real_t vy;  ///< Y velocity (m/s).
+    PositionState(real_t q1, real_t q2, Position p, real_t vx, real_t vy)
+        : q1{q1}, q2{q2}, p{p}, vx{vx}, vy{vy} {}
+    PositionState() = default;
+    real_t q1;   ///< Orientation q1 component (/).
+    real_t q2;   ///< Orientation q2 component (/).
+    Position p;  ///< Position (x,y) in meters.
+    real_t vx;   ///< X velocity (m/s).
+    real_t vy;   ///< Y velocity (m/s).
 };
 
 /**
  * Integral of the error of the global position of the drone.
  */
 struct PositionIntegralWindup {
+    PositionIntegralWindup(real_t x, real_t y) : x{x}, y{y} {}
+    PositionIntegralWindup() = default;
     real_t x;  ///< X position (m).
     real_t y;  ///< Y position (m).
 };
@@ -58,17 +69,25 @@ struct PositionIntegralWindup {
  * attitude controller.
  */
 struct PositionControlSignal {
+    PositionControlSignal(real_t q1ref, real_t q2ref)
+        : q1ref{q1ref}, q2ref{q2ref} {}
+    PositionControlSignal() = default;
     real_t q1ref;  ///< Reference orientation q1 component (/).
     real_t q2ref;  ///< Reference orientation q2 component (/).
 };
 
 struct PositionStateBlind {
-    Position p; ///< Position (x,y) in meters.
-    real_t vx;  ///< X velocity (m/s).
-    real_t vy;  ///< Y velocity (m/s).
+    PositionStateBlind(Position p, real_t vx, real_t vy)
+        : p{p}, vx{vx}, vy{vy} {}
+    PositionStateBlind() = default;
+    Position p;  ///< Position (x,y) in meters.
+    real_t vx;   ///< X velocity (m/s).
+    real_t vy;   ///< Y velocity (m/s).
 };
 
 struct PositionControlSignalBlind {
+    PositionControlSignalBlind(real_t q1, real_t q2) : q1{q1}, q2{q2} {}
+    PositionControlSignalBlind() = default;
     real_t q1;
     real_t q2;
 };
@@ -142,15 +161,9 @@ class PositionController {
 
   public:
     /**
-     * Clamp the given position control signal in [-0.0436,+0.0436].
-     * 
-     * @param   controlSignal
-     *          Control signal to clamp.
-     * 
-     * @return  The clamped position control signal.
+     * Clamp the current position control signal in [-0.0436,+0.0436].
      */
-    static PositionControlSignal
-    clampControlSignal(PositionControlSignal controlSignal);
+    void clampControlSignal();
 
     /**
      * Calculate the current position control signal using the code generator.
@@ -188,8 +201,7 @@ class PositionController {
     static PositionIntegralWindup
     codegenIntegralWindup(PositionIntegralWindup integralWindup,
                           PositionReference reference,
-                          PositionState stateEstimate, 
-                          int droneConfiguration);
+                          PositionState stateEstimate, int droneConfiguration);
 
     /**
      * Calculate the current position estimate using the code generator. Because
@@ -249,9 +261,7 @@ class PositionController {
     /**
      * Get the position controller's reference position.
      */
-    Position getReferencePosition() {
-        return this->reference.p;
-    }
+    Position getReferencePosition() { return this->reference.p; }
 
     /**
      * Reset the position controller.
@@ -285,12 +295,10 @@ class PositionController {
      * 
      * @param   orientation
      *          Current orientation of the drone.
-     * @param   currentTime
-     *          Current time in seconds.
      * @param   measurement
      *          New position measurement from the Image Processing team.
      */
-    void updateObserver(Quaternion orientation, real_t currentTime,
+    void updateObserver(Quaternion orientation,
                         PositionMeasurement measurement);
 
     /**

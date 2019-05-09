@@ -1,4 +1,6 @@
 #pragma once
+
+/* Includes from src. */
 #include <real_t.h>
 
 /**
@@ -13,7 +15,6 @@
 class GradualThrustChangeManager {
 
   private:
-
     /** A boolean representing whether the gradual thrust change is busy. */
     bool busy;
 
