@@ -258,7 +258,9 @@ class PositionController {
      */
     void correctPosition(real_t correctionX, real_t correctionY);
 
-    // TODO: comment
+    /**
+     * Get the position controller's control signal.
+     */
     PositionControlSignal getControlSignal() { return this->controlSignal; }
 
     /**
@@ -266,7 +268,9 @@ class PositionController {
      */
     Position getReferencePosition() { return this->reference.p; }
 
-    // TODO: comment
+    /**
+     * Get the position controller's state estimate.
+     */
     PositionState getStateEstimate() { return this->stateEstimate; }
 
     /**

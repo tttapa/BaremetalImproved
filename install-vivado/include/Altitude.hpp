@@ -154,7 +154,9 @@ class AltitudeController {
         AltitudeState stateEstimate, AltitudeControlSignal controlSignal,
         AltitudeMeasurement measurement, int droneConfiguration);
 
-    // TODO: comment
+    /**
+     * Get the altitude controller's control signal.
+     */
     AltitudeControlSignal getControlSignal() { return this->controlSignal; }
 
     /**
@@ -162,7 +164,9 @@ class AltitudeController {
      */
     real_t getReferenceHeight() { return this->reference.z; }
 
-    // TODO: comment
+    /**
+     * Get the altitude controller's state estimate.
+     */
     AltitudeState getStateEstimate() { return this->stateEstimate; }
 
     /**

@@ -218,7 +218,9 @@ class AttitudeController {
         AttitudeState stateEstimate, AttitudeControlSignal controlSignal,
         AttitudeMeasurement measurement, int droneConfiguration);
 
-    // TODO: comment, and add these to altitude and position too!
+    /**
+     * Get the attitude controller's control signal.
+     */
     AttitudeControlSignal getControlSignal() { return this->controlSignal; }
 
     /**
@@ -251,7 +253,9 @@ class AttitudeController {
      */
     EulerAngles getReferenceEuler() { return this->referenceEuler; }
 
-    // TODO: comment
+    /**
+     * Get the attitude controller's state estimate.
+     */
     AttitudeState getStateEstimate() { return this->stateEstimate; }
 
     /**
