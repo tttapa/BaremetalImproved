@@ -78,8 +78,8 @@ void updateMainFSM() {
             ColVector<2>{visionData.position.x, visionData.position.y},
             getSonarMeasurement(), attitudeController.getOrientationQuat());
         setCorrectedPositionMeasurement(
-            {correctedPosition[0],
-             correctedPosition[1]});  // TODO: adapter function
+            Position(double(correctedPosition[0]),
+                     double(correctedPosition[1])));  // TODO: adapter function
     }
 
     /* Save the measurements for the logger. */
