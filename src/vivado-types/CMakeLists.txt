@@ -11,7 +11,7 @@ target_include_directories(vivado-types
 # target_compile_features(vivado-types INTERFACE cxx_std_17)
 
 if(NOT CMAKE_CROSSCOMPILING)
-add_subdirectory(test)
+# add_subdirectory(test)
 endif()
 
 install(TARGETS vivado-types
