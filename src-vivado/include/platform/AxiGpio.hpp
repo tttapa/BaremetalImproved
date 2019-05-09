@@ -30,3 +30,18 @@ void writeValueToTestPin(bool value);
  *          The LEDInstruction to write to the LEDs.
  */
 void writeToLEDs(LEDInstruction values);
+
+/**
+ * Write the given values to the LEDs on the Zybo. The values should be
+ * represented by a LEDInstruction.
+ * 
+ * @param   led1
+ *          Whether the first led should be lit.
+ * @param   led2
+ *          Whether the second led should be lit.
+ * @param   led3
+ *          Whether the third led should be lit.
+ * @param   led4
+ *          Whether the fourth led should be lit.
+ */
+void writeToLEDs(bool led1, bool led2, bool led3, bool led4);

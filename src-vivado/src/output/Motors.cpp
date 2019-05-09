@@ -75,3 +75,7 @@ void outputMotorPWM(MotorSignals motorSignals) {
     *DUTY_CYCLE_2_ADDR = v2 * *PERIOD_012_ADDR;
     *DUTY_CYCLE_3_ADDR = v3 * *PERIOD_3_ADDR;
 }
+
+void outputMotorPWM(float v0, float v1, float v2, float v3) {
+    outputMotorPWM({v0, v1, v2, v3});
+}

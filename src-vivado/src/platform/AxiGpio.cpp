@@ -74,3 +74,7 @@ void writeToLEDs(LEDInstruction values) {
         values.led1 + 2 * values.led2 + 4 * values.led3 + 8 * values.led4;
     XGpio_DiscreteWrite(&axi_gpio_1, LED_CHANNEL, value);
 }
+
+void writeToLEDs(bool led1, bool led2, bool led3, bool led4) {
+    writeToLEDs({led1, led2, led3, led4});
+}

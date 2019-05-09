@@ -184,12 +184,8 @@ bool calibrateIMUStep() {
     ledValue += (ledIndex >= 2 && ledIndex <= 6 ? 0x2 : 0);
     ledValue += (ledIndex >= 3 && ledIndex <= 5 ? 0x4 : 0);
     ledValue += (ledIndex == 4 ? 0x8 : 0);
-    writeToLEDs({
-        ledIndex >= 1,
-        ledIndex >= 2 && ledIndex <= 6,
-        ledIndex >= 3 && ledIndex <= 5,
-        ledIndex == 4,
-    });
+    writeToLEDs(ledIndex >= 1, ledIndex >= 2 && ledIndex <= 6,
+                ledIndex >= 3 && ledIndex <= 5, ledIndex == 4);
 
     /* Increment counter. */
     calibrationStepCounter++;
@@ -229,7 +225,7 @@ bool calibrateIMUStep() {
         accelBiasNorm = norm(accelBiasAverage);
 
         /* Turn off all LEDs. */
-        writeToLEDs({0, 0, 0, 0});
+        writeToLEDs(0, 0, 0, 0);
         xil_printf("calibrated IMU \r\n");
 
         /* Initialization successful. */
