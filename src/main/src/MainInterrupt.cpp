@@ -51,8 +51,10 @@ void updateMainFSM() {
 
     /* Values to be calculated each iteration. */
     AttitudeControlSignal uxyz;
+    real_t uc;
     static real_t ucLast = 0.0; /* Remember last common thrust for GTC. */
-    real_t uc            = ucLast;
+    static PositionControlSignal q12refLast = {}; /* Remember for Autonomous. */
+    
 
     /* Keep the attitude controller's state estimate near the unit quaternion
        [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
@@ -80,7 +82,7 @@ void updateMainFSM() {
        measurement and the drone's orientation. */
     Position positionMeasurement, correctedPositionMeasurement;
     real_t yawMeasurement;
-    bool hasNewIMPMeasurement;
+    bool hasNewIMPMeasurement = false;
     if (visionComm->isDoneWriting()) {
         hasNewIMPMeasurement           = true;
         VisionData visionData          = visionComm->read();
@@ -133,74 +135,78 @@ void updateMainFSM() {
             if (previousFlightMode == FlightMode::MANUAL)
                 altitudeController.init();
 
-            if (hasNewSonarMeasurement) {
+            /* Update the altitude controller's reference using the RC. */
+            altitudeController.updateRCReference();
 
-                /* Update the altitude controller's reference using the RC. */
-                altitudeController.updateRCReference();
-
-                /* Common thrust is calculated by the altitude controller. */
+            /* Should we update the altitude controller? */
+            if (hasNewSonarMeasurement)
                 uc = inputBias.getThrustBias() +
                      altitudeController.updateControlSignal().ut;
-            }
+            else
+                uc = ucLast;
+
             /* Calculate the torque motor signals. */
             uxyz = attitudeController.updateControlSignal(uc);
         } break;
         case FlightMode::AUTONOMOUS: {
             // TODO: when should we initGround or initAir?
-            if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
+            if (previousFlightMode == FlightMode::ALTITUDE_HOLD) {
                 autonomousController.initAir(Position{0.5, 0.5},
                                              correctedSonarMeasurement);
-            // TODO: should we tell IMP to reset their measurement?
-            if (hasNewIMPMeasurement) {
-                // TODO: in autonomous mode, update AHRS's yaw
+            }
 
-                /* Autonomous controller, using position of the drone. */
-                AutonomousOutput output =
-                    autonomousController.update(correctedPositionMeasurement);
+            /* Update autonomous controller using most recent position. */
+            AutonomousOutput output =
+                autonomousController.update(getCorrectedPositionMeasurement());
 
-                /* Position controller, using AutonomousOutput. */
-                PositionControlSignal q12ref;
-                if (output.updatePositionController) {
+            /* Calculate common thrust. */
+            if (output.bypassAltitudeController) {
+                uc = output.commonThrust;
+            } else {
+                altitudeController.setReference(output.referenceHeight);
+                uc = inputBias.getThrustBias() +
+                     altitudeController.updateControlSignal().ut;
+            }
 
-                    /* Calculate current position state estimate. */
-                    if (output.trustAccelerometerForPosition)
-                        positionController.updateObserverBlind(
-                            attitudeController.getOrientationQuat());
+            /* Calculate reference orientation. */
+            // TODO: if yaw turns, this should be different?
+            PositionControlSignal q12ref;
+            if (output.updatePositionController) {
 
-                    else
-                        positionController.updateObserver(
-                            attitudeController.getOrientationQuat(),
-                            correctedPositionMeasurement);
-                    // TODO: adapter
-
-                    /* Calculate control signal. */
+                /* Blind position controller @ IMU frequency. */
+                if (output.trustAccelerometerForPosition) {
+                    positionController.updateObserverBlind(
+                        attitudeController.getOrientationQuat());
+                    q12ref = {0.0, 0.0};
+                    // TODO: qref12 =positionController.updateControlSignalBlind()
+                }
+                /* Normal position controller @ IMP frequency. */
+                else if (hasNewIMPMeasurement) {
+                    positionController.updateObserver(
+                        attitudeController.getOrientationQuat(),
+                        correctedPositionMeasurement);
                     q12ref = positionController.updateControlSignal(
                         output.referencePosition);
                 } else {
-                    q12ref = {0.0, 0.0};
+                    q12ref = q12refLast;
                 }
-
-                /* Altitude controller, using AutonomousOutput. */
-                if (output.bypassAltitudeController) {
-                    uc = output.commonThrust;
-                } else {
-                    altitudeController.setReference(output.referenceHeight);
-                    uc = inputBias.getThrustBias() +
-                         altitudeController.updateControlSignal().ut;
-                }
-
-                /* Calculate the torque motor signals. */
-                real_t q1        = q12ref.q1ref;
-                real_t q2        = q12ref.q2ref;
-                real_t q0        = 1 - sqrt(q1 * q1 + q2 * q2);
-                real_t yaw       = 0.0;
-                real_t pitch     = inputBias.getPitchBias();
-                real_t roll      = inputBias.getRollBias();
-                Quaternion quat1 = Quaternion(q0, q1, q2, 0);
-                Quaternion quat2 = EulerAngles::eul2quat({yaw, pitch, roll});
-                attitudeController.setReferenceEuler(quat1 + quat2);
-                uxyz = attitudeController.updateControlSignal(uc);
+            } else {
+                q12ref = {0.0, 0.0};
             }
+
+            /* Calculate the torque motor signals. */
+            real_t q1        = q12ref.q1ref;
+            real_t q2        = q12ref.q2ref;
+            real_t q0        = 1 - sqrt(q1 * q1 + q2 * q2);
+            real_t yaw       = 0.0;
+            real_t pitch     = inputBias.getPitchBias();
+            real_t roll      = inputBias.getRollBias();
+            Quaternion quat1 = Quaternion(q0, q1, q2, 0);
+            Quaternion quat2 = EulerAngles::eul2quat({yaw, pitch, roll});
+            attitudeController.setReferenceEuler(quat1 + quat2);
+
+            /* Calculate the torque motor signals. */
+            uxyz = attitudeController.updateControlSignal(uc);
         } break;
         default:  // case FlightMode::UNINITIALIZED:
             /* We will never get here because readRC() cannot return an

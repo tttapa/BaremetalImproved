@@ -91,7 +91,7 @@ struct TestStruct : SharedStruct<TestStruct> {
  * @brief   A struct for x and y coordinates of vision/QR positions.
  */
 struct Position {
-    float x = NAN, y = NAN;
+    float x = 100.0, y = 100.0; // TODO: was NaN
     explicit operator bool() const volatile {
         return !(std::isnan(x) || std::isnan(y));
     }
