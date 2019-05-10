@@ -52,7 +52,6 @@ endif()
 add_library(time STATIC IMPORTED)
 
 set_target_properties(time PROPERTIES
-  INTERFACE_COMPILE_FEATURES "cxx_std_17"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include"
   INTERFACE_LINK_LIBRARIES "utilities"
 )

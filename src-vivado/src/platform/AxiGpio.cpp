@@ -1,8 +1,12 @@
-#include "../PrivateHardwareConstants.hpp" /* Registers & channels */
-#include <platform/AxiGpio.hpp>                  /* Header file */
-#include <xgpio.h>                      /* AXI GPIO functions */
-#include <xparameters.h>                /* Project parameters */
-#include <xscugic.h>                    /* Xilinx functions */
+#include <platform/AxiGpio.hpp>
+
+/* Includes from src-vivado. */
+#include "../PrivateHardwareConstants.hpp"
+
+/* Includes from Xilinx. */
+#include <xgpio.h>
+#include <xparameters.h>
+#include <xscugic.h>
 
 /* Port used for LEDs in LED GPIO. */
 const int LED_CHANNEL = 1;
@@ -69,4 +73,8 @@ void writeToLEDs(LEDInstruction values) {
     int value =
         values.led1 + 2 * values.led2 + 4 * values.led3 + 8 * values.led4;
     XGpio_DiscreteWrite(&axi_gpio_1, LED_CHANNEL, value);
+}
+
+void writeToLEDs(bool led1, bool led2, bool led3, bool led4) {
+    writeToLEDs({led1, led2, led3, led4});
 }

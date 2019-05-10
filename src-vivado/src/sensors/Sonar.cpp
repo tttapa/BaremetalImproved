@@ -1,9 +1,14 @@
-// Original: BareMetal/src/sonar/sonar.c
-#include "../PrivateHardwareConstants.hpp"
-#include "MedianFilter.hpp"
-#include <PublicHardwareConstants.hpp>
 #include <cmath>
 #include <sensors/Sonar.hpp>
+
+/* Includes from src. */
+#include <PublicHardwareConstants.hpp>  ///< SONAR_FREQUENCY
+
+/* Includes from src-vivado. */
+#include "../PrivateHardwareConstants.hpp"
+#include "MedianFilter.hpp"
+
+/* Includes from Xilinx. */
 #include <xil_io.h>
 
 /** Address of the sonar : // TODO: what pin? */

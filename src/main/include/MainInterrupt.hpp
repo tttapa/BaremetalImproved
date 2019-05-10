@@ -1,7 +1,7 @@
 #pragma once
 
 /** Whether an interrupt is currently running. */
-extern bool isInterruptRunning;
+extern volatile bool isInterruptRunning;
 
 /**
  * @file    MainInterrupt.hpp
@@ -9,4 +9,4 @@ extern bool isInterruptRunning;
  *          the IMU interrupts `Main.cpp`.
  */
 
-void update();
+void updateFSM();

@@ -1,5 +1,7 @@
 #include <Attitude.hpp>
-#include <MiscInstances.hpp>
+
+/* Includes from src. */
+#include <MiscInstances.hpp>  ///< ConfigurationManager instance
 #include <RCValues.hpp>
 #include <Time.hpp>
 
@@ -29,10 +31,9 @@ static constexpr real_t RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
 /** The threshold to start increasing the reference yaw is +0.05. */
 static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 
-MotorDutyCycles
-transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
-                               real_t commonThrust) {
-    return MotorDutyCycles{
+MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
+                                            real_t commonThrust) {
+    return MotorSignals{
         commonThrust + controlSignal.ux + controlSignal.uy - controlSignal.uz,
         commonThrust + controlSignal.ux - controlSignal.uy + controlSignal.uz,
         commonThrust - controlSignal.ux + controlSignal.uy + controlSignal.uz,
@@ -48,14 +49,12 @@ void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {
          this->referenceEuler.roll});
 }
 
-AttitudeControlSignal
-AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
-                                       real_t commonThrust) {
+void AttitudeController::clampControlSignal(real_t commonThrust) {
 
     /* Load values from the attitude controller. */
-    real_t ux = controlSignal.ux;
-    real_t uy = controlSignal.uy;
-    real_t uz = controlSignal.uz;
+    real_t ux = this->controlSignal.ux;
+    real_t uy = this->controlSignal.uy;
+    real_t uz = this->controlSignal.uz;
 
     /* Clamp the yaw torque motor separately to ensure ux, uy compensation. */
     if (uz > YAW_SIGNAL_CLAMP)
@@ -74,7 +73,7 @@ AttitudeController::clampControlSignal(AttitudeControlSignal controlSignal,
         uz *= factor;
     }
 
-    return AttitudeControlSignal{ux, uy, uz};
+    this->controlSignal = AttitudeControlSignal{ux, uy, uz};
 }
 
 void AttitudeController::init() {
@@ -92,24 +91,25 @@ AttitudeControlSignal
 AttitudeController::updateControlSignal(real_t commonThrust) {
 
     /* Calculate integral windup. */
-    this->integralWindup = codegenIntegralWindup(
+    this->integralWindup = AttitudeController::codegenIntegralWindup(
         this->integralWindup, this->reference, this->stateEstimate,
         configManager.getControllerConfiguration());
 
     /* Calculate control signal (unclamped). */
-    this->controlSignal = codegenControlSignal(
+    this->controlSignal = AttitudeController::codegenControlSignal(
         this->stateEstimate, this->reference, this->integralWindup,
         configManager.getControllerConfiguration());
 
     /* Clamp control signal. */
-    this->controlSignal = clampControlSignal(this->controlSignal, commonThrust);
+    this->clampControlSignal(commonThrust);
 
+    /* Return the updated control signal. */
     return this->controlSignal;
 }
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement,
                                         real_t yawJumpToSubtract) {
-    this->stateEstimate = codegenNextStateEstimate(
+    this->stateEstimate = AttitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());
 
@@ -125,14 +125,14 @@ void AttitudeController::updateRCReference() {
     real_t pitch = getPitch();
     real_t yaw   = getYaw();
 
-    /* Convert RC tilt [-0.5, +0,5] to radians [-0.1745, +0.1745]. */
-    real_t rollRads  = 2 * roll * MAXIMUM_REFERENCE_TILT;
-    real_t pitchRads = 2 * pitch * MAXIMUM_REFERENCE_TILT;
+    /* Convert RC tilt [-1.0, +1.0] to radians [-0.1745, +0.1745]. */
+    real_t rollRads  = roll * MAXIMUM_REFERENCE_TILT;
+    real_t pitchRads = pitch * MAXIMUM_REFERENCE_TILT;
     real_t yawRads   = this->referenceEuler.yaw;
 
     /* Update the reference yaw based on the RC yaw. */
-    real_t upperZoneSize = 0.5 - RC_REFERENCE_YAW_UPPER_THRESHOLD;
-    real_t lowerZoneSize = RC_REFERENCE_YAW_LOWER_THRESHOLD - (-0.5);
+    real_t upperZoneSize = 1.0 - RC_REFERENCE_YAW_UPPER_THRESHOLD;
+    real_t lowerZoneSize = RC_REFERENCE_YAW_LOWER_THRESHOLD - (-1.0);
     if (yaw > RC_REFERENCE_YAW_UPPER_THRESHOLD)
         yawRads += (yaw - RC_REFERENCE_YAW_UPPER_THRESHOLD) / upperZoneSize *
                    RC_REFERENCE_YAW_MAX_SPEED * SECONDS_PER_TICK;

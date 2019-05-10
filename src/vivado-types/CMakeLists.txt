@@ -8,7 +8,7 @@ target_include_directories(vivado-types
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
-target_compile_features(vivado-types INTERFACE cxx_std_17)
+# target_compile_features(vivado-types INTERFACE cxx_std_17)
 
 install(TARGETS vivado-types
         EXPORT vivado-types

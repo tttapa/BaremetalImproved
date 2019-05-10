@@ -1,16 +1,4 @@
-// Original: BareMetal/src/platform/platform.h
-// Original: BareMetal/src/platform/platform_config.h
-// Original: BareMetal/src/platform/eagle_ipc.h
-// Original: BareMetal/src/comm/iic.h
 #pragma once
-
-// TODO: the comment blocks about the files are wrong
-// TODO: description, author
-/******************************************************************************
- *   Platform header file
- *
- *   This file should NEVER be changed by the students.
- ******************************************************************************/
 
 /** Initialize Xilinx platform and IPC. */
 void initPlatform();
@@ -18,6 +6,7 @@ void initPlatform();
 /** Clean up Xilinx platform. */
 void cleanupPlatform();
 
+// TODO: block comment
 /******************************************************************************
  *
  * Copyright (C) 2008 - 2014 Xilinx, Inc.  All rights reserved.
@@ -53,11 +42,4 @@ void cleanupPlatform();
 // Constant definitions (platform configuration)
 // =============================================================================
 #define STDOUT_IS_PS7_UART
-#define UART_DEVICE_ID 0    // TODO: I don't think we need this one
-
-/*******************************************************************************
- *   Inter-processor communication header file
- *   This file contains all functions required for the IPC.
- *   This file should NEVER be changed by the students.
- *   Author: r. theunis
- ******************************************************************************/
+#define UART_DEVICE_ID 0  // TODO: I don't think we need this one

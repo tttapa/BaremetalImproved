@@ -3,7 +3,7 @@ execute_process(COMMAND which matlab
 
 if (NOT MATLAB_EXEC STREQUAL "")
 
-file(GLOB MATLAB_CODEGEN_SCRIPTS_DEP RELATIVE codegen *.m)
+file(GLOB MATLAB_CODEGEN_SCRIPTS_DEP ${CMAKE_CURRENT_SOURCE_DIR}/codegen/*.m)
 
 add_custom_command(
     OUTPUT
@@ -23,9 +23,9 @@ else()
 message(WARNING "MATLAB is not available. Control codegen will not be run")
 add_custom_command(
     OUTPUT
-        ${CMAKE_CURRENT_SOURCE_DIR}/src-generated/AttitudeCodegen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src-generated/AltitudeCodegen.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src-generated/PositionCodegen.cpp
+        src-generated/AttitudeCodegen.cpp
+        src-generated/AltitudeCodegen.cpp
+        src-generated/PositionCodegen.cpp
     COMMAND
         make -C ${CMAKE_CURRENT_SOURCE_DIR}/codegen || (cmake -E cmake_echo_color --red --bold "Error: Codegen out of date" && exit 1)
     DEPENDS
@@ -66,7 +66,7 @@ target_include_directories(control
 )
 
 # Tell CMake to compile this library with C++17 features enabled
-target_compile_features(control PUBLIC cxx_std_17)
+# target_compile_features(control PUBLIC cxx_std_17)
 
 # Link the library with its dependencies.
 #   This manages both the include directories of the dependencies, as well as  
@@ -104,5 +104,8 @@ FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/Autonomous.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/Position.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/TiltCorrection.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/InputBias/InputBias.hpp
 DESTINATION include)
+install(
+FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/InputBias/InputBias.hpp
+DESTINATION include/InputBias)

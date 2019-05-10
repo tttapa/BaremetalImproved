@@ -52,7 +52,6 @@ endif()
 add_library(main STATIC IMPORTED)
 
 set_target_properties(main PROPERTIES
-  INTERFACE_COMPILE_FEATURES "cxx_std_17"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include"
   INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:quaternion>;\$<LINK_ONLY:communication>;\$<LINK_ONLY:instances>;\$<LINK_ONLY:src-vivado>"
 )

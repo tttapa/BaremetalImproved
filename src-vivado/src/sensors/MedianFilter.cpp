@@ -1,16 +1,5 @@
-// Original: BareMetal/src/utils/median_filter.c
 #include "MedianFilter.hpp"
 #include "math.h"
-
-
-/*******************************************************************************
- * Median filter source code
- *
- * This file contains an implementation of a median filter with dynamic 
- * resizing.
- * This median filter is used in sonar.cpp to filter the raw sonar measurements.
- * author: p. coppens
- ******************************************************************************/
 
 void initMF(float *measurements, int size, float measurement) {
     /* Fill the array with the given measurement value. */
@@ -40,7 +29,7 @@ float getMedian(float *measurements, int size, int bufferSize) {
 
     /* Sort window from smallest to largest. We can stop as soon as we've found
        the median value (index sortCount). */
-    for (i = 0; i < sortCount; i++) {
+    for (int i = 0; i < sortCount; i++) {
 
         /* Find the minimum in window[i:end]. */
         int min = i;

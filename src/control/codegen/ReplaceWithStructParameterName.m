@@ -17,14 +17,16 @@ function [ string ] = ReplaceWithStructParameterName(controllerName, string)
 vectors = strfind(string, 'vector__');
 
 while (~isempty(vectors))
-    
+
     % Parse the struct name.
     startIndex = vectors(1) + length('vector__');
     struct = char(extractBetween(string, startIndex, '['));
 
     % Parse the sym index and determine the struct member.
-    elementIndex = startIndex + length(struct) + 1;
-    element = str2double(char(string(elementIndex)));
+    startIndex = startIndex + length(struct) + 1;
+    spaceIndices = strfind(string(startIndex+1:end),' ');
+    endIndex = startIndex + spaceIndices(1) - 1;
+    element = str2double(char(string(startIndex:endIndex)));
     parameterName = GetParameterName(controllerName, struct, element);
 
     % Replace the sym with the proper format struct.member.

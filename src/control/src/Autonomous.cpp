@@ -1,8 +1,9 @@
 #include <Autonomous.hpp>
-#include <BaremetalCommunicationDef.hpp>
+
+/* Includes from src. */
 #include <ControllerInstances.hpp>
 #include <InputBias/InputBias.hpp>
-#include <MiscInstances.hpp>
+#include <MiscInstances.hpp>  ///< ESCStartupScript instance
 #include <Position.hpp>
 #include <SharedMemoryInstances.hpp>
 #include <Time.hpp>

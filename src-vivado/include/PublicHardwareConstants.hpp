@@ -1,3 +1,4 @@
+#pragma once
 /**
  * Seconds per tick of the IMU in seconds. This value is set when the IMU is
  * initialized in src-vivado/sensors/IMU.cpp.

@@ -9,4 +9,4 @@ extern volatile bool isInterruptRunning;
  *          the IMU interrupts `Main.cpp`.
  */
 
-void update();
+void updateFSM();

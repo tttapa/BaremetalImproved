@@ -1,6 +1,6 @@
 #pragma once
-#include <real_t.h>
 #include <cstdint>
+#include <real_t.h>
 
 /**
  * Increment the tick counter.

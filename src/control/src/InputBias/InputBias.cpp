@@ -1,4 +1,4 @@
-#include <BaremetalCommunicationDef.hpp>
+#include <BaremetalCommunicationDef.hpp>  ///< FlightMode
 #include <InputBias/InputBias.hpp>
 
 /**

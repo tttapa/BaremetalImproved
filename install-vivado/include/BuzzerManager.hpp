@@ -1,6 +1,7 @@
 #pragma once
-#include <OutputTypes.hpp>
-#include <Time.hpp>
+
+/* Includes from src. */
+#include <OutputTypes.hpp>  ///< BuzzerInstruction
 
 /**
  * The beep queue has a maximum size of 30 instructions. If the buffer is full

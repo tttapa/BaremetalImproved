@@ -1,7 +1,9 @@
 #pragma once
+
+/* Includes from src. */
 #include <Altitude.hpp>
+#include <BaremetalCommunicationDef.hpp>  ///< QRFSMState, Position
 #include <Position.hpp>
-#include <BaremetalCommunicationDef.hpp>
 
 /**
  * Output of the autonomous control system, which consists of a reference
@@ -9,6 +11,16 @@
  * bypassed and which common thrust should be used if it is bypassed.
  */
 struct AutonomousOutput {
+    AutonomousOutput(bool bypassAltitudeController,
+                     AltitudeReference referenceHeight, real_t commonThrust,
+                     bool updatePositionController,
+                     bool trustAccelerometerForPosition,
+                     Position referencePosition)
+        : bypassAltitudeController{bypassAltitudeController},
+          referenceHeight{referenceHeight}, commonThrust{commonThrust},
+          updatePositionController{updatePositionController},
+          trustAccelerometerForPosition{trustAccelerometerForPosition},
+          referencePosition{referencePosition} {}
 
     /**
      * Whether the altitude controller should be bypassed. If this is true, then
@@ -244,8 +256,7 @@ class AutonomousController {
      * @param   referenceHeight
      *          Reference height of the drone during autonomous mode.
      */
-    void initAir(Position currentPosition,
-                 AltitudeReference referenceHeight);
+    void initAir(Position currentPosition, AltitudeReference referenceHeight);
 
     /**
      * Reset the autonomous controller to the IDLE_GROUND state and set the

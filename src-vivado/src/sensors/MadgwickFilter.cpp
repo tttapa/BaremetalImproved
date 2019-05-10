@@ -1,5 +1,7 @@
-// Original: BareMetal/src/utils/MadgwickAHRS.c
-// Original: BareMetal/src/utils/MadgwickAHRS.h
+#include "MadgwickFilter.hpp"
+#include <PublicHardwareConstants.hpp>	///< TICKS_PER_SECOND
+
+// TODO: block comment
 //=====================================================================================================
 // MadgwickAHRS.c
 //=====================================================================================================
@@ -14,21 +16,16 @@
 //
 //=====================================================================================================
 
-//---------------------------------------------------------------------------------------------------
-// Header files
-#include "MadgwickFilter.hpp"
-#include <PublicHardwareConstants.hpp>	///< TICKS_PER_SECOND
 
 //---------------------------------------------------------------------------------------------------
 // Definitions
-
 #define betaDef		0.1f		// 2 * proportional gain
 #define INSTABILITY_FIX 1		// Use numerical instability fix
 
 //---------------------------------------------------------------------------------------------------
 // Variable definitions
 
-volatile float beta = betaDef;								// 2 * proportional gain (Kp)
+volatile float beta = betaDef;  // 2 * proportional gain (Kp)
 
 //---------------------------------------------------------------------------------------------------
 // Function declarations
@@ -42,6 +39,10 @@ float invSqrt(float x);
 // AHRS algorithm update
 
 Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
+    
+    /* Flip az for implementation of Madgwick. */
+    imu.az = -imu.az;
+
 	float recipNorm;
 	float s0, s1, s2, s3;
 	float qDot1, qDot2, qDot3, qDot4;
@@ -120,21 +121,20 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 float invSqrt(float x) {
 
 #if INSTABILITY_FIX
-	/* close-to-optimal  method with low cost from http://pizer.wordpress.com/2008/10/12/fast-inverse-square-root */
-	unsigned int i = 0x5F1F1412 - (*(unsigned int*)&x >> 1);
-	float tmp = *(float*)&i;
-	return tmp * (1.69000231f - 0.714158168f * x * tmp * tmp);
+    /* close-to-optimal  method with low cost from http://pizer.wordpress.com/2008/10/12/fast-inverse-square-root */
+    unsigned int i = 0x5F1F1412 - (*(unsigned int *) &x >> 1);
+    float tmp      = *(float *) &i;
+    return tmp * (1.69000231f - 0.714158168f * x * tmp * tmp);
 #else
-	/* original code */
-	float halfx = 0.5f * x;
-	float y = x;
-	long i = *(long*)&y;
-	i = 0x5f3759df - (i>>1);
-	y = *(float*)&i;
-	y = y * (1.5f - (halfx * y * y));
-	return y;
+    /* original code */
+    float halfx = 0.5f * x;
+    float y     = x;
+    long i      = *(long *) &y;
+    i           = 0x5f3759df - (i >> 1);
+    y           = *(float *) &i;
+    y           = y * (1.5f - (halfx * y * y));
+    return y;
 #endif
-
 }
 #pragma GCC diagnostic pop
 

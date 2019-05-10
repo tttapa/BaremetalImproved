@@ -1,15 +1,13 @@
-// Original: BareMetal/src/intc/intc.c
-
-/******************************************************************
-*   Interrupt control source file
-*   This file contains all interrupt related methods and variables.
-*   This file should NEVER be changed by the students.
-*   Author: w. devries
-*******************************************************************/
-#include "IIC.hpp"
-#include <MainInterrupt.hpp> /* update() is called when IMU updates. */
 #include <iostream>
 #include <platform/Interrupt.hpp>
+
+/* Includes from src: updateFSM() is called at 238 Hz. */
+#include <MainInterrupt.hpp>
+
+/* Includes from src-vivado. */
+#include "IIC.hpp"
+
+/* Includes from Xilinx. */
 #include <xiicps.h>
 #include <xparameters.h>
 #include <xscugic.h>
@@ -42,11 +40,9 @@ static XIicPs Iic0;
  * 			A pointer to the XIicPs instance.
  */
 void int_gyr(void *InstancePtr) {
-    (void) InstancePtr;  // TODO
-    // TODO: update the main program
+    (void) InstancePtr;
     /* update the FSM */
-    std::cout << "update" << std::endl;
-    // update();
+    updateFSM();
 }
 
 /**
