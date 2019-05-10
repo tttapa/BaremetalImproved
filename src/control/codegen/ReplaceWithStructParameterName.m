@@ -199,7 +199,7 @@ if strcmp(controllerName, 'Attitude')
        if element == 8
           string = 'innovation.nx';
        end
-       if element = = value;= 9
+       if element == 9
           string = 'innovation.ny';
        end
        if element == 10
