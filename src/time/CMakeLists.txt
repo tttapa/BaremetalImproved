@@ -30,6 +30,8 @@ target_compile_features(time PUBLIC cxx_std_17)
 target_link_libraries(time 
     PUBLIC 
         utilities
+    PRIVATE
+        src-vivado
 )
 
 # Run CMake again in the `test` folder, to discover the CMakeLists.txt file that
