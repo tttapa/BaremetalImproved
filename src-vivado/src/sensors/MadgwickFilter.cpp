@@ -17,12 +17,11 @@
 //---------------------------------------------------------------------------------------------------
 // Header files
 #include "MadgwickFilter.hpp"
-
+#include <PublicHardwareConstants.hpp>	///< TICKS_PER_SECOND
 
 //---------------------------------------------------------------------------------------------------
 // Definitions
 
-#define sampleFreq	238.0f		// sample frequency in Hz
 #define betaDef		0.1f		// 2 * proportional gain
 #define INSTABILITY_FIX 1		// Use numerical instability fix
 
@@ -98,10 +97,10 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 	}
 
 	// Integrate rate of change of quaternion to yield quaternion
-	orientation[0] += qDot1 * (1.0f / sampleFreq);
-	orientation[1] += qDot2 * (1.0f / sampleFreq);
-	orientation[2] += qDot3 * (1.0f / sampleFreq);
-	orientation[3] += qDot4 * (1.0f / sampleFreq);
+	orientation[0] += qDot1 * (1.0f / TICKS_PER_SECOND);
+	orientation[1] += qDot2 * (1.0f / TICKS_PER_SECOND);
+	orientation[2] += qDot3 * (1.0f / TICKS_PER_SECOND);
+	orientation[3] += qDot4 * (1.0f / TICKS_PER_SECOND);
 
 	// Normalise quaternion
 	recipNorm = invSqrt(orientation[0] * orientation[0] + orientation[1] * orientation[1] + orientation[2] * orientation[2] + orientation[3] * orientation[3]);

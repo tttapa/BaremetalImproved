@@ -7,7 +7,7 @@
 *   Author: w. devries
 *******************************************************************/
 #include "IIC.hpp"
-#include <MainInterrupt.hpp> /* update() is called at 238 Hz. */
+#include <MainInterrupt.hpp> /* update() is called when IMU updates. */
 #include <iostream>
 #include <platform/Interrupt.hpp>
 #include <xiicps.h>
@@ -35,7 +35,8 @@ static XIicPs Iic0;
 /**
  *
  * This function is the handler which is used when the Gyro generates an
- * interrupt. It does this at 238Hz. This method then updates the EAGLE FSM.
+ * interrupt. It does this whenever the IMU sends a new measurementz. This
+ * method then updates the EAGLE FSM.
  *
  * @param	InstancePtr
  * 			A pointer to the XIicPs instance.

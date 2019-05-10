@@ -37,7 +37,8 @@ real_t calculateYawJump(float yaw) {
     return modYaw - yaw;
 }
 
-// Called by src-vivado every 238 Hz after initialization/calibration is complete.
+// Called by src-vivado with every IMU update after initialization/calibration
+// is complete.
 void updateMainFSM() {
 
     /* Previous flight mode initialized when the function is first called. */
