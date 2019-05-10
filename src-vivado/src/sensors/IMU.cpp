@@ -16,23 +16,23 @@
 #include <xil_io.h>
 #include <xparameters.h>
 
+#include <PublicHardwareConstants.hpp>
+#include "IMUTypes.hpp"
+#include "LSM9DS1Def.hpp"
+/* Gyroscope and accelerometer frequencies are set to 238 Hz. */
+const IMUFrequency IMU_FREQUENCY = IMUFrequency::FREQ_238_HZ;
+
+/* Maximum measurable angular velocity is 2000 deg/s. */
+const GyroMaxSpeed GYRO_MAX_SPEED = GyroMaxSpeed::SPEED_2000_DPS;
+
+/* Maximum measurable acceleration in 16 g. */
+const AccelMaxSpeed ACCEL_MAX_SPEED = AccelMaxSpeed::SPEED_16_G;
+
 /* Amount of samples to take to determine bias. */
 const int CALIBRATION_SAMPLES = 512;
 
 /* Amount of samples to remove at the start of calibration. */
 const int INVALID_SAMPLES = 16;
-
-/* Number of u8s used to construct the 3 raw measurements (signed 16-bit) for the gyroscope. */
-const int GYRO_DATA_SIZE = 6;
-
-/* Number of u8s used to construct the 3 raw measurements (signed 16-bit) for the accelerometer. */
-const int ACCEL_DATA_SIZE = 6;
-
-/* Maximum measurable angular velocity in degree/s. */
-const float MAX_GYRO_VALUE = 2000.0;
-
-/* Maximum measurable acceleration in g. */
-const float MAX_ACCEL_VALUE = 16.0;
 
 /** Bias of the gyroscope, set on last step of calibration. */
 GyroMeasurement gyroBias;
@@ -64,7 +64,8 @@ const float PI = 3.14159265358979323846;
 float calcGyro(int rawGyro) {
 
     /** Calculate the resolution of the gyroscope in degree/s. */
-    const float gyroResolution = (float) MAX_GYRO_VALUE / (2 ^ 15);
+    static constexpr float gyroResolution =
+        getIMUValue(GYRO_MAX_SPEED) / (2 ^ 15);
 
     /** Convert the raw gyro value to rad/s. */
     return gyroResolution * (PI / 180.0) * (float) rawGyro;
@@ -79,9 +80,9 @@ float calcGyro(int rawGyro) {
  */
 float calcAccel(int rawAccel) {
 
-    // TODO: file to choose accel resolution, using datasheet data
     /** Calculate the resolution of the accelerometer in g. */
-    const float accelResolution = (float) MAX_ACCEL_VALUE / (2 ^ 15);
+    static constexpr float accelResolution =
+        getIMUValue(ACCEL_MAX_SPEED) / (2 ^ 15);
 
     /** Convert the raw accel value to g. */
     return accelResolution * (float) rawAccel;
@@ -187,10 +188,10 @@ bool calibrateIMUStep() {
     ledValue += (ledIndex >= 3 && ledIndex <= 5 ? 0x4 : 0);
     ledValue += (ledIndex == 4 ? 0x8 : 0);
     writeToLEDs({
-    	ledIndex >= 1,
-		ledIndex >= 2 && ledIndex <= 6,
-		ledIndex >= 3 && ledIndex <= 5 ,
-		ledIndex == 4,
+        ledIndex >= 1,
+        ledIndex >= 2 && ledIndex <= 6,
+        ledIndex >= 3 && ledIndex <= 5,
+        ledIndex == 4,
     });
 
     /* Increment counter. */
@@ -244,6 +245,10 @@ bool calibrateIMUStep() {
 
 bool initIMU() {
 
+    /* Set the global tick frequency/period. */
+    TICKS_PER_SECOND = getIMUValue(IMU_FREQUENCY);
+    SECONDS_PER_TICK = 1.0 / TICKS_PER_SECOND;
+
     /* Temporary array to store initialization readings. */
     u8 temp[1];
 
@@ -253,25 +258,24 @@ bool initIMU() {
     iicReadReg(temp, WHO_AM_I_XG, LSM9DS1_GX_ADDR, 1);
     usleep(100);
     xil_printf("received: 0x%02x\r\n", *temp);
-    if (*temp != WHO_AM_I_AG_RSP) {
+    if (*temp != WHO_AM_I_XG_ID) {
         xil_printf("WHO_AM_I FAILED\r\n");
         return false;
     }
     iicReadReg(temp, WHO_AM_I_M, LSM9DS1_M_ADDR, 1);
     usleep(100);
     xil_printf("received: 0x%02x\r\n", *temp);
-    if (*temp != WHO_AM_I_M_RSP) {
+    if (*temp != WHO_AM_I_M_ID) {
         xil_printf("WHO_AM_I FAILED\r\n");
         return false;
     }
     xil_printf("WHO_AM_I CORRECT\r\n");
 
-    // TODO: max 2000 deg/s, max 16 g? isn't this a bit overboard?
-    // TODO: we can increase the IMU clock speed to up to 952 Hz
     /* See https://www.st.com/resource/en/datasheet/DM00103319.pdf */
-
-    /* 238 Hz gyro output data rate (ODR), max 2000 degrees/s,  14 Hz cutoff. */
-    iicWriteToReg(CTRL_REG1_G, 0b10011000, LSM9DS1_GX_ADDR);
+    /* ... Hz gyro output data rate (ODR), max ... degrees/s,  ... Hz cutoff. */
+    iicWriteToReg(CTRL_REG1_G,
+                  getIMUBits(IMU_FREQUENCY) + getIMUBits(GYRO_MAX_SPEED),
+                  LSM9DS1_GX_ADDR);
 
     /* Low-power mode disabled, high-pass filter disabled, 15 Hz cutoff. */
     iicWriteToReg(CTRL_REG3_G, 0b00000000, LSM9DS1_GX_ADDR);
@@ -287,10 +291,12 @@ bool initIMU() {
     /* No data decimation, enable ax, ay, az output. */
     iicWriteToReg(CTRL_REG5_XL, 0b00111000, LSM9DS1_GX_ADDR);
 
-    /* 238 Hz accel output data rate (ODR), max +/- 16 g, 105 Hz bandwith. */
-    iicWriteToReg(CTRL_REG6_XL, 0b10001000, LSM9DS1_GX_ADDR);
+    /* ... Hz accel output data rate (ODR), max ... g, ... Hz bandwith. */
+    iicWriteToReg(CTRL_REG6_XL,
+                  getIMUBits(IMU_FREQUENCY) + getIMUBits(ACCEL_MAX_SPEED),
+                  LSM9DS1_GX_ADDR);
 
-    /* Accel high-resolution mode disabled, (238/50) Hz low-pass cutoff
+    /* Accel high-resolution mode disabled, (Ts/50) Hz low-pass cutoff
 	   frequency (bypassed), high-pass filter bypassed for interrupt. */
     iicWriteToReg(CTRL_REG7_XL, 0b00000000, LSM9DS1_GX_ADDR);
 

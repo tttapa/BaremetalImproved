@@ -1,6 +1,8 @@
 #include <Time.hpp>
 #include <chrono>
 
+// TODO: include location
+#include <PublicHardwareConstants.hpp>
 /** Tick counter. */
 static uint32_t tickCount = 0;
 

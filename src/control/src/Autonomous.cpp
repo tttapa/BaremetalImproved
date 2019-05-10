@@ -7,6 +7,8 @@
 #include <SharedMemoryInstances.hpp>
 #include <Time.hpp>
 
+// TODO: include location
+#include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
 /**
  * If the drone is stays with 0.10 meters of its destination for a period of
  * time, then it will have converged on its target.

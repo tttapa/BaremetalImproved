@@ -3,6 +3,9 @@
 #include <RCValues.hpp>
 #include <Time.hpp>
 
+// TODO: remove time.hpp
+// TODO: include location
+#include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
 /**
  * The largest control signal that can be sent to the "yaw torque motor" is
  * 0.10.

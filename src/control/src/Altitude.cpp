@@ -3,6 +3,7 @@
 #include <MiscInstances.hpp>
 #include <RCValues.hpp>
 
+// TODO: comment SONAR_FREQUENCY
 /**
  * The largest marginal control signal that can be sent to the "common motor"
  * is 0.10.

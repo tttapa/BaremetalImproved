@@ -3,6 +3,9 @@
 #include <Time.hpp>
 #include <RCValues.hpp>
 
+// TODO: remove time
+// TODO: include location
+#include <PublicHardwareConstants.hpp>  ///< TICKS_PER_SECOND
 /** Gradual thrust change lasts 1.0 seconds. */
 const real_t GTC_DURATION = TICKS_PER_SECOND * 1.0;
 
