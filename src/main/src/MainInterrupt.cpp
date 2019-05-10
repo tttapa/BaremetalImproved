@@ -67,6 +67,7 @@ void updateMainFSM() {
     setRCInput(readRC());
 
     /* Read IMU measurement and update the AHRS. */
+    // TODO: replace long function calls with e.g. readIMUAndUpdateAHRS();
     IMUMeasurement imuMeasurement = readIMU();
     Quaternion ahrsQuat           = updateAHRS(imuMeasurement);
     Quaternion jumpedAhrsQuat     = getJumpedOrientation(yawJump);
@@ -322,6 +323,7 @@ void updateFSM() {
     else if (!isAHRSInitialized) {
         initAHRS(readIMU());
         isAHRSInitialized = true;
+        buzzerManager.addInitiatedBeeps();
     }
     /* Phase 3: Main operation. */
     else {

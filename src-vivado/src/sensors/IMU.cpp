@@ -9,7 +9,7 @@
 #include <platform/Interrupt.hpp>
 
 /* Includes from Xilinx. */
-#include <sleep.h>  // TODO: is usleep() necessary?
+#include <sleep.h>
 #include <xil_io.h>
 #include <xparameters.h>
 
@@ -164,7 +164,7 @@ ColVector<3> getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
                                  float biasNorm) {
     /* Accelerometer measurements with bias removed in g. */
     ColVector<3> correctedAccel = (biasQuat).rotate(ColVector<3>{
-        -calcAccel(raw.axInt),  // TODO: check signs
+        -calcAccel(raw.axInt),
         +calcAccel(raw.ayInt),
         -calcAccel(raw.azInt),
     });
@@ -197,7 +197,7 @@ bool calibrateIMUStep() {
 
     /* Read raw sensor data. */
     RawGyroMeasurement rawGyro = readGyro();
-    usleep(100);  // TODO: sleep to prevent corruption?
+    usleep(100);
     RawAccelMeasurement rawAccel = readAccel();
 
     /* First measurementes contain invalid parameters. */
@@ -316,7 +316,7 @@ bool initIMU() {
     for (int i = 0; i < 5; i++) {
         readAccel();
         readGyro();
-        usleep(100);  // TODO: sleep to prevent corruption?
+        usleep(100);
     }
 
     /* IMU is initiated. */
@@ -337,7 +337,7 @@ IMUMeasurement readIMU() {
     /* Read gyroscope and convert to rad/s. */
     RawGyroMeasurement gyroRaw = readGyro();
     GyroMeasurement gyro       = getGyroMeasurement(gyroRaw, gyroBias);
-    usleep(100);  // TODO: sleep to prevent corruption?
+    usleep(100);    // TODO: are sleeps necessary (data corruption?) = 20% of PWM on-time
 
     /* Read accelerometer and convert to g. */
     RawAccelMeasurement accelRaw = readAccel();

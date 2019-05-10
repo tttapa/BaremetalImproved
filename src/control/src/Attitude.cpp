@@ -3,10 +3,8 @@
 /* Includes from src. */
 #include <MiscInstances.hpp>  ///< ConfigurationManager instance
 #include <RCValues.hpp>
-#include <Time.hpp>
 
-// TODO: remove time.hpp
-// TODO: include location
+/* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
 /**
  * The largest control signal that can be sent to the "yaw torque motor" is

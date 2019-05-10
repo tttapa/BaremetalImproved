@@ -170,7 +170,7 @@ int setupIMUInterruptSystem() {
     return XST_SUCCESS;
 }
 
-// TODO: THIS DATA IS NEVER USED! IS THIS NECESSARY?
+// TODO: remove this before handing in assignment... i think it's useless
 /**
  * This function is the handler which performs processing to handle data events
  * from the IIC.  It is called from an interrupt context such that the amount
@@ -180,12 +180,10 @@ int setupIMUInterruptSystem() {
  *        this case it is the instance pointer for the IIC driver.
  * @param Event contains the specific kind of event that has occurred.
  */
-// TODO: handler does nothing
 /*
 void handler(void *CallBackRef, u32 Event) {
 
 	// The following counters are used to determine when the entire buffer has been sent and received.
-	// TODO: these were declared like this in the header file... what should they be now?
 	volatile u32 SendComplete;
 	volatile u32 RecvComplete;
 	volatile u32 TotalErrorCount;
@@ -256,7 +254,7 @@ unsigned char iicConfig(unsigned int DeviceIdPS, XIicPs *iic_ptr) {
 	   context when data has been sent and received, specify a pointer to the
 	   IIC driver instance as the callback reference so the handlers are able to
 	   access the instance data. */
-    // TODO: handler does nothing
+    // TODO: remove this before handing in assignment... never used...
     // XIicPs_SetStatusHandler(iic_ptr, (void *) iic_ptr, handler);
 
     // Set the IIC serial clock rate.
