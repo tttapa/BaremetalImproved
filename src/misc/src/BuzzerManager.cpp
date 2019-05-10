@@ -6,6 +6,7 @@
 /* Includes from src-vivado. */
 #include <output/Buzzer.hpp>
 
+// TODO: armed doesn't make a sound
 /** Armed beep 1 lasts 0.30 seconds. */
 static constexpr float ARMED_DURATION1 = 0.30;
 /** Armed beep 1 has a low pitch. */
