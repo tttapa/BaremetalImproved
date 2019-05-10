@@ -1,13 +1,9 @@
-#include <output/Motors.hpp>
-#include <platform/AxiGpio.hpp>
-#include <sensors/AHRS.hpp>
-#include <sensors/IMU.hpp>
-#include <sensors/RC.hpp>
-#include <sensors/Sonar.hpp>
+#include <MainInterrupt.hpp>
+#include <iostream>
 
+/* Includes from src. */
 #include <BaremetalCommunicationDef.hpp>
 #include <ControllerInstances.hpp>
-#include <MainInterrupt.hpp>
 #include <MiscInstances.hpp>
 #include <OutputValues.hpp>
 #include <RCValues.hpp>
@@ -15,8 +11,15 @@
 #include <SharedMemoryInstances.hpp>
 #include <TiltCorrection.hpp>
 #include <Time.hpp>
+#include <logger.drone.hpp>
 
-#include <iostream>
+/* Includes from src-vivado. */
+#include <output/Motors.hpp>
+#include <platform/AxiGpio.hpp>
+#include <sensors/AHRS.hpp>
+#include <sensors/IMU.hpp>
+#include <sensors/RC.hpp>
+#include <sensors/Sonar.hpp>
 
 /** Whether an interrupt is currently running. */
 volatile bool isInterruptRunning = false;
@@ -273,6 +276,10 @@ void updateMainFSM() {
     }
     setCommonThrust(uc);
     setMotorSignals(motorSignals);
+
+    /* Output log data if logger is done writing. */
+    if(loggerComm->isDoneReading())
+        loggerComm->write(getLogData());
 
     /* Store flight mode. */
     previousFlightMode = getFlightMode();

@@ -250,6 +250,7 @@ void BuzzerManager::update() {
         /* ... and there are instructions left, then start the next one. */
         if (!isQueueEmpty()) {
             this->beepStartTime      = getTime();
+            this->instructionBusy = true;
             this->currentInstruction = this->beepQueue[readIndex];
             incrementReadIndex();
         }
