@@ -36,10 +36,13 @@ void ArmedManager::update() {
         /* Change armed status if we've waited long enough. */
         if (getTime() - waitingStartTime >= ARMED_CHANGE_DELAY) {
             this->isWaitingForChange = false;
-            if (yaw >= YAW_UPPER_THRESHOLD)
+            if (yaw >= YAW_UPPER_THRESHOLD) {
                 this->armed = true;
-            else
+                buzzerManager.addArmedBeeps();
+            } else {
                 this->armed = false;
+                buzzerManager.addDisarmedBeeps();
+            }
         }
     } else {
 
