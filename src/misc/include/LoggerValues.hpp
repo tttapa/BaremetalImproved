@@ -24,6 +24,9 @@ real_t getCommonThrust();
 /** Get the corrected position measurement for logger. */
 Position getCorrectedPositionMeasurement();
 
+/** Get the corrected sonar measurement for logger. */
+real_t getCorrectedSonarMeasurement();
+
 /** Get the gyroscope measurement for logger. */
 GyroMeasurement getGyroMeasurement();
 
@@ -38,9 +41,6 @@ MotorSignals getMotorSignals();
 
 /** Get the sonar measurement for logger. */
 real_t getSonarMeasurement();
-
-/** Get the corrected sonar measurement for logger. */
-real_t getCorrectedSonarMeasurement();
 
 /** Get the yaw jump for logger. */
 real_t getYawJump();
