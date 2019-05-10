@@ -81,6 +81,7 @@ void ConfigurationManager::updateConfig() {
                 nextConfiguration();
             else
                 previousConfiguration();
+            buzzerManager.addConfigurationBeeps(this->controllerConfiguration);
         }
     } else {
 

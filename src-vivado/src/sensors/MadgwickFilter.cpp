@@ -39,6 +39,10 @@ float invSqrt(float x);
 // AHRS algorithm update
 
 Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
+
+    /* Flip az for implementation of Madgwick. */
+    imu.az = -imu.az;
+
     float recipNorm;
     float s0, s1, s2, s3;
     float qDot1, qDot2, qDot3, qDot4;

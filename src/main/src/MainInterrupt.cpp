@@ -1,13 +1,9 @@
-#include <output/Motors.hpp>
-#include <platform/AxiGpio.hpp>
-#include <sensors/AHRS.hpp>
-#include <sensors/IMU.hpp>
-#include <sensors/RC.hpp>
-#include <sensors/Sonar.hpp>
+#include <MainInterrupt.hpp>
+#include <iostream>
 
+/* Includes from src. */
 #include <BaremetalCommunicationDef.hpp>
 #include <ControllerInstances.hpp>
-#include <MainInterrupt.hpp>
 #include <MiscInstances.hpp>
 #include <OutputValues.hpp>
 #include <RCValues.hpp>
@@ -15,8 +11,15 @@
 #include <SharedMemoryInstances.hpp>
 #include <TiltCorrection.hpp>
 #include <Time.hpp>
+#include <logger.drone.hpp>
 
-#include <iostream>
+/* Includes from src-vivado. */
+#include <output/Motors.hpp>
+#include <platform/AxiGpio.hpp>
+#include <sensors/AHRS.hpp>
+#include <sensors/IMU.hpp>
+#include <sensors/RC.hpp>
+#include <sensors/Sonar.hpp>
 
 /** Whether an interrupt is currently running. */
 volatile bool isInterruptRunning = false;
@@ -25,16 +28,16 @@ real_t calculateYawJump(float yaw) {
 
     /* Whenever the yaw passes 10 degrees (0.1745 rad), it will jump to -10
        degrees and vice versa. */
-    static constexpr real_t MAX_YAW_RADS = 0.1745;
+    static constexpr real_t MAX_RADS = 0.1745;
 
     /* The size of the interval is 2*MAX_YAW. */
-    real_t size = 2 * MAX_YAW_RADS;
+    real_t size = 2 * MAX_RADS;
 
-    /* Calculate yaw value in [0, 2*MAX_YAW]. */
-    real_t modYaw = fmod(fmod(yaw, size) + size, size);
-
-    /* Calculate yaw value in [-MAX_YAW, +MAX_YAW]. */
-    modYaw -= MAX_YAW_RADS;
+    /* Inner mod gives [0, 2*MAX_RADS) for positive numbers and (-2*MAX_RADS,0]
+       for negative numbers. Adding MAX_RADS and modding by 2*MAX_RADS ensures
+       that yaw+MAX_RADS maps to [0, 2*MAX_RADS). Subtracting MAX_RADS maps
+       yaw to [-MAX_RADS, +MAX_RADS]. */
+    real_t modYaw = fmod(fmod(yaw + MAX_RADS, size) + size, size) - MAX_RADS;
 
     /* Return the yaw jump. */
     return modYaw - yaw;
@@ -48,8 +51,8 @@ void updateMainFSM() {
 
     /* Values to be calculated each iteration. */
     AttitudeControlSignal uxyz;
-    real_t uc;
     static real_t ucLast = 0.0; /* Remember last common thrust for GTC. */
+    real_t uc            = ucLast;
 
     /* Keep the attitude controller's state estimate near the unit quaternion
        [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
@@ -68,13 +71,10 @@ void updateMainFSM() {
     Quaternion jumpedAhrsQuat     = getJumpedOrientation(yawJump);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
-    bool hasNewSonarMeasurement = readSonar();
-    real_t sonarMeasurement, correctedSonarMeasurement;
-    if (hasNewSonarMeasurement) {
-        sonarMeasurement          = getFilteredSonarMeasurement();
-        correctedSonarMeasurement = getCorrectedHeight(
-            sonarMeasurement, attitudeController.getOrientationQuat());
-    }
+    bool hasNewSonarMeasurement      = readSonar();
+    real_t sonarMeasurement          = getFilteredSonarMeasurement();
+    real_t correctedSonarMeasurement = getCorrectedHeight(
+        sonarMeasurement, attitudeController.getOrientationQuat());
 
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
@@ -105,17 +105,23 @@ void updateMainFSM() {
             armedManager.update();
 
             /* Start gradual thrust change if last mode was altitude hold. */
-            gtcManager.start(ucLast);
+            if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
+                gtcManager.start(ucLast);
 
             /* Common thrust comes directly from the RC, but leave some margin
                for two reasons. Firstly, it is not safe to fly at 100% thrust.
                Secondly, if that were to happen, then there would be no room for
                the attitude controller to make adjustments. */
             const float MAX_THROTTLE = 0.80;
-            if (getThrottle() <= MAX_THROTTLE)
+            if (getThrottle() < 0.01) {
+                uc = 0.0;
+                attitudeController.init(); /* Reset attitude observer. */
+                resetAHRSOrientation();    /* Reset AHRS to [1000]. */
+            } else if (getThrottle() <= MAX_THROTTLE) {
                 uc = getThrottle();
-            else
+            } else {
                 uc = MAX_THROTTLE;
+            }
 
             /* Update the attitude controller's reference using the RC. */
             attitudeController.updateRCReference();
@@ -135,10 +141,9 @@ void updateMainFSM() {
                 /* Common thrust is calculated by the altitude controller. */
                 uc = inputBias.getThrustBias() +
                      altitudeController.updateControlSignal().ut;
-
-                /* Calculate the torque motor signals. */
-                uxyz = attitudeController.updateControlSignal(uc);
             }
+            /* Calculate the torque motor signals. */
+            uxyz = attitudeController.updateControlSignal(uc);
         } break;
         case FlightMode::AUTONOMOUS: {
             // TODO: when should we initGround or initAir?
@@ -197,10 +202,11 @@ void updateMainFSM() {
                 uxyz = attitudeController.updateControlSignal(uc);
             }
         } break;
-        case FlightMode::UNINITIALIZED:
+        default:  // case FlightMode::UNINITIALIZED:
             /* We will never get here because readRC() cannot return an
             uninitialized flight mode. */
-            break;
+            uxyz = {0, 0, 0};
+            uc   = 0.0;
     }
 
     /* Remember common thrust for next clock cycle, which is needed to start the
@@ -219,7 +225,6 @@ void updateMainFSM() {
 
     /* Drone calibration? */
     if (configManager.getControllerConfiguration() == CALIBRATION_MODE) {
-        printf("CALIBRATION MODE!!!");
         if (getThrottle() >= 0.50)
             uc = 1.0;
         else
@@ -228,10 +233,6 @@ void updateMainFSM() {
 
     /* Transform the motor signals and output to the motors. */
     MotorSignals motorSignals = transformAttitudeControlSignal(uxyz, uc);
-    printf("Time %.2f\t, mode %d\t, uc %.2f\t, ux %.2f\t, uy %.2f\t, uz %.2f, "
-           "v0 %.2f\t, v1 %.2f\t, v2 %.2f\t, v3 %.2f\n",
-           getTime(), (int) (getFlightMode()), uc, uxyz.ux, uxyz.uy, uxyz.uz,
-           motorSignals.v0, motorSignals.v1, motorSignals.v2, motorSignals.v3);
     if (armedManager.isArmed())
         outputMotorPWM(motorSignals);
 
@@ -275,6 +276,10 @@ void updateMainFSM() {
     }
     setCommonThrust(uc);
     setMotorSignals(motorSignals);
+
+    /* Output log data if logger is done writing. */
+    if(loggerComm->isDoneReading())
+        loggerComm->write(getLogData());
 
     /* Store flight mode. */
     previousFlightMode = getFlightMode();

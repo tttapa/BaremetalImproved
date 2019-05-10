@@ -29,7 +29,7 @@ float getMedian(float *measurements, int size, int bufferSize) {
 
     /* Sort window from smallest to largest. We can stop as soon as we've found
        the median value (index sortCount). */
-    for (i = 0; i < sortCount; i++) {
+    for (int i = 0; i < sortCount; i++) {
 
         /* Find the minimum in window[i:end]. */
         int min = i;

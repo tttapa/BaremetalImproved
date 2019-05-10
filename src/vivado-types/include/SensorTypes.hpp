@@ -6,6 +6,7 @@
 struct AccelMeasurement {
     AccelMeasurement(real_t ax, real_t ay, real_t az)
         : ax{ax}, ay{ay}, az{az} {}
+    AccelMeasurement() = default;
     real_t ax;  ///< Acceleration along the x-axis in g.
     real_t ay;  ///< Acceleration along the y-axis in g.
     real_t az;  ///< Acceleration along the z-axis in g.
@@ -14,6 +15,7 @@ struct AccelMeasurement {
 /* Angular velocity measurement in rad/s. */
 struct GyroMeasurement {
     GyroMeasurement(real_t gx, real_t gy, real_t gz) : gx{gx}, gy{gy}, gz{gz} {}
+    GyroMeasurement() = default;
     real_t gx;  ///< Angular velocity about the x-axis in rad/s.
     real_t gy;  ///< Angular velocity about the y-axis in rad/s.
     real_t gz;  ///< Angular velocity about the z-axis in rad/s.
@@ -35,10 +37,10 @@ struct IMUMeasurement {
 
 /**
  * Struct containing the values from the RC transmitter. This includes the
- * value of the throttle, roll, pitch and yaw, which range from 0 to 1. It
- * also contains the value of the tuner knob, which ranges from -0.5 to +0.5.
- * Lastly there are switches for the flight mode and the wireless power
- * transfer. These are represented by their respective enumerations.
+ * value of the throttle, which ranges from 0 to 1. It also contains the values
+ * of the roll, pitch, yaw, and tuner knob, which range from -1 to +1. Lastly,
+ * there are switches for the flight mode and the wireless power transfer. These
+ * are represented by their respective enumerations.
  */
 struct RCInput {
     RCInput(real_t throttle, real_t roll, real_t pitch, real_t yaw,
@@ -47,10 +49,10 @@ struct RCInput {
           flightMode{flightMode}, wptMode{wptMode} {}
     RCInput() = default;
     real_t throttle;        ///< Value of the RC throttle in [0,1].
-    real_t roll;            ///< Value of the RC roll in [0,1].
-    real_t pitch;           ///< Value of the RC pitch in [0,1].
-    real_t yaw;             ///< Value of the RC yaw in [0,1].
-    real_t tuner;           ///< Value of the RC tuner knob in [-0.5,+0.5].
+    real_t roll;            ///< Value of the RC roll in [-1,1].
+    real_t pitch;           ///< Value of the RC pitch in [-1,1].
+    real_t yaw;             ///< Value of the RC yaw in [-1,1].
+    real_t tuner;           ///< Value of the RC tuner knob in [-1,+1].
     FlightMode flightMode;  ///< Value of the RC flight mode (as a FlightMode).
     WPTMode wptMode;        ///< Value of the RC WPT mode (as a WPTMode).
 };

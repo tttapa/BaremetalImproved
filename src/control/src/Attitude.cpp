@@ -122,14 +122,14 @@ void AttitudeController::updateRCReference() {
     real_t pitch = getPitch();
     real_t yaw   = getYaw();
 
-    /* Convert RC tilt [-0.5, +0,5] to radians [-0.1745, +0.1745]. */
-    real_t rollRads  = 2 * roll * MAXIMUM_REFERENCE_TILT;
-    real_t pitchRads = 2 * pitch * MAXIMUM_REFERENCE_TILT;
+    /* Convert RC tilt [-1.0, +1.0] to radians [-0.1745, +0.1745]. */
+    real_t rollRads  = roll * MAXIMUM_REFERENCE_TILT;
+    real_t pitchRads = pitch * MAXIMUM_REFERENCE_TILT;
     real_t yawRads   = this->referenceEuler.yaw;
 
     /* Update the reference yaw based on the RC yaw. */
-    real_t upperZoneSize = 0.5 - RC_REFERENCE_YAW_UPPER_THRESHOLD;
-    real_t lowerZoneSize = RC_REFERENCE_YAW_LOWER_THRESHOLD - (-0.5);
+    real_t upperZoneSize = 1.0 - RC_REFERENCE_YAW_UPPER_THRESHOLD;
+    real_t lowerZoneSize = RC_REFERENCE_YAW_LOWER_THRESHOLD - (-1.0);
     if (yaw > RC_REFERENCE_YAW_UPPER_THRESHOLD)
         yawRads += (yaw - RC_REFERENCE_YAW_UPPER_THRESHOLD) / upperZoneSize *
                    RC_REFERENCE_YAW_MAX_SPEED * SECONDS_PER_TICK;

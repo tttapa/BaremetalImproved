@@ -1,5 +1,5 @@
 #include <cstdint>
-#include <outputs/WPT.hpp>
+#include <output/WPT.hpp>
 
 /* Includes from src-vivado. */
 #include "../PrivateHardwareConstants.hpp"

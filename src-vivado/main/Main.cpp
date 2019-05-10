@@ -3,6 +3,7 @@
 /* Includes from src. */
 #include <ControllerInstances.hpp>
 #include <MainLoop.hpp>
+#include <MiscInstances.hpp>
 #include <SharedMemoryInstances.hpp>
 
 /* Includes from src-vivado. */
@@ -35,6 +36,9 @@ int main(void) {
 
     /* Initialize the controllers and input bias. */
     initControllerInstances();
+
+    /* Initialize the miscellaneous instances. */
+    initMiscInstances();
 
     /* Initialize the communication with the Linux core. */
     initSharedMemoryInstances();

@@ -6,8 +6,10 @@ vectors = strfind(string, 'vector__');
 while (~isempty(vectors))
     start = vectors(1) + 8;
     struct = char(extractBetween(string, start, '['));
-    elementIndex = start + length(struct) + 1;
-    element = str2double(char(string(elementIndex)));
+    startIndex = start + length(struct) + 1;
+    spaceIndices = strfind(string(startIndex+1:end),' ');
+    endIndex = startIndex + spaceIndices(1) - 1;
+    element = str2double(char(string(startIndex:endIndex)));
     parameterName = GetParameterName(droneState, struct, element);
 
     toReplace = char(extractBetween(string,vectors(1),']'));
@@ -22,7 +24,7 @@ end
 function string = GetParameterName(droneState, struct, element)
 
 if strcmp(droneState, 'Attitude')
-    
+
     if strcmp(struct,'y_int')
         if element == 1
             string = 'integralWindup.q1';

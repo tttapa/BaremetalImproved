@@ -6,6 +6,7 @@
 /* Includes from src-vivado. */
 #include <output/Buzzer.hpp>
 
+// TODO: armed doesn't make a sound
 /** Armed beep 1 lasts 0.30 seconds. */
 static constexpr float ARMED_DURATION1 = 0.30;
 /** Armed beep 1 has a low pitch. */
@@ -248,6 +249,8 @@ void BuzzerManager::update() {
 
         /* ... and there are instructions left, then start the next one. */
         if (!isQueueEmpty()) {
+            this->beepStartTime      = getTime();
+            this->instructionBusy = true;
             this->currentInstruction = this->beepQueue[readIndex];
             incrementReadIndex();
         }
