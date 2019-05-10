@@ -18,7 +18,7 @@ method = 'zoh';
 %% Attitude (LQR + integral action with Kalman estimate)
 
 % Linear system
-s.att.fs = 238; % TODO: sync this with BareMetal
+s.att.fs = 952; % TODO: sync this with BareMetal
 s.att.Ts = 1 / s.att.fs;
 
 s.att.Aa = [ zeros(1, 10);

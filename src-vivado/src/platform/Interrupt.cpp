@@ -1,7 +1,7 @@
 #include <iostream>
 #include <platform/Interrupt.hpp>
 
-/* Includes from src: updateFSM() is called at 238 Hz. */
+/* Includes from src: updateFSM() is called when IMU updates. */
 #include <MainInterrupt.hpp>
 
 /* Includes from src-vivado. */

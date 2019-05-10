@@ -6,15 +6,14 @@
 /* Includes from src-vivado. */
 #include <output/Buzzer.hpp>
 
-// TODO: armed doesn't make a sound
-/** Armed beep 1 lasts 0.30 seconds. */
-static constexpr float ARMED_DURATION1 = 0.30;
+/** Armed beep 1 lasts 0.20 seconds. */
+static constexpr float ARMED_DURATION1 = 0.20;
 /** Armed beep 1 has a low pitch. */
 static constexpr int ARMED_PERIOD1 = 0x37800;
 /** Armed beep 1 has a medium volume. */
 static constexpr int ARMED_VOLUME1 = 0x20000;
-/** Armed beep 2 lasts 0.30 seconds. */
-static constexpr float ARMED_DURATION2 = 0.30;
+/** Armed beep 2 lasts 0.20 seconds. */
+static constexpr float ARMED_DURATION2 = 0.20;
 /** Armed beep 2 has a medium pitch. */
 static constexpr int ARMED_PERIOD2 = 0x27800;
 /** Armed beep 2 has a medium volume. */
@@ -31,14 +30,14 @@ static constexpr int CONFIG_VOLUME = 0x32000;
 /** Configuration beeps have 0.20 seconds between them. */
 static constexpr float CONFIG_DELAY = 0.20;
 
-/** Disarmed beep 1 lasts 0.30 seconds. */
-static constexpr float DISARMED_DURATION1 = 0.30;
+/** Disarmed beep 1 lasts 0.20 seconds. */
+static constexpr float DISARMED_DURATION1 = 0.20;
 /** Disarmed beep 1 has a medium pitch. */
 static constexpr int DISARMED_PERIOD1 = 0x27800;
 /** Disarmed beep 1 has a medium volume. */
 static constexpr int DISARMED_VOLUME1 = 0x20000;
-/** Disarmed beep 2 lasts 0.30 seconds. */
-static constexpr float DISARMED_DURATION2 = 0.30;
+/** Disarmed beep 2 lasts 0.20 seconds. */
+static constexpr float DISARMED_DURATION2 = 0.20;
 /** Disarmed beep 2 has a low pitch. */
 static constexpr int DISARMED_PERIOD2 = 0x37800;
 /** Disarmed beep 2 has a medium volume. */

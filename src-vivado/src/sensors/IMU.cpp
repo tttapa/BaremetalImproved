@@ -16,8 +16,10 @@
 #include "IMUTypes.hpp"
 #include "LSM9DS1Def.hpp"
 #include <PublicHardwareConstants.hpp>
-/* Gyroscope and accelerometer frequencies are set to 238 Hz. */
-const IMUFrequency IMU_FREQUENCY = IMUFrequency::FREQ_238_HZ;
+
+// TODO: sync with codegen
+/* Gyroscope and accelerometer frequencies are set to 952 Hz. */
+const IMUFrequency IMU_FREQUENCY = IMUFrequency::FREQ_952_HZ;
 
 /* Maximum measurable angular velocity is 2000 deg/s. */
 const GyroMaxSpeed GYRO_MAX_SPEED = GyroMaxSpeed::SPEED_2000_DPS;
@@ -26,7 +28,7 @@ const GyroMaxSpeed GYRO_MAX_SPEED = GyroMaxSpeed::SPEED_2000_DPS;
 const AccelMaxSpeed ACCEL_MAX_SPEED = AccelMaxSpeed::SPEED_16_G;
 
 /* Amount of samples to take to determine bias. */
-const int CALIBRATION_SAMPLES = 512;
+const float CALIBRATION_TIME = 3.0;
 
 /* Amount of samples to remove at the start of calibration. */
 const int INVALID_SAMPLES = 16;
@@ -172,13 +174,16 @@ ColVector<3> getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
 
 bool calibrateIMUStep() {
 
+    int factor              = getIMUFactor(IMU_FREQUENCY);
+    int CALIBRATION_SAMPLES = getIMUValue(IMU_FREQUENCY) * CALIBRATION_TIME;
+
     /* Log start of calibration. */
     if (calibrationStepCounter == 0)
         xil_printf("calibrating IMU, reading %i samples \r\n",
                    CALIBRATION_SAMPLES);
 
     /* Have the LEDs blink: slow down by factor 2^4, cycle through 8 states. */
-    int ledIndex = (calibrationStepCounter >> 4) % 8;
+    int ledIndex = (calibrationStepCounter >> (factor+2)) % 8;
     int ledValue = 0x0;
     ledValue += (ledIndex >= 1 ? 0x1 : 0);
     ledValue += (ledIndex >= 2 && ledIndex <= 6 ? 0x2 : 0);

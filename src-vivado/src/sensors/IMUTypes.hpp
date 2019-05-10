@@ -115,3 +115,12 @@ constexpr float getIMUValue(AccelMaxSpeed maxSpeed) {
         case SPEED_16_G: return 16.0;
     }
 }
+
+constexpr int getIMUFactor(IMUFrequency frequency) {
+    switch(frequency) {
+        case FREQ_119_HZ: return 1;
+        case FREQ_238_HZ: return 2;
+        case FREQ_476_HZ: return 3;
+        case FREQ_952_HZ: return 4;
+    }
+}
