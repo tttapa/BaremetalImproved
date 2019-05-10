@@ -67,7 +67,7 @@ Add following flag to "Other optimization flags": "-std=c++17"
 
 --- step 6 --- 
 Under C/C++ Build>Settings in the tab "Tool Settings" click on "Cross ARM C++ Linker>Libraries"
-Click on plus icon by "Libraries (-l)" pane, enter "main" then click OK. Do the same for "instances", "control", "misc" and "time" IN THAT ORDER!
+Click on plus icon by "Libraries (-l)" pane, enter "main" then click OK. Do the same for "instances", "control", "misc", "time", "communication" IN THAT ORDER!
 Click on plus icon by "Library search path (-L)" pane, click "Workspace" and then select "Autopilot_AMP_Improved/vivado-libs/lib" then click OK
 
 --- step 7 --- 
