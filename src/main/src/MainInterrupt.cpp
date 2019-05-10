@@ -54,7 +54,6 @@ void updateMainFSM() {
     real_t uc;
     static real_t ucLast = 0.0; /* Remember last common thrust for GTC. */
     static PositionControlSignal q12refLast = {}; /* Remember for Autonomous. */
-    
 
     /* Keep the attitude controller's state estimate near the unit quaternion
        [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
@@ -177,8 +176,8 @@ void updateMainFSM() {
                 if (output.trustAccelerometerForPosition) {
                     positionController.updateObserverBlind(
                         attitudeController.getOrientationQuat());
-                    q12ref = {0.0, 0.0};
-                    // TODO: qref12 =positionController.updateControlSignalBlind()
+                    q12ref = positionController.updateControlSignalBlind(
+                        output.referencePosition);
                 }
                 /* Normal position controller @ IMP frequency. */
                 else if (hasNewIMPMeasurement) {
