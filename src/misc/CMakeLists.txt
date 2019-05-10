@@ -5,9 +5,8 @@ add_library(misc
     src/ConfigurationManager.cpp
     src/ESCStartupScript.cpp
     src/GradualThrustChangeManager.cpp
-    src/OutputValues.cpp
+    src/LoggerValues.cpp
     src/RCValues.cpp
-    src/SensorValues.cpp
 )
 
 # Set target include directories 
@@ -36,10 +35,12 @@ target_include_directories(misc
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(misc 
     PUBLIC 
-        time
         communication
-        instances
         control
+        instances
+        quaternion
+        time
+        utilities
         vivado-types
     PRIVATE
         src-vivado
@@ -63,5 +64,6 @@ FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ConfigurationManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ESCStartupScript.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GradualThrustChangeManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/LoggerValues.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/RCValues.hpp
 DESTINATION include)

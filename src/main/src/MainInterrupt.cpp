@@ -4,10 +4,9 @@
 /* Includes from src. */
 #include <BaremetalCommunicationDef.hpp>
 #include <ControllerInstances.hpp>
+#include <LoggerValues.hpp>
 #include <MiscInstances.hpp>
-#include <OutputValues.hpp>
 #include <RCValues.hpp>
-#include <SensorValues.hpp>
 #include <SharedMemoryInstances.hpp>
 #include <TiltCorrection.hpp>
 #include <Time.hpp>
@@ -278,7 +277,7 @@ void updateMainFSM() {
     setMotorSignals(motorSignals);
 
     /* Output log data if logger is done writing. */
-    if(loggerComm->isDoneReading())
+    if (loggerComm->isDoneReading())
         loggerComm->write(getLogData());
 
     /* Store flight mode. */
