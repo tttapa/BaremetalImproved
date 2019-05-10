@@ -1,10 +1,21 @@
-function [result_prediction_r, result_innovation_r, result_x_hat] = GenerateAttitudeObserver(s)
-%GenerateAttitudeObserver - Code generator for the attitude observer
+function [ result_prediction_r, result_innovation_r, result_x_hat ] = GenerateAttitudeObserver(s)
+%GENERATE_ATTITUDE_OBSERVER
+%   Code generator for the attitude observer. This function creates syms that
+%   can be used to replace tags with generated code in AttitudeCodegen.cpp.
 %
-% Syntax: [result_prediction, result_innovation, result_x_hat] = GenerateAttitudeObserver(s)
+%   @param  s
+%           The result of GetParamsAndMatrices().
 %
-% `s` is the result of GetParamsAndMatrices that contains the Kalman matrix 
-% `L_kal`
+%   @return result_prediction_r
+%           Kalman state prediction Ax+Bu, calculated from the syms
+%           'vector__x_hat' and 'vector__u'.
+%   @return result_innovation_r
+%           Kalman state innovation L*(y-Cx), calculated from the syms
+%           'vector__x_hat' and 'vector__y'.
+%   @return result_x_hat
+%           Kalman state estimate, calculated from the syms 'vector__x_hat',
+%           'vector__u' and 'vector__y'.
+%
 
 % Round matrices
 L = round(s.att.kal.L, 8);

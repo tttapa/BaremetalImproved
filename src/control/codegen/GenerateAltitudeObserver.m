@@ -1,10 +1,15 @@
-function result_x_hat = GenerateAltitudeObserver(s)
-%GenerateAltitudeObserver - Code generator for the altitude observer
+function [ result_x_hat ] = GenerateAltitudeObserver(s)
+%GENERATE_ALTITUDE_OBSERVER
+%   Code generator for the altitude observer. This function creates a sym that
+%   can be used to replace tags with generated code in AltitudeCodegen.cpp.
 %
-% Syntax: result_x_hat = GenerateAltitudeObserver(s)
+%   @param  s
+%           The result of GetParamsAndMatrices().
 %
-% `s` is the result of GetParamsAndMatrices that contains the Kalman matrix 
-% `L_kal`
+%   @return result_x_hat
+%           Kalman state estimate, calculated from the syms
+%           'vector__x_hat_copy', 'vector__u' and 'vector__y'.
+%
 
 % Round matrices
 L = round(s.alt.kal.L, 8);
@@ -14,7 +19,7 @@ x_hat = sym('vector__x_hat_copy', [3, 1], 'real');
 u     = sym('vector__u',          [1, 1], 'real');
 y     = sym('vector__y',          [1, 1], 'real');
 
-% Calculate estimate
+% Calculate estimate (Kalman)
 prediction   = s.alt.Ad * x_hat + s.alt.Bd * u;  % A * x + B * u
 dif          = y - s.alt.Cd * x_hat;
 innovation   = L * dif;  % L * (y - C * x)
