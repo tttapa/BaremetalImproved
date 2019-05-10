@@ -1,12 +1,6 @@
 #pragma once
 #include <cstdint>
-
-/* Includes from src. */
 #include <real_t.h>
-
-/** Clock is updated when interrupts occur at 238 Hz. */
-const real_t TICKS_PER_SECOND = 238.0;
-const real_t SECONDS_PER_TICK = 1.0 / TICKS_PER_SECOND;
 
 /**
  * Increment the tick counter.

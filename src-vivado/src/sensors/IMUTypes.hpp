@@ -45,7 +45,7 @@ enum GyroMaxSpeed {
 
     /** The maximum measurable angular velocity is ± 2000 deg/s. */
     SPEED_2000_DPS = 2,
-}
+};
 
 /** Maximum measurable acceleration by the accelerometer in g. */
 enum AccelMaxSpeed {
@@ -61,7 +61,7 @@ enum AccelMaxSpeed {
 
     /** The maximum measurable acceleration is ± 16 g. */
     SPEED_16_G = 3,
-}
+};
 
 constexpr int
 getIMUBits(IMUFrequency frequency) {

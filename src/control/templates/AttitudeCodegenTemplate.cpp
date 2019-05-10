@@ -170,6 +170,10 @@ AttitudeController::codegenNextStateEstimate(AttitudeState stateEstimate,
             innovation.ny   = $c4$i8;
             innovation.nz   = $c4$i9;
             break;
+        default:
+            prediction = {};
+            innovation = {};
+            break;
     }
     QUAT_0(prediction);
     QUAT_0(innovation);

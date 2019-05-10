@@ -5,7 +5,6 @@
 
 /* Includes from src-vivado. */
 #include "../platform/IIC.hpp"
-#include "LSM9DS1_Registers.h"
 #include <platform/AxiGpio.hpp>
 #include <platform/Interrupt.hpp>
 
