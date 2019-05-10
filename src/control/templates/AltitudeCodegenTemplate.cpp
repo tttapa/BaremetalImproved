@@ -6,9 +6,11 @@
  * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template, or in the MATLAB code generator.
  */
-AltitudeControlSignal AltitudeController::codegenControlSignal(
-    AltitudeState stateEstimate, AltitudeReference reference,
-    AltitudeIntegralWindup integralWindup, int droneConfiguration) {
+AltitudeControlSignal
+AltitudeController::codegenControlSignal(AltitudeState stateEstimate,
+                                         AltitudeReference reference,
+                                         AltitudeIntegralWindup integralWindup,
+                                         int droneConfiguration) {
 
 	/* Calculate controller output based on drone configuration. */
     AltitudeControlSignal controlSignal;
@@ -22,9 +24,15 @@ AltitudeControlSignal AltitudeController::codegenControlSignal(
     return controlSignal;
 }
 
-AltitudeIntegralWindup AltitudeController::codegenIntegralWindup(
-    AltitudeIntegralWindup integralWindup, AltitudeReference reference,
-    AltitudeState stateEstimate, int droneConfiguration) {
+/*
+ * @note    This is an automatically generated function. Do not edit it here,
+ *          edit it in the template, or in the MATLAB code generator.
+ */
+AltitudeIntegralWindup
+AltitudeController::codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
+                                          AltitudeReference reference,
+                                          AltitudeState stateEstimate,
+                                          int droneConfiguration) {
 
     /* Set maximum integral windup based on drone configuration. */
     real_t maxIntegralWindup;
@@ -48,9 +56,11 @@ AltitudeIntegralWindup AltitudeController::codegenIntegralWindup(
  * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template, or in the MATLAB code generator.
  */
-AltitudeState AltitudeController::codegenNextStateEstimate(
-    AltitudeState stateEstimate, AltitudeControlSignal controlSignal,
-    AltitudeMeasurement measurement, int droneConfiguration) {
+AltitudeState
+AltitudeController::codegenNextStateEstimate(AltitudeState stateEstimate,
+                                             AltitudeControlSignal controlSignal,
+                                             AltitudeMeasurement measurement,
+                                             int droneConfiguration) {
 
     /* Trust model if the sonar returns 0 as height. */
     if (measurement.z < 0.01)
