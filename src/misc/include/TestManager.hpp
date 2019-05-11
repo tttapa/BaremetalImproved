@@ -72,6 +72,3 @@ enum TestMode {
     DEMO = 7,
 
 };
-
-/** Current drone configuration is CONFIG_DEMO. */
-#define DRONE_CONFIG CONFIG_DEMO
