@@ -19,7 +19,6 @@ void initMiscInstances() {
     armedManager.init();
     buzzerManager.init();
     configManager.init();
-    // TODO: enable esc startup script
-    escStartupScript.init(false);
+    escStartupScript.init(false);   // TODO: enable ESC startup script
     gtcManager.init();
 }

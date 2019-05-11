@@ -1,6 +1,7 @@
 #include <BaremetalCommunicationDef.hpp>  ///< FlightMode
 #include <InputBias/InputBias.hpp>
 
+#pragma region Constants
 /**
  * Weight used in the exponential filters for the roll and pitch biases when
  * the pilot is in control of these parameters, i.e. the MANUAL and
@@ -33,6 +34,7 @@ static constexpr real_t THRUST_BIAS_WEIGHT_MANUAL = 0.01;
  */
 // TODO: check if this is ok. should be ~10-30s of bad bias before it fixes
 static constexpr real_t THRUST_BIAS_WEIGHT_ALTITUDE_HOLD = 0.0001;
+#pragma endregion
 
 void InputBias::init() {
     this->pitchBias  = 0.0;

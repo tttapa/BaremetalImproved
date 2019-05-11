@@ -189,6 +189,30 @@ class PositionController {
         PositionIntegralWindup integralWindup, int droneConfiguration);
 
     /**
+     * Calculate the current blind position control signal using the code
+     * generator.
+     * 
+     * @param   stateEstimate
+     *          Estimate of the current state, determined this cycle.
+     * @param   reference
+     *          Reference position to track.
+     * @param   integralWindup
+     *          Current integral windup.
+     * @param   droneConfiguration
+     *          Configuration of the drone.
+     * 
+     * @return  The control signal to be sent to the attitude controller until
+     *          the next measurement from the Image Processing team. The result
+     *          only contains the quaternion components q1 and q2. The last
+     *          component q3 should be determined by the anti-yaw-drift
+     *          controller and from that the full quaternion should be
+     *          constructed.
+     */
+    static PositionControlSignal codegenControlSignalBlind(
+        PositionState stateEstimate, PositionReference reference,
+        PositionIntegralWindup integralWindup, int droneConfiguration);
+
+    /**
      * Calculate the current integral windup using the code generator.
      * 
      * @param   lastIntegralWindup
@@ -200,6 +224,21 @@ class PositionController {
      */
     static PositionIntegralWindup
     codegenIntegralWindup(PositionIntegralWindup integralWindup,
+                          PositionReference reference,
+                          PositionState stateEstimate, int droneConfiguration);
+
+    /**
+     * Calculate the current (blind) integral windup using the code generator.
+     * 
+     * @param   lastIntegralWindup
+     *          Integral windup from the last cycle.
+     * @param   reference
+     *          Reference position to track.
+     * 
+     * @return  The current integral windup.
+     */
+    static PositionIntegralWindup
+    codegenIntegralWindupBlind(PositionIntegralWindup integralWindup,
                           PositionReference reference,
                           PositionState stateEstimate, int droneConfiguration);
 

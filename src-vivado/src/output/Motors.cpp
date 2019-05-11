@@ -3,6 +3,7 @@
 /* Includes from src-vivado. */
 #include "../PrivateHardwareConstants.hpp"
 
+#pragma region Constants
 /**
  * Address of PWM period for the front-left (0), front-right (1) and
  * back-left (2) motors.
@@ -38,33 +39,17 @@ const float DEAD_DUTY_CYCLE = 0.0;
 
 /** PWM frequency sent to the ESCs. */
 const float PWM_FREQUENCY = 500.0;
+#pragma endregion
 
 void outputMotorPWM(MotorSignals motorSignals) {
 
-    /* Scale motor signals to duty cycle limits. */
+    /* We don't have to clamp the given signals to [0,1] because MotorSignals
+       does this automatically. Scale the motor signals to duty cycle limits. */
     float v0, v1, v2, v3;
     v0 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * motorSignals.v0;
     v1 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * motorSignals.v1;
     v2 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * motorSignals.v2;
     v3 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * motorSignals.v3;
-
-    /* Clamp duty cycles. */
-    if (v0 < MIN_DUTY_CYCLE)
-        v0 = MIN_DUTY_CYCLE;
-    if (v0 > MAX_DUTY_CYCLE)
-        v0 = MAX_DUTY_CYCLE;
-    if (v1 < MIN_DUTY_CYCLE)
-        v1 = MIN_DUTY_CYCLE;
-    if (v1 > MAX_DUTY_CYCLE)
-        v1 = MAX_DUTY_CYCLE;
-    if (v2 < MIN_DUTY_CYCLE)
-        v2 = MIN_DUTY_CYCLE;
-    if (v2 > MAX_DUTY_CYCLE)
-        v2 = MAX_DUTY_CYCLE;
-    if (v3 < MIN_DUTY_CYCLE)
-        v3 = MIN_DUTY_CYCLE;
-    if (v3 > MAX_DUTY_CYCLE)
-        v3 = MAX_DUTY_CYCLE;
 
     /* Write the period and value to create the PWM signal. Period =
        clock frequency / PWM frequency. Duty cycle = % * period. */

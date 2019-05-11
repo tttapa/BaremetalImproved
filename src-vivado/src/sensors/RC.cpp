@@ -6,6 +6,7 @@
 /* Includes from Xilinx. */
 #include <xil_io.h>
 
+#pragma region Constants
 /** Address of the RC's throttle: PIN T14 (JD1). */
 uint32_t *const THROTTLE_ADDR = (uint32_t *) XPAR_RC_0_S00_AXI_BASEADDR;
 
@@ -48,6 +49,7 @@ const float RC_DEADZONE = (RC_HIGH - RC_LOW) / 40.0;
 
 /** Value if RC knob/joystick is not available. */
 const float RC_DEAD = 0.0;
+#pragma endregion
 
 /* The last mode that the drone was in at the last interrupt. */
 FlightMode lastFlightMode = FlightMode::UNINITIALIZED;
@@ -68,6 +70,7 @@ float getRCValue(uint32_t *address) {
     return (float) Xil_In32((uintptr_t) address) / CLOCK_FREQUENCY;
 }
 
+#pragma region Conversions from float to enumeration
 /**
  * Returns the flight mode as a FlightMode.
  * 
@@ -146,7 +149,9 @@ WPTMode getWPTMode(float wptValue) {
     }
     return lastWPTMode;
 }
+#pragma endregion
 
+#pragma region Clamps
 /**
  * Clamp value in [RC_LOW, RC_HIGH].
  * 
@@ -193,7 +198,9 @@ float clampMid(float x) {
         return RC_HIGH;
     return x;
 }
+#pragma endregion
 
+#pragma region Rescales
 /**
  * Rescale to [0.0, 1.0] using deadzone at RC_LOW.
  * 
@@ -246,6 +253,7 @@ float rescaleMid(float x) {
     /* Deadzone. */
     return 0.0;
 }
+#pragma endregion
 
 RCInput readRC() {
 

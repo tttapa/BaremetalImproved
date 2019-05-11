@@ -1,8 +1,9 @@
 #include <Time.hpp>
 #include <chrono>
 
-// TODO: include location
+/* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>
+
 /** Tick counter. */
 static uint32_t tickCount = 0;
 

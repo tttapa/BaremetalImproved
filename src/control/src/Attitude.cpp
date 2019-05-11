@@ -3,11 +3,11 @@
 /* Includes from src. */
 #include <MiscInstances.hpp>  ///< ConfigurationManager instance
 #include <RCValues.hpp>
-#include <Time.hpp>
 
-// TODO: remove time.hpp
-// TODO: include location
+/* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
+
+#pragma region Constants
 /**
  * The largest control signal that can be sent to the "yaw torque motor" is
  * 0.10.
@@ -30,6 +30,7 @@ static constexpr real_t RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
 
 /** The threshold to start increasing the reference yaw is +0.05. */
 static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
+#pragma endregion
 
 MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
                                             real_t commonThrust) {

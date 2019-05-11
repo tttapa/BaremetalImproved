@@ -6,6 +6,7 @@
 /* Includes from src-vivado. */
 #include <output/Buzzer.hpp>
 
+#pragma region Constants
 /** Armed beep 1 lasts 0.20 seconds. */
 static constexpr float ARMED_DURATION1 = 0.20;
 /** Armed beep 1 has a low pitch. */
@@ -75,7 +76,9 @@ static constexpr int NAVERROR_PERIOD = 0x25000;
 static constexpr int NAVERROR_VOLUME = 0x30000;
 /** Navigation error beeps have 0.50 seconds between them. */
 static constexpr float NAVERROR_DELAY = 0.5;
+#pragma endregion
 
+#pragma region Add various beeps
 void BuzzerManager::addArmedBeeps() {
     if (getNumInstructionsUntilFull() >= 2) {
         /* First beep. */
@@ -172,6 +175,7 @@ void BuzzerManager::addWarningBeeps() {
         }
     }
 }
+#pragma endregion
 
 void BuzzerManager::clearBeepQueue() {
     for (int i = 0; i < QUEUE_SIZE; i++)
