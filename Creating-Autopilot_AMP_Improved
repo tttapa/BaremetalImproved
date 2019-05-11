@@ -49,7 +49,8 @@ Change "FPU Type" to vfpv3
 --- step 2 ---
 Under C/C++ Build>Settings in the tab "Tool Settings" click on "Optimization"
 Change "Optimization level" to "Optimized most (-O3)"
-Check the following warnings: "(-Wunused)", "(-Wuninitialised)", "(-Wall)", "(-Wextra)", "(-Werror)" ? any others ?
+Check the following warnings: "(-Wunused)", "(-Wuninitialised)", "(-Wall)", "(-Wextra)", "(-Werror)"
+Enter the following into "Other warning flags": "-Wno-unknown-pragmas"
 
 --- step 3 --- 
 Under C/C++ Build>Settings in the tab "Tool Settings" click on "Cross ARM C++ Compiler>Preprocessor"
