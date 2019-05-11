@@ -122,10 +122,10 @@ class AutonomousController {
     AutonomousState autonomousState;
 
     /** Time that the autonomous controller entered its current state. */
-    real_t autonomousStateStartTime;
+    real_t autonomousStateStartTime = 0.0;
 
     /** Estimated time to navigate from previous target to next target. */
-    real_t navigationTime;
+    real_t navigationTime = 0.0;
 
     /** Next QR code location. */
     Position nextQRPosition;

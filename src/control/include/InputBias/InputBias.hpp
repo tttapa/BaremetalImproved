@@ -20,13 +20,13 @@ class InputBias {
      * Bias to be added to the RC roll. In steady state, this will evolve to
      * the equilibrium roll. The unit of this variable is radians.
      */
-    real_t rollBias;
+    real_t rollBias = 0.0;
 
     /**
      * Bias to be added to the RC pitch. In steady state, this will evolve
      * to the equilibrium pitch. The unit of this variable is radians.
      */
-    real_t pitchBias;
+    real_t pitchBias = 0.0;
 
     /**
      * Bias to be added to the altitude controller's marginal thrust. In
@@ -34,7 +34,7 @@ class InputBias {
      * no unit (duty cycle of "common motor" PWM signal), and must always be in
      * [0,1].
      */
-    real_t thrustBias;
+    real_t thrustBias = 0.0;
 
   public:
     /**
