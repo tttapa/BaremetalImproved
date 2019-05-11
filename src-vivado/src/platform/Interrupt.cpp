@@ -12,6 +12,7 @@
 #include <xparameters.h>
 #include <xscugic.h>
 
+#pragma region Constants
 /* Interrupt controller device ID. */
 const int INTC_DEVICE_ID = XPAR_PS7_SCUGIC_0_DEVICE_ID;
 
@@ -23,6 +24,7 @@ const int GYR_INT_ID = XPAR_FABRIC_SYSTEM_CORE1_NIRQ_INTR;
 
 /* I2C serial clock frequency in Hertz. */
 const int IIC_SCLK_RATE = 400e3;
+#pragma endregion
 
 /* Instance of the interrupt controller. */
 static XScuGic InterruptController;

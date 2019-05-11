@@ -10,6 +10,8 @@
 
 /* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
+
+#pragma region Constants
 /**
  * If the drone is stays with 0.10 meters of its destination for a period of
  * time, then it will have converged on its target.
@@ -113,6 +115,7 @@ static constexpr real_t TAKEOFF_DURATION = 2.0;
  * will take off if the throttle value exceeds 0.50.
  */
 static constexpr real_t TAKEOFF_THROTTLE = 0.50;
+#pragma endregion
 
 bool isValidSearchTarget(Position position) {
     return position.x >= X_MIN && position.x <= X_MAX && position.y >= Y_MIN &&
@@ -181,6 +184,8 @@ void AutonomousController::updateQRFSM() {
     /* Don't update QR FSM if the drone is not in CONVERGING state. */
     if (this->autonomousState != CONVERGING)
         return;
+
+#pragma region QRFSM
 
     /**
      * ================================ QR FSM ================================
@@ -289,11 +294,15 @@ void AutonomousController::updateQRFSM() {
                to either the Image Processing team or the Cryptography team. */
             break;
     }
+
+#pragma endregion
+
 }
 
 AutonomousOutput
 AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
+#pragma region AutonomousFSM
     /**
      * ============================ AUTONOMOUS FSM ============================
      * -------------- START ------------- | -------------- ERROR --------------
@@ -450,6 +459,8 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
         case ERROR: break;
     }
+
+#pragma endregion
 
     return AutonomousOutput{bypassAltitudeController,
                             this->referenceHeight,

@@ -17,6 +17,7 @@
 #include "LSM9DS1Def.hpp"
 #include <PublicHardwareConstants.hpp>
 
+#pragma region Constants
 // TODO: sync with codegen
 /* Gyroscope and accelerometer frequencies are set to 952 Hz. */
 const IMUFrequency IMU_FREQUENCY = IMUFrequency::FREQ_952_HZ;
@@ -32,6 +33,10 @@ const float CALIBRATION_TIME = 3.0;
 
 /* Amount of samples to remove at the start of calibration. */
 const int INVALID_SAMPLES = 16;
+
+/* Definition of pi. */
+const float PI = 3.14159265358979323846;
+#pragma endregion
 
 /** Bias of the gyroscope, set on last step of calibration. */
 GyroMeasurement gyroBias;
@@ -51,8 +56,7 @@ long accelRawSum[3];
 /** Number of calibration steps taken. */
 int calibrationStepCounter;
 
-const float PI = 3.14159265358979323846;
-
+#pragma region Helper functions
 /**
  * Convert the raw gyroscope reading to rad/s.
  * 
@@ -88,24 +92,25 @@ float calcAccel(int rawAccel) {
 }
 
 /**
- * Read six uint8s from the gyroscope and construct the three raw measurements
- * for the gyroscope (signed 16-bit).
+ * Convert raw accelerometer measurement to g and remove bias.
  * 
- * @return	Raw gyroscope measurement.
+ * @param	raw
+ * 			Raw accelerometer measurement.
+ * @param	bias
+ * 			Bias of the accelerometer, calculated during calibration of IMU.
+ * @return	unbiased accelerometer measurement in g.
+ * @todo	Test this function.
  */
-RawGyroMeasurement readGyro() {
-
-    /* Read data from gyroscope.*/
-    static uint8_t gyroData[GYRO_DATA_SIZE];
-    iicReadReg(gyroData, OUT_X_L_G, LSM9DS1_GX_ADDR, GYRO_DATA_SIZE);
-
-    /* Raw 16-bit signed data from readings. */
-    int16_t gxInt = (gyroData[1] << 8) + gyroData[0];
-    int16_t gyInt = (gyroData[3] << 8) + gyroData[2];
-    int16_t gzInt = (gyroData[5] << 8) + gyroData[4];
-
-    /* Return raw measurement. */
-    return RawGyroMeasurement{gxInt, gyInt, gzInt};
+ColVector<3> getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
+                                 float biasNorm) {
+    /* Accelerometer measurements with bias removed in g. */
+    ColVector<3> correctedAccel = (biasQuat).rotate(ColVector<3>{
+        -calcAccel(raw.axInt),
+        +calcAccel(raw.ayInt),
+        -calcAccel(raw.azInt),
+    });
+    correctedAccel /= biasNorm;
+    return correctedAccel;
 }
 
 /**
@@ -128,7 +133,9 @@ GyroMeasurement getGyroMeasurement(RawGyroMeasurement raw,
     /* Return measurement. */
     return GyroMeasurement{gx, gy, gz};
 }
+#pragma endregion
 
+#pragma region Read IMU data
 /**
  * Read six uint8s from the accelerometer and construct the three raw
  * measurements for the accelerometer (signed 16-bit).
@@ -151,30 +158,31 @@ RawAccelMeasurement readAccel() {
 }
 
 /**
- * Convert raw accelerometer measurement to g and remove bias.
+ * Read six uint8s from the gyroscope and construct the three raw measurements
+ * for the gyroscope (signed 16-bit).
  * 
- * @param	raw
- * 			Raw accelerometer measurement.
- * @param	bias
- * 			Bias of the accelerometer, calculated during calibration of IMU.
- * @return	unbiased accelerometer measurement in g.
- * @todo	Test this function.
+ * @return	Raw gyroscope measurement.
  */
-ColVector<3> getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
-                                 float biasNorm) {
-    /* Accelerometer measurements with bias removed in g. */
-    ColVector<3> correctedAccel = (biasQuat).rotate(ColVector<3>{
-        -calcAccel(raw.axInt),
-        +calcAccel(raw.ayInt),
-        -calcAccel(raw.azInt),
-    });
-    correctedAccel /= biasNorm;
-    return correctedAccel;
+RawGyroMeasurement readGyro() {
+
+    /* Read data from gyroscope.*/
+    static uint8_t gyroData[GYRO_DATA_SIZE];
+    iicReadReg(gyroData, OUT_X_L_G, LSM9DS1_GX_ADDR, GYRO_DATA_SIZE);
+
+    /* Raw 16-bit signed data from readings. */
+    int16_t gxInt = (gyroData[1] << 8) + gyroData[0];
+    int16_t gyInt = (gyroData[3] << 8) + gyroData[2];
+    int16_t gzInt = (gyroData[5] << 8) + gyroData[4];
+
+    /* Return raw measurement. */
+    return RawGyroMeasurement{gxInt, gyInt, gzInt};
 }
+#pragma endregion
 
 bool calibrateIMUStep() {
 
-    int factor              = getIMUFactor(IMU_FREQUENCY);
+    /* Calculate LED shift factor and calibration samples. */
+    int shiftFactor         = getIMUFactor(IMU_FREQUENCY);
     int CALIBRATION_SAMPLES = getIMUValue(IMU_FREQUENCY) * CALIBRATION_TIME;
 
     /* Log start of calibration. */
@@ -182,8 +190,11 @@ bool calibrateIMUStep() {
         xil_printf("calibrating IMU, reading %i samples \r\n",
                    CALIBRATION_SAMPLES);
 
+    /* Increment counter. */
+    calibrationStepCounter++;
+
     /* Have the LEDs blink: slow down by factor 2^4, cycle through 8 states. */
-    int ledIndex = (calibrationStepCounter >> (factor+2)) % 8;
+    int ledIndex = (calibrationStepCounter >> (shiftFactor + 2)) % 8;
     int ledValue = 0x0;
     ledValue += (ledIndex >= 1 ? 0x1 : 0);
     ledValue += (ledIndex >= 2 && ledIndex <= 6 ? 0x2 : 0);
@@ -191,9 +202,6 @@ bool calibrateIMUStep() {
     ledValue += (ledIndex == 4 ? 0x8 : 0);
     writeToLEDs(ledIndex >= 1, ledIndex >= 2 && ledIndex <= 6,
                 ledIndex >= 3 && ledIndex <= 5, ledIndex == 4);
-
-    /* Increment counter. */
-    calibrationStepCounter++;
 
     /* Read raw sensor data. */
     RawGyroMeasurement rawGyro = readGyro();
@@ -242,17 +250,14 @@ bool calibrateIMUStep() {
 }
 
 bool initIMU() {
+    xil_printf("init IMU started \r\n");
 
     /* Set the global tick frequency/period. */
     TICKS_PER_SECOND = getIMUValue(IMU_FREQUENCY);
     SECONDS_PER_TICK = 1.0 / TICKS_PER_SECOND;
 
-    /* Temporary array to store initialization readings. */
-    u8 temp[1];
-
-    xil_printf("init IMU started \r\n");
-
     /* Check WHO_AM_I to see if the IMU is connected. */
+    u8 temp[1];
     iicReadReg(temp, WHO_AM_I_XG, LSM9DS1_GX_ADDR, 1);
     usleep(100);
     xil_printf("received: 0x%02x\r\n", *temp);
@@ -269,6 +274,7 @@ bool initIMU() {
     }
     xil_printf("WHO_AM_I CORRECT\r\n");
 
+#pragma region IMU registers
     /* See https://www.st.com/resource/en/datasheet/DM00103319.pdf */
     /* ... Hz gyro output data rate (ODR), max ... degrees/s,  ... Hz cutoff. */
     iicWriteToReg(CTRL_REG1_G,
@@ -301,6 +307,7 @@ bool initIMU() {
     /* Continuous FIFO mode: if FIFO is full, the new sample overwrites the
 	   older samples, flag=1 if FIFO contains at least 2 elements (unused). */
     iicWriteToReg(FIFO_CTRL, 0b11000010, LSM9DS1_GX_ADDR);
+#pragma endregion
 
     /* Initialize calibration variables. */
     calibrationStepCounter = 0;
@@ -320,8 +327,6 @@ bool initIMU() {
     }
 
     /* IMU is initiated. */
-    // TODO: beep_initiated() here
-    //beep_initiated();
     xil_printf("IMU initiated\r\n");
     xil_printf("Starting interrupts\r\n");
 
@@ -337,7 +342,8 @@ IMUMeasurement readIMU() {
     /* Read gyroscope and convert to rad/s. */
     RawGyroMeasurement gyroRaw = readGyro();
     GyroMeasurement gyro       = getGyroMeasurement(gyroRaw, gyroBias);
-    usleep(100);    // TODO: are sleeps necessary (data corruption?) = 20% of PWM on-time
+    // TODO: are sleeps necessary (data corruption?) = 20% of PWM on-time
+    usleep(100);
 
     /* Read accelerometer and convert to g. */
     RawAccelMeasurement accelRaw = readAccel();
