@@ -63,8 +63,7 @@ enum AccelMaxSpeed {
     SPEED_16_G = 3,
 };
 
-constexpr int
-getIMUBits(IMUFrequency frequency) {
+constexpr int getIMUBits(IMUFrequency frequency) {
     switch (frequency) {
         case FREQ_119_HZ: return 0b01100000;
         case FREQ_238_HZ: return 0b10000000;
@@ -117,7 +116,7 @@ constexpr float getIMUValue(AccelMaxSpeed maxSpeed) {
 }
 
 constexpr int getIMUFactor(IMUFrequency frequency) {
-    switch(frequency) {
+    switch (frequency) {
         case FREQ_119_HZ: return 1;
         case FREQ_238_HZ: return 2;
         case FREQ_476_HZ: return 3;

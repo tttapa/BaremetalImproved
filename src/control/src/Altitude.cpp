@@ -7,6 +7,7 @@
 /* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>  ///< SONAR_FREQUENCY
 
+#pragma region Constants
 /**
  * The largest marginal control signal that can be sent to the "common motor"
  * is 0.10.
@@ -27,6 +28,7 @@ static constexpr real_t RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.25;
 
 /** The threshold to start increasing the reference height is 0.75. */
 static constexpr real_t RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.75;
+#pragma endregion
 
 void AltitudeController::clampControlSignal() {
     if (this->controlSignal.ut > MARGINAL_SIGNAL_CLAMP)

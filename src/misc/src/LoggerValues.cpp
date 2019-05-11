@@ -1,5 +1,6 @@
 #include <LoggerValues.hpp>
 
+#pragma region Variables
 /** Current value of the AHRS quaternion. */
 static Quaternion ahrsQuat;
 
@@ -32,7 +33,9 @@ static real_t yawMeasurement;
 
 /** Current value of the yaw jump in radians. */
 static real_t yawJump;
+#pragma endregion
 
+#pragma region Getters
 AccelMeasurement getAccelMeasurement() {
     return {imuMeasurement.ax, imuMeasurement.ay, imuMeasurement.az};
 }
@@ -64,7 +67,9 @@ real_t getYawJump() { return yawJump; }
 real_t getYawMeasurement() { return yawMeasurement; }
 
 Position getPositionMeasurement() { return positionMeasurement; }
+#pragma endregion
 
+#pragma region Setters
 void setAHRSQuat(Quaternion value) { ahrsQuat = value; }
 
 void setCommonThrust(real_t value) { commonThrust = value; }
@@ -90,3 +95,4 @@ void setSonarMeasurement(real_t value) { sonarMeasurement = value; }
 void setYawJump(real_t value) { yawJump = value; }
 
 void setYawMeasurement(real_t value) { yawMeasurement = value; }
+#pragma endregion

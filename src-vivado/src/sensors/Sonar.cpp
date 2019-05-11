@@ -11,6 +11,7 @@
 /* Includes from Xilinx. */
 #include <xil_io.h>
 
+#pragma region Constants
 /** Address of the sonar : // TODO: what pin? */
 uint32_t *const SONAR_ADDR = ((uint32_t *) XPAR_RC_1_S00_AXI_BASEADDR) + 1;
 
@@ -42,6 +43,7 @@ const float MAX_JUMP = 0.5;
 
 /** Frequency of the sonar measurements. */
 const float FREQUENCY = SONAR_FREQUENCY;
+#pragma endregion
 
 /** Last 15 raw measurements of the sonar. */
 float measurements[MAX_MF_LENGTH];

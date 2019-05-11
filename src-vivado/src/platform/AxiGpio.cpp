@@ -8,6 +8,7 @@
 #include <xparameters.h>
 #include <xscugic.h>
 
+#pragma region Constants
 /* Port used for LEDs in LED GPIO. */
 const int LED_CHANNEL = 1;
 
@@ -22,12 +23,14 @@ const int GPIO_DEVICE_LED = XPAR_AXI_GPIO_LED_DEVICE_ID;
 
 /* Address of GPIO that the TESTPINs are connected to. */
 const int GPIO_DEVICE_TESTPIN = XPAR_AXI_GPIO_TESTPINS_DEVICE_ID;
+#pragma endregion
 
 /* GPIO Device driver instance for LEDs and heartbeat. */
 static XGpio axi_gpio_1;
 
 /*  GPIO Device driver instance for testpin. */
 static XGpio axi_gpio_2;
+
 
 bool initAxiGpio() {
 

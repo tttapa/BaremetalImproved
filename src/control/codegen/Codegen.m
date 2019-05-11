@@ -26,8 +26,7 @@ p = quat_params();
 % Configuration 1
 s1 = s;
 s1.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s1.pos.lqr.R = 30.0*eye(2);
-s1.pos.lqr.K = 200.0*eye(2);
+s1.pos.lqr.R = 200.0*eye(2);
 s1.pos.lqr.K = -dlqr(s1.pos.Ad, s1.pos.Bd, s1.pos.lqr.Q, s1.pos.lqr.R);
 s1.pos.lqi.I = 0.001*[0,-1;1,0];
 s1.pos.lqi.max_integral = 10;
@@ -37,8 +36,7 @@ s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 % Configuration 2
 s2 = s;
 s2.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s2.pos.lqr.R = 30.0*eye(2);
-s2.pos.lqr.K = 350.0*eye(2);
+s2.pos.lqr.R = 350.0*eye(2);
 s2.pos.lqr.K = -dlqr(s2.pos.Ad, s2.pos.Bd, s2.pos.lqr.Q, s2.pos.lqr.R);
 s2.pos.lqi.I = 0.001*[0,-1;1,0];
 s2.pos.lqi.max_integral = 10;
@@ -48,7 +46,6 @@ s2.pos.lqi.K = [s2.pos.lqr.K, s2.pos.lqi.I];
 % Configuration 3
 s3 = s;
 s3.pos.lqr.Q = diag([1.0,1.0,0.3,0.3,0.001,0.001]);
-s3.pos.lqr.R = 30.0*eye(2);
 s3.pos.lqr.R = 15.0*eye(2);
 s3.pos.lqr.K = -dlqr(s3.pos.Ad, s3.pos.Bd, s3.pos.lqr.Q, s3.pos.lqr.R);
 s3.pos.lqi.I = 0.01 * [0, -1; 1, 0];
@@ -59,7 +56,6 @@ s3.pos.lqi.K = [s3.pos.lqr.K, s3.pos.lqi.I];
 % Configuration 4
 s4 = s;
 s4.pos.lqr.Q = diag([0.01,0.01,0.3,0.3,0.001,0.001]);
-s4.pos.lqr.R = 30.0*eye(2);
 s4.pos.lqr.R = 30.0*eye(2);
 s4.pos.lqr.K = -dlqr(s4.pos.Ad, s4.pos.Bd, s4.pos.lqr.Q, s4.pos.lqr.R);
 s4.pos.lqi.I = 0.01 * [0, -1; 1, 0];
@@ -199,9 +195,14 @@ for k = 1:length(configs)
     controlSignalElements = symbolicVectorExpressionToStrings('Position', controlSignal); % Control output
     integralWindupElements = symbolicVectorExpressionToStrings('Position', integralWindup); % Integral increment
 
-    % Position observer
-    stateEstimate = GeneratePositionObserverBlind(s);
-    stateEstimateElements = symbolicVectorExpressionToStrings('Position', stateEstimate);
+    % Position controller (blind)
+    [controlSignalBlind, integralWindupBlind] = GeneratePositionControllerBlind(s);
+    controlSignalBlindElements = symbolicVectorExpressionToStrings('Position', controlSignalBlind); % Control output
+    integralWindupBlindElements = symbolicVectorExpressionToStrings('Position', integralWindupBlind); % Integral increment
+
+    % Position observer (blind)
+    stateEstimateBlind = GeneratePositionObserverBlind(s);
+    stateEstimateBlindElements = symbolicVectorExpressionToStrings('Position', stateEstimateBlind);
 
     for i = 1:length(controlSignalElements)
         tag = strcat('$c', num2str(k), '$u', num2str(i - 1));
@@ -211,9 +212,17 @@ for k = 1:length(configs)
         tag = strcat('$int', num2str(i - 1));
         template = replace(template, tag, integralWindupElements(i));
     end
-    for i = 1:length(stateEstimateElements)
-        tag = strcat('$x', num2str(i - 1));
-        template = replace(template, tag, stateEstimateElements(i));
+    for i = 1:length(controlSignalBlindElements)
+        tag = strcat('$c', num2str(k), '$uBlind', num2str(i - 1));
+        template = replace(template, tag, controlSignalBlindElements(i));
+    end
+    for i = 1:length(integralWindupBlindElements)
+        tag = strcat('$intBlind', num2str(i - 1));
+        template = replace(template, tag, integralWindupBlindElements(i));
+    end
+    for i = 1:length(stateEstimateBlindElements)
+        tag = strcat('$xBlind', num2str(i - 1));
+        template = replace(template, tag, stateEstimateBlindElements(i));
     end
     tag = strcat('$c', num2str(k), '$maxWindup');
     template = replace(template, tag, num2str(s.pos.lqi.max_integral));

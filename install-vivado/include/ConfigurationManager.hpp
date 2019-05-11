@@ -3,19 +3,6 @@
 /* Includes from src. */
 #include <real_t.h>
 
-// TODO: drone configurations vs controller configurations
-/** Everything enabled on the drone. */
-#define CONFIG_DEMO 0
-/** Test 1. */
-#define CONFIG_TEST1 1
-/** Test 2. */
-#define CONFIG_TEST2 2
-/** Test 3. */
-#define CONFIG_TEST3 3
-
-/** Current drone configuration is CONFIG_DEMO. */
-#define DRONE_CONFIG CONFIG_DEMO
-
 /**
  * There are 5 controller configurations, the last of which being the
  * calibration mode.
