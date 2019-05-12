@@ -12,13 +12,9 @@ PositionController positionController;
 /** Instance of the autonomous controller. */
 AutonomousController autonomousController;
 
-/** Instance of the input bias handler. */
-InputBias inputBias;
-
 void initControllerInstances() {
     attitudeController.init();
     altitudeController.init();
     positionController.init();
     autonomousController.initGround({});
-    inputBias.init();
 }

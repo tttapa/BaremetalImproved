@@ -188,7 +188,7 @@ void mainOperation() {
 
             /* Update the altitude controller's signal at sonar frequency. */
             if (hasNewSonarMeasurement)
-                uc = inputBias.getThrustBias() +
+                uc = biasManager.getThrustBias() +
                      altitudeController.updateControlSignal().ut;
             else
                 uc = ucLast;
@@ -216,7 +216,7 @@ void mainOperation() {
                 uc = output.commonThrust;
             } else {
                 altitudeController.setReference(output.referenceHeight);
-                uc = inputBias.getThrustBias() +
+                uc = biasManager.getThrustBias() +
                      altitudeController.updateControlSignal().ut;
             }
 
@@ -254,8 +254,8 @@ void mainOperation() {
                control signal about the equilibrium. */
             Quaternion quatInputBias = EulerAngles::eul2quat({
                 0.0,
-                inputBias.getPitchBias(),
-                inputBias.getRollBias(),
+                biasManager.getPitchBias(),
+                biasManager.getRollBias(),
             });
             real_t q1                = q12ref.q1ref;
             real_t q2                = q12ref.q2ref;
@@ -322,11 +322,11 @@ void mainOperation() {
 
     /* Update input biases. */
     // TODO: remember input bias so we can fly immediately in autonomous
-    inputBias.updatePitchBias(attitudeController.getReferenceEuler().pitch,
+    biasManager.updatePitchBias(attitudeController.getReferenceEuler().pitch,
                               getFlightMode());
-    inputBias.updateRollBias(attitudeController.getReferenceEuler().roll,
+    biasManager.updateRollBias(attitudeController.getReferenceEuler().roll,
                              getFlightMode());
-    inputBias.updateThrustBias(uc);
+    biasManager.updateThrustBias(uc, getFlightMode());
 #pragma endregion
 
 #pragma region Logger

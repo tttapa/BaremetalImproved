@@ -78,7 +78,7 @@ LogEntry getLogData() {
     logEntry.setPositionControlSignal(toCppArray(positionController.getControlSignal()));
     logEntry.setMotorControlSignals(toCppArray(getMotorSignals()));
     logEntry.setCommonThrust(getCommonThrust());
-    logEntry.setHoverThrust(inputBias.getThrustBias());
+    logEntry.setHoverThrust(biasManager.getThrustBias());
 
     return logEntry;
 }

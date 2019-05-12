@@ -5,7 +5,7 @@
 static Quaternion ahrsQuat;
 
 /** Current value of the common thrust. */
-real_t commonThrust;
+static real_t commonThrust;
 
 /** Current value of the corrected position measurement in meters. */
 static Position correctedPositionMeasurement;
@@ -20,7 +20,7 @@ static IMUMeasurement imuMeasurement;
 static Quaternion jumpedAhrsQuat;
 
 /** Current duty cycles sent to the 4 ESCs. */
-MotorSignals motorSignals;
+static MotorSignals motorSignals;
 
 /** Current value of the position measurement in meters. */
 static Position positionMeasurement;

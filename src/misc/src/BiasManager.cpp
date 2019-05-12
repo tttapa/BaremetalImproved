@@ -1,5 +1,4 @@
-#include <BaremetalCommunicationDef.hpp>  ///< FlightMode
-#include <InputBias/InputBias.hpp>
+#include <BiasManager.hpp>
 
 #pragma region Constants
 /**
@@ -36,19 +35,20 @@ static constexpr real_t THRUST_BIAS_WEIGHT_MANUAL = 0.01;
 static constexpr real_t THRUST_BIAS_WEIGHT_ALTITUDE_HOLD = 0.0001;
 #pragma endregion
 
-void InputBias::init() {
+void BiasManager::init() {
     this->pitchBias  = 0.0;
     this->rollBias   = 0.0;
     this->thrustBias = 0.0;
 }
 
-void InputBias::updateRollBias(real_t referenceRollRads,
-                               FlightMode flightMode) {
-    InputBias::updateRollBias(referenceRollRads, flightMode, IDLE_GROUND);
+void BiasManager::updateRollBias(real_t referenceRollRads,
+                                 FlightMode flightMode) {
+    BiasManager::updateRollBias(referenceRollRads, flightMode, IDLE_GROUND);
 }
 
-void InputBias::updateRollBias(real_t referenceRollRads, FlightMode flightMode,
-                               AutonomousState autonomousState) {
+void BiasManager::updateRollBias(real_t referenceRollRads,
+                                 FlightMode flightMode,
+                                 AutonomousState autonomousState) {
     if (flightMode == FlightMode::MANUAL ||
         flightMode == FlightMode::ALTITUDE_HOLD) {
         this->rollBias += ROTATION_BIAS_WEIGHT_PILOT * (referenceRollRads);
@@ -64,14 +64,14 @@ void InputBias::updateRollBias(real_t referenceRollRads, FlightMode flightMode,
     }
 }
 
-void InputBias::updatePitchBias(real_t referencePitchRads,
-                                FlightMode flightMode) {
-    InputBias::updatePitchBias(referencePitchRads, flightMode, IDLE_GROUND);
+void BiasManager::updatePitchBias(real_t referencePitchRads,
+                                  FlightMode flightMode) {
+    BiasManager::updatePitchBias(referencePitchRads, flightMode, IDLE_GROUND);
 }
 
-void InputBias::updatePitchBias(real_t referencePitchRads,
-                                FlightMode flightMode,
-                                AutonomousState autonomousState) {
+void BiasManager::updatePitchBias(real_t referencePitchRads,
+                                  FlightMode flightMode,
+                                  AutonomousState autonomousState) {
     if (flightMode == FlightMode::MANUAL ||
         flightMode == FlightMode::ALTITUDE_HOLD) {
         this->pitchBias += ROTATION_BIAS_WEIGHT_PILOT * (referencePitchRads);
@@ -87,7 +87,7 @@ void InputBias::updatePitchBias(real_t referencePitchRads,
     }
 }
 
-void InputBias::updateThrustBias(real_t commonThrust, FlightMode flightMode) {
+void BiasManager::updateThrustBias(real_t commonThrust, FlightMode flightMode) {
     if (flightMode == FlightMode::MANUAL) {
         this->thrustBias +=
             THRUST_BIAS_WEIGHT_MANUAL * (commonThrust - this->thrustBias);

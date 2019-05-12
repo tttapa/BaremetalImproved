@@ -1,6 +1,7 @@
 # Create library target and specify the implementation files to compile.
 add_library(misc
     src/ArmedManager.cpp
+    src/BiasManager.cpp
     src/BuzzerManager.cpp
     src/ConfigurationManager.cpp
     src/ESCStartupScript.cpp
@@ -60,6 +61,7 @@ install(EXPORT misc DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ArmedManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/BiasManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/BuzzerManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ConfigurationManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ESCStartupScript.hpp
