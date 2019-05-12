@@ -31,7 +31,12 @@ volatile bool isInterruptRunning = false;
  * to happen, then there would be no room for the attitude controller to make
  * adjustments.
  */
-const float MAX_THROTTLE = 0.80;
+const real_t MAX_THROTTLE = 0.80;
+
+// TODO: change drone mass!
+// TODO: types degree, radian, meter, block
+// TODO: where should this be?
+const real_t BLOCKS_2_METERS = 0.30;
 
 void updateFSM() {
 
@@ -115,14 +120,16 @@ void mainOperation() {
 
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
-    Position positionMeasurement, correctedPositionMeasurement;
+    Position positionMeasurementBlocks, positionMeasurement,
+        correctedPositionMeasurement;
     real_t yawMeasurement;
     bool hasNewIMPMeasurement = false;
     if (visionComm->isDoneWriting()) {
-        hasNewIMPMeasurement           = true;
-        VisionData visionData          = visionComm->read();
-        positionMeasurement            = visionData.position;
-        yawMeasurement                 = visionData.yawAngle;
+        hasNewIMPMeasurement      = true;
+        VisionData visionData     = visionComm->read();
+        positionMeasurementBlocks = visionData.position;
+        positionMeasurement       = positionMeasurementBlocks * BLOCKS_2_METERS;
+        yawMeasurement            = visionData.yawAngle;
         ColVector<2> correctedPosition = getCorrectedPosition(
             ColVector<2>{positionMeasurement.x, positionMeasurement.y},
             sonarMeasurement, attitudeController.getOrientationQuat());
@@ -171,8 +178,10 @@ void mainOperation() {
 #pragma region Altitude - hold mode
         {
             /* Initialize altitude controller if we switch from manual mode. */
-            if (previousFlightMode == FlightMode::MANUAL)
+            if (previousFlightMode == FlightMode::MANUAL) {
                 altitudeController.init();
+                altitudeController.setReference(correctedSonarMeasurement);
+            }
 
             /* Update the altitude controller's reference using the RC. */
             altitudeController.updateRCReference();
@@ -259,7 +268,7 @@ void mainOperation() {
         }
 #pragma endregion
         break;
-        
+
         default:
             /* We will never get here because readRC() cannot return an
             uninitialized flight mode. The compiler requires this, though. */
@@ -332,6 +341,7 @@ void mainOperation() {
         setCorrectedSonarMeasurement(correctedSonarMeasurement);
     }
     if (hasNewIMPMeasurement) {
+        setPositionMeasurementBlocks(positionMeasurementBlocks);
         setPositionMeasurement(positionMeasurement);
         setYawMeasurement(yawMeasurement);
         setCorrectedPositionMeasurement(correctedPositionMeasurement);
@@ -349,7 +359,7 @@ void mainOperation() {
 }
 
 #pragma region Helper functions
-real_t calculateYawJump(float yaw) {
+real_t calculateYawJump(real_t yaw) {
 
     /* Whenever the yaw passes 10 degrees (0.1745 rad), it will jump to -10
        degrees and vice versa. */

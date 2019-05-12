@@ -10,9 +10,9 @@
 #pragma region Constants
 /**
  * The largest marginal control signal that can be sent to the "common motor"
- * is 0.10.
+ * is 0.08.
  */
-static constexpr real_t MARGINAL_SIGNAL_CLAMP = 0.10;
+static constexpr real_t MARGINAL_SIGNAL_CLAMP = 0.08;
 
 /** The maximum height at which the drone may hover is 1.75 meters. */
 static constexpr real_t MAXIMUM_REFERENCE_HEIGHT = 1.75;
