@@ -21,15 +21,12 @@ method = 'zoh';
 s.att.fs = 952; % TODO: sync this with BareMetal
 s.att.Ts = 1 / s.att.fs;
 
-s.att.Aa = [ zeros(1, 10);
-             zeros(3, 4), 0.5 * eye(3), zeros(3, 3);
-             zeros(3, 7), p.gamma_n;
-             zeros(3, 7), -p.k2 * eye(3) ];
-s.att.Ba = [ zeros(4, 3);
-             p.gamma_u;
-             p.k2 * p.k1 * eye(3) ];
-s.att.Ca = [ eye(7), zeros(7, 3) ];
-s.att.Da =   zeros(7, 3);
+s.att.Aa = [ zeros(3), eye(3)  , zeros(3);
+             zeros(3), zeros(3), p.gamma_n;
+             zeros(3), zeros(3), -p.k2*eye(3) ];
+s.att.Ba = [ zeros(3); p.gamma_u; p.k2 * p.k1 * eye(3) ];
+s.att.Ca = [ eye(3); zeros(3, 6) ];
+s.att.Da = zeros(6,3);
 continuousSys = ss(s.att.Aa, s.att.Ba, s.att.Ca, s.att.Da);
 discreteSys = c2d(continuousSys, s.att.Ts, method);
 s.att.Ad = discreteSys.A;
@@ -37,25 +34,18 @@ s.att.Bd = discreteSys.B;
 s.att.Cd = discreteSys.C;
 s.att.Dd = discreteSys.D;
 
-s.att.Ad_r = s.att.Ad(2:10, 2:10);
-s.att.Bd_r = s.att.Bd(2:10, 1:3);
-s.att.Cd_r = s.att.Cd(2:7, 2:10);
-s.att.Dd_r = s.att.Dd(2:7, 1:3);
-
 % LQR with integral action
-s.att.lqr.W  = [ s.att.Ad - eye(10),  s.att.Bd;
-                 s.att.Cd,            s.att.Dd ];
-s.att.lqr.OI = [ zeros(10, 4);
-                 eye(4);
-                 zeros(3, 4) ];
+s.att.lqr.W  = [ s.att.Ad - eye(9), s.att.Bd;
+                 s.att.Cd,          s.att.Dd ];
+s.att.lqr.OI = [ zeros(9, 3); eye(3)];
 s.att.lqr.G = s.att.lqr.W \ s.att.lqr.OI;
 
-s.att.lqr.Q = diag([139.6245112700232,139.6245112700232,15.2811761590895,...
+s.att.lqr.Q = diag([139.6245112700232/2.0,139.6245112700232/2.0,15.2811761590895/2.0,...
     1.1505204155597211,1.1505204155597211,0.1209919487616804,...
     9.976475759487083e-08,9.976475759487083e-08,9.976475759487083e-09]);
 s.att.lqr.R = 24.0*diag([1,1,1]);
-s.att.lqr.K = -dlqr(s.att.Ad_r, s.att.Bd_r, s.att.lqr.Q, s.att.lqr.R);
-s.att.lqi.I = diag([0.8, 0.8, 0]);  % For anti bias drift
+s.att.lqr.K = -dlqr(s.att.Ad, s.att.Bd, s.att.lqr.Q, s.att.lqr.R);
+s.att.lqi.I = diag([0.1, 0.1, 0.01]);  % For anti bias drift
 s.att.lqi.max_integral = 10;
 s.att.lqi.K = [s.att.lqr.K, s.att.lqi.I];
 
@@ -67,9 +57,9 @@ s.att.lqi.K = [s.att.lqr.K, s.att.lqi.I];
 s.att.kal.varDynX = 10 * ones(1, 9);
 s.att.kal.varDynU = 0.1 * ones(1, 3);
 s.att.kal.Q = [ s.att.kal.varDynX, s.att.kal.varDynU ];
-s.att.kal.G = [ eye(9), s.att.Bd_r ];
-s.att.kal.R = 0.1 * ones(1, 6);
-s.att.kal.L = dlqe(s.att.Ad_r, s.att.kal.G, s.att.Cd_r, diag(s.att.kal.Q), diag(s.att.kal.R));
+s.att.kal.G = [ eye(9), s.att.Bd ];
+s.att.kal.R = 0.05 * ones(1, 3);
+s.att.kal.L = dlqe(s.att.Ad, s.att.kal.G, s.att.Cd, diag(s.att.kal.Q), diag(s.att.kal.R));
 
 
 %% Altitude (LQR + integral action with Kalman estimate)

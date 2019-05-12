@@ -7,70 +7,73 @@
 #include <real_t.h>
 
 /**
- * Attitude reference to track, consisting of a single quaternion.
+ * Attitude reference to track consisting of a yaw, pitch and a roll in radians.
  */
 struct AttitudeReference {
-    AttitudeReference(Quaternion q) : q{q} {}
+    AttitudeReference(real_t yaw, real_t pitch, real_t roll)
+        : yaw{yaw}, pitch{pitch}, roll{roll} {}
     AttitudeReference() = default;
-    Quaternion q;  ///< Orientation.
+    real_t yaw;
+    real_t pitch;
+    real_t roll;
 };
 
 /**
- * Measurement from the IMU, consisting of one quaternion for the drone's
- * orientation and three floats for the drone's angular velocity, measured in
- * rad/s.
+ * Attitude measurement consisiting of a yaw, pitch and a roll in radians.
  */
 struct AttitudeMeasurement {
-    AttitudeMeasurement(Quaternion q, real_t wx, real_t wy, real_t wz)
-        : q{q}, wx{wx}, wy{wy}, wz{wz} {}
+    AttitudeMeasurement(real_t yaw, real_t pitch, real_t roll)
+        : yaw{yaw}, pitch{pitch}, roll{roll} {}
     AttitudeMeasurement() = default;
-    Quaternion q;  ///< Orientation.
-    real_t wx;     ///< X angular velocity (rad/s).
-    real_t wy;     ///< Y angular velocity (rad/s).
-    real_t wz;     ///< Z angular velocity (rad/s).
+    real_t yaw;
+    real_t pitch;
+    real_t roll;
 };
 
 /**
- * Estimate of the state of the drone's attitude, consisting of the drone's
- * orientation (1 quaternion q), angular velocity in rad/s (3 components: wx,
- * wy, wz) and the angular velocity of the torque motors in rad/s (3 components:
- * nx, ny, nz).
+ * Attitude state consisting of a yaw, pitch, roll (rad), change in yaw, 
+ * pitch, roll (rad/s), and torque motor angular velocities in rad/s.
  */
 struct AttitudeState {
-    AttitudeState(Quaternion q, real_t wx, real_t wy, real_t wz)
-        : q{q}, wx{wx}, wy{wy}, wz{wz}, nx{nx}, ny{ny}, nz{nz} {}
+    AttitudeState(real_t yaw, real_t pitch, real_t roll, real_t wyaw,
+                  real_t wpitch, real_t wroll, real_t nyaw, real_t npitch,
+                  real_t nroll)
+        : yaw{yaw}, pitch{pitch}, roll{roll}, wyaw{wyaw}, wpitch{wpitch},
+          wroll{wroll}, nyaw{nyaw}, npitch{npitch}, nroll{nroll} {}
     AttitudeState() = default;
-    Quaternion q;  ///< Orientation.
-    real_t wx;     ///< X angular velocity (rad/s).
-    real_t wy;     ///< Y angular velocity (rad/s).
-    real_t wz;     ///< Z angular velocity (rad/s).
-    real_t nx;     ///< X motor angular velocity (rad/s).
-    real_t ny;     ///< Y motor angular velocity (rad/s).
-    real_t nz;     ///< Z motor angular velocity (rad/s).
+    real_t yaw;
+    real_t pitch;
+    real_t roll;
+    real_t wyaw;
+    real_t wpitch;
+    real_t wroll;
+    real_t nyaw;
+    real_t npitch;
+    real_t nroll;
 };
 
 /**
- * Integral of the error of the quaternion components q1, q2 and q3.
+ * Integral of the error of the yaw, pitch and roll in radians.
  */
 struct AttitudeIntegralWindup {
-    AttitudeIntegralWindup(real_t q1, real_t q2, real_t q3)
-        : q1{q1}, q2{q2}, q3{q3} {}
+    AttitudeIntegralWindup(real_t yaw, real_t pitch, real_t roll)
+        : yaw{yaw}, pitch{pitch}, roll{roll} {}
     AttitudeIntegralWindup() = default;
-    real_t q1;  ///< Orientation q1 component.
-    real_t q2;  ///< Orientation q2 component.
-    real_t q3;  ///< Orientation q3 component.
+    real_t yaw;
+    real_t pitch;
+    real_t roll;
 };
 
 /**
- * PWM control signals sent to the torque motors (3 components: ux, uy, uz).
+ * PWM control signals sent to the torque motors (3 components: uyaw, upitch, uroll).
  */
 struct AttitudeControlSignal {
-    AttitudeControlSignal(real_t ux, real_t uy, real_t uz)
-        : ux{ux}, uy{uy}, uz{uz} {}
+    AttitudeControlSignal(real_t uyaw, real_t upitch, real_t uroll)
+        : uyaw{uyaw}, upitch{upitch}, uroll{uroll} {}
     AttitudeControlSignal() = default;
-    real_t ux;  ///< X motor signal (/).
-    real_t uy;  ///< Y motor signal (/).
-    real_t uz;  ///< Z motor signal (/).
+    real_t uyaw;
+    real_t upitch;
+    real_t uroll;
 };
 
 /**
@@ -223,13 +226,6 @@ class AttitudeController {
     AttitudeIntegralWindup getIntegralWindup() { return this->integralWindup; }
 
     /**
-     * Returns the quaternion of the attitude controller's estimate of the
-     * drone's orientation. This value is "jumped" in order to keep the estimate
-     * near the unit quaternion [1;0;0;0].
-     */
-    Quaternion getOrientationQuat() { return this->stateEstimate.q; }
-
-    /**
      * Returns the EulerAngles representation of the attitude controller's
      * estimate of the drone's orientation. This representation facilitates the
      * quaternion jumps when the state estimate's yaw becomes too large.
@@ -238,13 +234,6 @@ class AttitudeController {
 
     /** Get the attitude controller's reference. */
     AttitudeReference getReference() { return this->reference; }
-
-    /**
-     * Returns the quaternion representation of the reference orientation. This
-     * value is "jumped" in order to keep the estimate near the unit quaternion
-     * [1;0;0;0].
-     */
-    Quaternion getReferenceQuat() { return this->reference.q; }
 
     /**
      * Returns the Euler representation of the reference orientation. This is

@@ -21,8 +21,8 @@ y     = sym('vector__y',          [1, 1], 'real');
 
 % Calculate estimate (Kalman)
 prediction   = s.alt.Ad * x_hat + s.alt.Bd * u;  % A * x + B * u
-dif          = y - s.alt.Cd * x_hat;
-innovation   = L * dif;  % L * (y - C * x)
+diff         = y - s.alt.Cd * x_hat;
+innovation   = L * diff;  % L * (y - C * x)
 result_x_hat = prediction + innovation;
 
 end

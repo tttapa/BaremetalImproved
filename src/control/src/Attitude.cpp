@@ -34,11 +34,15 @@ static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 
 MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
                                             real_t commonThrust) {
+    real_t ux = controlSignal.pitch;
+    real_t uy = controlSignal.roll;
+    real_t uz = controlSignal.yaw;
     return MotorSignals{
-        commonThrust + controlSignal.ux + controlSignal.uy - controlSignal.uz,
-        commonThrust + controlSignal.ux - controlSignal.uy + controlSignal.uz,
-        commonThrust - controlSignal.ux + controlSignal.uy + controlSignal.uz,
-        commonThrust - controlSignal.ux - controlSignal.uy - controlSignal.uz};
+        commonThrust + ux + uy - uz,
+        commonThrust + ux - uy + uz,
+        commonThrust - ux + uy + uz,
+        commonThrust - ux - uy - uz,
+    };
 }
 
 void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {

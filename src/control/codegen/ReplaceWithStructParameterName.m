@@ -47,165 +47,81 @@ if strcmp(controllerName, 'Attitude')
     
     if strcmp(struct,'y_int')
         if element == 1
-            string = 'integralWindup.q1';
+            string = 'integralWindup.yaw';
         end
         if element == 2
-            string = 'integralWindup.q2';
+            string = 'integralWindup.pitch';
         end
         if element == 3
-            string = 'integralWindup.q3';
+            string = 'integralWindup.roll';
         end
     end
     
     if strcmp(struct, 'x_hat')
         if element == 1
-           string = 'stateEstimate.q[0]';
+           string = 'stateEstimate.yaw';
         end
         if element == 2
-           string = 'stateEstimate.q[1]';
+           string = 'stateEstimate.pitch';
         end
         if element == 3
-           string = 'stateEstimate.q[2]';
+           string = 'stateEstimate.roll';
         end
         if element == 4
-           string = 'stateEstimate.q[3]';
+           string = 'stateEstimate.wyaw';
         end
         if element == 5
-           string = 'stateEstimate.wx';
+           string = 'stateEstimate.wpitch';
         end
         if element == 6
-           string = 'stateEstimate.wy';
+           string = 'stateEstimate.wroll';
         end
         if element == 7
-           string = 'stateEstimate.wz';
+           string = 'stateEstimate.nyaw';
         end
         if element == 8
-           string = 'stateEstimate.nx';
+           string = 'stateEstimate.npitch';
         end
         if element == 9
-           string = 'stateEstimate.ny';
+           string = 'stateEstimate.nroll';
         end
-        if element == 10
-           string = 'stateEstimate.nz';
-        end 
     end
     
     if strcmp(struct, 'ref')
        if element == 1
-           string = 'reference.q[0]';
+           string = 'reference.yaw';
        end
        if element == 2
-           string = 'reference.q[1]';
+           string = 'reference.pitch';
        end
        if element == 3
-           string = 'reference.q[2]';
-       end
-       if element == 4
-           string = 'reference.q[3]';
+           string = 'reference.roll';
        end
     end
     
     if strcmp(struct, 'u') 
        if element == 1
-           string = 'controlSignal.ux';
+           string = 'controlSignal.uyaw';
        end
        if element == 2
-           string = 'controlSignal.uy';
+           string = 'controlSignal.upitch';
        end
        if element == 3
-           string = 'controlSignal.uz';
+           string = 'controlSignal.uroll';
        end
     end
     
     if strcmp(struct, 'y')
        if element == 1 
-          string = 'measurement.q[0]';
+          string = 'measurement.yaw';
        end
        if element == 2 
-          string = 'measurement.q[1]';
+          string = 'measurement.pitch';
        end
        if element == 3 
-          string = 'measurement.q[2]';
-       end
-       if element == 4
-          string = 'measurement.q[3]';
-       end
-       if element == 5
-          string = 'measurement.wx';
-       end
-       if element == 6 
-          string = 'measurement.wy';
-       end
-       if element == 7
-          string = 'measurement.wz';
+          string = 'measurement.roll';
        end
     end
-    
-    if strcmp(struct, 'prediction')
-       if element == 1
-          string = 'prediction.q[0]';
-       end
-       if element == 2
-          string = 'prediction.q[1]';
-       end
-       if element == 3
-          string = 'prediction.q[2]';
-       end
-       if element == 4
-          string = 'prediction.q[3]';
-       end
-       if element == 5
-          string = 'prediction.wx';
-       end
-       if element == 6
-          string = 'prediction.wy';
-       end
-       if element == 7
-          string = 'prediction.wz';
-       end
-       if element == 8
-          string = 'prediction.nx';
-       end
-       if element == 9
-          string = 'prediction.ny';
-       end
-       if element == 10
-          string = 'prediction.nz';
-       end 
-    end
-    
-    if strcmp(struct, 'innovation')
-       if element == 1
-          string = 'innovation.q[0]';
-       end
-       if element == 2
-          string = 'innovation.q[1]';
-       end
-       if element == 3
-          string = 'innovation.q[2]';
-       end
-       if element == 4
-          string = 'innovation.q[3]';
-       end
-       if element == 5
-          string = 'innovation.wx';
-       end
-       if element == 6
-          string = 'innovation.wy';
-       end
-       if element == 7
-          string = 'innovation.wz';
-       end
-       if element == 8
-          string = 'innovation.nx';
-       end
-       if element == 9
-          string = 'innovation.ny';
-       end
-       if element == 10
-          string = 'innovation.nz';
-       end 
-    end  
 end
 
 if strcmp(controllerName, 'Altitude')

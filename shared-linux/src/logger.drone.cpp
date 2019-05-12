@@ -1,6 +1,9 @@
 #include <logger.drone.hpp>
 
 #include <LoggerValues.hpp>
+#include <Time.hpp>
+#include <MiscInstances.hpp>
+#include <ControllerInstances.hpp>
 
 /**
  * @brief   Rather sketchy conversion from a struct of primitives of the same
@@ -60,7 +63,7 @@ LogEntry getLogData() {
     logEntry.setRcRoll(getRoll());
     logEntry.setRcPitch(getPitch());
     logEntry.setRcYaw(getYaw());
-    logEntry.setReferenceOrientation(toCppArray(attitudeController.getReferenceQuat()));
+    logEntry.setReferenceOrientation(zeros(4, 1));
     logEntry.setReferenceOrientationEuler(toCppArray(attitudeController.getReferenceEuler()));
     logEntry.set__pad0(0);
     logEntry.setReferenceHeight(altitudeController.getReferenceHeight());

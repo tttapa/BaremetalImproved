@@ -89,6 +89,9 @@ AltitudeController::codegenNextStateEstimate(AltitudeState stateEstimate,
             stateEstimate.z  = $c4$x1;
             stateEstimate.vz = $c4$x2;
             break;
+        default:
+            stateEstimate = {};
+            break;
     }
     return stateEstimate;
 }
