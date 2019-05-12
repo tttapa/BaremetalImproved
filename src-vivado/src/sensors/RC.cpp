@@ -6,6 +6,7 @@
 /* Includes from Xilinx. */
 #include <xil_io.h>
 
+#pragma region Constants
 /** Address of the RC's throttle: PIN T14 (JD1). */
 uint32_t *const THROTTLE_ADDR = (uint32_t *) XPAR_RC_0_S00_AXI_BASEADDR;
 
@@ -48,6 +49,7 @@ const float RC_DEADZONE = (RC_HIGH - RC_LOW) / 40.0;
 
 /** Value if RC knob/joystick is not available. */
 const float RC_DEAD = 0.0;
+#pragma endregion
 
 /* The last mode that the drone was in at the last interrupt. */
 FlightMode lastFlightMode = FlightMode::UNINITIALIZED;
@@ -68,6 +70,7 @@ float getRCValue(uint32_t *address) {
     return (float) Xil_In32((uintptr_t) address) / CLOCK_FREQUENCY;
 }
 
+#pragma region Conversions from float to enumeration
 /**
  * Returns the flight mode as a FlightMode.
  * 
@@ -88,9 +91,9 @@ FlightMode getFlightMode(float flightModeValue) {
 
     /* Get the current flight mode from the RC. */
     FlightMode newFlightMode;
-    if (flightModeValue < 1.0 / 3.0 * (RC_HIGH - RC_LOW))
+    if (flightModeValue < RC_LOW + 1.0 / 3.0 * (RC_HIGH - RC_LOW))
         newFlightMode = FlightMode::MANUAL;
-    else if (flightModeValue < 2.0 / 3.0 * (RC_HIGH - RC_LOW))
+    else if (flightModeValue < RC_LOW + 2.0 / 3.0 * (RC_HIGH - RC_LOW))
         newFlightMode = FlightMode::ALTITUDE_HOLD;
     else
         newFlightMode = FlightMode::AUTONOMOUS;
@@ -146,7 +149,9 @@ WPTMode getWPTMode(float wptValue) {
     }
     return lastWPTMode;
 }
+#pragma endregion
 
+#pragma region Clamps
 /**
  * Clamp value in [RC_LOW, RC_HIGH].
  * 
@@ -193,7 +198,9 @@ float clampMid(float x) {
         return RC_HIGH;
     return x;
 }
+#pragma endregion
 
+#pragma region Rescales
 /**
  * Rescale to [0.0, 1.0] using deadzone at RC_LOW.
  * 
@@ -246,6 +253,7 @@ float rescaleMid(float x) {
     /* Deadzone. */
     return 0.0;
 }
+#pragma endregion
 
 RCInput readRC() {
 
@@ -255,8 +263,8 @@ RCInput readRC() {
     float roll            = -rescaleMid(clampMid(getRCValue(ROLL_ADDR)));
     float yaw             = -rescaleMid(clampMid(getRCValue(YAW_ADDR)));
     float tuner           = rescaleMid(clampMid(getRCValue(TUNER_ADDR)));
-    float flightModeValue = rescale(clamp(getRCValue(FLIGHT_MODE_ADDR)));
-    float wptValue        = rescale(clamp(getRCValue(WPT_MODE_ADDR)));
+    float flightModeValue = clamp(getRCValue(FLIGHT_MODE_ADDR));
+    float wptValue        = clamp(getRCValue(WPT_MODE_ADDR));
 
     return RCInput{
         throttle,

@@ -69,6 +69,29 @@ PositionController::updateControlSignal(PositionReference reference) {
     return this->controlSignal;
 }
 
+PositionControlSignal
+PositionController::updateControlSignalBlind(PositionReference reference) {
+
+    /* Save the reference position. */
+    this->reference = reference;
+
+    /* Calculate integral windup. */
+    this->integralWindup = PositionController::codegenIntegralWindupBlind(
+        this->integralWindup, reference, this->stateEstimate,
+        configManager.getControllerConfiguration());
+
+    /* Calculate control signal (unclamped). */
+    this->controlSignal = PositionController::codegenControlSignalBlind(
+        this->stateEstimate, reference, this->integralWindup,
+        configManager.getControllerConfiguration());
+
+    /* Clamp control signal. */
+    this->clampControlSignal();
+
+    /* Return the updated control signal. */
+    return this->controlSignal;
+}
+
 void PositionController::updateObserver(Quaternion orientation,
                                         PositionMeasurement measurement) {
     /* Calculate the current state estimate. */

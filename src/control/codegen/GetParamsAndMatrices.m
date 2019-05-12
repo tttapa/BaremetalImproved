@@ -32,7 +32,6 @@ s.att.Ca = [ eye(7), zeros(7, 3) ];
 s.att.Da =   zeros(7, 3);
 continuousSys = ss(s.att.Aa, s.att.Ba, s.att.Ca, s.att.Da);
 discreteSys = c2d(continuousSys, s.att.Ts, method);
-
 s.att.Ad = discreteSys.A;
 s.att.Bd = discreteSys.B;
 s.att.Cd = discreteSys.C;
@@ -91,7 +90,6 @@ s.alt.Ca = [ 0 1 0 ];
 s.alt.Da =   zeros(1, 1);
 continuousSys = ss(s.alt.Aa, s.alt.Ba, s.alt.Ca, s.alt.Da);
 discreteSys = c2d(continuousSys, s.alt.Ts, method);
-
 s.alt.Ad = discreteSys.A;
 s.alt.Bd = discreteSys.B;
 s.alt.Cd = discreteSys.C;
@@ -138,7 +136,7 @@ s.alt.kal.L = dlqe(s.alt.Ad, s.alt.kal.G, s.alt.Cd, diag(s.alt.kal.Q), diag(s.al
 
 % Linear system
 s.pos.lambda = 3.5; % TODO: lambda = 3.5 should be good enough for LQR I think
-s.pos.fs = 8.5; % TODO: position average FPS?
+s.pos.fs = 60.0; % TODO: position average FPS?
 s.pos.Ts = 1.0 / s.pos.fs;
 
 s.pos.Aa = [-s.pos.lambda,      0,         0, 0, 0, 0;
@@ -170,12 +168,20 @@ s.pos.lqr.W = [ s.pos.Ad - eye(6), s.pos.Bd;
 s.pos.lqr.OI = [zeros(6, 4);
                   eye(4)  ];
 s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
+
 % TODO: choose best LQR from configurations
+s.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
+s.pos.lqr.R = 200.0*eye(2);
+s.pos.lqr.K = -dlqr(s.pos.Ad, s.pos.Bd, s.pos.lqr.Q, s.pos.lqr.R);
+s.pos.lqi.I = 0.001*[0,-1;1,0];
+s.pos.lqi.max_integral = 10;
+s.pos.lqi.K = [s.pos.lqr.K, s.pos.lqi.I];
 
 
 %% Position (blind)
 
-% Linear system
+% Linear system (reduced)
+s.posBlind.Ts = s.att.Ts;
 s.posBlind.Aa = [0, 0, 1, 0;
                  0, 0, 0, 1;
                  0, 0, 0, 0;
@@ -187,11 +193,34 @@ s.posBlind.Ba = [0, 0;
 s.posBlind.Ca = [];
 s.posBlind.Da = [];
 continuousSys = ss(s.posBlind.Aa, s.posBlind.Ba, s.posBlind.Ca, s.posBlind.Da);
-discreteSys = c2d(continuousSys, s.att.Ts, method);
-
+discreteSys = c2d(continuousSys, s.posBlind.Ts, method);
 s.posBlind.Ad = discreteSys.A;
 s.posBlind.Bd = discreteSys.B;
 s.posBlind.Cd = discreteSys.C;
 s.posBlind.Dd = discreteSys.D;
+
+% Linear system (full)
+continuousSys = ss(s.pos.Aa, s.pos.Ba, s.pos.Ca, s.pos.Da);
+discreteSys = c2d(continuousSys, s.posBlind.Ts, method);
+s.posBlind.Adfull = discreteSys.A;
+s.posBlind.Bdfull = discreteSys.B;
+s.posBlind.Cdfull = discreteSys.C;
+s.posBlind.Ddfull = discreteSys.D;
+
+% LQR with integral action
+s.posBlind.lqr.W = [ s.posBlind.Adfull - eye(6), s.posBlind.Bdfull;
+                     s.posBlind.Cdfull,          s.posBlind.Ddfull ];
+s.posBlind.lqr.OI = [zeros(6, 4);
+                     eye(4)  ];
+s.posBlind.lqr.G = s.posBlind.lqr.W \ s.posBlind.lqr.OI;
+
+% TODO: choose best LQR from configurations
+s.posBlind.lqr.Q = s.pos.lqr.Q;
+s.posBlind.lqr.R = s.pos.lqr.R;
+s.posBlind.lqr.K = -dlqr(s.posBlind.Adfull, s.posBlind.Bdfull, ...
+                         s.posBlind.lqr.Q,  s.posBlind.lqr.R);
+s.posBlind.lqi.I = s.pos.lqi.I;
+s.posBlind.lqi.max_integral = s.pos.lqi.max_integral;
+s.posBlind.lqi.K = [s.posBlind.lqr.K, s.posBlind.lqi.I];
 
 end

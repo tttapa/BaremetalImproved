@@ -6,6 +6,7 @@
 /* Includes from src-vivado. */
 #include <output/Buzzer.hpp>
 
+#pragma region Constants
 /** Armed beep 1 lasts 0.20 seconds. */
 static constexpr float ARMED_DURATION1 = 0.20;
 /** Armed beep 1 has a low pitch. */
@@ -47,14 +48,14 @@ static constexpr float DISARMED_DELAY = 0.40;
 
 /** Drone initiated has 3 beeps. */
 static constexpr int NUM_INITIATED_BEEPS = 3;
-/** Initiated beep lasts 0.05 seconds. */
-static constexpr float INITIATED_DURATION = 0.05;
+/** Initiated beep lasts 0.1 seconds. */
+static constexpr float INITIATED_DURATION = 0.15;
 /** Initiated beep has a medium pitch. */
 static constexpr int INITIATED_PERIOD = 0x27800;
 /** Initiated beep has a loud volume. */
 static constexpr int INITIATED_VOLUME = 0x25000;
 /** Initiated beeps have 0.01 seconds between them. */
-static constexpr int INITIATED_DELAY = 0.01;
+static constexpr int INITIATED_DELAY = 0.10;
 
 /** Warning for changing configuration has 2 beeps. */
 static constexpr int NUM_WARNING_BEEPS = 2;
@@ -75,7 +76,9 @@ static constexpr int NAVERROR_PERIOD = 0x25000;
 static constexpr int NAVERROR_VOLUME = 0x30000;
 /** Navigation error beeps have 0.50 seconds between them. */
 static constexpr float NAVERROR_DELAY = 0.5;
+#pragma endregion
 
+#pragma region Add various beeps
 void BuzzerManager::addArmedBeeps() {
     if (getNumInstructionsUntilFull() >= 2) {
         /* First beep. */
@@ -172,6 +175,7 @@ void BuzzerManager::addWarningBeeps() {
         }
     }
 }
+#pragma endregion
 
 void BuzzerManager::clearBeepQueue() {
     for (int i = 0; i < QUEUE_SIZE; i++)

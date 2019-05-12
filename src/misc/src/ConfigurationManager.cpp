@@ -5,9 +5,9 @@
 #include <RCValues.hpp>
 #include <Time.hpp>
 
+#pragma region Constants
 /** 3 wiggles to sound configuration. */
 static constexpr int NUM_WIGGLES = 3;
-
 /** Every 1000 ms, 1 wiggle decreases. */
 static constexpr float WIGGLE_DECREMENT_DELAY = 1.0;
 
@@ -34,6 +34,7 @@ static constexpr float WIGGLE_LOWER_THRESHOLD = -0.08;
 
 /** Configuration can only be changed when the RC throttle is below 0.03. */
 static constexpr float THROTTLE_THRESHOLD = 0.03;
+#pragma endregion
 
 void ConfigurationManager::nextConfiguration() {
     controllerConfiguration++;
@@ -63,8 +64,10 @@ void ConfigurationManager::updateConfig() {
 
     /* Only do configuration if we're in the changing zone. */
     if (tunerValue < CONFIG_UPPER_THRESHOLD &&
-        tunerValue > CONFIG_LOWER_THRESHOLD)
+        tunerValue > CONFIG_LOWER_THRESHOLD) {
+        this->isWaitingForConfigurationChange = false;
         return;
+    }
 
     /* Only do configuration if the buzzer is not busy. */
     if (buzzerManager.isInstructionBusy())

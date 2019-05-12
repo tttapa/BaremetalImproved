@@ -29,6 +29,8 @@ target_include_directories(communication
 target_link_libraries(communication 
     PRIVATE 
         instances
+        misc
+        time
 )
 
 # Run CMake again in the `test` folder, to discover the CMakeLists.txt file that

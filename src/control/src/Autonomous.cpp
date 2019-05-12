@@ -1,15 +1,18 @@
 #include <Autonomous.hpp>
 
 /* Includes from src. */
-#include <ControllerInstances.hpp>  ///< PositionController correctPosition if drone gets lost during navigation
-#include <InputBias/InputBias.hpp>
+#include <BiasManager.hpp>
+#include <ControllerInstances.hpp> ///< PositionController correctPosition if drone gets lost during navigation
 #include <MiscInstances.hpp>  ///< ESCStartupScript instance
 #include <Position.hpp>
+#include <RCValues.hpp>
 #include <SharedMemoryInstances.hpp>
 #include <Time.hpp>
 
-// TODO: include location
+/* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
+
+#pragma region Constants
 /**
  * If the drone is stays with 0.10 meters of its destination for a period of
  * time, then it will have converged on its target.
@@ -83,6 +86,12 @@ static constexpr int MAX_QR_SEARCH_COUNT = 25;
  */
 static constexpr real_t NAVIGATION_SPEED = 0.5;
 
+/** The pre-takeoff stage lasts 6.0 seconds. */
+static constexpr real_t PRE_TAKEOFF_DURATION = 6.0;
+
+/** During the pre-takeoff stage, the common thrust will be set to 0.20. */
+static constexpr real_t PRE_TAKEOFF_COMMON_THRUST = 0.20;
+
 /** The normal reference height for the drone in autonomous mode is 1 meter. */
 static constexpr real_t REFERENCE_HEIGHT = 1.0;
 
@@ -107,6 +116,7 @@ static constexpr real_t TAKEOFF_DURATION = 2.0;
  * will take off if the throttle value exceeds 0.50.
  */
 static constexpr real_t TAKEOFF_THROTTLE = 0.50;
+#pragma endregion
 
 bool isValidSearchTarget(Position position) {
     return position.x >= X_MIN && position.x <= X_MAX && position.y >= Y_MIN &&
@@ -175,6 +185,8 @@ void AutonomousController::updateQRFSM() {
     /* Don't update QR FSM if the drone is not in CONVERGING state. */
     if (this->autonomousState != CONVERGING)
         return;
+
+#pragma region QRFSM
 
     /**
      * ================================ QR FSM ================================
@@ -283,11 +295,14 @@ void AutonomousController::updateQRFSM() {
                to either the Image Processing team or the Cryptography team. */
             break;
     }
+
+#pragma endregion
 }
 
 AutonomousOutput
 AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
+#pragma region AutonomousFSM
     /**
      * ============================ AUTONOMOUS FSM ============================
      * -------------- START ------------- | -------------- ERROR --------------
@@ -325,92 +340,82 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
         case IDLE_GROUND:
             /* Instruction: override thrust (no thrust), don't update position
-               controller. */
+                            controller.
+               Switch to PRE_TAKEOFF: when throttle is raised high enough. */
             bypassAltitudeController = true;
             commonThrust             = 0.0;
             updatePositionController = false;
-
-            /* Switch to PRE_TAKEOFF when the throttle is raised high enough. */
             if (getThrottle() > TAKEOFF_THROTTLE)
                 setAutonomousState(PRE_TAKEOFF);
             break;
 
         case IDLE_AIR:  // TODO: remove this state!
             /* Instruction: hover at (position, height) = (nextTarget,
-               referenceHeight) which are both set in initAir(). */
-            /* Switch to LOITERING. */
+                            referenceHeight) which are both set in initAir().
+               Switch to LOITERING. */
             setAutonomousState(LOITERING);
             break;
 
         case PRE_TAKEOFF:
-            /* Instruction: send startup thrust until startup has finished. */
+            /* Instruction: override thrust (pre-takeoff thrust), don't update
+                            position.
+               Switch to TAKEOFF: when the timer expires. */
             bypassAltitudeController = true;
-            commonThrust             = STARTUP_COMMON_THRUST;
+            commonThrust             = PRE_TAKEOFF_COMMON_THRUST;
             updatePositionController = false;
-
-            /* Switch to TAKEOFF when PRE_TAKEOFF script has finished. */
-            if (escStartupScript.areESCsRunning() &&
-                !escStartupScript.isStartupActive())
+            if (getElapsedTime() > PRE_TAKEOFF_DURATION)
                 setAutonomousState(TAKEOFF);
             break;
 
         case TAKEOFF:
-            /* Set reference height to 1 meter. */
+            /* Instruction:
+                    --- Stage 1: override thrust (blind takeoff thrust), trust
+                                 acceleration for position.
+                    --- Stage 2: hover at (position, height) = (nextTarget, 1m).
+                    --- Stage 3: hover at (position, height) = (nextTarget, 1m).
+               Switch to LOITERING: when timer expires. */
             this->referenceHeight = {REFERENCE_HEIGHT};
-
-            /* Takeoff stage 1... Instruction = override thrust (blind takeoff
-               thrust), trust acceleration for position. */
             if (getElapsedTime() < TAKEOFF_BLIND_DURATION) {
                 bypassAltitudeController = true;
                 commonThrust =
-                    inputBias.getThrustBias() + TAKEOFF_BLIND_MARGINAL_THRUST;
+                    biasManager.getThrustBias() + TAKEOFF_BLIND_MARGINAL_THRUST;
                 trustAccelerometerForPosition = true;
-            }
-            /* Takeoff stage 2... Instruction = hover at (position, height) = 
-               (nextTarget, 1 meter). */
-
-            /* Takeoff finished... Instruction = hover at (position, height) =
-               (nextTarget, 1 meter). */
-            /* Switch to LOITERING. */
-            else if (getElapsedTime() > TAKEOFF_DURATION)
+            } else if (getElapsedTime() > TAKEOFF_DURATION)
                 setAutonomousState(LOITERING);
             break;
 
         case LOITERING:
-            /* Switch to LANDING if the pilot lowers the throttle enough. */
+            /* Instruction: hover at (position, height) = (nextTarget,
+                            referenceHeight).
+               Switch to LANDING: if the pilot lowers the throttle enough.
+               Switch to CONVERGING: when timer expires. */
             if (getThrottle() <= LANDING_THROTTLE)
                 startLanding(true, currentPosition);
-
-            /* Instruction = hover at (position, height) = (nextTarget,
-               referenceHeight). */
-            /* Switch to CONVERGING if we've loitered long enough. */
             if (getElapsedTime() > LOITER_DURATION)
                 setAutonomousState(CONVERGING);
             break;
 
         case CONVERGING:
-            /* Switch to LANDING if the pilot lowers the throttle enough. */
+            /* Instruction: hover at (position, height) = (nextTarget,
+                            referenceHeight).
+               ! Reset counter if we're no longer within converging distance. !
+               Switch to LANDING: if the pilot lowers the throttle enough.
+               Switch to NAVIGATING: if QR FSM tells us to.
+               Switch to LANDING: if QR FSM tells us to. */
             if (getThrottle() <= LANDING_THROTTLE)
                 startLanding(true, currentPosition);
-
-            /* Reset counter if we're no longer within converging distance. */
             if (distsq(this->nextTarget, currentPosition) >
-                CONVERGENCE_DISTANCE * CONVERGENCE_DISTANCE) {
+                CONVERGENCE_DISTANCE * CONVERGENCE_DISTANCE)
                 this->autonomousStateStartTime = getTime();
-            }
-            /* Instruction = hover at (position, height) = (nextTarget,
-               referenceHeight). */
-            /* Stay in this state until the QR FSM moves us to NAVIGATING or
-               LANDING. */
             break;
 
         case NAVIGATING:
-            /* Switch to LANDING if the pilot lowers the throttle enough. */
+            /* Instruction: hover at (position, height) = (interpolation point,
+                            referenceHeight).
+               Switch to LANDING: if the pilot lowers the throttle enough.
+               Switch to CONVERGING: when timer expires. */
             if (getThrottle() <= LANDING_THROTTLE)
                 startLanding(true, currentPosition);
-
-            /* Navigating... Instruction = hover at (position, height) =
-               (interpolation point, referenceHeight). */
             if (getElapsedTime() <= this->navigationTime) {
                 dx = (nextTarget.x - previousTarget.x) * getElapsedTime() /
                      this->navigationTime;
@@ -418,42 +423,31 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                      this->navigationTime;
                 referencePosition =
                     Position(previousTarget.x + dx, previousTarget.y + dy);
-            }
-
-            /* Finished navigating... Instruction = hover at (position, height)
-               = (nextTarget, referenceHeight). */
-            /* Switch to CONVERGING. */
-            else
+            } else {
                 setAutonomousState(CONVERGING);
+            }
             break;
 
         case LANDING:
-            /* Landing stage 1... Instruction = hover at (position, height) =
-               (nextTarget, referenceHeight). nextTarget is set when the method
-               startNavigating() is called; referenceHeight is updated in this
-               block of code. */
+            /* Instruction:
+                    --- Stage 1: hover at (position, height) = (nextTarget,
+                                 descending referenceHeight).
+                    --- Stage 2: override thrust (landing final descent thrust)
+                                 and trust accelerometer for position.
+                    --- Finished:override thrust (no thrust), don't update
+                                 position.
+               Switch to IDLE_GROUND: when timer expires. */
             if (this->referenceHeight.z > LANDING_LOWEST_REFERENCE_HEIGHT) {
                 this->referenceHeight.z -=
                     LANDING_REFERENCE_HEIGHT_DECREASE_SPEED * SECONDS_PER_TICK;
-
-                /* Reset autonomous state timer, so we can use it during the
-                   second stage. */
+                /* Reset timer: use it again during the second stage. */
                 this->autonomousStateStartTime = getTime();
-            }
-
-            /* Landing stage 2... Instruction = override thrust (landing final
-               descent thrust) and trust accelerometer for position. */
-            else if (getElapsedTime() < LANDING_BLIND_DURATION) {
+            } else if (getElapsedTime() < LANDING_BLIND_DURATION) {
                 bypassAltitudeController = true;
                 commonThrust =
-                    inputBias.getThrustBias() + LANDING_BLIND_MARGINAL_THRUST;
+                    biasManager.getThrustBias() + LANDING_BLIND_MARGINAL_THRUST;
                 trustAccelerometerForPosition = true;
-            }
-
-            /* Landing finished... Instruction = override thrust (no thrust),
-               dont' update position controller. */
-            /* Switch to IDLE_GROUND. */
-            else {
+            } else {
                 bypassAltitudeController = true;
                 commonThrust             = 0.0;
                 updatePositionController = false;
@@ -465,6 +459,8 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
         case ERROR: break;
     }
+
+#pragma endregion
 
     return AutonomousOutput{bypassAltitudeController,
                             this->referenceHeight,
