@@ -1,7 +1,7 @@
 #include <Autonomous.hpp>
 
 /* Includes from src. */
-#include <ControllerInstances.hpp>
+#include <ControllerInstances.hpp>  ///< PositionController correctPosition if drone gets lost during navigation
 #include <InputBias/InputBias.hpp>
 #include <MiscInstances.hpp>  ///< ESCStartupScript instance
 #include <Position.hpp>
@@ -335,7 +335,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                 setAutonomousState(PRE_TAKEOFF);
             break;
 
-        case IDLE_AIR:
+        case IDLE_AIR:  // TODO: remove this state!
             /* Instruction: hover at (position, height) = (nextTarget,
                referenceHeight) which are both set in initAir(). */
             /* Switch to LOITERING. */
