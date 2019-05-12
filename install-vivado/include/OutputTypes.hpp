@@ -30,15 +30,30 @@ struct LEDInstruction {
 
 /**
  * Four floats representing the duty cycles to be sent to the four motors
- * (front-left, front-right, back-left, back-right). The four values should
- * be in [0, 1].
+ * (front-left, front-right, back-left, back-right). The four will automatically
+ * be clamped in [0, 1].
  */
 struct MotorSignals {
     MotorSignals(real_t v0, real_t v1, real_t v2, real_t v3)
-        : v0{v0}, v1{v1}, v2{v2}, v3{v3} {}
+        : v0{v0}, v1{v1}, v2{v2}, v3{v3} {
+        clampValues();
+    }
     MotorSignals() = default;
     real_t v0;  ///< Front-left motor duty cycle in [0,1].
     real_t v1;  ///< Front-right motor duty cycle in [0,1].
     real_t v2;  ///< Back-left motor duty cycle in [0,1].
     real_t v3;  ///< Back-right motor duty cycle in [0,1].
+    static real_t clampValue(real_t value) {
+        if (value < 0.0)
+            value = 0.0;
+        if (value > 1.0)
+            value = 1.0;
+        return value;
+    }
+    void clampValues() {
+        this->v0 = MotorSignals::clampValue(this->v0);
+        this->v1 = MotorSignals::clampValue(this->v1);
+        this->v2 = MotorSignals::clampValue(this->v2);
+        this->v3 = MotorSignals::clampValue(this->v3);
+    }
 };

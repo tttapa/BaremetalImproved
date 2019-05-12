@@ -122,25 +122,19 @@ class AutonomousController {
     AutonomousState autonomousState;
 
     /** Time that the autonomous controller entered its current state. */
-    real_t autonomousStateStartTime;
+    real_t autonomousStateStartTime = 0.0;
 
-    /** Current state of the QR finite state machine (FSM). */
-    QRFSMState qrState;
+    /** Estimated time to navigate from previous target to next target. */
+    real_t navigationTime = 0.0;
 
-    /** Most recent reference height of the autonomous controller. */
-    AltitudeReference referenceHeight;
-
-    /** Previous target position. */
-    Position previousTarget;
+    /** Next QR code location. */
+    Position nextQRPosition;
 
     /** Next target position. */
     Position nextTarget;
 
-    /** Estimated time to navigate from previous target to next target. */
-    real_t navigationTime;
-
-    /** Next QR code location. */
-    Position nextQRPosition;
+    /** Previous target position. */
+    Position previousTarget;
 
     /**
      * Number of times the Cryptography team failed to decrypt the image sent by
@@ -148,11 +142,17 @@ class AutonomousController {
      */
     int qrErrorCount;
 
+    /** Current state of the QR finite state machine (FSM). */
+    QRFSMState qrState;
+
     /**
      * Counter for the number of tiles the drone has searched to find the QR
      * code.
      */
     int qrTilesSearched;
+
+    /** Most recent reference height of the autonomous controller. */
+    AltitudeReference referenceHeight;
 
     /**
      * Calculates the time since the autonomous controller entered its current
@@ -247,6 +247,41 @@ class AutonomousController {
     void updateQRFSM();
 
   public:
+    /** Get the autonomous controller's autonomous state. */
+    AutonomousState getAutonomousState() { return this->autonomousState; }
+
+    /** Get the time that the autonomous controller entered its state. */
+    real_t getAutonomousStateStartTime() { return autonomousStateStartTime; }
+    /**
+     * Get the autonomous controller's estimated time to navigate from its
+     * previous target to its next target.
+     */
+    real_t getNavigationTime() { return navigationTime; }
+
+    /** Get the next QR position. */
+    Position getNextQRPosition() { return nextQRPosition; }
+
+    /** Get the autonomous controller's next target position. */
+    Position getNextTarget() { return nextTarget; }
+
+    /** Get the autonomous controller's previous target position. */
+    Position getPreviousTarget() { return previousTarget; }
+
+    /**
+     * Get the number of times the Cryptography team failed to decrypt the QR
+     * code at the drone's current position.
+     */
+    int getQRErrorCount() { return qrErrorCount; }
+
+    /** Get the current QR state. */
+    QRFSMState getQRState() { return qrState; }
+
+    /** Get the number of tiles the drone has searched to find the QR code. */
+    int getQRTilesSearched() { return qrTilesSearched; }
+
+    /** Get the autonomous controller's reference height. */
+    real_t getReferenceHeight() { return referenceHeight.z; }
+
     /**
      * Reset the autonomous controller to the IDLE_AIR state and set the
      * reference position to the given position.

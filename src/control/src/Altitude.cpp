@@ -37,13 +37,13 @@ void AltitudeController::clampControlSignal() {
         this->controlSignal.ut = -MARGINAL_SIGNAL_CLAMP;
 }
 
-void AltitudeController::init() {
+void AltitudeController::init(real_t correctedMeasurementHeight) {
 
     /* Reset the altitude controller. */
     this->controlSignal  = {};
     this->integralWindup = {};
-    this->stateEstimate  = {};
-    this->reference      = {};
+    this->stateEstimate  = {0.0, correctedMeasurementHeight, 0.0};
+    this->reference      = {correctedMeasurementHeight};
 }
 
 void AltitudeController::setReference(AltitudeReference reference) {

@@ -23,10 +23,10 @@
 const IMUFrequency IMU_FREQUENCY = IMUFrequency::FREQ_952_HZ;
 
 /* Maximum measurable angular velocity is 2000 deg/s. */
-const GyroMaxSpeed GYRO_MAX_SPEED = GyroMaxSpeed::SPEED_2000_DPS;
+const GyroMaxSpeed GYRO_MAX_SPEED = GyroMaxSpeed::SPEED_2000_DPS;   // TODO: 500
 
 /* Maximum measurable acceleration in 16 g. */
-const AccelMaxSpeed ACCEL_MAX_SPEED = AccelMaxSpeed::SPEED_16_G;
+const AccelMaxSpeed ACCEL_MAX_SPEED = AccelMaxSpeed::SPEED_16_G;    // TODO: 4 g
 
 /* Amount of samples to take to determine bias. */
 const float CALIBRATION_TIME = 3.0;
@@ -183,6 +183,7 @@ bool calibrateIMUStep() {
 
     /* Calculate LED shift factor and calibration samples. */
     int shiftFactor         = getIMUFactor(IMU_FREQUENCY);
+    IMU_FACTOR              = (float) getIMUFactor(IMU_FREQUENCY);
     int CALIBRATION_SAMPLES = getIMUValue(IMU_FREQUENCY) * CALIBRATION_TIME;
 
     /* Log start of calibration. */

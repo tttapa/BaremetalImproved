@@ -13,7 +13,7 @@
  * the "common motor". In steady state, this will converge to the hovering
  * thrust.
  */
-class InputBias {
+class BiasManager {
 
   private:
     /**
