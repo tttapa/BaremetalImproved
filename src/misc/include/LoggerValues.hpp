@@ -2,14 +2,10 @@
 
 /* Includes from src. */
 #include <BaremetalCommunicationDef.hpp>  ///< Position
-#include <ConfigurationManager.hpp>
-#include <ControllerInstances.hpp>
-#include <MiscInstances.hpp>
 #include <OutputTypes.hpp>  ///< MotorSignals
 #include <Quaternion.hpp>
 #include <RCValues.hpp>  ///< RC flight mode, pitch, roll, tuner, WPT mode, yaw
 #include <SensorTypes.hpp>  ///< AccelMeasurement, GyroMeasurement, IMUMeasurement
-#include <Time.hpp>
 #include <real_t.h>
 
 #pragma region Getters
