@@ -24,7 +24,7 @@ bool canStartAutonomousModeAir() {
 bool isAltitudeHoldModeEnabled() {
     return TEST_MODE == TestMode::TEST_ALTITUDE_HOLD ||  //
            TEST_MODE == TestMode::TEST_LOITERING ||      //
-           TEST_MODE == TestMode::TEST_NAVIGATING ||     //
+           TEST_MODE == TestMode::TEST_NAVIGATION ||     //
            TEST_MODE == TestMode::TEST_LANDING ||        //
            TEST_MODE == TestMode::TEST_TAKEOFF ||        //
            TEST_MODE == TestMode::DEMO;             //
@@ -33,8 +33,8 @@ bool isAltitudeHoldModeEnabled() {
 /** Get whether autonomous mode can be activated from the air. */
 bool isAutonomousAirEnabled() {
     return TEST_MODE == TestMode::TEST_LOITERING ||   //
-           TEST_MODE == TestMode::TEST_NAVIGATING ||  //
-           TEST_MODE == TestMode::TEST_NAVIGATING ||  //
+           TEST_MODE == TestMode::TEST_NAVIGATION ||  //
+           TEST_MODE == TestMode::TEST_NAVIGATION ||  //
            TEST_MODE == TestMode::TEST_LANDING ||     //
            TEST_MODE == TestMode::DEMO;
 }
@@ -48,7 +48,7 @@ bool isAutonomousGroundEnabled() {
 
 /** Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING. */
 bool isNavigatingEnabled() {
-    return TEST_MODE == TestMode::TEST_NAVIGATING ||  //
+    return TEST_MODE == TestMode::TEST_NAVIGATION ||  //
            TEST_MODE == TestMode::DEMO;
 }
 

@@ -33,7 +33,7 @@ enum TestMode {
      * mode. During this time, the drone will cycle through an array of
      * prespecified targets, navigating and converging on each one.
      */
-    TEST_NAVIGATING = 3,
+    TEST_NAVIGATION = 3,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated

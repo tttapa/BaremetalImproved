@@ -98,13 +98,17 @@ void mainOperation() {
     attitudeController.calculateJumpedQuaternions(yawJump);
 
     /**
+     * =========================================================================
      * ============================ READ MEASURMENTS ===========================
+     * =========================================================================
      * 
      * In the following code, the measurements from the RC, IMU/AHRS, sonar and
      * IMP will be read. Naturally, each tick the RC and AHRS will have a new
      * measurement. However, the sonar and IMP might not have sent a new value.
      * This is flagged by the booleans hasNewSonarMeasurement and hasNewIMPMeas-
      * urement.
+     * 
+     * =========================================================================
      */
     
 #pragma region Read measurements
@@ -145,10 +149,15 @@ void mainOperation() {
 #pragma endregion
 
     /**
+     * =========================================================================
      * ================================ MAIN FSM ===============================
+     * =========================================================================
      * 
-     * In the following code, the common thrust (uc) and the reference
-     * orientation will be calculated (refEul).
+     * In the following code, the common thrust (uc) and the reference orientat-
+     * ion (refEul) will be calculated based on the flight mode. Afterwards, the
+     * reference orientation will be passed to the attitude controller in order
+     * to calculate the transformed motor signals (uxyz). Then, uxyz and uc will
+     * be transformed to MotorSignals, which will be sent to the four ESCs.
      * 
      * MANUAL:        - uc comes from RC throttle
      *                - refEul comes from RC pitch, roll, yaw
@@ -161,6 +170,7 @@ void mainOperation() {
      *                - refEul comes from position controller, or is zero when
      *                  the autonomous drone is in its IDLE state.
      * 
+     * =========================================================================
      */
     EulerAngles refEul;
     static real_t uc;
@@ -168,13 +178,66 @@ void mainOperation() {
 
     /**
      * =========================================================================
+     * ========================= FLIGHT MODES & TESTING ========================
+     * =========================================================================
+     * 
+     * MANUAL flight mode is always enabled. However, ALTITUDE-HOLD mode and
+     * certain aspects of AUTONOMOUS mode can be disabled. This is useful for
+     * testing loitering, navigation, landing, etc. For more information about
+     * how test modes affect the BareMetal framework, see src/misc/TestMode.hpp.
+     * 
+     * Step 1: The ANC team should first set the drone to TEST_MANUAL mode. In
+     * this mode, only MANUAL mode is enabled: switching to any other mode has
+     * no effect.
+     * 
+     * Step 2: Once the attitude controller is working, then the drone to be set
+     * to TEST_ALTITUDE_HOLD mode. Now, if the pilot flips the flight mode
+     * switch to the middle position, the drone will attempt to keep its current
+     * altitude. The reference height can also be adjusted if the pilot raises
+     * the throttle above 80%, and it can be lowered if he lowers it below 20%.
+     * Flipping the flight mode switch to the final position has no effect.
+     * 
+     * Step 3: As soon as the altitude controller is well tuned, focus on
+     * getting real-time localisation to work! This is by far the hardest part
+     * of the project (trust me, I'm a former EAGLE member :p). While flying
+     * in MANUAL or ALTITUDE-HOLD mode, you can plot the measurement position of
+     * the drone. If the drone knows its position and doesn't jump squares, you
+     * are ready to test LOITERING mode.
+     * 
+     * Step 4: Finally, the last position of the switch can be used. Set the
+     * drone to TEST_LOITERING mode and switch to AUTONOMOUS mode when the drone
+     * is stable hovering in ALTITUDE-HOLD mode. This test mode will keep the
+     * autonomous controller in the LOITERING state indefinitely (until the
+     * pilot switches back to ALTITUDE-HOLD mode, of course). Use this test mode
+     * to fine tune your position controller.
+     * 
+     * Step 5: Verify the working of the autonomous navigation by setting the
+     * drone to TEST_NAVIGATION mode. The autonomous controller will first
+     * loiter for 15 seconds, then it will navigate to prespecified positions
+     * in a loop. If you have a good position controller, 
+     * 
+     * =========================================================================
+     * 
+    /* First, set the actual flight mode based on which tests are allowed to
+       be run. */
+    FlightMode flightMode = getFlightMode();
+    if(flightMode == A)
+
+
+    /**
+     * =========================================================================
      * =========================== MANUAL FLIGHT MODE ==========================
      * =========================================================================
      * 
-     * As mentioned above, uc will come directly from the RC throttle. The refe-
-     * rence roll and pitch will also come directly from the RC. The RC yaw will
-     * be used to control how fast the reference yaw changes.
+     * As mentioned above, uc comes directly from the RC throttle. The reference
+     * roll and pitch also come directly from the RC. The RC yaw will be used to
+     * control how fast the reference yaw changes.
      * 
+     * =========================================================================
+     * !!! MANUAL mode is always enabled. If the mode switches to ALTITUDE-  !!!
+     * !!! HOLD mode or AUTONOMOUS mode, but the altitude controller is not  !!!
+     * !!! ready to test (see src/misc/TestMode.hpp), then the  and it is disabled, then
+     * =========================================================================
      */
 
      if(getFlightMode() == FlightMode::MANUAL || //
