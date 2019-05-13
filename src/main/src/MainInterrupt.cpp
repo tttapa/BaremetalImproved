@@ -107,7 +107,7 @@ void mainOperation() {
     /* Read IMU measurement and update the AHRS. */
     // TODO: replace long function calls with e.g. readIMUAndUpdateAHRS();
     IMUMeasurement imuMeasurement = readIMU();
-    Quaternion ahrsQuat           = updateAHRS(imuMeasurement);
+    updateAHRS(imuMeasurement);
     Quaternion jumpedAhrsQuat     = getJumpedOrientation(yawJump);
 
     /* Read sonar measurement and correct it using the drone's orientation. */

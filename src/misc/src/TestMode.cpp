@@ -1,8 +1,8 @@
 #include <MiscInstances.hpp>
-#include <TestManager.hpp>
+#include <TestMode.hpp>
 
 /** Current test mode is MANUAL. */
-static const TestMode TEST_MODE = TestMode::MANUAL;
+static const TestMode TEST_MODE = TestMode::TEST_MANUAL;
 
 /** Get the drone's test mode. */
 TestMode getTestMode() { return TEST_MODE; }
@@ -22,41 +22,41 @@ bool canStartAutonomousModeAir() {
 
 /** Get whether switching to altitude mode is enabled. */
 bool isAltitudeHoldModeEnabled() {
-    return TEST_MODE == TestMode::ALTITUDE_HOLD ||  //
-           TEST_MODE == TestMode::LOITERING ||      //
-           TEST_MODE == TestMode::NAVIGATING ||     //
-           TEST_MODE == TestMode::LANDING ||        //
-           TEST_MODE == TestMode::TAKEOFF ||        //
+    return TEST_MODE == TestMode::TEST_ALTITUDE_HOLD ||  //
+           TEST_MODE == TestMode::TEST_LOITERING ||      //
+           TEST_MODE == TestMode::TEST_NAVIGATING ||     //
+           TEST_MODE == TestMode::TEST_LANDING ||        //
+           TEST_MODE == TestMode::TEST_TAKEOFF ||        //
            TEST_MODE == TestMode::DEMO;             //
 }
 
 /** Get whether autonomous mode can be activated from the air. */
 bool isAutonomousAirEnabled() {
-    return TEST_MODE == TestMode::LOITERING ||   //
-           TEST_MODE == TestMode::NAVIGATING ||  //
-           TEST_MODE == TestMode::NAVIGATING ||  //
-           TEST_MODE == TestMode::LANDING ||     //
+    return TEST_MODE == TestMode::TEST_LOITERING ||   //
+           TEST_MODE == TestMode::TEST_NAVIGATING ||  //
+           TEST_MODE == TestMode::TEST_NAVIGATING ||  //
+           TEST_MODE == TestMode::TEST_LANDING ||     //
            TEST_MODE == TestMode::DEMO;
 }
 
 /** Get whether autonomous mode can be activated from the ground. */
 bool isAutonomousGroundEnabled() {
-    return TEST_MODE == TestMode::PRETAKEOFF ||  //
-           TEST_MODE == TestMode::TAKEOFF ||     //
+    return TEST_MODE == TestMode::TEST_PRETAKEOFF ||  //
+           TEST_MODE == TestMode::TEST_TAKEOFF ||     //
            TEST_MODE == TestMode::DEMO;
 }
 
 /** Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING. */
 bool isNavigatingEnabled() {
-    return TEST_MODE == TestMode::NAVIGATING ||  //
+    return TEST_MODE == TestMode::TEST_NAVIGATING ||  //
            TEST_MODE == TestMode::DEMO;
 }
 
 /** Get whether the drone is able to land. */
 bool isLandingEnabled() {
-    return TEST_MODE == TestMode::LANDING ||  //
-           TEST_MODE == TestMode::DEMO;       // Remove this if you can't land!
+    return TEST_MODE == TestMode::TEST_LANDING ||  //
+           TEST_MODE == TestMode::DEMO;  // Remove this if you can't land!
 }
 
 /** Get whether the drone should switch from LOITERING to LANDING. */
-bool shouldLandAfterLoitering() { return TEST_MODE == TestMode::LANDING; }
+bool shouldLandAfterLoitering() { return TEST_MODE == TestMode::TEST_LANDING; }

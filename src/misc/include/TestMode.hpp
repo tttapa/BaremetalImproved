@@ -11,20 +11,20 @@ enum TestMode {
     /**
      * Only manual mode is enabled on the drone. Mode switching has no effect.
      */
-    MANUAL = 0,
+    TEST_MANUAL = 0,
 
     /**
      * Manual mode and altitude-hold mode are enabled. However, switching to
      * autonomous mode has no effect.
      */
-    ALTITUDE_HOLD = 1,
+    TEST_ALTITUDE_HOLD = 1,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
      * from the air and the drone will be stuck in the LOITERING state until the
      * pilot switches back to altitude-hold mode.
      */
-    LOITERING = 2,
+    TEST_LOITERING = 2,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
@@ -33,7 +33,7 @@ enum TestMode {
      * mode. During this time, the drone will cycle through an array of
      * prespecified targets, navigating and converging on each one.
      */
-    NAVIGATING = 3,
+    TEST_NAVIGATING = 3,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
@@ -41,7 +41,7 @@ enum TestMode {
      * the landing routine. It will remain in the IDLE_GROUND state until the
      * pilot switches back to altitude-hold mode.
      */
-    LANDING = 4,
+    TEST_LANDING = 4,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
@@ -49,7 +49,7 @@ enum TestMode {
      * maintain the signals that were sent in the last iteration of the pre-
      * takeoff routine until the pilot switches back to altitude-hold mode.
      */
-    PRETAKEOFF = 5,
+    TEST_PRETAKEOFF = 5,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
@@ -57,7 +57,7 @@ enum TestMode {
      * will perform the takeoff routine, and finally it will remain in LOITERING
      * until the pilot switches back to altitude-hold mode.
      */
-    TAKEOFF = 6,
+    TEST_TAKEOFF = 6,
 
     /**
      * All flight modes are active, and autonomous mode can be activated from

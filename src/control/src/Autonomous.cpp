@@ -244,7 +244,7 @@ void AutonomousController::updateQRFSM() {
 
             /* Tell the autonomous controller's FSM to start landing. */
             /* Switch this FSM to QR_IDLE. */
-            if (isQRLandingEnabled())
+            if (isLandingEnabled())
                 startLanding(false, {});
             else
                 setAutonomousState(LOITERING);
