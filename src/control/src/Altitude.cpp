@@ -23,11 +23,11 @@ static constexpr real_t MINIMUM_REFERENCE_HEIGHT = 0.25;
 /** The maximum speed of the reference height is 0.25 m/s. */
 static constexpr real_t RC_HEIGHT_REFERENCE_MAX_SPEED = 0.25;
 
-/** The threshold to start decreasing the reference height is 0.25. */
-static constexpr real_t RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.25;
+/** The threshold to start decreasing the reference height is 0.20. */
+static constexpr real_t RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.20;
 
-/** The threshold to start increasing the reference height is 0.75. */
-static constexpr real_t RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.75;
+/** The threshold to start increasing the reference height is 0.80. */
+static constexpr real_t RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.80;
 #pragma endregion
 
 void AltitudeController::clampControlSignal() {

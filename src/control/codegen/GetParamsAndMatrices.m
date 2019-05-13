@@ -56,7 +56,7 @@ s.att.lqr.Q = diag([139.6245112700232,139.6245112700232,15.2811761590895,...
 s.att.lqr.R = 24.0*diag([1,1,1]);
 s.att.lqr.K = -dlqr(s.att.Ad_r, s.att.Bd_r, s.att.lqr.Q, s.att.lqr.R);
 s.att.lqi.max_integral = 0.25;      % ~ 5-10 seconds for full windup without propellors
-s.att.lqi.I = diag([0.1, 0.1, 0]);  % Max integral action = 0.1*0.25 = 0.025
+s.att.lqi.I = diag([0,0,0]); %diag([0.1, 0.1, 0]);  % Max integral action = 0.1*0.25 = 0.025
 s.att.lqi.K = [s.att.lqr.K, s.att.lqi.I];
 
 % Kalman:
@@ -108,7 +108,7 @@ s.alt.lqr.Q = diag([1e-6, 0.8, 0.5]);
 s.alt.lqr.R = diag([30]);
 s.alt.lqr.K = -dlqr(s.alt.Ad, s.alt.Bd, s.alt.lqr.Q, s.alt.lqr.R);
 s.alt.lqi.max_integral = 5;         % ~ 5-10 seconds for full windup without propellors
-s.alt.lqi.I = 0.004;                % Max integral action = 0.004*5 = 0.02
+s.alt.lqi.I = 0; %0.004;                % Max integral action = 0.004*5 = 0.02
 s.alt.lqi.K = [s.alt.lqr.K, s.alt.lqi.I];
 
 % TODO: altitude tuning
@@ -171,10 +171,10 @@ s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
 
 % TODO: choose best LQR from configurations
 s.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s.pos.lqr.R = 1000.0*eye(2);
+s.pos.lqr.R = 1.5*200.0*eye(2);
 s.pos.lqr.K = -dlqr(s.pos.Ad, s.pos.Bd, s.pos.lqr.Q, s.pos.lqr.R);
 s.pos.lqi.max_integral = 20;        % ~ 10-15 seconds for full windup without propellors
-s.pos.lqi.I = 0.001*[0,-1;1,0];     % Max integral action = 0.001*20 = 0.02
+s.pos.lqi.I = diag([0,0]); %0.001*[0,-1;1,0];     % Max integral action = 0.001*20 = 0.02
 s.pos.lqi.K = [s.pos.lqr.K, s.pos.lqi.I];
 
 
