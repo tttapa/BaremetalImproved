@@ -2,7 +2,7 @@
 #include <TestMode.hpp>
 
 /** Current test mode is MANUAL. */
-static const TestMode TEST_MODE = TestMode::TEST_MANUAL;
+static const TestMode TEST_MODE = TestMode::TEST_LOITERING;
 
 /** Get the drone's test mode. */
 TestMode getTestMode() { return TEST_MODE; }
