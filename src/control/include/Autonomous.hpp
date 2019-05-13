@@ -57,29 +57,26 @@ enum AutonomousState {
     /** The drone is inactive on the ground. */
     IDLE_GROUND = 0,
 
-    /** The drone is airborne, but the autonomous mode has not been started. */
-    IDLE_AIR = 1,
-
     /** The drone is starting up the motors to prepare for takeoff. */
-    PRE_TAKEOFF = 2,
+    PRE_TAKEOFF = 1,
 
     /** The drone is taking off in autonomous mode. */
-    TAKEOFF = 3,
+    TAKEOFF = 2,
 
     /** The drone is attempting to hold its (x,y,z) position for 15 seconds. */
-    LOITERING = 4,
+    LOITERING = 3,
 
     /** The drone is converging on its next destination. */
-    CONVERGING = 5,
+    CONVERGING = 4,
 
     /** The drone is navigating to its next destination. */
-    NAVIGATING = 6,
+    NAVIGATING = 5,
 
     /** The drone has received the "landing flag" and is attempting to land. */
-    LANDING = 7,
+    LANDING = 6,
 
     /** The drone has activated the Wireless Power Transfer (WPT). */
-    WPT = 8,
+    WPT = 7,
 
     /**
      * The drone has received a bad measurement or has not received any position
@@ -123,6 +120,9 @@ class AutonomousController {
 
     /** Time that the autonomous controller entered its current state. */
     real_t autonomousStateStartTime = 0.0;
+
+    /** Has the autonomous controller received a QR_LAND instruction. */
+    bool hasReceivedQRLandInstruction = false;
 
     /** Estimated time to navigate from previous target to next target. */
     real_t navigationTime = 0.0;

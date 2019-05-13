@@ -9,6 +9,7 @@
 #include <MiscInstances.hpp>
 #include <RCValues.hpp>
 #include <SharedMemoryInstances.hpp>
+#include <TestMode.hpp>
 #include <TiltCorrection.hpp>
 #include <Time.hpp>
 
@@ -118,7 +119,7 @@ void mainOperation() {
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
     Position positionMeasurementBlocks, positionMeasurement;
-    static Position correctedPositionMeasurement;
+    static Position correctedPositionMeasurement = {0.5, 0.5};
     real_t yawMeasurement;
     bool hasNewIMPMeasurement = false;
     if (visionComm->isDoneWriting()) {
@@ -136,140 +137,134 @@ void mainOperation() {
     }
 #pragma endregion
 
-    /* Implement main FSM logic. The transformed motor signals will be
-       calculated based on the current flight mode, the measurements and the
-       current state of the controllers. */
-    switch (getFlightMode()) {
-        case FlightMode::MANUAL:
-#pragma region Manual mode
-        {
-            /* Check whether the drone should be armed or disarmed. This should
-               only occur in manual mode. */
-            armedManager.update();
+    /* Calculate the reference orientation and common thrust based on the
+       current state of the main FSM and the sensor inputs. */
+    if (getFlightMode() == FlightMode::AUTONOMOUS &&
+        (canStartAutonomousModeAir() || canStartAutonomousModeGround())) {
 
-            /* Start gradual thrust change if last mode was altitude hold. */
-            //if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
-            //    gtcManager.start(uc); // Previous value of uc...
-
-            /* Common thrust comes directly from the RC, but leave margin. */
-            if (getThrottle() < 0.01) {
-                uc = 0.0;
-                attitudeController.init(); /* Reset attitude observer. */
-                resetAHRSOrientation();    /* Reset AHRS to [1000]. */
-            } else if (getThrottle() <= MAX_THROTTLE) {
-                uc = getThrottle();
-            } else {
-                uc = MAX_THROTTLE;
-            }
-
-            /* Update the attitude controller's reference using the RC. */
-            attitudeController.updateRCReference();
-
-            /* Calculate the torque motor signals. */
-            uxyz = attitudeController.updateControlSignal(uc);
-        }
-#pragma endregion
-        break;
-
-        case FlightMode::ALTITUDE_HOLD:
-#pragma region Altitude - hold mode
-        {
-            /* Initialize altitude controller if we switch from manual mode. */
-            if (previousFlightMode == FlightMode::MANUAL)
-                altitudeController.init(correctedSonarMeasurement);
-
-            /* Update the attitude controller's reference using the RC. */
-            attitudeController.updateRCReference();
-
-            /* Update the altitude controller's reference using the RC. */
-            altitudeController.updateRCReference();
-
-            /* Update the altitude controller's signal at sonar frequency. */
-            if (hasNewSonarMeasurement)
-                uc = biasManager.getThrustBias() +
-                     altitudeController.updateControlSignal().ut;
-
-            /* Calculate the torque motor signals. */
-            uxyz = attitudeController.updateControlSignal(uc);
-        }
-#pragma endregion
-        break;
-
-        case FlightMode::AUTONOMOUS:
 #pragma region Autonomous mode
-        {
-            // TODO: when should we initGround or initAir?
-            if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
-                autonomousController.initAir(Position{0.5, 0.5},
-                                             correctedSonarMeasurement);
+        // TODO: improve this with file
+        if (canStartAutonomousModeAir())
+            autonomousController.initAir(correctedPositionMeasurement,
+                                         correctedSonarMeasurement);
+        else
+            autonomousController.initGround(correctedPositionMeasurement);
 
-            /* Update autonomous controller using most recent position. */
-            AutonomousOutput output =
-                autonomousController.update(correctedPositionMeasurement);
+        /* Update autonomous controller using most recent position. */
+        AutonomousOutput output =
+            autonomousController.update(correctedPositionMeasurement);
 
-            /* Calculate common thrust. */
-            if (output.bypassAltitudeController) {
-                uc = output.commonThrust;
-            } else {
-                altitudeController.setReference(output.referenceHeight);
-                uc = biasManager.getThrustBias() +
-                     altitudeController.updateControlSignal().ut;
+        //=========================== COMMON THRUST ==========================//
+
+        if (output.bypassAltitudeController) {
+            uc = output.commonThrust;
+        } else {
+            altitudeController.setReference(output.referenceHeight);
+            uc = biasManager.getThrustBias() +
+                 altitudeController.updateControlSignal().ut;
+        }
+
+        //======================= REFERENCE ORIENTATION ======================//
+
+        // TODO: if yaw turns, this should be different?
+        static PositionControlSignal q12ref;
+        if (output.updatePositionController) {
+            /* Blind position controller @ IMU frequency. */
+            if (output.trustAccelerometerForPosition) {
+                positionController.updateObserverBlind(
+                    attitudeController.getOrientationQuat());
+                q12ref = positionController.updateControlSignalBlind(
+                    output.referencePosition);
+            }
+            /* Normal position controller @ IMP frequency. */
+            else if (hasNewIMPMeasurement) {
+                positionController.updateObserver(
+                    attitudeController.getOrientationQuat(),
+                    correctedPositionMeasurement);
+                q12ref = positionController.updateControlSignal(
+                    output.referencePosition);
             }
 
-            /* Calculate reference orientation. */
-            // TODO: if yaw turns, this should be different?
-            static PositionControlSignal q12ref;
-            if (output.updatePositionController) {
-                /* Blind position controller @ IMU frequency. */
-                if (output.trustAccelerometerForPosition) {
-                    positionController.updateObserverBlind(
-                        attitudeController.getOrientationQuat());
-                    q12ref = positionController.updateControlSignalBlind(
-                        output.referencePosition);
-                }
-                /* Normal position controller @ IMP frequency. */
-                else if (hasNewIMPMeasurement) {
-                    positionController.updateObserver(
-                        attitudeController.getOrientationQuat(),
-                        correctedPositionMeasurement);
-                    q12ref = positionController.updateControlSignal(
-                        output.referencePosition);
-                }
-                /* Normal position controller should hold its previous control
+            /* Normal position controller should hold its previous control
                    signal while IMP has not sent a new measurement. */
-                else {
-                }
-            } else {
-                /* Keep reference upright if we're not supposed to update. */
-                q12ref = {0.0, 0.0};
-            }
 
-            /* Set the attitude controller's reference orientation. We should
+        } else {
+            /* Keep reference upright if we're not supposed to update. */
+            q12ref = {0.0, 0.0};
+        }
+
+        /* Set the attitude controller's reference orientation. We should
                add the input bias in order to center the position controller's
                control signal about the equilibrium. */
-            Quaternion quatInputBias = EulerAngles::eul2quat({
-                0.0,
-                biasManager.getPitchBias(),
-                biasManager.getRollBias(),
-            });
-            real_t q1                = q12ref.q1ref;
-            real_t q2                = q12ref.q2ref;
-            real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
-            Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
-            attitudeController.setReferenceEuler(quatQ12Ref + quatInputBias);
+        Quaternion quatInputBias = EulerAngles::eul2quat({
+            0.0,
+            biasManager.getPitchBias(),
+            biasManager.getRollBias(),
+        });
+        real_t q1                = q12ref.q1ref;
+        real_t q2                = q12ref.q2ref;
+        real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
+        Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
+        attitudeController.setReferenceEuler(quatQ12Ref + quatInputBias);
 
-            /* Calculate the torque motor signals. */
-            uxyz = attitudeController.updateControlSignal(uc);
-        }
 #pragma endregion
-        break;
 
-        default:
-            /* We will never get here because readRC() cannot return an
-            uninitialized flight mode. The compiler requires this, though. */
-            uxyz = {0, 0, 0};
-            uc   = 0.0;
-            break;
+    } else if (canStartAltitudeHoldMode() &&
+               getFlightMode() == FlightMode::ALTITUDE_HOLD) {
+
+#pragma region Altitude - hold mode
+        /* Initialize altitude controller to track the current corrected sonar
+           measurement if we switch from manual mode. */
+        if (previousFlightMode == FlightMode::MANUAL)
+            altitudeController.init(correctedSonarMeasurement);
+
+        /* Update the altitude controller's reference using the RC. */
+        altitudeController.updateRCReference();
+
+        //=========================== COMMON THRUST ==========================//
+
+        /* Update the altitude controller's signal at sonar frequency. */
+        if (hasNewSonarMeasurement)
+            uc = biasManager.getThrustBias() +
+                 altitudeController.updateControlSignal().ut;
+
+        //======================= REFERENCE ORIENTATION ======================//
+
+        /* Update the attitude controller's reference using the RC. */
+        attitudeController.updateRCReference();
+
+#pragma endregion
+
+    } else {
+
+#pragma region Manual mode
+        /* Check whether the drone should be armed or disarmed. This should
+               only occur in manual mode. */
+        armedManager.update();
+
+        /* Start gradual thrust change if last mode was altitude hold. */
+        //if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
+        //    gtcManager.start(uc); // Previous value of uc...
+
+        //=========================== COMMON THRUST ==========================//
+
+        /* Common thrust comes directly from the RC, but leave margin. */
+        if (getThrottle() < 0.01) {
+            uc = 0.0;
+            attitudeController.init(); /* Reset attitude observer. */
+            resetAHRSOrientation();    /* Reset AHRS to [1000]. */
+        } else if (getThrottle() <= MAX_THROTTLE) {
+            uc = getThrottle();
+        } else {
+            uc = MAX_THROTTLE;
+        }
+
+        //======================= REFERENCE ORIENTATION ======================//
+
+        /* Update the attitude controller's reference using the RC. */
+        attitudeController.updateRCReference();
+
+#pragma endregion
     }
 
 #pragma region Final thrust corrections(ESC, GTC, Calibration)
@@ -291,6 +286,10 @@ void mainOperation() {
             uc = 0.0;
     }
 #pragma endregion
+
+    /* Calculate the torque motor signals. The attitude controller's reference
+       orientation has already been updated in the code above. */
+    uxyz = attitudeController.updateControlSignal(uc);
 
     /* Transform the motor signals and output to the motors. */
     MotorSignals motorSignals = transformAttitudeControlSignal(uxyz, uc);
@@ -345,7 +344,8 @@ void mainOperation() {
     logEntry.setReferenceLocation(
         toCppArray(positionController.getReferencePosition()));
     logEntry.setMeasurementOrientation(toCppArray(ahrsQuat));
-    logEntry.setMeasurementAngularVelocity(toCppArray(GyroMeasurement{imuMeasurement}));
+    logEntry.setMeasurementAngularVelocity(
+        toCppArray(GyroMeasurement{imuMeasurement}));
     logEntry.setMeasurementHeight(correctedSonarMeasurement);
     logEntry.setMeasurementLocation(toCppArray(correctedPositionMeasurement));
     logEntry.setAttitudeObserverState(
@@ -426,8 +426,7 @@ template <class ArrayElementType = float, class StructType = void>
 static const ArrayElementType (&toCppArray(
     const StructType &data))[sizeof(StructType) / sizeof(ArrayElementType)] {
     static_assert(sizeof(StructType) % sizeof(ArrayElementType) == 0);
-    return reinterpret_cast<const
-        ArrayElementType(&)[sizeof(StructType) / sizeof(ArrayElementType)]>(
-        data);
+    return reinterpret_cast<const ArrayElementType(
+            &)[sizeof(StructType) / sizeof(ArrayElementType)]>(data);
 }
 #pragma endregion

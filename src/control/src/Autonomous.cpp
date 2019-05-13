@@ -2,11 +2,12 @@
 
 /* Includes from src. */
 #include <BiasManager.hpp>
-#include <ControllerInstances.hpp> ///< PositionController correctPosition if drone gets lost during navigation
+#include <ControllerInstances.hpp>  ///< PositionController correctPosition if drone gets lost during navigation
 #include <MiscInstances.hpp>  ///< ESCStartupScript instance
 #include <Position.hpp>
 #include <RCValues.hpp>
 #include <SharedMemoryInstances.hpp>
+#include <TestMode.hpp>
 #include <Time.hpp>
 
 /* Includes from src-vivado. */
@@ -237,12 +238,17 @@ void AutonomousController::updateQRFSM() {
             break;
         case QRFSMState::LAND:
             /* Reset error count and search count. */
-            this->qrErrorCount    = 0;
-            this->qrTilesSearched = 0;
+            this->qrErrorCount                 = 0;
+            this->qrTilesSearched              = 0;
+            this->hasReceivedQRLandInstruction = true;
 
             /* Tell the autonomous controller's FSM to start landing. */
             /* Switch this FSM to QR_IDLE. */
-            startLanding(false, {});
+            if (isQRLandingEnabled())
+                startLanding(false, {});
+            else
+                setAutonomousState(LOITERING);
+
             qrComm->setQRStateIdle();
             break;
         case QRFSMState::QR_UNKNOWN:
@@ -285,6 +291,7 @@ void AutonomousController::updateQRFSM() {
                 /* We've run out of tiles to search, so have the drone land. */
                 /* Switch this FSM to QR_IDLE. */
                 else {
+                    // TODO: fix this, we shouldn't land if not enabled
                     startLanding(false, {});
                     qrComm->setQRStateIdle();
                 }
@@ -307,7 +314,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
      * ============================ AUTONOMOUS FSM ============================
      * -------------- START ------------- | -------------- ERROR --------------
      * Idle_Ground: if drone is grounded  | Takeoff Stage 2 -> Error
-     * Idle_Air: if drone is airborne     | Loitering -> Error
+     * Loitering: if drone is airborne    | Loitering -> Error
      *                                    | Converging -> Error
      * ----------- MAIN CYCLE ----------- | Navigating -> Error
      * Idle_Ground -> Pre_Takeoff         | Landing Stage 1 -> Error
@@ -319,7 +326,6 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
      * Landing -> Idle                    |
      *                                    |
      * -------- MID-FLIGHT CYCLE -------- |
-     * Idle_Air -> Loitering              |
      * Loitering -> Converging            |
      * Converging <-> Navigating          |
      * Converging -> Landing              |
@@ -347,13 +353,6 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
             updatePositionController = false;
             if (getThrottle() > TAKEOFF_THROTTLE)
                 setAutonomousState(PRE_TAKEOFF);
-            break;
-
-        case IDLE_AIR:  // TODO: remove this state!
-            /* Instruction: hover at (position, height) = (nextTarget,
-                            referenceHeight) which are both set in initAir().
-               Switch to LOITERING. */
-            setAutonomousState(LOITERING);
             break;
 
         case PRE_TAKEOFF:
@@ -389,10 +388,15 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                             referenceHeight).
                Switch to LANDING: if the pilot lowers the throttle enough.
                Switch to CONVERGING: when timer expires. */
-            if (getThrottle() <= LANDING_THROTTLE)
+            if (getThrottle() <= LANDING_THROTTLE && isLandingEnabled())
                 startLanding(true, currentPosition);
-            if (getElapsedTime() > LOITER_DURATION)
-                setAutonomousState(CONVERGING);
+            if (getElapsedTime() > LOITER_DURATION) {
+                if (shouldLandAfterLoitering())
+                    startLanding(true, currentPosition);
+                else if (isNavigatingEnabled())
+                    setAutonomousState(CONVERGING);
+                /* Stay in LOITERING otherwise. */
+            }
             break;
 
         case CONVERGING:
@@ -402,7 +406,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                Switch to LANDING: if the pilot lowers the throttle enough.
                Switch to NAVIGATING: if QR FSM tells us to.
                Switch to LANDING: if QR FSM tells us to. */
-            if (getThrottle() <= LANDING_THROTTLE)
+            if (getThrottle() <= LANDING_THROTTLE && isLandingEnabled())
                 startLanding(true, currentPosition);
             if (distsq(this->nextTarget, currentPosition) >
                 CONVERGENCE_DISTANCE * CONVERGENCE_DISTANCE)
@@ -414,7 +418,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                             referenceHeight).
                Switch to LANDING: if the pilot lowers the throttle enough.
                Switch to CONVERGING: when timer expires. */
-            if (getThrottle() <= LANDING_THROTTLE)
+            if (getThrottle() <= LANDING_THROTTLE && isLandingEnabled())
                 startLanding(true, currentPosition);
             if (getElapsedTime() <= this->navigationTime) {
                 dx = (nextTarget.x - previousTarget.x) * getElapsedTime() /
@@ -472,7 +476,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
 void AutonomousController::initAir(Position currentPosition,
                                    AltitudeReference referenceHeight) {
-    this->autonomousState          = IDLE_AIR;
+    this->autonomousState          = LOITERING;
     this->autonomousStateStartTime = getTime();
     this->previousTarget           = currentPosition;
     this->nextTarget               = currentPosition;

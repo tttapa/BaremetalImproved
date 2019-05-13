@@ -8,7 +8,7 @@ add_library(misc
     src/GradualThrustChangeManager.cpp
     src/LoggerValues.cpp
     src/RCValues.cpp
-    src/TestManager.cpp
+    src/TestMode.cpp
 )
 
 # Set target include directories 
@@ -69,5 +69,5 @@ FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GradualThrustChangeManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/LoggerValues.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/RCValues.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/TestManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/TestMode.hpp
 DESTINATION include)
