@@ -88,9 +88,6 @@ void mainOperation() {
     /* Previous flight mode initialized when the function is first called. */
     static FlightMode previousFlightMode = FlightMode::UNINITIALIZED;
 
-    /* Values to be calculated each iteration. */
-    AttitudeControlSignal uxyz;
-    static real_t uc;
 
     /* Keep the attitude controller's state estimate near the unit quaternion
        [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
@@ -100,6 +97,16 @@ void mainOperation() {
         calculateYawJump(attitudeController.getOrientationEuler().yaw);
     attitudeController.calculateJumpedQuaternions(yawJump);
 
+    /**
+     * ============================ READ MEASURMENTS ===========================
+     * 
+     * In the following code, the measurements from the RC, IMU/AHRS, sonar and
+     * IMP will be read. Naturally, each tick the RC and AHRS will have a new
+     * measurement. However, the sonar and IMP might not have sent a new value.
+     * This is flagged by the booleans hasNewSonarMeasurement and hasNewIMPMeas-
+     * urement.
+     */
+    
 #pragma region Read measurements
     /* Read RC data and update the global struct. */
     setRCInput(readRC());
@@ -136,6 +143,74 @@ void mainOperation() {
             correctedPosition[1]};  // TODO: adapter function
     }
 #pragma endregion
+
+    /**
+     * ================================ MAIN FSM ===============================
+     * 
+     * In the following code, the common thrust (uc) and the reference
+     * orientation will be calculated (refEul).
+     * 
+     * MANUAL:        - uc comes from RC throttle
+     *                - refEul comes from RC pitch, roll, yaw
+     * 
+     * ALTITUDE-HOLD: - uc comes from the altitude controller
+     *                - refEul comes from RC pitch, roll, yaw
+     * 
+     * AUTONOMOUS:    - uc comes from altitude controller or thrust is
+     *                  overridden in blind stages of takeoff/landing
+     *                - refEul comes from position controller, or is zero when
+     *                  the autonomous drone is in its IDLE state.
+     * 
+     */
+    EulerAngles refEul;
+    static real_t uc;
+
+
+    /**
+     * =========================================================================
+     * =========================== MANUAL FLIGHT MODE ==========================
+     * =========================================================================
+     * 
+     * As mentioned above, uc will come directly from the RC throttle. The refe-
+     * rence roll and pitch will also come directly from the RC. The RC yaw will
+     * be used to control how fast the reference yaw changes.
+     * 
+     */
+
+     if(getFlightMode() == FlightMode::MANUAL || //
+        (getFlightMode() == FlightMode::ALTITUDE_HOLD && !isAltitudeHoldModeEnabled()) ||
+        (getFlightMode() == FlightMode::AUTONOMOUS &&)
+
+#pragma region Manual mode
+        /* Check whether the drone should be armed or disarmed. This should
+               only occur in manual mode. */
+        armedManager.update();
+
+        /* Start gradual thrust change if last mode was altitude hold. */
+        //if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
+        //    gtcManager.start(uc); // Previous value of uc...
+
+        //=========================== COMMON THRUST ==========================//
+
+        /* Common thrust comes directly from the RC, but leave margin. */
+        if (getThrottle() < 0.01) {
+            uc = 0.0;
+            attitudeController.init(); /* Reset attitude observer. */
+            resetAHRSOrientation();    /* Reset AHRS to [1000]. */
+        } else if (getThrottle() <= MAX_THROTTLE) {
+            uc = getThrottle();
+        } else {
+            uc = MAX_THROTTLE;
+        }
+
+        //======================= REFERENCE ORIENTATION ======================//
+
+        /* Update the attitude controller's reference using the RC. */
+        attitudeController.updateRCReference();
+
+#pragma endregion
+    }
+
 
     /* Calculate the reference orientation and common thrust based on the
        current state of the main FSM and the sensor inputs. */
@@ -235,36 +310,6 @@ void mainOperation() {
 
 #pragma endregion
 
-    } else {
-
-#pragma region Manual mode
-        /* Check whether the drone should be armed or disarmed. This should
-               only occur in manual mode. */
-        armedManager.update();
-
-        /* Start gradual thrust change if last mode was altitude hold. */
-        //if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
-        //    gtcManager.start(uc); // Previous value of uc...
-
-        //=========================== COMMON THRUST ==========================//
-
-        /* Common thrust comes directly from the RC, but leave margin. */
-        if (getThrottle() < 0.01) {
-            uc = 0.0;
-            attitudeController.init(); /* Reset attitude observer. */
-            resetAHRSOrientation();    /* Reset AHRS to [1000]. */
-        } else if (getThrottle() <= MAX_THROTTLE) {
-            uc = getThrottle();
-        } else {
-            uc = MAX_THROTTLE;
-        }
-
-        //======================= REFERENCE ORIENTATION ======================//
-
-        /* Update the attitude controller's reference using the RC. */
-        attitudeController.updateRCReference();
-
-#pragma endregion
     }
 
 #pragma region Final thrust corrections(ESC, GTC, Calibration)
@@ -289,7 +334,7 @@ void mainOperation() {
 
     /* Calculate the torque motor signals. The attitude controller's reference
        orientation has already been updated in the code above. */
-    uxyz = attitudeController.updateControlSignal(uc);
+    AttitudeControlSignal uxyz = attitudeController.updateControlSignal(uc);
 
     /* Transform the motor signals and output to the motors. */
     MotorSignals motorSignals = transformAttitudeControlSignal(uxyz, uc);
