@@ -390,7 +390,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                Switch to CONVERGING: when timer expires. */
             if (getThrottle() <= LANDING_THROTTLE && isLandingEnabled())
                 startLanding(true, currentPosition);
-            if (getElapsedTime() > LOITER_DURATION) {
+            else if (getElapsedTime() > LOITER_DURATION) {
                 if (shouldLandAfterLoitering())
                     startLanding(true, currentPosition);
                 else if (isNavigatingEnabled())

@@ -314,7 +314,7 @@ class PositionController {
     /**
      * Reset the position controller.
      */
-    void init();
+    void init(Position currentPosition);
 
     /**
      * Update the position controller with the given reference position. This

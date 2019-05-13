@@ -9,8 +9,8 @@
 #include <sensors/IMU.hpp>
 
 // TODO: comments
-EulerAngles getOrientationEuler();
-Quaternion getOrientationQuat();
+EulerAngles getAHRSOrientationEuler();
+Quaternion getAHRSOrientationQuat();
 void resetAHRSOrientation();
 
 /**
@@ -23,7 +23,7 @@ void resetAHRSOrientation();
  * @return  The quaternion representation of the orientation rotated by the
  *          given yaw "jump".
  */
-Quaternion getJumpedOrientation(float yawJumpToAdd);
+Quaternion getAHRSJumpedOrientation(float yawJumpToAdd);
 
 /**
  * Initialize the Attitude and Heading Reference System using the initial IMU measurement.

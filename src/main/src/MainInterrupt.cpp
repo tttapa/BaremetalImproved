@@ -92,14 +92,6 @@ void mainOperation() {
     AttitudeControlSignal uxyz;
     static real_t uc;
 
-    /* Keep the attitude controller's state estimate near the unit quaternion
-       [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
-       passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
-       versa. */
-    real_t yawJump =
-        calculateYawJump(attitudeController.getOrientationEuler().yaw);
-    attitudeController.calculateJumpedQuaternions(yawJump);
-
 #pragma region Read measurements
     /* Read RC data and update the global struct. */
     setRCInput(readRC());
@@ -108,7 +100,6 @@ void mainOperation() {
     // TODO: replace long function calls with e.g. readIMUAndUpdateAHRS();
     IMUMeasurement imuMeasurement = readIMU();
     Quaternion ahrsQuat           = updateAHRS(imuMeasurement);
-    Quaternion jumpedAhrsQuat     = getJumpedOrientation(yawJump);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement      = readSonar();
@@ -150,6 +141,7 @@ void mainOperation() {
                                              correctedSonarMeasurement);
             else
                 autonomousController.initGround(correctedPositionMeasurement);
+            positionController.init(correctedPositionMeasurement);
         }
 
         /* Update autonomous controller using most recent position. */
@@ -207,7 +199,7 @@ void mainOperation() {
         real_t q2                = q12ref.q2ref;
         real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
-        attitudeController.setReferenceEuler(quatQ12Ref + quatInputBias);
+        attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
 
 #pragma endregion
 
@@ -289,6 +281,14 @@ void mainOperation() {
     }
 #pragma endregion
 
+    /* Keep the attitude controller's state estimate near the unit quaternion
+       [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
+       passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
+       versa. */
+    real_t yawJump =
+        calculateYawJump(attitudeController.getOrientationEuler().yaw);
+    attitudeController.calculateJumpedQuaternions(yawJump);
+
     /* Calculate the torque motor signals. The attitude controller's reference
        orientation has already been updated in the code above. */
     uxyz = attitudeController.updateControlSignal(uc);
@@ -299,6 +299,7 @@ void mainOperation() {
         outputMotorPWM(motorSignals);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
+    Quaternion jumpedAhrsQuat = getAHRSJumpedOrientation(yawJump);
     attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gx,
                                        imuMeasurement.gy, imuMeasurement.gz},
                                       yawJump);
