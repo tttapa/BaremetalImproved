@@ -1,6 +1,9 @@
 #include <logger.drone.hpp>
 
 #include <LoggerValues.hpp>
+#include <Time.hpp>
+#include <ControllerInstances.hpp>
+#include <MiscInstances.hpp>
 
 /**
  * @brief   Rather sketchy conversion from a struct of primitives of the same
@@ -78,7 +81,7 @@ LogEntry getLogData() {
     logEntry.setPositionControlSignal(toCppArray(positionController.getControlSignal()));
     logEntry.setMotorControlSignals(toCppArray(getMotorSignals()));
     logEntry.setCommonThrust(getCommonThrust());
-    logEntry.setHoverThrust(inputBias.getThrustBias());
+    logEntry.setHoverThrust(biasManager.getThrustBias());
 
     return logEntry;
 }

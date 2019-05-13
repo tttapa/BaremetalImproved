@@ -64,8 +64,10 @@ void ConfigurationManager::updateConfig() {
 
     /* Only do configuration if we're in the changing zone. */
     if (tunerValue < CONFIG_UPPER_THRESHOLD &&
-        tunerValue > CONFIG_LOWER_THRESHOLD)
+        tunerValue > CONFIG_LOWER_THRESHOLD) {
+        this->isWaitingForConfigurationChange = false;
         return;
+    }
 
     /* Only do configuration if the buzzer is not busy. */
     if (buzzerManager.isInstructionBusy())

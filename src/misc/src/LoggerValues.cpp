@@ -5,12 +5,12 @@
 static Quaternion ahrsQuat;
 
 /** Current value of the common thrust. */
-real_t commonThrust;
+static real_t commonThrust;
 
-/** Current value of the corrected position measurement. */
+/** Current value of the corrected position measurement in meters. */
 static Position correctedPositionMeasurement;
 
-/** Current value of the corrected sonar measurement. */
+/** Current value of the corrected sonar measurement in meters. */
 static real_t correctedSonarMeasurement;
 
 /** Current value of the IMU measurement (gyro + accel). */
@@ -20,15 +20,18 @@ static IMUMeasurement imuMeasurement;
 static Quaternion jumpedAhrsQuat;
 
 /** Current duty cycles sent to the 4 ESCs. */
-MotorSignals motorSignals;
+static MotorSignals motorSignals;
 
-/** Current value of the position measurement. */
+/** Current value of the position measurement in meters. */
 static Position positionMeasurement;
 
-/** Current value of the sonar measurement. */
+/** Current value of the position measurement in blocks. */
+static Position positionMeasurementBlocks;
+
+/** Current value of the sonar measurement in meters. */
 static real_t sonarMeasurement;
 
-/** Current value of the yaw measurement. */
+/** Current value of the yaw measurement in radians. */
 static real_t yawMeasurement;
 
 /** Current value of the yaw jump in radians. */
@@ -60,13 +63,15 @@ Quaternion getJumpedAHRSQuat() { return jumpedAhrsQuat; }
 
 MotorSignals getMotorSignals() { return motorSignals; }
 
+Position getPositionMeasurement() { return positionMeasurement; }
+
+Position getPositionMeasurementBlocks() { return positionMeasurementBlocks; }
+
 real_t getSonarMeasurement() { return sonarMeasurement; }
 
 real_t getYawJump() { return yawJump; }
 
 real_t getYawMeasurement() { return yawMeasurement; }
-
-Position getPositionMeasurement() { return positionMeasurement; }
 #pragma endregion
 
 #pragma region Setters
@@ -89,6 +94,10 @@ void setJumpedAHRSQuat(Quaternion value) { jumpedAhrsQuat = value; }
 void setMotorSignals(MotorSignals value) { motorSignals = value; }
 
 void setPositionMeasurement(Position value) { positionMeasurement = value; }
+
+void setPositionMeasurementBlocks(Position value) {
+    positionMeasurementBlocks = value;
+}
 
 void setSonarMeasurement(real_t value) { sonarMeasurement = value; }
 

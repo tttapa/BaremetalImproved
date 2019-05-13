@@ -168,9 +168,10 @@ class AltitudeController {
     AltitudeState getStateEstimate() { return this->stateEstimate; }
 
     /**
-     * Reset the altitude controller.
+     * Reset the altitude controller. Set the estimate height and the reference
+     * height to the given height.
      */
-    void init();
+    void init(real_t correctedSonarMeasurement);
 
     /**
      * Set the altitude controller's reference height.

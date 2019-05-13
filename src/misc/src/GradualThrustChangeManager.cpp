@@ -24,6 +24,9 @@ void GradualThrustChangeManager::start(real_t startThrust) {
 
 void GradualThrustChangeManager::update() {
 
+    if(!this->busy)
+        return;
+
     /** Gradual thrust change duration in ticks. */
     real_t GTC_DURATION_TICKS = TICKS_PER_SECOND * GTC_DURATION;
 
@@ -31,13 +34,13 @@ void GradualThrustChangeManager::update() {
     real_t ticksLeft = (real_t)(GTC_DURATION_TICKS - this->counter);
 
     /* If there are ticks left... */
-    if (this->counter < GTC_DURATION_TICKS)
+    if (ticksLeft > 0)
         /* Linear interpolation. */
         this->thrust += (getThrottle() - this->thrust) / ticksLeft;
     else
         /* Gradual thrust change is finished. */
-        this->busy = 0;
+        this->busy = false;
 
     /* Increment the counter. */
-    this->counter += 1;
+    this->counter++;
 }

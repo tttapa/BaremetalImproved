@@ -27,19 +27,19 @@ class BuzzerManager {
     BuzzerInstruction currentInstruction;
 
     /** Whether there is an instruction playing on the buzzer. */
-    bool instructionBusy;
+    bool instructionBusy = false;
 
     /** Index in the beep queue where the next instruction will be placed. */
-    int writeIndex;
+    int writeIndex = 0;
 
     /** Index in the beep queue where the next instruction will be read. */
-    int readIndex;
+    int readIndex = 0;
 
     /** Number of unread instructions in the beep queue. */
-    int numInstructionsLeft;
+    int numInstructionsLeft = 0;
 
     /** Time at which the current beep started playing. */
-    float beepStartTime;
+    float beepStartTime = 0.0;
 
   public:
     /**

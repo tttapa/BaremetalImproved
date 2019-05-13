@@ -145,7 +145,7 @@ class PositionController {
      * Time that the last measurement from the Image Processing team was
      * received (see Time.hpp).
      */
-    real_t lastMeasurementTime;
+    real_t lastMeasurementTime = 0.0;
 
     /** Reference position (x,y), which is stored to pass on to the logger. */
     PositionReference reference;

@@ -3,6 +3,9 @@
 /** Instance of the armed manager. */
 ArmedManager armedManager;
 
+/** Instance of the input bias manager. */
+BiasManager biasManager;
+
 /** Instance of the buzzer manager. */
 BuzzerManager buzzerManager;
 
@@ -10,15 +13,16 @@ BuzzerManager buzzerManager;
 ConfigurationManager configManager;
 
 /** Instance of the ESC statup script. */
-ESCStartupScript escStartupScript;
+// ESCStartupScript escStartupScript;
 
 /** Instance of the gradual thrust change manager. */
-GradualThrustChangeManager gtcManager;
+//GradualThrustChangeManager gtcManager;
 
 void initMiscInstances() {
     armedManager.init();
+    biasManager.init();
     buzzerManager.init();
     configManager.init();
-    escStartupScript.init(false);   // TODO: enable ESC startup script
-    gtcManager.init();
+    // escStartupScript.init(false);  // TODO: enable ESC startup script
+    //gtcManager.init();
 }

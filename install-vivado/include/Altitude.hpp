@@ -70,6 +70,15 @@ struct AltitudeControlSignal {
 class AltitudeController {
 
   private:
+    /** Marginal PWM control signal sent to the "common motor". */
+    AltitudeControlSignal controlSignal;
+
+    /** Integral of the error of the height of the drone. */
+    AltitudeIntegralWindup integralWindup;
+
+    /** Reference height to track in meters. */
+    AltitudeReference reference;
+
     /**
      * Estimate of the state of the drone's altitude, consisting three
      * components. First is a float representing the marginal angular velocity
@@ -79,17 +88,6 @@ class AltitudeController {
      * vertical velocity of the drone, measured in m/s.
      */
     AltitudeState stateEstimate;
-
-    /**
-     * Integral of the error of the height of the drone.
-     */
-    AltitudeIntegralWindup integralWindup;
-
-    /** Marginal PWM control signal sent to the "common motor". */
-    AltitudeControlSignal controlSignal;
-
-    /** Reference height to track in meters. */
-    AltitudeReference reference;
 
   public:
     /**
@@ -154,25 +152,26 @@ class AltitudeController {
         AltitudeState stateEstimate, AltitudeControlSignal controlSignal,
         AltitudeMeasurement measurement, int droneConfiguration);
 
-    /**
-     * Get the altitude controller's control signal.
-     */
+    /** Get the altitude controller's control signal. */
     AltitudeControlSignal getControlSignal() { return this->controlSignal; }
 
-    /**
-     * Get the altitude controller's reference height.
-     */
+    /** Get the altitude controller's integral windup. */
+    AltitudeIntegralWindup getIntegralWindup() { return this->integralWindup; }
+
+    /** Get the altitude controller's reference. */
+    AltitudeReference getReference() { return this->reference; }
+
+    /** Get the altitude controller's reference height. */
     real_t getReferenceHeight() { return this->reference.z; }
 
-    /**
-     * Get the altitude controller's state estimate.
-     */
+    /** Get the altitude controller's state estimate. */
     AltitudeState getStateEstimate() { return this->stateEstimate; }
 
     /**
-     * Reset the altitude controller.
+     * Reset the altitude controller. Set the estimate height and the reference
+     * height to the given height.
      */
-    void init();
+    void init(real_t correctedSonarMeasurement);
 
     /**
      * Set the altitude controller's reference height.

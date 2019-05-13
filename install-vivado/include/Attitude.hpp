@@ -100,13 +100,11 @@ MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
 class AttitudeController {
 
   private:
-    /**
-     * Estimate of the state of the drone's attitude, consisting of the drone's
-     * orientation (1 quaternion), angular velocity in rad/s (3 components: wx,
-     * wy, wz) and the angular velocity of the torque motors in rad/s (3
-     * components: nx, ny, nz).
-     */
-    AttitudeState stateEstimate;
+    /** PWM control signals sent to the torque motors (ux, uy, uz). */
+    AttitudeControlSignal controlSignal;
+
+    /** Integral of the error of the quaternion components q1, q2 and q3. */
+    AttitudeIntegralWindup integralWindup;
 
     /**
      * Estimate of the drone's orientation as EulerAngles. This representation
@@ -114,14 +112,6 @@ class AttitudeController {
      * too large.
      */
     EulerAngles orientationEuler;
-
-    /** Integral of the error of the quaternion components q1, q2 and q3. */
-    AttitudeIntegralWindup integralWindup;
-
-    /**
-     * PWM control signals sent to the torque motors (3 components: ux, uy, uz).
-     */
-    AttitudeControlSignal controlSignal;
 
     /** Reference orientation to track. */
     AttitudeReference reference;
@@ -133,6 +123,14 @@ class AttitudeController {
      * becomes too large, and this data will passed on to the logger.
      */
     EulerAngles referenceEuler;
+
+    /**
+     * Estimate of the state of the drone's attitude, consisting of the drone's
+     * orientation (1 quaternion), angular velocity in rad/s (3 components: wx,
+     * wy, wz) and the angular velocity of the torque motors in rad/s (3
+     * components: nx, ny, nz).
+     */
+    AttitudeState stateEstimate;
 
   public:
     /**
@@ -218,10 +216,11 @@ class AttitudeController {
         AttitudeState stateEstimate, AttitudeControlSignal controlSignal,
         AttitudeMeasurement measurement, int droneConfiguration);
 
-    /**
-     * Get the attitude controller's control signal.
-     */
+    /** Get the attitude controller's control signal. */
     AttitudeControlSignal getControlSignal() { return this->controlSignal; }
+
+    /** Get the attitude controller's integral windup. */
+    AttitudeIntegralWindup getIntegralWindup() { return this->integralWindup; }
 
     /**
      * Returns the quaternion of the attitude controller's estimate of the
@@ -236,6 +235,9 @@ class AttitudeController {
      * quaternion jumps when the state estimate's yaw becomes too large.
      */
     EulerAngles getOrientationEuler() { return this->orientationEuler; }
+
+    /** Get the attitude controller's reference. */
+    AttitudeReference getReference() { return this->reference; }
 
     /**
      * Returns the quaternion representation of the reference orientation. This

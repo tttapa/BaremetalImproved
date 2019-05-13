@@ -1,10 +1,11 @@
 #include <Autonomous.hpp>
 
 /* Includes from src. */
-#include <ControllerInstances.hpp>
-#include <InputBias/InputBias.hpp>
+#include <BiasManager.hpp>
+#include <ControllerInstances.hpp> ///< PositionController correctPosition if drone gets lost during navigation
 #include <MiscInstances.hpp>  ///< ESCStartupScript instance
 #include <Position.hpp>
+#include <RCValues.hpp>
 #include <SharedMemoryInstances.hpp>
 #include <Time.hpp>
 
@@ -296,7 +297,6 @@ void AutonomousController::updateQRFSM() {
     }
 
 #pragma endregion
-
 }
 
 AutonomousOutput
@@ -349,7 +349,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                 setAutonomousState(PRE_TAKEOFF);
             break;
 
-        case IDLE_AIR:
+        case IDLE_AIR:  // TODO: remove this state!
             /* Instruction: hover at (position, height) = (nextTarget,
                             referenceHeight) which are both set in initAir().
                Switch to LOITERING. */
@@ -378,7 +378,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
             if (getElapsedTime() < TAKEOFF_BLIND_DURATION) {
                 bypassAltitudeController = true;
                 commonThrust =
-                    inputBias.getThrustBias() + TAKEOFF_BLIND_MARGINAL_THRUST;
+                    biasManager.getThrustBias() + TAKEOFF_BLIND_MARGINAL_THRUST;
                 trustAccelerometerForPosition = true;
             } else if (getElapsedTime() > TAKEOFF_DURATION)
                 setAutonomousState(LOITERING);
@@ -445,7 +445,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
             } else if (getElapsedTime() < LANDING_BLIND_DURATION) {
                 bypassAltitudeController = true;
                 commonThrust =
-                    inputBias.getThrustBias() + LANDING_BLIND_MARGINAL_THRUST;
+                    biasManager.getThrustBias() + LANDING_BLIND_MARGINAL_THRUST;
                 trustAccelerometerForPosition = true;
             } else {
                 bypassAltitudeController = true;
