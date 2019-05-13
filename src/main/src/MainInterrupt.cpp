@@ -219,11 +219,13 @@ void mainOperation() {
 
 #pragma region Autonomous mode
         // TODO: improve this with file
-        if (canStartAutonomousModeAir())
-            autonomousController.initAir(correctedPositionMeasurement,
-                                         correctedSonarMeasurement);
-        else
-            autonomousController.initGround(correctedPositionMeasurement);
+        if (previousFlightMode == FlightMode::ALTITUDE_HOLD) {
+            if (canStartAutonomousModeAir())
+                autonomousController.initAir(correctedPositionMeasurement,
+                                             correctedSonarMeasurement);
+            else
+                autonomousController.initGround(correctedPositionMeasurement);
+        }
 
         /* Update autonomous controller using most recent position. */
         AutonomousOutput output =
@@ -369,7 +371,9 @@ void mainOperation() {
 #pragma region Logger
 
     /* Logger. */
+
     LogEntry logEntry;
+    /*
     logEntry.setSize(64);
     logEntry.setMode(int32_t(getFlightMode()));
     logEntry.setFrametime(getMillis());
@@ -408,9 +412,31 @@ void mainOperation() {
     logEntry.setMotorControlSignals(toCppArray(motorSignals));
     logEntry.setCommonThrust(uc);
     logEntry.setHoverThrust(biasManager.getThrustBias());
+    */
+    logEntry.setSize(64);
+    logEntry.setMode(int32_t(getFlightMode()));
+    logEntry.setFrametime(getMillis());
+    logEntry.setFramecounter(getTickCount());
+    logEntry.setDroneConfig(configManager.getControllerConfiguration());
+    logEntry.setRcTuning(getTuner());
+    logEntry.setRcThrottle(getThrottle());
+    logEntry.setRcRoll(getRoll());
+    logEntry.setRcPitch(getPitch());
+    logEntry.setRcYaw(getYaw());
+    logEntry.set__pad0(0);
+    logEntry.setReferenceHeight(altitudeController.getReferenceHeight());
+    logEntry.setMeasurementHeight(correctedSonarMeasurement);
+    logEntry.setAttitudeYawOffset(yawJump);
+    logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);
+    logEntry.setPositionControlSignal(
+        {positionController.getControlSignal().q1ref,
+         positionController.getControlSignal().q2ref});
+    logEntry.setCommonThrust(uc);
+    logEntry.setHoverThrust(biasManager.getThrustBias());
 
     // TODO:
     (void) yawMeasurement;
+    (void) ahrsQuat;
 
     //setYawJump(yawJump);
     //setIMUMeasurement(imuMeasurement);
@@ -430,8 +456,10 @@ void mainOperation() {
     //setMotorSignals(motorSignals);
 
     /* Output log data if logger is done writing. */
+
     if (loggerComm->isDoneReading())
         loggerComm->write(logEntry);
+
 #pragma endregion
 
     /* Store flight mode. */
@@ -458,6 +486,7 @@ real_t calculateYawJump(real_t yaw) {
     return modYaw - yaw;
 }
 
+/*
 template <class ArrayElementType = float, class StructType = void>
 static ArrayElementType (&toCppArray(
     StructType &data))[sizeof(StructType) / sizeof(ArrayElementType)] {
@@ -474,4 +503,5 @@ static const ArrayElementType (&toCppArray(
     return reinterpret_cast<const ArrayElementType(
             &)[sizeof(StructType) / sizeof(ArrayElementType)]>(data);
 }
+*/
 #pragma endregion
