@@ -171,7 +171,7 @@ s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
 
 % TODO: choose best LQR from configurations
 s.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s.pos.lqr.R = 200.0*eye(2);
+s.pos.lqr.R = 1000.0*eye(2);
 s.pos.lqr.K = -dlqr(s.pos.Ad, s.pos.Bd, s.pos.lqr.Q, s.pos.lqr.R);
 s.pos.lqi.max_integral = 20;        % ~ 10-15 seconds for full windup without propellors
 s.pos.lqi.I = 0.001*[0,-1;1,0];     % Max integral action = 0.001*20 = 0.02
