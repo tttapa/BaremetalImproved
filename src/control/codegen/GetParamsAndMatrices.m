@@ -72,6 +72,7 @@ s.att.kal.R = 0.1 * ones(1, 6);
 s.att.kal.L = dlqe(s.att.Ad_r, s.att.kal.G, s.att.Cd_r, diag(s.att.kal.Q), diag(s.att.kal.R));
 
 
+
 %% Altitude (LQR + integral action with Kalman estimate)
 
 % Linear system
