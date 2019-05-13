@@ -56,7 +56,7 @@ s.att.lqr.Q = diag([139.6245112700232,139.6245112700232,15.2811761590895,...
 s.att.lqr.R = 24.0*diag([1,1,1]);
 s.att.lqr.K = -dlqr(s.att.Ad_r, s.att.Bd_r, s.att.lqr.Q, s.att.lqr.R);
 s.att.lqi.I = diag([0.8, 0.8, 0]);  % For anti bias drift
-s.att.lqi.max_integral = 10;
+s.att.lqi.max_integral = 0.1;
 s.att.lqi.K = [s.att.lqr.K, s.att.lqi.I];
 
 % Kalman:
