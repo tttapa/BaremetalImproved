@@ -72,3 +72,27 @@ enum TestMode {
     DEMO = 7,
 
 };
+
+/** Get the drone's test mode. */
+TestMode getTestMode();
+
+/** Get whether switching to altitude mode is enabled. */
+bool isAltitudeHoldModeEnabled();
+
+/** Get whether autonomous mode can be activated from the air. */
+bool isAutonomousAirEnabled();
+
+/** Get whether autonomous mode can be activated from the ground. */
+bool isAutonomousGroundEnabled();
+
+/** Get whether switching to autonomous mode is enabled. */
+bool isAutonomousModeEnabled();
+
+/** Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING. */
+bool isNavigatingEnabled();
+
+/** Get whether the drone should land after receiving a QR_LAND flag. */
+bool isQRLandingEnabled();
+
+/** Get whether the drone should switch from LOITERING to LANDING. */
+bool shouldLandAfterLoitering();
