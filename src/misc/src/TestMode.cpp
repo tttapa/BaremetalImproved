@@ -7,14 +7,14 @@ static const TestMode TEST_MODE = TestMode::TEST_LOITERING;
 static constexpr int NUM_NAVIGATION_TARGETS = 7;
 
 /** Points to cycle through when during the NAVIGATION test mode. */
-static const Position[NUM_NAVIGATION_TARGETS] NAVIGATION_TARGETS = {
-    Position{0.0, 0.0},    //
-    Position{1.0, 0.0},    //
-    Position{1.0, 1.0},    //
-    Position{-1.0, 1.0},   //
-    Position{-1.0, -1.0},  //
-    Position{1.0, -1.0},   //
-    Position{1.0, 0.0},    //
+static const Position NAVIGATION_TARGETS[NUM_NAVIGATION_TARGETS] = {
+    Position{0.0, 0.0}, //
+Position{1.0, 0.0}, //
+Position{1.0, 1.0}, //
+Position{-1.0, 1.0}, //
+Position{-1.0, -1.0}, //
+Position{1.0, -1.0}, //
+Position{1.0, 0.0}, //
 };
 
 /** Current navigation target index. */
