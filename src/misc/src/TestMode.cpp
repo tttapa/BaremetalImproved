@@ -4,8 +4,10 @@
 /** Current test mode is MANUAL. */
 static const TestMode TEST_MODE = TestMode::TEST_LOITERING;
 
+static constexpr int NUM_NAVIGATION_TARGETS = 7;
+
 /** Points to cycle through when during the NAVIGATION test mode. */
-static const Position[6] NAVIGATION_TARGETS = {
+static const Position[NUM_NAVIGATION_TARGETS] NAVIGATION_TARGETS = {
     Position{0.0, 0.0}, //
 Position{1.0, 0.0}, //
 Position{1.0, 1.0}, //
@@ -37,7 +39,7 @@ bool canStartAutonomousModeAir() {
 /** Get the next navigation target during TEST_NAVIGATION mode. */
 Position getNextNavigationTestTarget() {
     navigationTargetIndex++;
-    if(navigationTargetIndex == 6)
+    if(navigationTargetIndex == NUM_NAVIGATION_TARGETS)
         navigationTargetIndex = 0;
     return NAVIGATION_TARGETS[navigationTargetIndex];
 }
