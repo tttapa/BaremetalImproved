@@ -314,16 +314,22 @@ void AutonomousController::updateQRFSM() {
             }
 
             /* Try setting the altitude reference 15cm higher. */
-            if (this->qrErrorCount == 1 * MAX_QR_ERROR_COUNT)
-                this->referenceHeight.z = REFERENCE_HEIGHT + 0.15;
+            if (this->qrErrorCount == 1 * MAX_QR_ERROR_COUNT) {
+                this->referenceHeight.z        = REFERENCE_HEIGHT + 0.15;
+                this->autonomousStateStartTime = getTime(); /* Reset counter. */
+            }
 
             /* Try setting the altitude reference 15cm lower. */
-            else if (this->qrErrorCount == 2 * MAX_QR_ERROR_COUNT)
-                this->referenceHeight.z = REFERENCE_HEIGHT - 0.15;
+            else if (this->qrErrorCount == 2 * MAX_QR_ERROR_COUNT) {
+                this->referenceHeight.z        = REFERENCE_HEIGHT - 0.15;
+                this->autonomousStateStartTime = getTime(); /* Reset counter. */
+            }
 
             /* Go back to the nominal altitude reference. */
-            else if (this->qrErrorCount == 3 * MAX_QR_ERROR_COUNT)
-                this->referenceHeight.z = REFERENCE_HEIGHT;
+            else if (this->qrErrorCount == 3 * MAX_QR_ERROR_COUNT) {
+                this->referenceHeight.z        = REFERENCE_HEIGHT;
+                this->autonomousStateStartTime = getTime(); /* Reset counter. */
+            }
 
             /* Tell IMP to try again. */
             qrComm->setQRStateRequest();
@@ -519,17 +525,17 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 void AutonomousController::initAir(Position currentPosition,
                                    AltitudeReference referenceHeight) {
     startLoitering(false);
-    this->previousTarget           = currentPosition;
-    this->nextTarget               = currentPosition;
-    this->referenceHeight          = referenceHeight;
-    this->qrErrorCount             = 0;
+    this->previousTarget  = currentPosition;
+    this->nextTarget      = currentPosition;
+    this->referenceHeight = referenceHeight;
+    this->qrErrorCount    = 0;
 }
 
 void AutonomousController::initGround(Position currentPosition) {
     setAutonomousState(IDLE_GROUND);
-    this->previousTarget           = currentPosition;
-    this->nextTarget               = currentPosition;
-    this->qrErrorCount             = 0;
+    this->previousTarget = currentPosition;
+    this->nextTarget     = currentPosition;
+    this->qrErrorCount   = 0;
 }
 
 AutonomousOutput AutonomousController::update(Position currentPosition) {
