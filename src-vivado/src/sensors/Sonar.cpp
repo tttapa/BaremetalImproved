@@ -1,11 +1,17 @@
-// Original: BareMetal/src/sonar/sonar.c
-#include "../PrivateHardwareConstants.hpp"
-#include "MedianFilter.hpp"
-#include <PublicHardwareConstants.hpp>
 #include <cmath>
 #include <sensors/Sonar.hpp>
+
+/* Includes from src. */
+#include <PublicHardwareConstants.hpp>  ///< SONAR_FREQUENCY
+
+/* Includes from src-vivado. */
+#include "../PrivateHardwareConstants.hpp"
+#include "MedianFilter.hpp"
+
+/* Includes from Xilinx. */
 #include <xil_io.h>
 
+#pragma region Constants
 /** Address of the sonar : // TODO: what pin? */
 uint32_t *const SONAR_ADDR = ((uint32_t *) XPAR_RC_1_S00_AXI_BASEADDR) + 1;
 
@@ -37,6 +43,7 @@ const float MAX_JUMP = 0.5;
 
 /** Frequency of the sonar measurements. */
 const float FREQUENCY = SONAR_FREQUENCY;
+#pragma endregion
 
 /** Last 15 raw measurements of the sonar. */
 float measurements[MAX_MF_LENGTH];

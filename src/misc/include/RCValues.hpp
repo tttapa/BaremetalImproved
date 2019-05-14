@@ -1,6 +1,8 @@
 #pragma once
-#include <BaremetalCommunicationDef.hpp>
-#include <SensorTypes.hpp>
+
+/* Includes from src. */
+#include <BaremetalCommunicationDef.hpp>  ///< FlightMode, WPTMode
+#include <SensorTypes.hpp>                ///< RCInput
 #include <real_t.h>
 
 /**

@@ -1,10 +1,14 @@
 #include <GradualThrustChangeManager.hpp>
+
+/* Includes from src. */
 #include <MiscInstances.hpp>
-#include <Time.hpp>
 #include <RCValues.hpp>
 
+/* Includes from src-vivado. */
+#include <PublicHardwareConstants.hpp>  ///< TICKS_PER_SECOND
+
 /** Gradual thrust change lasts 1.0 seconds. */
-const real_t GTC_DURATION = TICKS_PER_SECOND * 1.0;
+const real_t GTC_DURATION = 1.0;
 
 void GradualThrustChangeManager::init() {
     this->busy    = false;
@@ -20,17 +24,23 @@ void GradualThrustChangeManager::start(real_t startThrust) {
 
 void GradualThrustChangeManager::update() {
 
+    if(!this->busy)
+        return;
+
+    /** Gradual thrust change duration in ticks. */
+    real_t GTC_DURATION_TICKS = TICKS_PER_SECOND * GTC_DURATION;
+
     /* Compute the number of ticks left. */
-    real_t ticksLeft = (real_t)(GTC_DURATION - this->counter);
+    real_t ticksLeft = (real_t)(GTC_DURATION_TICKS - this->counter);
 
     /* If there are ticks left... */
-    if (this->counter < GTC_DURATION)
+    if (ticksLeft > 0)
         /* Linear interpolation. */
         this->thrust += (getThrottle() - this->thrust) / ticksLeft;
     else
         /* Gradual thrust change is finished. */
-        this->busy = 0;
+        this->busy = false;
 
     /* Increment the counter. */
-    this->counter += 1;
+    this->counter++;
 }

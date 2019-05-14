@@ -19,17 +19,19 @@ target_include_directories(communication
 )
 
 # Tell CMake to compile this library with C++17 features enabled
-target_compile_features(communication PUBLIC cxx_std_17)
+# target_compile_features(communication PUBLIC cxx_std_17)
 
 # Link the library with its dependencies.
 #   This manages both the include directories of the dependencies, as well as  
 #   the actual linking of the other libraries.
 #   Libraries that are used in the public header files should be public,
 #   libraries that are only used in the implementation files should be private.
-# target_link_libraries(communication 
-#     PUBLIC 
-#         other-library
-# )
+target_link_libraries(communication 
+    PRIVATE 
+        instances
+        misc
+        time
+)
 
 # Run CMake again in the `test` folder, to discover the CMakeLists.txt file that
 # adds the tests.
@@ -42,7 +44,7 @@ install(TARGETS communication
 install(EXPORT communication DESTINATION lib)
 install(
 FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/BaremetalCommunicationDef.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/LogEntry.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/SharedStruct.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../shared-linux/include/BaremetalCommunicationDef.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../shared-linux/include/LogEntry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../shared-linux/include/SharedStruct.hpp
 DESTINATION include)

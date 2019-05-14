@@ -1,12 +1,13 @@
 #pragma once
-#include <SensorTypes.hpp>
+
+/* Includes from src. */
+#include <SensorTypes.hpp>  ///< RCInput
 
 /**
  * Read the RC voltages from the registers.
  * 
- * @return  A struct containing values for the RC throttle, roll, pitch, yaw,
- *          each of which is in [0,1], for the tuner knob, which is in
- *          [-0.5,+0,5], and for the flight mode in {0,1,2} and WPT mode in
- *          {0,1}.
+ * @return  A struct containing values for the RC throttle which is in [0,1] and
+ *          for the roll, pitch, yaw and tuner knob which are in [-1,1]. Also
+ *          there are enumerations for the flight mode and the WPT mode.
  */
 RCInput readRC();

@@ -5,7 +5,6 @@
             "intelliSenseMode": "gcc-x64",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/src-shared/include",
                 "${workspaceFolder}/build/googletest/googletest-src/googletest/include"
             ],
             "defines": ["BAREMETAL"],

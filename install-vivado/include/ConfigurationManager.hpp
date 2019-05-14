@@ -1,19 +1,7 @@
 #pragma once
+
+/* Includes from src. */
 #include <real_t.h>
-
-
-// TODO: drone configurations vs controller configurations
-/** Everything enabled on the drone. */
-#define CONFIG_DEMO 0
-/** Test 1. */
-#define CONFIG_TEST1 1
-/** Test 2. */
-#define CONFIG_TEST2 2
-/** Test 3. */
-#define CONFIG_TEST3 3
-
-/** Current drone configuration is CONFIG_DEMO. */
-#define DRONE_CONFIG CONFIG_DEMO
 
 /**
  * There are 5 controller configurations, the last of which being the
@@ -27,35 +15,35 @@ const int CALIBRATION_MODE = NUM_CONTROLLER_CONFIGS;
 class ConfigurationManager {
   private:
     /** Time at which the configuration last changed. */
-    float changedConfigurationTime;
+    float changedConfigurationTime = 0.0;
 
     /** Current controller configuration in {1,2,...,NUM_CONTROLLER_CONFIGS}. */
-    int controllerConfiguration;
+    int controllerConfiguration = 1;
 
     /** Number of wiggles accumulated by wiggling the tuner knob. */
-    int currentNumWiggles;
+    int currentNumWiggles = 1;
 
     /**
      * Whether the tuner value is currently in the "changing configuration"
      * zone, waiting for the configuration to change.
      */
-    bool isWaitingForConfigurationChange;
+    bool isWaitingForConfigurationChange = false;
 
     /**
      * Whether the tuner value has passed the wiggle lower threshold.
      */
-    bool isWiggleLowerThresholdHit;
+    bool isWiggleLowerThresholdHit = false;
 
     /**
      * Whether the tuner value has passed the wiggle upper threshold.
      */
-    bool isWiggleUpperThresholdHit;
+    bool isWiggleUpperThresholdHit = false;
 
     /** Time at which the last wiggle was decremented. */
-    float lastWiggleDecrementTime;
+    float lastWiggleDecrementTime = 0.0;
 
     /** Time at which the latest warning beeps started. */
-    float warningBeepsStartTime;
+    float warningBeepsStartTime = 0.0;
 
     /**
      * Update the controller configuration based on the value of the RC tuner

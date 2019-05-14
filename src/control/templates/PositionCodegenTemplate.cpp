@@ -19,7 +19,7 @@ static constexpr real_t V_THRESHOLD_TOWARDS = 0.50;
  *          edit it in the template, or in the MATLAB code generator.
  */
 PositionControlSignal
-PositionController::codegenControlSignal(PositionState stateEstimate, 
+PositionController::codegenControlSignal(PositionState stateEstimate,
                                          PositionReference reference,
                                          PositionIntegralWindup integralWindup,
                                          int droneConfiguration) {
@@ -48,6 +48,44 @@ PositionController::codegenControlSignal(PositionState stateEstimate,
     return controlSignal;
 }
 
+/*
+ * @note    This is an automatically generated function. Do not edit it here,
+ *          edit it in the template, or in the MATLAB code generator.
+ */
+PositionControlSignal
+PositionController::codegenControlSignalBlind(PositionState stateEstimate,
+                                              PositionReference reference,
+                                              PositionIntegralWindup integralWindup,
+                                              int droneConfiguration) {
+
+    /* Calculate controller output based on drone configuration. */
+    PositionControlSignal controlSignal;
+    switch (droneConfiguration) {
+        case 1:
+            controlSignal.q1ref = $c1$uBlind0;
+            controlSignal.q2ref = $c1$uBlind1;
+            break;
+        case 2:
+            controlSignal.q1ref = $c2$uBlind0;
+            controlSignal.q2ref = $c2$uBlind1;
+            break;
+        case 3:
+            controlSignal.q1ref = $c3$uBlind0;
+            controlSignal.q2ref = $c3$uBlind1;
+            break;
+        case 4:
+            controlSignal.q1ref = $c4$uBlind0;
+            controlSignal.q2ref = $c4$uBlind1;
+            break;
+        default: controlSignal = {};
+    }
+    return controlSignal;
+}
+
+/*
+ * @note    This is an automatically generated function. Do not edit it here,
+ *          edit it in the template, or in the MATLAB code generator.
+ */
 PositionIntegralWindup
 PositionController::codegenIntegralWindup(PositionIntegralWindup integralWindup,
                                           PositionReference reference,
@@ -77,9 +115,40 @@ PositionController::codegenIntegralWindup(PositionIntegralWindup integralWindup,
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
+ *          edit it in the template, or in the MATLAB code generator.
+ */
+PositionIntegralWindup
+PositionController::codegenIntegralWindupBlind(PositionIntegralWindup integralWindup,
+                                               PositionReference reference,
+                                               PositionState stateEstimate,
+                                               int droneConfiguration) {
+
+    /* Set maximum integral windup based on drone configuration. */
+    real_t maxIntegralWindup;
+    switch (droneConfiguration) {
+        case 1: maxIntegralWindup = $c1$maxWindup; break;
+        case 2: maxIntegralWindup = $c2$maxWindup; break;
+        case 3: maxIntegralWindup = $c3$maxWindup; break;
+        case 4: maxIntegralWindup = $c4$maxWindup; break;
+        default: maxIntegralWindup = 0.0;
+    }
+
+    /* Update integral windup. */
+    integralWindup.x += $intBlind0;
+    integralWindup.y += $intBlind1;
+    if (fabs(integralWindup.x) > maxIntegralWindup)
+        integralWindup.x = copysign(maxIntegralWindup, integralWindup.x);
+    if (fabs(integralWindup.y) > maxIntegralWindup)
+        integralWindup.y = copysign(maxIntegralWindup, integralWindup.y);
+
+    return integralWindup;
+}
+
+/*
+ * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template.
  */
-PositionState 
+PositionState
 PositionController::codegenCurrentStateEstimate(PositionState stateEstimate,
                                                 PositionMeasurement measurement,
                                                 Quaternion orientation,
@@ -105,10 +174,10 @@ PositionController::codegenCurrentStateEstimate(PositionState stateEstimate,
         stateEstimate.vy = vy1;
 
     /* Set orientation and position. */
-    stateEstimate.q1 = orientation[1];
-    stateEstimate.q2 = orientation[2];
-    stateEstimate.p.x  = measurement.p.x;
-    stateEstimate.p.y  = measurement.p.y;
+    stateEstimate.q1  = orientation[1];
+    stateEstimate.q2  = orientation[2];
+    stateEstimate.p.x = measurement.p.x;
+    stateEstimate.p.y = measurement.p.y;
 
     /* Drone configuration unused. */
     (void) droneConfiguration;
@@ -116,20 +185,22 @@ PositionController::codegenCurrentStateEstimate(PositionState stateEstimate,
     return stateEstimate;
 }
 
-PositionState 
-PositionController::codegenCurrentStateEstimateBlind(
-        PositionStateBlind stateEstimateBlind,
-        PositionControlSignalBlind controlSignalBlind) {
+/*
+ * @note    This is an automatically generated function. Do not edit it here,
+ *          edit it in the template.
+ */
+PositionState
+PositionController::codegenCurrentStateEstimateBlind(PositionStateBlind stateEstimateBlind,
+                                                     PositionControlSignalBlind controlSignalBlind) {
 
     PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
 
-    stateEstimateBlind.p.x  = $x0;
-    stateEstimateBlind.p.y  = $x1;
-    stateEstimateBlind.vx = $x2;
-    stateEstimateBlind.vy = $x3;
+    stateEstimateBlind.p.x = $xBlind0;
+    stateEstimateBlind.p.y = $xBlind1;
+    stateEstimateBlind.vx  = $xBlind2;
+    stateEstimateBlind.vy  = $xBlind3;
 
-    return {PositionState{controlSignalBlind.q1, controlSignalBlind.q2,
-                          stateEstimateBlind.p,
-                          stateEstimateBlind.vx, stateEstimateBlind.vy}};
+    return PositionState{controlSignalBlind.q1, controlSignalBlind.q2,
+                         stateEstimateBlind.p, stateEstimateBlind.vx,
+                         stateEstimateBlind.vy};
 }
-

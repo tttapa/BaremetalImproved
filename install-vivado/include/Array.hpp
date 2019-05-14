@@ -9,7 +9,7 @@
 #include <numeric>    // accumulate
 #include <type_traits>
 #ifdef SAFE_ARRAY_INDICES
-#include <cassert>
+#include <stdexcept>
 #endif
 
 #if __cplusplus >= 201500
@@ -49,13 +49,19 @@ struct Array {
 
     USE_CONSTEXPR T &operator[](size_t index) {
 #ifdef SAFE_ARRAY_INDICES
-        assert(index < N);
+        if (index >= N)
+            throw std::out_of_range(std::string("Array index out of bounds (") +
+                                    std::to_string(index) + ") " +
+                                    __PRETTY_FUNCTION__);
 #endif
         return data[index];
     }
     USE_CONSTEXPR const T &operator[](size_t index) const {
 #ifdef SAFE_ARRAY_INDICES
-        assert(index < N);
+        if (index >= N)
+            throw std::out_of_range(std::string("Array index out of bounds (") +
+                                    std::to_string(index) + ") " +
+                                    __PRETTY_FUNCTION__);
 #endif
         return data[index];
     }

@@ -1,7 +1,9 @@
 #pragma once
+
+/* Includes from src. */
 #include <Altitude.hpp>
+#include <BaremetalCommunicationDef.hpp>  ///< QRFSMState, Position
 #include <Position.hpp>
-#include <BaremetalCommunicationDef.hpp>
 
 /**
  * Output of the autonomous control system, which consists of a reference
@@ -9,6 +11,16 @@
  * bypassed and which common thrust should be used if it is bypassed.
  */
 struct AutonomousOutput {
+    AutonomousOutput(bool bypassAltitudeController,
+                     AltitudeReference referenceHeight, real_t commonThrust,
+                     bool updatePositionController,
+                     bool trustAccelerometerForPosition,
+                     Position referencePosition)
+        : bypassAltitudeController{bypassAltitudeController},
+          referenceHeight{referenceHeight}, commonThrust{commonThrust},
+          updatePositionController{updatePositionController},
+          trustAccelerometerForPosition{trustAccelerometerForPosition},
+          referencePosition{referencePosition} {}
 
     /**
      * Whether the altitude controller should be bypassed. If this is true, then
@@ -45,29 +57,26 @@ enum AutonomousState {
     /** The drone is inactive on the ground. */
     IDLE_GROUND = 0,
 
-    /** The drone is airborne, but the autonomous mode has not been started. */
-    IDLE_AIR = 1,
-
     /** The drone is starting up the motors to prepare for takeoff. */
-    PRE_TAKEOFF = 2,
+    PRE_TAKEOFF = 1,
 
     /** The drone is taking off in autonomous mode. */
-    TAKEOFF = 3,
+    TAKEOFF = 2,
 
     /** The drone is attempting to hold its (x,y,z) position for 15 seconds. */
-    LOITERING = 4,
+    LOITERING = 3,
 
     /** The drone is converging on its next destination. */
-    CONVERGING = 5,
+    CONVERGING = 4,
 
     /** The drone is navigating to its next destination. */
-    NAVIGATING = 6,
+    NAVIGATING = 5,
 
     /** The drone has received the "landing flag" and is attempting to land. */
-    LANDING = 7,
+    LANDING = 6,
 
     /** The drone has activated the Wireless Power Transfer (WPT). */
-    WPT = 8,
+    WPT = 7,
 
     /**
      * The drone has received a bad measurement or has not received any position
@@ -110,25 +119,22 @@ class AutonomousController {
     AutonomousState autonomousState;
 
     /** Time that the autonomous controller entered its current state. */
-    real_t autonomousStateStartTime;
+    real_t autonomousStateStartTime = 0.0;
 
-    /** Current state of the QR finite state machine (FSM). */
-    QRFSMState qrState;
+    /** Has the autonomous controller received a QR_LAND instruction. */
+    bool hasReceivedQRLandInstruction = false;
 
-    /** Most recent reference height of the autonomous controller. */
-    AltitudeReference referenceHeight;
+    /** Estimated time to navigate from previous target to next target. */
+    real_t navigationTime = 0.0;
 
-    /** Previous target position. */
-    Position previousTarget;
+    /** Next QR code location. */
+    Position nextQRPosition;
 
     /** Next target position. */
     Position nextTarget;
 
-    /** Estimated time to navigate from previous target to next target. */
-    real_t navigationTime;
-
-    /** Next QR code location. */
-    Position nextQRPosition;
+    /** Previous target position. */
+    Position previousTarget;
 
     /**
      * Number of times the Cryptography team failed to decrypt the image sent by
@@ -136,11 +142,17 @@ class AutonomousController {
      */
     int qrErrorCount;
 
+    /** Current state of the QR finite state machine (FSM). */
+    QRFSMState qrState;
+
     /**
      * Counter for the number of tiles the drone has searched to find the QR
      * code.
      */
     int qrTilesSearched;
+
+    /** Most recent reference height of the autonomous controller. */
+    AltitudeReference referenceHeight;
 
     /**
      * Calculates the time since the autonomous controller entered its current
@@ -235,6 +247,41 @@ class AutonomousController {
     void updateQRFSM();
 
   public:
+    /** Get the autonomous controller's autonomous state. */
+    AutonomousState getAutonomousState() { return this->autonomousState; }
+
+    /** Get the time that the autonomous controller entered its state. */
+    real_t getAutonomousStateStartTime() { return autonomousStateStartTime; }
+    /**
+     * Get the autonomous controller's estimated time to navigate from its
+     * previous target to its next target.
+     */
+    real_t getNavigationTime() { return navigationTime; }
+
+    /** Get the next QR position. */
+    Position getNextQRPosition() { return nextQRPosition; }
+
+    /** Get the autonomous controller's next target position. */
+    Position getNextTarget() { return nextTarget; }
+
+    /** Get the autonomous controller's previous target position. */
+    Position getPreviousTarget() { return previousTarget; }
+
+    /**
+     * Get the number of times the Cryptography team failed to decrypt the QR
+     * code at the drone's current position.
+     */
+    int getQRErrorCount() { return qrErrorCount; }
+
+    /** Get the current QR state. */
+    QRFSMState getQRState() { return qrState; }
+
+    /** Get the number of tiles the drone has searched to find the QR code. */
+    int getQRTilesSearched() { return qrTilesSearched; }
+
+    /** Get the autonomous controller's reference height. */
+    real_t getReferenceHeight() { return referenceHeight.z; }
+
     /**
      * Reset the autonomous controller to the IDLE_AIR state and set the
      * reference position to the given position.
@@ -244,8 +291,7 @@ class AutonomousController {
      * @param   referenceHeight
      *          Reference height of the drone during autonomous mode.
      */
-    void initAir(Position currentPosition,
-                 AltitudeReference referenceHeight);
+    void initAir(Position currentPosition, AltitudeReference referenceHeight);
 
     /**
      * Reset the autonomous controller to the IDLE_GROUND state and set the

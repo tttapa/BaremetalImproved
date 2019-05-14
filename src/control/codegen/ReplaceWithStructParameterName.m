@@ -1,27 +1,49 @@
-function string = ReplaceWithStructParameterName(droneState, string)
+function [ string ] = ReplaceWithStructParameterName(controllerName, string)
+%REPLACE_WITH_STRUCT_PARAMETER_NAME
+%   Replace the syms with the proper representation for the C++ code, namely
+%   struct.member.
+%
+%   @param  controllerName
+%           The name of the controller to that needs to replace its syms with
+%           the proper struct.member representation. This should be either
+%           'Attitude', 'Altitude' or 'Position'.
+%   @param  string
+%           The string containing the generated code with syms to replace.
+%
+%   @return string
+%           The given string with all syms replaced by the proper struct.member.
+%
 
 vectors = strfind(string, 'vector__');
-%matrices = strfind(string, 'matrix__');
 
 while (~isempty(vectors))
-    start = vectors(1) + 8;
-    struct = char(extractBetween(string, start, '['));
-    elementIndex = start + length(struct) + 1;
-    element = str2double(char(string(elementIndex)));
-    parameterName = GetParameterName(droneState, struct, element);
 
+    % Parse the struct name.
+    startIndex = vectors(1) + length('vector__');
+    struct = char(extractBetween(string, startIndex, '['));
+
+    % Parse the sym index and determine the struct member.
+    startIndex = startIndex + length(struct) + 1;
+    spaceIndices = strfind(string(startIndex+1:end),' ');
+    endIndex = startIndex + spaceIndices(1) - 1;
+    element = str2double(char(string(startIndex:endIndex)));
+    parameterName = GetParameterName(controllerName, struct, element);
+
+    % Replace the sym with the proper format struct.member.
     toReplace = char(extractBetween(string,vectors(1),']'));
     endIndex = vectors(1) + length(toReplace);
-    toReplace = char(extractBetween(string, vectors(1), endIndex));
-
+    toReplace = char(extractBetween(string, vectors(1), endIndex));  % TODO: necessary???
     string = strrep(string, toReplace, parameterName);
+
+    % Find the rest of the vectors to replace
     vectors = strfind(string, 'vector__');
 end
+
 end
 
-function string = GetParameterName(droneState, struct, element)
+function string = GetParameterName(controllerName, struct, element)
 
-if strcmp(droneState, 'Attitude')
+if strcmp(controllerName, 'Attitude')
     
     if strcmp(struct,'y_int')
         if element == 1
@@ -186,7 +208,7 @@ if strcmp(droneState, 'Attitude')
     end  
 end
 
-if strcmp(droneState, 'Altitude')
+if strcmp(controllerName, 'Altitude')
     
     if strcmp(struct, 'x_hat')
        if element == 1
@@ -230,7 +252,7 @@ if strcmp(droneState, 'Altitude')
 
 end
 
-if strcmp(droneState, 'Position')
+if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'x_hat')
        if element == 1

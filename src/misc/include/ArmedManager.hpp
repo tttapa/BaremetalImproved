@@ -1,4 +1,6 @@
 #pragma once
+
+/* Includes from src. */
 #include <real_t.h>
 
 /**
@@ -14,16 +16,16 @@
 class ArmedManager {
   private:
     /** Whether the drone is currently armed. */
-    bool armed;
+    bool armed = false;
 
     /**
      * Whether the left joystick is in one of the "changing arm status" zones,
      * waiting to either arm or disarm the drone.
      */
-    bool isWaitingForChange;
+    bool isWaitingForChange = false;
 
     /** Time at which the drone started waiting to arm or disarm. */
-    real_t waitingStartTime;
+    real_t waitingStartTime = 0.0;
 
   public:
     /**

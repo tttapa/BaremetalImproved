@@ -1,9 +1,4 @@
-/*******************************************************************************
- *   Integrated Integrated Circuit device driver header file
- *   This file contains all functions required to use the IIC.
- *   This file should NEVER be changed by the students.
- *   Author: w. devries
- ******************************************************************************/
+/* Includes from Xilinx. */
 #include <xil_types.h>
 
 /**

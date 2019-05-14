@@ -1,3 +1,6 @@
+#pragma once
+
+/* Includes from src. */
 #include <BaremetalCommunicationDef.hpp>
 #include <LogEntry.h>
 #include <SharedStruct.hpp>

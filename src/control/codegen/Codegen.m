@@ -1,4 +1,13 @@
 function Codegen()
+%CODEGEN
+%   First, the function will create the attitude control system, altitude
+%   control system and position control system. From that, syms will be used
+%   to simplify each system's control signal calculation and estimate
+%   calculation. Next, these syms will be replaced by the struct.member
+%   representation used in BaremetalImproved. Finally the tags in the templates
+%   will be replaced by this generated code in order to create the files
+%   AttitudeCodegen.cpp, AltitudeCodegen.cpp and PositionCodegen.cpp.
+%
 
 clear
 
@@ -12,65 +21,48 @@ if ~exist('ParamsAndMatrices-generated', 'dir'); mkdir('ParamsAndMatrices-genera
 s = GetParamsAndMatrices();
 p = quat_params();
 
-%% 4 Configurations, config. 5 is reserved for callibration
+%% 4 Configurations, configuration 5 is reserved for calibration
 
-% Config 1: current config
+% Configuration 1
 s1 = s;
 s1.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s1.pos.lqr.K = 200.0*eye(2);
+s1.pos.lqr.R = 1.5*200.0*eye(2);
 s1.pos.lqr.K = -dlqr(s1.pos.Ad, s1.pos.Bd, s1.pos.lqr.Q, s1.pos.lqr.R);
 s1.pos.lqi.I = 0.001*[0,-1;1,0];
 s1.pos.lqi.max_integral = 10;
 s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 
-%s1.pos.lqr.Q = diag([0.01,0.01,0.10,0.10,0.002,0.002]);
-%s1.pos.lqr.R = 30.0*eye(2);
-%s1.pos.lqr.K = -dlqr(s1.pos.Ad, s1.pos.Bd, s1.pos.lqr.Q, s1.pos.lqr.R);
-%s1.pos.lqi.I = 0.01 * [0, -1; 1, 0];
-%s1.pos.lqi.max_integral = 10;
-%s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 
-
-% Config 2
+% Configuration 2
 s2 = s;
 s2.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s2.pos.lqr.K = 350.0*eye(2);
+s2.pos.lqr.R = 1.5*350.0*eye(2);
 s2.pos.lqr.K = -dlqr(s2.pos.Ad, s2.pos.Bd, s2.pos.lqr.Q, s2.pos.lqr.R);
 s2.pos.lqi.I = 0.001*[0,-1;1,0];
 s2.pos.lqi.max_integral = 10;
 s2.pos.lqi.K = [s2.pos.lqr.K, s2.pos.lqi.I];
 
-%s2.pos.lqr.Q = diag([0.001,0.001,0.1,0.1,0.001,0.001]);
-%s2.pos.lqr.R = 15.0*eye(2);
-%s2.pos.lqr.K = -dlqr(s2.pos.Ad, s2.pos.Bd, s2.pos.lqr.Q, s2.pos.lqr.R);
-%s2.pos.lqi.I = 0.01 * [0, -1; 1, 0];
-%s2.pos.lqi.max_integral = 10;
-%s2.pos.lqi.K = [s2.pos.lqr.K, s2.pos.lqi.I];
 
-
-% Config 3
+% Configuration 3
 s3 = s;
 s3.pos.lqr.Q = diag([1.0,1.0,0.3,0.3,0.001,0.001]);
-s3.pos.lqr.R = 15.0*eye(2);
+s3.pos.lqr.R = 1.5*15.0*eye(2);
 s3.pos.lqr.K = -dlqr(s3.pos.Ad, s3.pos.Bd, s3.pos.lqr.Q, s3.pos.lqr.R);
 s3.pos.lqi.I = 0.01 * [0, -1; 1, 0];
 s3.pos.lqi.max_integral = 10;
 s3.pos.lqi.K = [s3.pos.lqr.K, s3.pos.lqi.I];
 
 
-% Config 4
+% Configuration 4
 s4 = s;
 s4.pos.lqr.Q = diag([0.01,0.01,0.3,0.3,0.001,0.001]);
-s4.pos.lqr.R = 30.0*eye(2);
+s4.pos.lqr.R = 1.5*30.0*eye(2);
 s4.pos.lqr.K = -dlqr(s4.pos.Ad, s4.pos.Bd, s4.pos.lqr.Q, s4.pos.lqr.R);
 s4.pos.lqi.I = 0.01 * [0, -1; 1, 0];
 s4.pos.lqi.max_integral = 10;
 s4.pos.lqi.K = [s4.pos.lqr.K, s4.pos.lqi.I];
 
-%s1 = s3;
-%s2 = s3;
-%s4 = s3;
-
+% Save the configurations
 configs = [s1, s2, s3, s4];
 
 
@@ -93,24 +85,28 @@ for k = 1:length(configs)
 
     % Attitude observer
     [prediction, innovation, stateEstimate] = GenerateAttitudeObserver(s);
-    PredictionElements = symbolicVectorExpressionToStrings('Attitude', prediction); % Prediction (reduced)
-    InnovationElements = symbolicVectorExpressionToStrings('Attitude', innovation); % Innovation (reduced)
+    predictionElements = symbolicVectorExpressionToStrings('Attitude', prediction); % Prediction (reduced)
+    innovationElements = symbolicVectorExpressionToStrings('Attitude', innovation); % Innovation (reduced)
     stateEstimateElements = symbolicVectorExpressionToStrings('Attitude', stateEstimate); % New stateEstimate (full)
 
     for i = 1:length(controlSignalElements)
         tag = strcat('$c', num2str(k), '$u', num2str(i - 1));
         template = replace(template, tag, controlSignalElements(i));
     end
-    for i = 1:length(PredictionElements)
-        tag = strcat('$c', num2str(k), '$p', num2str(i - 0));
-        template = replace(template, tag, PredictionElements(i)); % reduced
+    for i = 1:length(integralWindupElements)
+        tag = strcat('$int', num2str(i - 1));
+        template = replace(template, tag, integralWindupElements(i));
     end
-    for i = 1:length(InnovationElements)
+    for i = 1:length(predictionElements)
+        tag = strcat('$c', num2str(k), '$p', num2str(i - 0));
+        template = replace(template, tag, predictionElements(i)); % reduced
+    end
+    for i = 1:length(innovationElements)
         tag = strcat('$c', num2str(k), '$i', num2str(i - 0));
-        template = replace(template, tag, InnovationElements(i)); % reduced
+        template = replace(template, tag, innovationElements(i)); % reduced
     end
     for i = 1:length(stateEstimateElements)
-        tag = strcat('$c', num2str(k), '$x', num2str(i - 1));
+        tag = strcat('$x', num2str(i - 1));
         template = replace(template, tag, stateEstimateElements(i));
     end
     tag = strcat('$c', num2str(k), '$maxWindup');
@@ -124,10 +120,6 @@ for k = 1:length(configs)
     fprintf(outputFid,  ' * R = \r\n');
     fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.att.lqr.R, 1)) '\r\n'], s.att.lqr.R');
 
-end
-for i = 1:length(integralWindupElements)
-    tag = strcat('$int', num2str(i - 1));
-    template = replace(template, tag, integralWindupElements(i));
 end
 fprintf(outputFid, ' *\r\n');
 fprintf(outputFid, ' */\r\n\n');
@@ -160,6 +152,10 @@ for k = 1:length(configs)
         tag = strcat('$c', num2str(k), '$u', num2str(i - 1));
         template = replace(template, tag, controlSignalElements(i));
     end
+    for i = 1:length(integralWindupElements)
+        tag = strcat('$int', num2str(i - 1));
+        template = replace(template, tag, integralWindupElements(i));
+    end
     for i = 1:length(stateEstimateElements)
         tag = strcat('$c', num2str(k), '$x', num2str(i - 1));
         template = replace(template, tag, stateEstimateElements(i));
@@ -176,14 +172,11 @@ for k = 1:length(configs)
     fprintf(outputFid,  ' * I = %d\r\n', s.alt.lqi.I);
     
 end
-for i = 1:length(integralWindupElements)
-    tag = strcat('$int', num2str(i - 1));
-    template = replace(template, tag, integralWindupElements(i));
-end
 fprintf(outputFid, ' *\r\n');
 fprintf(outputFid, ' */\r\n\n');
 fprintf(outputFid, template);
 fclose(outputFid);
+
 
 %% Position
 
@@ -202,14 +195,34 @@ for k = 1:length(configs)
     controlSignalElements = symbolicVectorExpressionToStrings('Position', controlSignal); % Control output
     integralWindupElements = symbolicVectorExpressionToStrings('Position', integralWindup); % Integral increment
 
+    % Position controller (blind)
+    [controlSignalBlind, integralWindupBlind] = GeneratePositionControllerBlind(s);
+    controlSignalBlindElements = symbolicVectorExpressionToStrings('Position', controlSignalBlind); % Control output
+    integralWindupBlindElements = symbolicVectorExpressionToStrings('Position', integralWindupBlind); % Integral increment
+
+    % Position observer (blind)
+    stateEstimateBlind = GeneratePositionObserverBlind(s);
+    stateEstimateBlindElements = symbolicVectorExpressionToStrings('Position', stateEstimateBlind);
 
     for i = 1:length(controlSignalElements)
         tag = strcat('$c', num2str(k), '$u', num2str(i - 1));
         template = replace(template, tag, controlSignalElements(i));
     end
     for i = 1:length(integralWindupElements)
-        tag = strcat('$c', num2str(k), '$i', num2str(i - 1));
+        tag = strcat('$int', num2str(i - 1));
         template = replace(template, tag, integralWindupElements(i));
+    end
+    for i = 1:length(controlSignalBlindElements)
+        tag = strcat('$c', num2str(k), '$uBlind', num2str(i - 1));
+        template = replace(template, tag, controlSignalBlindElements(i));
+    end
+    for i = 1:length(integralWindupBlindElements)
+        tag = strcat('$intBlind', num2str(i - 1));
+        template = replace(template, tag, integralWindupBlindElements(i));
+    end
+    for i = 1:length(stateEstimateBlindElements)
+        tag = strcat('$xBlind', num2str(i - 1));
+        template = replace(template, tag, stateEstimateBlindElements(i));
     end
     tag = strcat('$c', num2str(k), '$maxWindup');
     template = replace(template, tag, num2str(s.pos.lqi.max_integral));
@@ -225,28 +238,17 @@ for k = 1:length(configs)
     fprintf(outputFid, [' *  ' repmat(' %d', 1, size(s.pos.lqi.I, 1)) '\r\n'], s.pos.lqi.I');
     
 end
-
-% Position observer
-stateEstimate = GeneratePositionObserverBlind(s);
-stateEstimateElements = symbolicVectorExpressionToStrings('Position', stateEstimate); % New state estimate x_hat
-for i = 1:length(stateEstimateElements)
-    tag = strcat('$x', num2str(i - 1));
-    template = replace(template, tag, stateEstimateElements(i));
-end
-
-% Integral windup
-for i = 1:length(integralWindupElements)
-    tag = strcat('$int', num2str(i - 1));
-    template = replace(template, tag, integralWindupElements(i));
-end
 fprintf(outputFid, ' *\r\n');
 fprintf(outputFid, ' */\r\n\n');
 fprintf(outputFid, template);
 fclose(outputFid);
 
+
 ExportParamsAndMatrices('ParamsAndMatrices-generated');
 
 end
+
+
 
 %% Symbolic expression to string
 function textComponents = symbolicVectorExpressionToStrings(droneState, u)

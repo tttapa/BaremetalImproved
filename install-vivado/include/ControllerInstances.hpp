@@ -1,8 +1,9 @@
 #pragma once
+
+/* Includes from src. */
 #include <Altitude.hpp>
 #include <Attitude.hpp>
 #include <Autonomous.hpp>
-#include <InputBias.hpp>
 #include <Position.hpp>
 
 /** Instance of the attitude controller. */
@@ -16,9 +17,6 @@ extern PositionController positionController;
 
 /** Instance of the autonomous controller. */
 extern AutonomousController autonomousController;
-
-/** Instance of the input bias handler. */
-extern InputBias inputBias;
 
 /**
  * Initialize the controller instances.

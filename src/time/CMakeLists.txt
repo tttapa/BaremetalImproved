@@ -20,7 +20,7 @@ target_include_directories(time
 )
 
 # Tell CMake to compile this library with C++17 features enabled
-target_compile_features(time PUBLIC cxx_std_17)
+# target_compile_features(time PUBLIC cxx_std_17)
 
 # Link the library with its dependencies.
 #   This manages both the include directories of the dependencies, as well as  
@@ -30,6 +30,8 @@ target_compile_features(time PUBLIC cxx_std_17)
 target_link_libraries(time 
     PUBLIC 
         utilities
+    PRIVATE
+        src-vivado
 )
 
 # Run CMake again in the `test` folder, to discover the CMakeLists.txt file that

@@ -1,19 +1,18 @@
-// Original: BareMetal/src/intc/intc.c
-
-/******************************************************************
-*   Interrupt control source file
-*   This file contains all interrupt related methods and variables.
-*   This file should NEVER be changed by the students.
-*   Author: w. devries
-*******************************************************************/
-#include "IIC.hpp"
-#include <MainInterrupt.hpp> /* update() is called at 238 Hz. */
 #include <iostream>
 #include <platform/Interrupt.hpp>
+
+/* Includes from src: updateFSM() is called when IMU updates. */
+#include <MainInterrupt.hpp>
+
+/* Includes from src-vivado. */
+#include "IIC.hpp"
+
+/* Includes from Xilinx. */
 #include <xiicps.h>
 #include <xparameters.h>
 #include <xscugic.h>
 
+#pragma region Constants
 /* Interrupt controller device ID. */
 const int INTC_DEVICE_ID = XPAR_PS7_SCUGIC_0_DEVICE_ID;
 
@@ -25,6 +24,7 @@ const int GYR_INT_ID = XPAR_FABRIC_SYSTEM_CORE1_NIRQ_INTR;
 
 /* I2C serial clock frequency in Hertz. */
 const int IIC_SCLK_RATE = 400e3;
+#pragma endregion
 
 /* Instance of the interrupt controller. */
 static XScuGic InterruptController;
@@ -35,17 +35,16 @@ static XIicPs Iic0;
 /**
  *
  * This function is the handler which is used when the Gyro generates an
- * interrupt. It does this at 238Hz. This method then updates the EAGLE FSM.
+ * interrupt. It does this whenever the IMU sends a new measurementz. This
+ * method then updates the EAGLE FSM.
  *
  * @param	InstancePtr
  * 			A pointer to the XIicPs instance.
  */
 void int_gyr(void *InstancePtr) {
-    (void) InstancePtr;  // TODO
-    // TODO: update the main program
+    (void) InstancePtr;
     /* update the FSM */
-    std::cout << "update" << std::endl;
-    // update();
+    updateFSM();
 }
 
 /**
@@ -173,7 +172,7 @@ int setupIMUInterruptSystem() {
     return XST_SUCCESS;
 }
 
-// TODO: THIS DATA IS NEVER USED! IS THIS NECESSARY?
+// TODO: remove this before handing in assignment... i think it's useless
 /**
  * This function is the handler which performs processing to handle data events
  * from the IIC.  It is called from an interrupt context such that the amount
@@ -183,12 +182,10 @@ int setupIMUInterruptSystem() {
  *        this case it is the instance pointer for the IIC driver.
  * @param Event contains the specific kind of event that has occurred.
  */
-// TODO: handler does nothing
 /*
 void handler(void *CallBackRef, u32 Event) {
 
 	// The following counters are used to determine when the entire buffer has been sent and received.
-	// TODO: these were declared like this in the header file... what should they be now?
 	volatile u32 SendComplete;
 	volatile u32 RecvComplete;
 	volatile u32 TotalErrorCount;
@@ -259,7 +256,7 @@ unsigned char iicConfig(unsigned int DeviceIdPS, XIicPs *iic_ptr) {
 	   context when data has been sent and received, specify a pointer to the
 	   IIC driver instance as the callback reference so the handlers are able to
 	   access the instance data. */
-    // TODO: handler does nothing
+    // TODO: remove this before handing in assignment... never used...
     // XIicPs_SetStatusHandler(iic_ptr, (void *) iic_ptr, handler);
 
     // Set the IIC serial clock rate.

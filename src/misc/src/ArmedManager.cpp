@@ -1,12 +1,17 @@
 #include <ArmedManager.hpp>
+
+/* Includes from src. */
 #include <MiscInstances.hpp>
 #include <RCValues.hpp>
 #include <Time.hpp>
 
+#pragma region Constants
 /** The armed status can only change if the throttle stays below 0.03. */
 static constexpr float THROTTLE_THRESHOLD = 0.03;
+
 /** The drone can only be disarmed if the yaw says below -0.48. */
 static constexpr float YAW_LOWER_THRESHOLD = -0.48;
+
 /** The drone can only be armed if the yaw says above 0.48. */
 static constexpr float YAW_UPPER_THRESHOLD = 0.48;
 
@@ -15,6 +20,7 @@ static constexpr float YAW_UPPER_THRESHOLD = 0.48;
  * 2 seconds in order to change the armed status.
  */
 static constexpr float ARMED_CHANGE_DELAY = 2.0;
+#pragma endregion
 
 void ArmedManager::update() {
 
@@ -34,10 +40,13 @@ void ArmedManager::update() {
         /* Change armed status if we've waited long enough. */
         if (getTime() - waitingStartTime >= ARMED_CHANGE_DELAY) {
             this->isWaitingForChange = false;
-            if (yaw >= YAW_UPPER_THRESHOLD)
+            if (yaw >= YAW_UPPER_THRESHOLD) {
                 this->armed = true;
-            else
+                buzzerManager.addArmedBeeps();
+            } else {
                 this->armed = false;
+                buzzerManager.addDisarmedBeeps();
+            }
         }
     } else {
 

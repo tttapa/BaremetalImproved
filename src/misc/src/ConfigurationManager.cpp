@@ -1,11 +1,13 @@
 #include <ConfigurationManager.hpp>
+
+/* Includes from src. */
 #include <MiscInstances.hpp>
 #include <RCValues.hpp>
 #include <Time.hpp>
 
+#pragma region Constants
 /** 3 wiggles to sound configuration. */
 static constexpr int NUM_WIGGLES = 3;
-
 /** Every 1000 ms, 1 wiggle decreases. */
 static constexpr float WIGGLE_DECREMENT_DELAY = 1.0;
 
@@ -21,17 +23,18 @@ static constexpr float CONFIG_CHANGE_DELAY = 1.5;
  */
 static constexpr float AFTER_CONFIG_CHANGE_DELAY = 0.5;
 
-/** Threshold for incrementing the cofiguration is 0.40. */
-static constexpr float CONFIG_UPPER_THRESHOLD = 0.40;
-/** Threshold for decrementing the cofiguration is -0.40. */
-static constexpr float CONFIG_LOWER_THRESHOLD = -0.40;
-/** Upper threshold for counting wiggles is 0.04. */
-static constexpr float WIGGLE_UPPER_THRESHOLD = 0.04;
-/** Lower threshold for counting wiggles is -0.04. */
-static constexpr float WIGGLE_LOWER_THRESHOLD = -0.04;
+/** Threshold for incrementing the cofiguration is 0.80. */
+static constexpr float CONFIG_UPPER_THRESHOLD = 0.80;
+/** Threshold for decrementing the cofiguration is -0.80. */
+static constexpr float CONFIG_LOWER_THRESHOLD = -0.80;
+/** Upper threshold for counting wiggles is 0.08. */
+static constexpr float WIGGLE_UPPER_THRESHOLD = 0.08;
+/** Lower threshold for counting wiggles is -0.08. */
+static constexpr float WIGGLE_LOWER_THRESHOLD = -0.08;
 
 /** Configuration can only be changed when the RC throttle is below 0.03. */
 static constexpr float THROTTLE_THRESHOLD = 0.03;
+#pragma endregion
 
 void ConfigurationManager::nextConfiguration() {
     controllerConfiguration++;
@@ -61,8 +64,10 @@ void ConfigurationManager::updateConfig() {
 
     /* Only do configuration if we're in the changing zone. */
     if (tunerValue < CONFIG_UPPER_THRESHOLD &&
-        tunerValue > CONFIG_LOWER_THRESHOLD)
+        tunerValue > CONFIG_LOWER_THRESHOLD) {
+        this->isWaitingForConfigurationChange = false;
         return;
+    }
 
     /* Only do configuration if the buzzer is not busy. */
     if (buzzerManager.isInstructionBusy())
@@ -79,6 +84,7 @@ void ConfigurationManager::updateConfig() {
                 nextConfiguration();
             else
                 previousConfiguration();
+            buzzerManager.addConfigurationBeeps(this->controllerConfiguration);
         }
     } else {
 

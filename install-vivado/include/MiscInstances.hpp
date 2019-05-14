@@ -1,5 +1,8 @@
 #pragma once
+
+/* Includes from src. */
 #include <ArmedManager.hpp>
+#include <BiasManager.hpp>
 #include <BuzzerManager.hpp>
 #include <ConfigurationManager.hpp>
 #include <ESCStartupScript.hpp>
@@ -8,6 +11,9 @@
 /** Instance of the armed manager. */
 extern ArmedManager armedManager;
 
+/** Instance of the input bias manager. */
+extern BiasManager biasManager;
+
 /** Instance of the buzzer manager. */
 extern BuzzerManager buzzerManager;
 
@@ -15,10 +21,10 @@ extern BuzzerManager buzzerManager;
 extern ConfigurationManager configManager;
 
 /** Instance of the ESC statup script. */
-extern ESCStartupScript escStartupScript;
+// extern ESCStartupScript escStartupScript;
 
 /** Instance of the gradual thrust change manager. */
-extern GradualThrustChangeManager gtcManager;
+//extern GradualThrustChangeManager gtcManager;
 
 /**
  * Initialize the miscellaneous instances.

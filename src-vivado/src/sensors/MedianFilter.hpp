@@ -1,13 +1,4 @@
-// Original: BareMetal/src/utils/median_filter.h
 #pragma once
-
-/*******************************************************************************
-*   Median filter header file
-*
-*   This file contains an implementation of a median filter with dynamic resizing.
-*   This median filter is used in sonar.cpp to filter the raw sonar measurements.
-*   author: p. coppens
-*******************************************************************************/
 
 /**
  * Initialize the measurement buffer by filling it with copies of the same
@@ -20,7 +11,7 @@
  * @param   measurement
  *          Element to fill the buffer with.
  */
-void initMF(float* measurements, int size, float measurement);
+void initMF(float *measurements, int size, float measurement);
 
 /**
  * Add an element to the measurement buffer.
@@ -32,7 +23,7 @@ void initMF(float* measurements, int size, float measurement);
  * @param   measurement
  *          Element to add.
  */
-void addMFMeasurement(float* measurements, int size, float measurement);
+void addMFMeasurement(float *measurements, int size, float measurement);
 
 /**
  * Get the median of the last bufferSize values currently stored in the 
@@ -45,4 +36,4 @@ void addMFMeasurement(float* measurements, int size, float measurement);
  * @param   bufferSize
  *          The amount of elements that will be sorted to find the median.
  */
-float getMedian(float* measurements, int size, int bufferSize);
+float getMedian(float *measurements, int size, int bufferSize);

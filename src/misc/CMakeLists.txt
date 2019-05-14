@@ -1,14 +1,14 @@
 # Create library target and specify the implementation files to compile.
 add_library(misc
     src/ArmedManager.cpp
+    src/BiasManager.cpp
     src/BuzzerManager.cpp
     src/ConfigurationManager.cpp
     src/ESCStartupScript.cpp
     src/GradualThrustChangeManager.cpp
-    src/OutputValues.cpp
+    src/LoggerValues.cpp
     src/RCValues.cpp
-    src/SensorValues.cpp
-    src/WPT.cpp
+    src/TestMode.cpp
 )
 
 # Set target include directories 
@@ -28,7 +28,7 @@ target_include_directories(misc
 )
 
 # Tell CMake to compile this library with C++17 features enabled
-target_compile_features(misc PUBLIC cxx_std_17)
+# target_compile_features(misc PUBLIC cxx_std_17)
 
 # Link the library with its dependencies.
 #   This manages both the include directories of the dependencies, as well as  
@@ -37,10 +37,12 @@ target_compile_features(misc PUBLIC cxx_std_17)
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(misc 
     PUBLIC 
-        time
         communication
-        instances
         control
+        instances
+        quaternion
+        time
+        utilities
         vivado-types
     PRIVATE
         src-vivado
@@ -60,10 +62,12 @@ install(EXPORT misc DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ArmedManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/BiasManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/BuzzerManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ConfigurationManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ESCStartupScript.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GradualThrustChangeManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/LoggerValues.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/RCValues.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/WPT.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/TestMode.hpp
 DESTINATION include)

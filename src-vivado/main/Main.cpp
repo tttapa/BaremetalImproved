@@ -1,3 +1,12 @@
+#include <iostream>
+
+/* Includes from src. */
+#include <ControllerInstances.hpp>
+#include <MainLoop.hpp>
+#include <MiscInstances.hpp>
+#include <SharedMemoryInstances.hpp>
+
+/* Includes from src-vivado. */
 #include <output/Buzzer.hpp>
 #include <output/Motors.hpp>
 #include <output/WPT.hpp>
@@ -7,22 +16,15 @@
 #include <sensors/IMU.hpp>
 #include <sensors/Sonar.hpp>
 
-#include <ControllerInstances.hpp>
-#include <MainLoop.hpp>
-#include <SharedMemoryInstances.hpp>
-
-#include <iostream>
-
 /**
  * @brief   Main entry point to the Baremetal applications.
  */
 int main(void) {
 
-	std::cout << "Hello World from Baremetal" << std::endl;
+    std::cout << "Hello World from Baremetal" << std::endl;
 
     /* Initialize Xilinx platform and IPC. */
     initPlatform();
-
 
     /* Initialize interrupt system. */
     if (initInterrupt() == false)
@@ -35,18 +37,21 @@ int main(void) {
     /* Initialize the controllers and input bias. */
     initControllerInstances();
 
+    /* Initialize the miscellaneous instances. */
+    initMiscInstances();
+
     /* Initialize the communication with the Linux core. */
     initSharedMemoryInstances();
 
     /* Initialize the sensors. AHRS will be initialized after IMU is calibrated.  */
     initSonar();
     initIMU();
-    if(initIMUInterruptSystem() == false)
-    	return 1;
+    if (initIMUInterruptSystem() == false)
+        return 1;
 
     /* Reset PWM output. */
-    outputMotorPWM({0, 0, 0, 0});
-    outputBuzzerPWM({0, 0, 0});
+    outputMotorPWM(0, 0, 0, 0);
+    outputBuzzerPWM(0, 0, 0);
     outputWPT(0);
 
     //-------------------- MAIN EXECUTION -------------------

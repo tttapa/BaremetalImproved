@@ -1,22 +1,16 @@
-// Original: BareMetal/src/platform/platform.c
-// Original: BareMetal/src/platform/eagle_ipc.c
-
-/******************************************************************************
-*   Platform source code
-*
-*   This file should NEVER be changed by the students.
-*******************************************************************************/
 #include <platform/Platform.hpp>
+#include <stdio.h>
+
+/* Includes from Xilinx. */
+#include "sleep.h"
+#include "stdlib.h"
+#include "xiicps.h"
 #include "xil_cache.h"
 #include "xil_cache_l.h"
 #include "xil_exception.h"
-#include "xiicps.h"
 #include "xscugic.h"
-#include <stdio.h>
-#include "stdlib.h"
-#include "sleep.h"
 
-
+// TODO: block comment
 /******************************************************************************
 *
 * Copyright (C) 2010 - 2014 Xilinx, Inc.  All rights reserved.
@@ -56,42 +50,38 @@
 /*#include "ps7_init.h"*/
 
 #ifdef STDOUT_IS_16550
-    #include "xuartns550_l.h"
-    #define UART_BAUD 9600
+#include "xuartns550_l.h"
+#define UART_BAUD 9600
 #endif
 
-
 void enableCaches() {
-    #ifdef __PPC__
-        Xil_ICacheEnableRegion(CACHEABLE_REGION_MASK);
-        Xil_DCacheEnableRegion(CACHEABLE_REGION_MASK);
-    #elif __MICROBLAZE__
-        #ifdef XPAR_MICROBLAZE_USE_ICACHE
-            Xil_ICacheEnable();
-        #endif
-        #ifdef XPAR_MICROBLAZE_USE_DCACHE
-            Xil_DCacheEnable();
-        #endif
-    #endif
+#ifdef __PPC__
+    Xil_ICacheEnableRegion(CACHEABLE_REGION_MASK);
+    Xil_DCacheEnableRegion(CACHEABLE_REGION_MASK);
+#elif __MICROBLAZE__
+#ifdef XPAR_MICROBLAZE_USE_ICACHE
+    Xil_ICacheEnable();
+#endif
+#ifdef XPAR_MICROBLAZE_USE_DCACHE
+    Xil_DCacheEnable();
+#endif
+#endif
 }
-
 
 void disableCaches() {
     Xil_DCacheDisable();
     Xil_ICacheDisable();
 }
 
-
 void initUART() {
-    #ifdef STDOUT_IS_16550
-        XUartNs550_SetBaud(STDOUT_BASEADDR, XPAR_XUARTNS550_CLOCK_HZ, UART_BAUD);
-        XUartNs550_SetLineControlReg(STDOUT_BASEADDR, XUN_LCR_8_DATA_BITS);
-    #endif
-    #ifdef STDOUT_IS_PS7_UART
-        /* Bootrom/BSP configures PS7 UART to 115200 bps */
-    #endif
+#ifdef STDOUT_IS_16550
+    XUartNs550_SetBaud(STDOUT_BASEADDR, XPAR_XUARTNS550_CLOCK_HZ, UART_BAUD);
+    XUartNs550_SetLineControlReg(STDOUT_BASEADDR, XUN_LCR_8_DATA_BITS);
+#endif
+#ifdef STDOUT_IS_PS7_UART
+    /* Bootrom/BSP configures PS7 UART to 115200 bps */
+#endif
 }
-
 
 void initXilinxPlatform() {
     /*
@@ -105,14 +95,9 @@ void initXilinxPlatform() {
     initUART();
 }
 
+void cleanupPlatform() { disableCaches(); }
 
-void cleanupPlatform() {
-    disableCaches();
-}
-
-
-
-
+// TODO: block comment
 /************************************************************
 *   Inter-processor communication source code
 *   This file contains all functions required for the IPC.
@@ -122,53 +107,46 @@ void cleanupPlatform() {
 
 extern u32 MMUTable;
 
-
 void eagleDCacheFlush(void) {
-	Xil_L1DCacheFlush();
-	//Xil_L2CacheFlush();
+    Xil_L1DCacheFlush();
+    //Xil_L2CacheFlush();
 }
-
 
 void eagleSetTLBAttributes(u32 addr, u32 attrib) {
-	u32 *ptr;
-	u32 section;
+    u32 *ptr;
+    u32 section;
 
-	mtcp(XREG_CP15_INVAL_UTLB_UNLOCKED, 0);
-	dsb();
+    mtcp(XREG_CP15_INVAL_UTLB_UNLOCKED, 0);
+    dsb();
 
-	mtcp(XREG_CP15_INVAL_BRANCH_ARRAY, 0);
-	dsb();
-	eagleDCacheFlush();
+    mtcp(XREG_CP15_INVAL_BRANCH_ARRAY, 0);
+    dsb();
+    eagleDCacheFlush();
 
-	section = addr / 0x100000;
-	ptr = &MMUTable + section;
-	*ptr = (addr & 0xFFF00000) | attrib;
-	dsb();
+    section = addr / 0x100000;
+    ptr     = &MMUTable + section;
+    *ptr    = (addr & 0xFFF00000) | attrib;
+    dsb();
 }
 
-
-void eagleSetupIPC(void){
-	eagleSetTLBAttributes(0xFFFF0000, 0x04de2);
-}
-
+void eagleSetupIPC(void) { eagleSetTLBAttributes(0xFFFF0000, 0x04de2); }
 
 void eagleSetupClock(void) {
-	uint32_t* amba_clock_control = (uint32_t*)0xF800012C;
-	*amba_clock_control |= (1<<23); //Enable QSPI
-	*amba_clock_control |= (1<<22); //Enable GPIO
-	*amba_clock_control |= (1<<18); //Enable I2C0
-	*amba_clock_control |= (1<<19); //Enable I2C1
+    uint32_t *amba_clock_control = (uint32_t *) 0xF800012C;
+    *amba_clock_control |= (1 << 23);  //Enable QSPI
+    *amba_clock_control |= (1 << 22);  //Enable GPIO
+    *amba_clock_control |= (1 << 18);  //Enable I2C0
+    *amba_clock_control |= (1 << 19);  //Enable I2C1
 }
-
 
 void initPlatform() {
 
-	/* Configure inter-processor communication (only needed in AMP mode). */
-	eagleSetupIPC();
+    /* Configure inter-processor communication (only needed in AMP mode). */
+    eagleSetupIPC();
 
-	/* Set up Xilinx platform. */
-	initXilinxPlatform();
+    /* Set up Xilinx platform. */
+    initXilinxPlatform();
 
-	/* Setup clock control. */
-	eagleSetupClock();
+    /* Setup clock control. */
+    eagleSetupClock();
 }

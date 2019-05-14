@@ -1,9 +1,14 @@
-#include "../PrivateHardwareConstants.hpp" /* Registers & channels */
-#include <platform/AxiGpio.hpp>                  /* Header file */
-#include <xgpio.h>                      /* AXI GPIO functions */
-#include <xparameters.h>                /* Project parameters */
-#include <xscugic.h>                    /* Xilinx functions */
+#include <platform/AxiGpio.hpp>
 
+/* Includes from src-vivado. */
+#include "../PrivateHardwareConstants.hpp"
+
+/* Includes from Xilinx. */
+#include <xgpio.h>
+#include <xparameters.h>
+#include <xscugic.h>
+
+#pragma region Constants
 /* Port used for LEDs in LED GPIO. */
 const int LED_CHANNEL = 1;
 
@@ -18,12 +23,14 @@ const int GPIO_DEVICE_LED = XPAR_AXI_GPIO_LED_DEVICE_ID;
 
 /* Address of GPIO that the TESTPINs are connected to. */
 const int GPIO_DEVICE_TESTPIN = XPAR_AXI_GPIO_TESTPINS_DEVICE_ID;
+#pragma endregion
 
 /* GPIO Device driver instance for LEDs and heartbeat. */
 static XGpio axi_gpio_1;
 
 /*  GPIO Device driver instance for testpin. */
 static XGpio axi_gpio_2;
+
 
 bool initAxiGpio() {
 
@@ -69,4 +76,8 @@ void writeToLEDs(LEDInstruction values) {
     int value =
         values.led1 + 2 * values.led2 + 4 * values.led3 + 8 * values.led4;
     XGpio_DiscreteWrite(&axi_gpio_1, LED_CHANNEL, value);
+}
+
+void writeToLEDs(bool led1, bool led2, bool led3, bool led4) {
+    writeToLEDs({led1, led2, led3, led4});
 }

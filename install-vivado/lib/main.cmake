@@ -52,9 +52,8 @@ endif()
 add_library(main STATIC IMPORTED)
 
 set_target_properties(main PROPERTIES
-  INTERFACE_COMPILE_FEATURES "cxx_std_17"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:quaternion>;\$<LINK_ONLY:communication>;\$<LINK_ONLY:instances>;\$<LINK_ONLY:src-vivado>"
+  INTERFACE_LINK_LIBRARIES "utilities;\$<LINK_ONLY:quaternion>;\$<LINK_ONLY:communication>;\$<LINK_ONLY:instances>;\$<LINK_ONLY:src-vivado>"
 )
 
 if(CMAKE_VERSION VERSION_LESS 2.8.12)
@@ -93,7 +92,7 @@ unset(_IMPORT_CHECK_TARGETS)
 # Make sure the targets which have been exported in some other 
 # export set exist.
 unset(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets)
-foreach(_target "quaternion" "communication" "instances" "src-vivado" )
+foreach(_target "utilities" "quaternion" "communication" "instances" "src-vivado" )
   if(NOT TARGET "${_target}" )
     set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets "${${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets} ${_target}")
   endif()
