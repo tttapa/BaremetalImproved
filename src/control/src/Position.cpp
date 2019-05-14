@@ -31,12 +31,6 @@ void PositionController::clampControlSignal() {
         this->controlSignal.q2ref = -REFERENCE_QUATERNION_CLAMP;
 }
 
-void PositionController::correctPosition(real_t correctionX,
-                                         real_t correctionY) {
-    this->stateEstimate.p.x += correctionX;
-    this->stateEstimate.p.y += correctionY;
-}
-
 void PositionController::init(Position currentPosition) {
 
     /* Reset the position controller. */
@@ -44,6 +38,10 @@ void PositionController::init(Position currentPosition) {
     this->integralWindup      = {};
     this->controlSignal       = {};
     this->lastMeasurementTime = 0.0;
+}
+
+void PositionController::setPosition(Position currentPosition) {
+    this->stateEstimate.p = currentPosition;
 }
 
 PositionControlSignal

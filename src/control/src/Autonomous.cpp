@@ -215,7 +215,6 @@ void AutonomousController::updateQRFSM() {
      */
 
     /* Implement FSM logic. */
-    real_t correctionX, correctionY;
     switch (this->qrState) {
         case QRFSMState::IDLE:
             /* Reset error count and search count. */
@@ -225,44 +224,45 @@ void AutonomousController::updateQRFSM() {
             /* Let the Image Processing team take a picture if we have converged
                on our target. */
             if (getElapsedTime() > CONVERGENCE_DURATION) {
-                /* Get new target from QR code. */
                 if (isNavigationEnabledQRCodes())
-                    qrComm->setQRStateRequest();
-
-                /* Test navigation: set new target. */
+                    qrComm->setQRStateRequest(); /* New target from QR code. */
                 else
-                    startNavigating(getNextNavigationTestTarget());
+                    startNavigating(getNextNavigationTestTarget()); /* Test. */
             }
 
+            /* Stay in QR_IDLE. */
             break;
 
         case QRFSMState::NEW_TARGET:
-            /* Correct the drone's position if the drone got lost, and we had to
-               search for the code. */
-            correctionX = this->nextTarget.x - this->nextQRPosition.x;
-            correctionY = this->nextTarget.y - this->nextQRPosition.y;
-            if (correctionX != 0.0 && correctionY != 0.0)
-                positionController.correctPosition(correctionX, correctionY);
+            /* Correct the drone's position if it got lost during navigation. */
+            positionController.setPosition(qrComm->getCurrentPosition());
 
             /* Tell the autonomous controller's FSM to start navigating to the
                position of the next QR code sent by the Cryptography team. */
-            /* Switch this FSM to QR_IDLE. */
             startNavigating(qrComm->getTargetPosition());
+
+            /* Switch this FSM to QR_IDLE. */
             qrComm->setQRStateIdle();
             break;
 
         case QRFSMState::LAND:
+            /* Correct the drone's position if it got lost during navigation. */
+            positionController.setPosition(qrComm->getCurrentPosition());
+
             /* Tell the autonomous controller's FSM to start landing. */
-            /* Switch this FSM to QR_IDLE. */
             if (isLandingEnabled())
                 startLanding(false, {});
             else
                 startLoitering(true);
 
+            /* Switch this FSM to QR_IDLE. */
             qrComm->setQRStateIdle();
             break;
 
         case QRFSMState::QR_UNKNOWN:
+            /* Correct the drone's position if it got lost during navigation. */
+            positionController.setPosition(qrComm->getCurrentPosition());
+
             // TODO: what do we do with unknown QR data?
             /* Switch this FSM to QR_IDLE. */
             qrComm->setQRStateIdle();
@@ -281,10 +281,8 @@ void AutonomousController::updateQRFSM() {
 
             /* Valid search target, so set it as the next target. */
             /* Switch this FSM to QR_IDLE. */
-            if (this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
+            if (this->qrTilesSearched < MAX_QR_SEARCH_COUNT)
                 setNextTarget(nextSearchTarget);
-                qrComm->setQRStateIdle();
-            }
 
             /* We've run out of tiles to search, so have the drone land. */
             /* Switch this FSM to QR_IDLE. */
@@ -292,14 +290,14 @@ void AutonomousController::updateQRFSM() {
                 if (isLandingEnabled())
                     startLanding(false, {}); /* Land the drone. */
                 else
-                    startLoitering(false); /* Stay in LOITERING. */
-
-                qrComm->setQRStateIdle();
+                    startLoitering(true); /* Stay in LOITERING. */
             }
 
+            /* Switch to QR_IDLE. */
+            qrComm->setQRStateIdle();
             break;
-
-        } case QRFSMState::ERROR:
+        }
+        case QRFSMState::ERROR:
             this->qrErrorCount++;
 
             /* Give up!!! Image is either too blurry or Crypto is being a
@@ -308,8 +306,9 @@ void AutonomousController::updateQRFSM() {
                 if (isLandingEnabled())
                     startLanding(false, {}); /* Land the drone. */
                 else
-                    startLoitering(false); /* Stay in LOITERING. */
+                    startLoitering(true); /* Stay in LOITERING. */
 
+                /* Switch to QR_IDLE. */
                 qrComm->setQRStateIdle();
                 break;
             }
@@ -383,7 +382,12 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
             bypassAltitudeController = true;
             commonThrust             = 0.0;
             updatePositionController = false;
-            if (getThrottle() > TAKEOFF_THROTTLE)
+
+            /* WPT? */
+            if (getWPTMode() == WPTMode::ON)
+                setAutonomousState(WPT);
+            /* TAKEOFF? */
+            else if (getThrottle() > TAKEOFF_THROTTLE)
                 setAutonomousState(PRE_TAKEOFF);
             break;
 
@@ -437,15 +441,14 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
         case CONVERGING:
             /* Instruction: hover at (position, height) = (nextTarget,
                             referenceHeight).
-               ! Reset counter if we're no longer within converging distance. !
                Switch to LANDING: if the pilot lowers the throttle enough.
                Switch to NAVIGATING: if QR FSM tells us to.
                Switch to LANDING: if QR FSM tells us to. */
             if (getThrottle() <= LANDING_THROTTLE && isLandingEnabled())
                 startLanding(true, currentPosition);
-            if (distsq(this->nextTarget, currentPosition) >
-                CONVERGENCE_DISTANCE * CONVERGENCE_DISTANCE)
-                this->autonomousStateStartTime = getTime();
+            else if (distsq(this->nextTarget, currentPosition) >
+                     CONVERGENCE_DISTANCE * CONVERGENCE_DISTANCE)
+                this->autonomousStateStartTime = getTime(); /* Reset counter. */
             break;
 
         case NAVIGATING:
@@ -455,7 +458,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                Switch to CONVERGING: when timer expires. */
             if (getThrottle() <= LANDING_THROTTLE && isLandingEnabled())
                 startLanding(true, currentPosition);
-            if (getElapsedTime() <= this->navigationTime) {
+            else if (getElapsedTime() <= this->navigationTime) {
                 dx = (nextTarget.x - previousTarget.x) * getElapsedTime() /
                      this->navigationTime;
                 dy = (nextTarget.y - previousTarget.y) * getElapsedTime() /
@@ -494,7 +497,11 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
             }
             break;
 
-        case WPT: break;
+        case WPT:
+            /* WPT done? */
+            if (getWPTMode() == WPTMode::OFF)
+                setAutonomousState(IDLE_GROUND);
+            break;
 
         case ERROR: break;
     }
