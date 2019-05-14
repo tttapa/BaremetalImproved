@@ -63,7 +63,7 @@ static constexpr real_t LANDING_THROTTLE = 0.05;
 /**
  * The autonomous controller will loiter for 15 seconds before navigating.
  */
-static constexpr real_t LOITER_DURATION = 15.0;
+static constexpr real_t LOITER_DURATION = 3.0;
 
 /**
  * If the Cryptography team fails to decrypt the image sent by the Image
@@ -518,8 +518,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
 void AutonomousController::initAir(Position currentPosition,
                                    AltitudeReference referenceHeight) {
-    this->autonomousState          = LOITERING;
-    this->autonomousStateStartTime = getTime();
+    startLoitering(false);
     this->previousTarget           = currentPosition;
     this->nextTarget               = currentPosition;
     this->referenceHeight          = referenceHeight;
@@ -527,8 +526,7 @@ void AutonomousController::initAir(Position currentPosition,
 }
 
 void AutonomousController::initGround(Position currentPosition) {
-    this->autonomousState          = IDLE_GROUND;
-    this->autonomousStateStartTime = getTime();
+    setAutonomousState(IDLE_GROUND);
     this->previousTarget           = currentPosition;
     this->nextTarget               = currentPosition;
     this->qrErrorCount             = 0;
