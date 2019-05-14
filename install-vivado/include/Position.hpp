@@ -283,19 +283,6 @@ class PositionController {
         PositionStateBlind stateEstimateBlind,
         PositionControlSignalBlind controlSignalBlind);
 
-    /**
-     * Shift the position controller's estimate of the position by the given
-     * correction.
-     * 
-     * @param   correctionX
-     *          Correction to be added to the x-coordinate of the estimate of
-     *          the position controller.
-     * @param   correctionY
-     *          Correction to be added to the y-coordinate of the estimate of
-     *          the position controller.
-     */
-    void correctPosition(real_t correctionX, real_t correctionY);
-
     /** Get the position controller's control signal. */
     PositionControlSignal getControlSignal() { return this->controlSignal; }
 
@@ -313,8 +300,20 @@ class PositionController {
 
     /**
      * Reset the position controller.
+     * 
+     * @param   currentPosition
+     *          Current position of the drone.
      */
-    void init();
+    void init(Position currentPosition);
+
+    /**
+     * Set the position controller's estimate position. This should be used if
+     * the drone gets lost during navigation.
+     * 
+     * @param   currentPosition
+     *          Current position of the drone.
+     */
+    void setPosition(Position currentPosition);
 
     /**
      * Update the position controller with the given reference position. This

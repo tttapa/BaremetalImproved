@@ -328,7 +328,7 @@ void mainOperation() {
 
     /* Logger. */
 
-    LogEntry logEntry;
+LogEntry logEntry;
     logEntry.setSize(64);
     logEntry.setMode(int32_t(getFlightMode()));
     logEntry.setFrametime(getMillis());
@@ -339,35 +339,29 @@ void mainOperation() {
     logEntry.setRcRoll(getRoll());
     logEntry.setRcPitch(getPitch());
     logEntry.setRcYaw(getYaw());
-    logEntry.setReferenceOrientation(
-        toCppArray(attitudeController.getReferenceQuat()));
-    logEntry.setReferenceOrientationEuler(
-        toCppArray(attitudeController.getReferenceEuler()));
+    logEntry.setReferenceOrientation(toCppArray(attitudeController.getReferenceQuat()));
+    logEntry.setReferenceOrientationEuler(toCppArray(attitudeController.getReferenceEuler()));
     logEntry.set__pad0(0);
     logEntry.setReferenceHeight(altitudeController.getReferenceHeight());
-    logEntry.setReferenceLocation(
-        toCppArray(positionController.getReferencePosition()));
+    logEntry.setReferenceLocation(toCppArray(positionController.getReferencePosition()));
     logEntry.setMeasurementOrientation(toCppArray(ahrsQuat));
-    logEntry.setMeasurementAngularVelocity(
-        toCppArray(GyroMeasurement{imuMeasurement}));
+    logEntry.setMeasurementAngularVelocity(toCppArray(GyroMeasurement{imuMeasurement}));
     logEntry.setMeasurementHeight(correctedSonarMeasurement);
     logEntry.setMeasurementLocation(toCppArray(correctedPositionMeasurement));
-    logEntry.setAttitudeObserverState(
-        toCppArray(attitudeController.getStateEstimate()));
-    logEntry.setAltitudeObserverState(
-        toCppArray(altitudeController.getStateEstimate()));
-    logEntry.setNavigationObserverState(
-        toCppArray(positionController.getStateEstimate()));
+    logEntry.setAttitudeObserverState(toCppArray(attitudeController.getStateEstimate()));
+    logEntry.setAltitudeObserverState(toCppArray(altitudeController.getStateEstimate()));
+    logEntry.setNavigationObserverState(toCppArray(positionController.getStateEstimate()));
     logEntry.setAttitudeYawOffset(yawJump);
-    logEntry.setAttitudeControlSignals(
-        toCppArray(attitudeController.getControlSignal()));
+    logEntry.setAttitudeControlSignals(toCppArray(attitudeController.getControlSignal()));
     logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);
-    logEntry.setPositionControlSignal(
-        toCppArray(positionController.getControlSignal()));
+    logEntry.setPositionControlSignal(toCppArray(positionController.getControlSignal()));
     logEntry.setMotorControlSignals(toCppArray(motorSignals));
     logEntry.setCommonThrust(uc);
     logEntry.setHoverThrust(biasManager.getThrustBias());
-    
+
+    // TODO:
+    (void)yawMeasurement;
+
     // logEntry.setSize(64);
     // logEntry.setMode(int32_t(getFlightMode()));
     // logEntry.setFrametime(getMillis());

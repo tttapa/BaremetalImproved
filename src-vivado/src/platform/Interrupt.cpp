@@ -183,6 +183,10 @@ int setupIMUInterruptSystem() {
  */
 void handler(void *CallBackRef, u32 Event) {
 
+	(void)CallBackRef;
+	(void)Event;
+	/*
+
 	// The following counters are used to determine when the entire buffer has been sent and received.
 	volatile u32 SendComplete;
 	volatile u32 RecvComplete;
@@ -196,6 +200,7 @@ void handler(void *CallBackRef, u32 Event) {
 	else if (0 == (Event & XIICPS_EVENT_SLAVE_RDY))
 		// If it is other interrupt but not slave ready interrupt, it is an error.
 		TotalErrorCount++;
+	*/
 
 }
 
