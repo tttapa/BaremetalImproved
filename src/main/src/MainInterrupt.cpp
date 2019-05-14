@@ -385,8 +385,8 @@ void mainOperation() {
     logEntry.setAttitudeYawOffset(yawJump);
     logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);
     logEntry.setPositionControlSignal(
-        {positionController.getControlSignal().q1ref,
-         positionController.getControlSignal().q2ref});
+        {(float)positionController.getControlSignal().q1ref,
+         (float)positionController.getControlSignal().q2ref});
     logEntry.setCommonThrust(uc);
     logEntry.setHoverThrust(biasManager.getThrustBias());
 

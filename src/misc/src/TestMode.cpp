@@ -82,7 +82,7 @@ bool isNavigationEnabled() {
  * using QR codes to navigate.
  */
 bool isNavigationEnabledQRCodes() {
-    return TEST_MODE == TestMode::TEST_QR_NAVIGATION ||  //
+    return TEST_MODE == TestMode::TEST_QR_NAVIGATION_LOST ||  //
            TEST_MODE == TestMode::DEMO;
 }
 
@@ -91,7 +91,7 @@ bool isNavigationEnabledQRCodes() {
  * using prespecified test targets to navigate.
  */
 bool isNavigationEnabledTestTargets() {
-    return TEST_MODE == TestMode::TEST_NAVIGATING;
+    return TEST_MODE == TestMode::TEST_NAVIGATION;
 }
 
 /** Get whether the drone is able to land. */
@@ -105,7 +105,7 @@ bool shouldLandAfterLoitering() { return TEST_MODE == TestMode::TEST_LANDING; }
 
 /** Get whether the drone should loiter indefinitely after taking off. */
 bool shouldLoiterIndefinitelyAfterTakeoff() {
-    return TEST_MODE = TestMode::TEST_TAKEOFF;
+    return TEST_MODE == TestMode::TEST_TAKEOFF;
 }
 
 /**
