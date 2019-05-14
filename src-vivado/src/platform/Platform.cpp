@@ -129,7 +129,30 @@ void eagleSetTLBAttributes(u32 addr, u32 attrib) {
     dsb();
 }
 
-void eagleSetupIPC(void) { eagleSetTLBAttributes(0xFFFF0000, 0x04de2); }
+void eagleSetupIPC(void) {
+    // Configuration of the Level 1 Page Table
+    // =======================================
+    //
+    // See Figure 3-5 on p.78 of the Zynq-7000 Technical Reference Manual
+    // https://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdf
+    //
+    // [31:20] → base address of section
+    // [19] 0 → NS
+    // [18] 0 → 1 MiB "sections"
+    // [17] 0 → Global
+    // [16] 1 → Shareable
+    // [15] 0 → Access Permission [2]
+    // [14:12] 100 → TEX → Normal memory, non-cacheable
+    // [11:10] 11 → Access Permission [1:0] → Full Access
+    // [9] 0
+    // [8:5] 1111 → Domain
+    // [4] 1 → Execute Never
+    // [3:2] 00 → CB → non-cacheable
+    // [1:0] 10 → 1 MiB "sections"
+
+    eagleSetTLBAttributes(0xFFFF0000, 0b1'0'100'11'0'1111'1'00'10);
+}
+
 
 void eagleSetupClock(void) {
     uint32_t *amba_clock_control = (uint32_t *) 0xF800012C;
