@@ -18,7 +18,7 @@
  * If the drone is stays with 0.10 meters of its destination for a period of
  * time, then it will have converged on its target.
  */
-static constexpr real_t CONVERGENCE_DISTANCE = 0.10;
+static constexpr real_t CONVERGENCE_DISTANCE = 0.30;
 
 /**
  * If the drone is stays with a certain distance of its destination for 1
@@ -235,11 +235,11 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::NEW_TARGET:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.setPosition(qrComm->getCurrentPosition());
+            positionController.setPosition(qrComm->getCurrentPosition() + Position{0.5, 0.5});
 
             /* Tell the autonomous controller's FSM to start navigating to the
                position of the next QR code sent by the Cryptography team. */
-            startNavigating(qrComm->getTargetPosition());
+            startNavigating(qrComm->getTargetPosition() + Position{0.5, 0.5});
 
             /* Switch this FSM to QR_IDLE. */
             qrComm->setQRStateIdle();
@@ -247,7 +247,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::LAND:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.setPosition(qrComm->getCurrentPosition());
+            positionController.setPosition(qrComm->getCurrentPosition() + Position{0.5, 0.5});
 
             /* Tell the autonomous controller's FSM to start landing. */
             if (isLandingEnabled())
@@ -261,7 +261,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::QR_UNKNOWN:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.setPosition(qrComm->getCurrentPosition());
+            positionController.setPosition(qrComm->getCurrentPosition() + Position{0.5, 0.5});
 
             // TODO: what do we do with unknown QR data?
             /* Switch this FSM to QR_IDLE. */

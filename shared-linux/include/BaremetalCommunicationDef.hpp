@@ -107,6 +107,9 @@ struct Position {
     Position operator*(float factor) const {
         return {this->x * factor, this->y * factor};
     }
+    Position operator+(const Position& rhs) const {
+        return {this->x + rhs.x, this->y + rhs.y};
+    }
 };
 
 inline std::ostream &operator<<(std::ostream &os, Position pos) {
