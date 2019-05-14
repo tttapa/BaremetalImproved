@@ -215,8 +215,15 @@ void AutonomousController::updateQRFSM() {
         case QRFSMState::IDLE:
             /* Let the Image Processing team take a picture if we have converged
                on our target. */
-            if (getElapsedTime() > CONVERGENCE_DURATION)
-                qrComm->setQRStateRequest();
+            if (getElapsedTime() > CONVERGENCE_DURATION) {
+                /* Test navigation: set new target. */
+                if(isNavigatingEnabled())
+                    startNavigating(getNextNavigationTestTarget());
+                /* Get new target from QR code. */
+                else if(isQRReadingEnabled())
+                    qrComm->setQRStateRequest();
+            }
+                
             break;
         case QRFSMState::NEW_TARGET:
             /* Reset error count and search count. */

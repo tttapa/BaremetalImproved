@@ -73,6 +73,7 @@ enum TestMode {
 
 };
 
+
 /** Get the drone's test mode. */
 TestMode getTestMode();
 
@@ -84,6 +85,9 @@ bool canStartAutonomousModeGround();
 
 /** Get whether switching to autonomous mode from the air is enabled. */
 bool canStartAutonomousModeAir();
+
+/** Get the next navigation target during TEST_NAVIGATION mode. */
+Position getNextNavigationTestTarget();
 
 /** Get whether switching to altitude mode is enabled. */
 bool isAltitudeHoldModeEnabled();
@@ -99,6 +103,9 @@ bool isNavigatingEnabled();
 
 /** Get whether the drone is able to land. */
 bool isLandingEnabled();
+
+/** Get whether QR reading is enabled. */
+bool isQRReadingEnabled();
 
 /** Get whether the drone should switch from LOITERING to LANDING. */
 bool shouldLandAfterLoitering();
