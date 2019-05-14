@@ -8,4 +8,6 @@
  * 
  * @return  The logging data.
  */
+/*
 LogEntry getLogData();
+*/

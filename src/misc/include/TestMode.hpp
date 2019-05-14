@@ -33,7 +33,7 @@ enum TestMode {
      * mode. During this time, the drone will cycle through an array of
      * prespecified targets, navigating and converging on each one.
      */
-    TEST_NAVIGATING = 3,
+    TEST_NAVIGATION = 3,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
@@ -45,11 +45,22 @@ enum TestMode {
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
+     * from the air. The drone will loiter for 15 seconds, then it will read the
+     * first QR code as soon as the drone is stable. After decrypting the QR
+     * code, it will fly to the second QR code, but will arrive 1 tile off. When
+     * ANC asks to scan the current QR code, IMP will respone that there is no
+     * QR code below the drone. Then the drone will perform a spiral search to
+     * find the QR code, and then it will land.
+     */
+    TEST_QR_NAVIGATION_LOST = 5,
+
+    /**
+     * All flight modes are active, but autonomous mode can only be activated
      * from the ground. The drone will perform a pre-takeoff routine and
      * maintain the signals that were sent in the last iteration of the pre-
      * takeoff routine until the pilot switches back to altitude-hold mode.
      */
-    TEST_PRETAKEOFF = 5,
+    TEST_PRETAKEOFF = 6,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
@@ -57,7 +68,7 @@ enum TestMode {
      * will perform the takeoff routine, and finally it will remain in LOITERING
      * until the pilot switches back to altitude-hold mode.
      */
-    TEST_TAKEOFF = 6,
+    TEST_TAKEOFF = 7,
 
     /**
      * All flight modes are active, and autonomous mode can be activated from
@@ -69,10 +80,9 @@ enum TestMode {
      * drone is told to take off again, or the pilot switches back to altitude-
      * hold mode.
      */
-    DEMO = 7,
+    DEMO = 8,
 
 };
-
 
 /** Get the drone's test mode. */
 TestMode getTestMode();
@@ -99,13 +109,29 @@ bool isAutonomousAirEnabled();
 bool isAutonomousGroundEnabled();
 
 /** Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING. */
-bool isNavigatingEnabled();
+bool isNavigationEnabled();
+
+/**
+ * Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING,
+ * using QR codes to navigate.
+ */
+bool isNavigationEnabledQRCodes();
+
+/**
+ * Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING,
+ * using prespecified test targets to navigate.
+ */
+bool isNavigationEnabledTestTargets();
 
 /** Get whether the drone is able to land. */
 bool isLandingEnabled();
 
-/** Get whether QR reading is enabled. */
-bool isQRReadingEnabled();
-
 /** Get whether the drone should switch from LOITERING to LANDING. */
 bool shouldLandAfterLoitering();
+
+/** Get whether the drone should loiter indefinitely after taking off. */
+bool shouldLoiterIndefinitelyAfterTakeoff();
+/**
+ * Get whether the spiral search will be tested after reading the first QR code.
+ */
+bool shouldTestQRSearch();

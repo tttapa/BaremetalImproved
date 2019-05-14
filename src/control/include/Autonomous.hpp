@@ -121,9 +121,6 @@ class AutonomousController {
     /** Time that the autonomous controller entered its current state. */
     real_t autonomousStateStartTime = 0.0;
 
-    /** Has the autonomous controller received a QR_LAND instruction. */
-    bool hasReceivedQRLandInstruction = false;
-
     /** Estimated time to navigate from previous target to next target. */
     real_t navigationTime = 0.0;
 
@@ -153,6 +150,12 @@ class AutonomousController {
 
     /** Most recent reference height of the autonomous controller. */
     AltitudeReference referenceHeight;
+
+    /**
+     * Should the autonomous controller loiter indefinitely or should it switch
+     * to CONVERGING/NAVIGATING?
+     */
+    bool shouldLoiterIndefinitely;
 
     /**
      * Calculates the time since the autonomous controller entered its current
@@ -213,6 +216,18 @@ class AutonomousController {
      */
     void startLanding(bool shouldLandAtCurrentPosition,
                       Position currentPosition);
+
+    /**
+     * Tell the autonomous controller's FSM to switch to the LOITERING state.
+     * If the given boolean is true, then the autonomous controller will stay
+     * in the LOITERING state indefinitely. Otherwise, it will switch states
+     * after the loitering timer runs out.
+     * 
+     * @param   loiterIndefinitely
+     *          Whether the autonomous controller's FSM should stay in the
+     *          LOITERING state indefinitely.
+     */
+    void startLoitering(bool loiterIndefinitely);
 
     /**
      * Tell the autonomous controller's FSM to switch to the NAVIGATING state

@@ -22,6 +22,9 @@ enum class QRFSMState : int32_t {
     LAND = 4,
     /// The Cryptography team has decoded an unknown instruction.
     QR_UNKNOWN = 5,
+    
+    // TODO: remove this
+    NO_QR = 6,
     /// The Cryptography team could not decode the image sent to them.
     ERROR = -1,
 };

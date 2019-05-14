@@ -171,6 +171,11 @@ void AutonomousController::startLanding(bool shouldLandAtCurrentPosition,
     setAutonomousState(LANDING);
 }
 
+void AutonomousController::startLoitering(bool loiterIndefinitely) {
+    this->shouldLoiterIndefinitely = loiterIndefinitely;
+    setAutonomousState(LOITERING);
+}
+
 void AutonomousController::startNavigating(Position nextQRPosition) {
     setNextTarget(nextQRPosition);
     real_t d             = dist(this->previousTarget, this->nextTarget);
@@ -213,23 +218,25 @@ void AutonomousController::updateQRFSM() {
     real_t correctionX, correctionY;
     switch (this->qrState) {
         case QRFSMState::IDLE:
-            /* Let the Image Processing team take a picture if we have converged
-               on our target. */
-            if (getElapsedTime() > CONVERGENCE_DURATION) {
-                /* Test navigation: set new target. */
-                if(isNavigatingEnabled())
-                    startNavigating(getNextNavigationTestTarget());
-                /* Get new target from QR code. */
-                else if(isQRReadingEnabled())
-                    qrComm->setQRStateRequest();
-            }
-                
-            break;
-        case QRFSMState::NEW_TARGET:
             /* Reset error count and search count. */
             this->qrErrorCount    = 0;
             this->qrTilesSearched = 0;
 
+            /* Let the Image Processing team take a picture if we have converged
+               on our target. */
+            if (getElapsedTime() > CONVERGENCE_DURATION) {
+                /* Get new target from QR code. */
+                if (isNavigationEnabledQRCodes())
+                    qrComm->setQRStateRequest();
+
+                /* Test navigation: set new target. */
+                else
+                    startNavigating(getNextNavigationTestTarget());
+            }
+
+            break;
+
+        case QRFSMState::NEW_TARGET:
             /* Correct the drone's position if the drone got lost, and we had to
                search for the code. */
             correctionX = this->nextTarget.x - this->nextQRPosition.x;
@@ -243,66 +250,84 @@ void AutonomousController::updateQRFSM() {
             startNavigating(qrComm->getTargetPosition());
             qrComm->setQRStateIdle();
             break;
-        case QRFSMState::LAND:
-            /* Reset error count and search count. */
-            this->qrErrorCount                 = 0;
-            this->qrTilesSearched              = 0;
-            this->hasReceivedQRLandInstruction = true;
 
+        case QRFSMState::LAND:
             /* Tell the autonomous controller's FSM to start landing. */
             /* Switch this FSM to QR_IDLE. */
             if (isLandingEnabled())
                 startLanding(false, {});
             else
-                setAutonomousState(LOITERING);
+                startLoitering(true);
 
             qrComm->setQRStateIdle();
             break;
+
         case QRFSMState::QR_UNKNOWN:
-            /* Reset error count and search count. */
-            this->qrErrorCount    = 0;
-            this->qrTilesSearched = 0;
-
             // TODO: what do we do with unknown QR data?
-
             /* Switch this FSM to QR_IDLE. */
             qrComm->setQRStateIdle();
             break;
-        case QRFSMState::ERROR:
-            // TODO: instead of trying 3 times, check if there's a QR Code
-            // TODO: if QR code, then try up to 15 times, then quit (land)
-            // TODO: if no QR code (3 times?), then start searching
-            this->qrErrorCount++;
-            if (this->qrErrorCount <= MAX_QR_ERROR_COUNT) {
-                /* Tell IMP to try again. */
-                qrComm->setQRStateRequest();
-            } else {
 
-                /* Start (or continue) spiral-searching for QR code. */
-                this->qrErrorCount = 0;
+        case QRFSMState::NO_QR: {
+            /* Start (or continue) spiral-searching for QR code. */
+            this->qrErrorCount = 0;
+            this->qrTilesSearched++;
+            Position nextSearchTarget = getNextSearchTarget();
+            while (!isValidSearchTarget(nextSearchTarget) &&
+                   this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
+                nextSearchTarget = getNextSearchTarget();
                 this->qrTilesSearched++;
-                Position nextSearchTarget = getNextSearchTarget();
-                while (!isValidSearchTarget(nextSearchTarget) &&
-                       this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
-                    nextSearchTarget = getNextSearchTarget();
-                    this->qrTilesSearched++;
-                }
-
-                /* Valid search target, so set it as the next target. */
-                /* Switch this FSM to QR_IDLE. */
-                if (this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
-                    setNextTarget(nextSearchTarget);
-                    qrComm->setQRStateIdle();
-                }
-
-                /* We've run out of tiles to search, so have the drone land. */
-                /* Switch this FSM to QR_IDLE. */
-                else {
-                    // TODO: fix this, we shouldn't land if not enabled
-                    startLanding(false, {});
-                    qrComm->setQRStateIdle();
-                }
             }
+
+            /* Valid search target, so set it as the next target. */
+            /* Switch this FSM to QR_IDLE. */
+            if (this->qrTilesSearched < MAX_QR_SEARCH_COUNT) {
+                setNextTarget(nextSearchTarget);
+                qrComm->setQRStateIdle();
+            }
+
+            /* We've run out of tiles to search, so have the drone land. */
+            /* Switch this FSM to QR_IDLE. */
+            else {
+                if (isLandingEnabled())
+                    startLanding(false, {}); /* Land the drone. */
+                else
+                    startLoitering(false); /* Stay in LOITERING. */
+
+                qrComm->setQRStateIdle();
+            }
+
+            break;
+
+        } case QRFSMState::ERROR:
+            this->qrErrorCount++;
+
+            /* Give up!!! Image is either too blurry or Crypto is being a
+               potato. */
+            if (this->qrErrorCount == 4 * MAX_QR_ERROR_COUNT) {
+                if (isLandingEnabled())
+                    startLanding(false, {}); /* Land the drone. */
+                else
+                    startLoitering(false); /* Stay in LOITERING. */
+
+                qrComm->setQRStateIdle();
+                break;
+            }
+
+            /* Try setting the altitude reference 15cm higher. */
+            if (this->qrErrorCount == 1 * MAX_QR_ERROR_COUNT)
+                this->referenceHeight.z = REFERENCE_HEIGHT + 0.15;
+
+            /* Try setting the altitude reference 15cm lower. */
+            else if (this->qrErrorCount == 2 * MAX_QR_ERROR_COUNT)
+                this->referenceHeight.z = REFERENCE_HEIGHT - 0.15;
+
+            /* Go back to the nominal altitude reference. */
+            else if (this->qrErrorCount == 3 * MAX_QR_ERROR_COUNT)
+                this->referenceHeight.z = REFERENCE_HEIGHT;
+
+            /* Tell IMP to try again. */
+            qrComm->setQRStateRequest();
             break;
         default:
             /* In any other case, it's not our job to update the QR FSM. It's up
@@ -386,8 +411,10 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                 commonThrust =
                     biasManager.getThrustBias() + TAKEOFF_BLIND_MARGINAL_THRUST;
                 trustAccelerometerForPosition = true;
-            } else if (getElapsedTime() > TAKEOFF_DURATION)
-                setAutonomousState(LOITERING);
+            } else if (getElapsedTime() > TAKEOFF_DURATION) {
+                startLoitering(shouldLoiterIndefinitelyAfterTakeoff());
+            }
+
             break;
 
         case LOITERING:
@@ -397,13 +424,14 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                Switch to CONVERGING: when timer expires. */
             if (getThrottle() <= LANDING_THROTTLE && isLandingEnabled())
                 startLanding(true, currentPosition);
-            else if (getElapsedTime() > LOITER_DURATION) {
+            else if (!this->shouldLoiterIndefinitely &&
+                     getElapsedTime() > LOITER_DURATION) {
                 if (shouldLandAfterLoitering())
                     startLanding(true, currentPosition);
-                else if (isNavigatingEnabled())
+                else if (isNavigationEnabled())
                     setAutonomousState(CONVERGING);
-                /* Stay in LOITERING otherwise. */
             }
+            /* Stay in LOITERING otherwise. */
             break;
 
         case CONVERGING:
