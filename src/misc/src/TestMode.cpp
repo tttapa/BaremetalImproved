@@ -2,7 +2,7 @@
 #include <TestMode.hpp>
 
 /** Current test mode is MANUAL. */
-static const TestMode TEST_MODE = TestMode::TEST_LOITERING;
+static const TestMode TEST_MODE = TestMode::DEMO;
 
 static constexpr int NUM_NAVIGATION_TARGETS = 7;
 
