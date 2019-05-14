@@ -4,6 +4,10 @@
 /** Current test mode is MANUAL. */
 static const TestMode TEST_MODE = TestMode::TEST_LOITERING;
 
+/** Points to cycle through when during the NAVIGATION test mode. */
+static Position[6] = { Position{0.0, 0.0}, //
+
+
 /** Get the drone's test mode. */
 TestMode getTestMode() { return TEST_MODE; }
 
