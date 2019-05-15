@@ -158,11 +158,6 @@ class PositionController {
      * in m/s.
      */
     PositionState stateEstimate;
-    
-    /**
-     * Correction // TODO:
-     */
-    Position correction;
 
   public:
     /**
@@ -303,9 +298,6 @@ class PositionController {
     /** Get the position controller's state estimate. */
     PositionState getStateEstimate() { return this->stateEstimate; }
 
-    /** Get the position state estimated, corrected by position correction. */
-    PositionState getCorrectedStateEstimate();
-
     /**
      * Reset the position controller.
      * 
@@ -315,7 +307,7 @@ class PositionController {
     void init(Position currentPosition);
 
     // TODO: comment
-    void setCorrection(Position newCorrection);
+    void correctPositionEstimate(Position correction);
 
     /**
      * Update the position controller with the given reference position. This

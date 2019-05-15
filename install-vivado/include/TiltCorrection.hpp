@@ -3,6 +3,7 @@
 /* Includes from src. */
 #include <Quaternion.hpp>
 #include <real_t.h>
+#include <Position.hpp>
 
 /**
  * Correct the given measurement sent by the Image Processing team using the
@@ -36,3 +37,9 @@ ColVector<2> getCorrectedPosition(ColVector<2> impMeasurement,
  * @return  The corrected height of the drone.
  */
 real_t getCorrectedHeight(real_t sonarMeasurement, Quaternion orientation);
+
+
+// TODO: documentation
+ColVector<2>
+getGlobalPositionEstimate(ColVector<2> correctedPositionMeasurement,
+                          PositionState lastPositionEstimate, real_t Ts);
