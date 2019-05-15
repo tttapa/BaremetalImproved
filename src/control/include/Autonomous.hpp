@@ -5,52 +5,6 @@
 #include <BaremetalCommunicationDef.hpp>  ///< QRFSMState, Position
 #include <Position.hpp>
 
-/**
- * Output of the autonomous control system, which consists of a reference
- * position, reference height, whether the altitude controller should be
- * bypassed and which common thrust should be used if it is bypassed.
- */
-struct AutonomousOutput {
-    AutonomousOutput(bool bypassAltitudeController,
-                     AltitudeReference referenceHeight, real_t commonThrust,
-                     bool updatePositionController,
-                     bool trustAccelerometerForPosition,
-                     Position referencePosition)
-        : bypassAltitudeController{bypassAltitudeController},
-          referenceHeight{referenceHeight}, commonThrust{commonThrust},
-          updatePositionController{updatePositionController},
-          trustAccelerometerForPosition{trustAccelerometerForPosition},
-          referencePosition{referencePosition} {}
-
-    /**
-     * Whether the altitude controller should be bypassed. If this is true, then
-     * this AutonomousOutput's commonThrust should be used instead of the
-     * altitude controller's common thrust.
-     */
-    bool bypassAltitudeController;
-
-    /** Reference height to be sent to the altitude controller. */
-    AltitudeReference referenceHeight;
-
-    /**
-     * If bypassAltitudeController is true, then this value should be sent to
-     * the "common motor".
-     */
-    real_t commonThrust;
-
-    /** Whether the position controller should be updated. */
-    bool updatePositionController;
-
-    /**
-     * If this is true, then the drone should trust the accelerometer's ax and
-     * ay data to determine the position.
-     */
-    bool trustAccelerometerForPosition;
-
-    /** Reference position to be sent to the position controller. */
-    Position referencePosition;
-};
-
 /** States present in the autonomous controller's finite state machine (FSM). */
 enum AutonomousState {
 
@@ -84,6 +38,62 @@ enum AutonomousState {
      * and start beeping.
      */
     ERROR = -1,
+};
+
+/**
+ * Output of the autonomous control system, which consists of a reference
+ * position, reference height, whether the altitude controller should be
+ * bypassed and which common thrust should be used if it is bypassed.
+ */
+struct AutonomousOutput {
+
+    /**
+     * Whether the altitude controller should be used. If this is false, then
+     * this AutonomousOutput's commonThrust should be used instead of the
+     * altitude controller's common thrust.
+     */
+    bool useAltitudeController;
+
+    /**
+     * Reference height to be sent to the altitude controller, if it is not
+     * bypassed.
+     */
+    AltitudeReference referenceHeight;
+
+    /**
+     * Control signal to send to the common motor if the altitude controller is
+     * bypassed.
+     */
+    AltitudeControlSignal commonThrust;
+
+    /** Whether the altitude observer should be updated. */
+    bool updateAltitudeObserver;
+
+    /**
+     * Whether the position controller should be used. If this is false, then
+     * this AutonomousOutput's reference orientation should be used instead of
+     * the position controller's reference orientation.
+     */
+    bool usePositionController;
+
+    /** Reference position to be sent to the position controller. */
+    Position referencePosition;
+
+    /**
+     * Control signal to send to the attitude controller if the position
+     * controller is bypassed.
+     */
+    PositionControlSignal qref12;
+
+    /** Whether the position observer should be updated. */
+    bool updatePositionObserver;
+
+    /**
+     * If this is true, then the drone should trust IMP's value to determine the
+     * position. Otherwise, it will use the accelerometer's ax and ay data to
+     * determine the position, according to the mathematical model.
+     */
+    bool trustIMPForPosition;
 };
 
 /**
@@ -191,45 +201,6 @@ class AutonomousController {
     void setNextTarget(Position target);
 
     /**
-     * Set the current state of the QR FSM to the the given state (converted to
-     * a QRState). If the conversion fails, the QR FSM state will become
-     * QR_IDLE.
-     * 
-     * @param   nextState
-     *          New QR FSM state.
-     */
-    void setQRState(QRFSMState nextState);
-
-    /**
-     * Tell the autonomous controller's FSM to switch to the LANDING state. This
-     * will be called from the QR FSM when the Cryptography team decodes a
-     * QR_LAND instruction. The drone will either try to land at its current
-     * position (e.g. if the pilot aborts the autonomous flight by setting the
-     * throttle to zero) or at the most recent target position. This is based
-     * on the parameter shouldLandAtCurrentPosition.
-     * 
-     * @param   shouldLandAtCurrentPosition
-     *          Whether the landing target position should be the current drone
-     *          position.
-     * @param   currentPosition
-     *          Current drone position.
-     */
-    void startLanding(bool shouldLandAtCurrentPosition,
-                      Position currentPosition);
-
-    /**
-     * Tell the autonomous controller's FSM to switch to the LOITERING state.
-     * If the given boolean is true, then the autonomous controller will stay
-     * in the LOITERING state indefinitely. Otherwise, it will switch states
-     * after the loitering timer runs out.
-     * 
-     * @param   loiterIndefinitely
-     *          Whether the autonomous controller's FSM should stay in the
-     *          LOITERING state indefinitely.
-     */
-    void startLoitering(bool loiterIndefinitely);
-
-    /**
      * Tell the autonomous controller's FSM to switch to the NAVIGATING state
      * and start navigating to the given target. This will be called from the QR
      * FSM when the Cryptography team decodes a QR_NEW_TARGET instruction.
@@ -241,12 +212,24 @@ class AutonomousController {
     void startNavigating(Position nextQRPosition);
 
     /**
-     * Update the autonomous controller's finite state machine (FSM). In the
-     * resulting struct contains the next reference position and height,
-     * possibly together with a bypass of the altitude controller.
+     * Update the autonomous controller's finite state machine (FSM). TheIn the
+     * resulting struct contains the following information:
+     *    - should the altitude controller be used?
+     *    - if the altitude controller is used, what reference should we use?
+     *    - if the altitude controller is not used, what is the common thrust?
+     *    - should the altitude observer be updated?
+     *    - should the position controller be used?
+     *    - if the position controller is used, what reference should be use?
+     *    - if the position controller is not used, what is the reference
+     *      orientation?
+     *    - should the position observer be updated?
+     *    - if the position controller should be updated, should we trust IMP?
+     *      (if not, we'll trust the accelerometer to determine the position)
      * 
      * @param   currentPosition
      *          Current position of the drone.
+     * @param   currentHeight
+     *          Current height of the drone.
      * 
      * @return  The next AutonomousOutput.
      */
@@ -260,6 +243,7 @@ class AutonomousController {
      * FSM is in any other state, then this function will do nothing.
      */
     void updateQRFSM();
+
 
   public:
     /** Get the autonomous controller's autonomous state. */
@@ -319,14 +303,26 @@ class AutonomousController {
 
     /**
      * Update the autonomous controller's QR finite state machine (FSM), then
-     * update the autonomous FSM. The resulting struct contains the next
-     * reference position and height, possibly together with a bypass of the
-     * altitude controller.
+     * update the autonomous FSM. The resulting struct contains the following
+     * information:
+     *    - should the altitude controller be used?
+     *    - if the altitude controller is used, what reference should we use?
+     *    - if the altitude controller is not used, what is the common thrust?
+     *    - should the altitude observer be updated?
+     *    - should the position controller be used?
+     *    - if the position controller is used, what reference should be use?
+     *    - if the position controller is not used, what is the reference
+     *      orientation?
+     *    - should the position observer be updated?
+     *    - if the position controller should be updated, should we trust IMP?
+     *      (if not, we'll trust the accelerometer to determine the position)
      * 
      * @param   currentPosition
      *          Current position of the drone.
+     * @param   currentHeight
+     *          Current height of the drone.
      * 
      * @return  The next AutonomousOutput.
      */
-    AutonomousOutput update(Position currentPosition);
+    AutonomousOutput update(Position currentPosition, real_t currentHeight);
 };

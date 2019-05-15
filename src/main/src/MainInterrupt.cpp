@@ -273,6 +273,11 @@ void mainOperation() {
     if (flightMode == FlightMode::ALTITUDE_HOLD && !canStartAltitudeHoldMode())
         flightMode = FlightMode::MANUAL;
 
+    /* If we've just exited ALTITUDE-HOLD mode, set the autonomous controller's
+       hovering thrust. */
+    if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
+        setAutonomousHoveringThrust(getThrustBias());
+
     /**
      * =========================================================================
      * =========================== MANUAL FLIGHT MODE ==========================

@@ -17,6 +17,13 @@ class BiasManager {
 
   private:
     /**
+     * Hovering thrust that should be used by the autonomous controller as a
+     * base value for the actual hovering thrust. This is set whenever the pilot
+     * leaves ALTITUDE-HOLD mode.
+     */
+    real_t autonomousHoveringThrust = 0.0;
+
+    /**
      * Bias to be added to the RC roll. In steady state, this will evolve to
      * the equilibrium roll. The unit of this variable is radians.
      */
@@ -43,13 +50,16 @@ class BiasManager {
     void init();
 
     /**
-     * Get the current bias to be added to the RC roll.
+     * Get the hovering thrust that should be used by the autonomous controller
+     * as a base value for the actual hovering thrust. This is set whenever the
+     * pilot leaves ALTITUDE-HOLD mode.
      */
+    real_t getAutonomousHoveringThrust() { return autonomousHoveringThrust; }
+
+    /** Get the current bias to be added to the RC roll. */
     real_t getRollBias() { return rollBias; }
 
-    /**
-     * Get the current bias to be added to the RC pitch.
-     */
+    /** Get the current bias to be added to the RC pitch. */
     real_t getPitchBias() { return pitchBias; }
 
     /**
@@ -57,6 +67,20 @@ class BiasManager {
      * marginal thrust.
      */
     real_t getThrustBias() { return thrustBias; }
+
+    /**
+     * Set the hovering thrust to the given value. This should be called when
+     * switching from ALTITUDE-HOLD mode to either MANUAL or AUTONOMOUS mode.
+     * This value will be used as a base hovering thrust by the AUTONOMOUS
+     * controller. This also means that the pilot must fly in ALTITUDE-HOLD mode
+     * before initiating AUTONOMOUS mode from the ground.
+     * 
+     * @param   hoveringThrust
+     *          New hovering thrust.
+     */
+    void setAutonomousHoveringThrust(real_t hoveringThrust) {
+        this->autonomousHoveringThrust = hoveringThrust;
+    }
 
     /**
      * Update the roll bias (exponential filter) using the given RC roll in
