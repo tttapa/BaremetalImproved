@@ -102,9 +102,9 @@ static constexpr real_t REFERENCE_HEIGHT = 1.0;
 
 /**
  * The blind stage of the takeoff, meaning the sonar is not yet accurate,
- * lasts 0.5 seconds.
+ * lasts 0.4 seconds.
  */
-static constexpr real_t TAKEOFF_BLIND_DURATION = 0.5;
+static constexpr real_t TAKEOFF_BLIND_DURATION = 0.4;
 
 /**
  * During the blind stage of the takeoff, meaning the sonar is not yet accurate,
@@ -239,11 +239,11 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::NEW_TARGET:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.correctPositionEstimate(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
+            positionController.correctPositionEstimate(qrComm->getCurrentPosition() - positionController.getStateEstimate().p);
 
             /* Tell the autonomous controller's FSM to start navigating to the
                position of the next QR code sent by the Cryptography team. */
-            startNavigating(qrComm->getTargetPosition() + Position{0.5, 0.5});
+            startNavigating(qrComm->getTargetPosition());
 
             /* Switch this FSM to QR_IDLE. */
             qrComm->setQRStateIdle();
@@ -251,7 +251,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::LAND:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.correctPositionEstimate(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
+            positionController.correctPositionEstimate(qrComm->getCurrentPosition() - positionController.getStateEstimate().p);
 
             /* Tell the autonomous controller's FSM to start landing. */
             if (isLandingEnabled())
@@ -265,7 +265,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::QR_UNKNOWN:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.correctPositionEstimate(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
+            positionController.correctPositionEstimate(qrComm->getCurrentPosition() - positionController.getStateEstimate().p);
 
             // TODO: what do we do with unknown QR data?
             /* Switch this FSM to QR_IDLE. */
