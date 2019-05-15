@@ -12,11 +12,11 @@ static EulerAngles orientationEuler;
 /** Orientation of the drone, updated by Madgwick's algorithm. */
 static Quaternion orientation;
 
-EulerAngles getOrientationEuler() { return orientationEuler; }
+EulerAngles getAHRSOrientationEuler() { return orientationEuler; }
 
-Quaternion getOrientationQuat() { return orientation; }
+Quaternion getAHRSOrientationQuat() { return orientation; }
 
-Quaternion getJumpedOrientation(float yawJumpToAdd) {
+Quaternion getAHRSJumpedOrientation(float yawJumpToAdd) {
     EulerAngles jumpedOrientationEuler = {orientationEuler.yaw + yawJumpToAdd,
                                           orientationEuler.pitch,
                                           orientationEuler.roll};

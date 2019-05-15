@@ -172,7 +172,6 @@ int setupIMUInterruptSystem() {
     return XST_SUCCESS;
 }
 
-// TODO: remove this before handing in assignment... i think it's useless
 /**
  * This function is the handler which performs processing to handle data events
  * from the IIC.  It is called from an interrupt context such that the amount
@@ -182,8 +181,11 @@ int setupIMUInterruptSystem() {
  *        this case it is the instance pointer for the IIC driver.
  * @param Event contains the specific kind of event that has occurred.
  */
-/*
 void handler(void *CallBackRef, u32 Event) {
+
+	(void)CallBackRef;
+	(void)Event;
+	/*
 
 	// The following counters are used to determine when the entire buffer has been sent and received.
 	volatile u32 SendComplete;
@@ -198,9 +200,9 @@ void handler(void *CallBackRef, u32 Event) {
 	else if (0 == (Event & XIICPS_EVENT_SLAVE_RDY))
 		// If it is other interrupt but not slave ready interrupt, it is an error.
 		TotalErrorCount++;
+	*/
 
 }
-*/
 
 /**********************************************************************************************************************
 *   Integrated Integrated Circuit device driver source code
@@ -256,8 +258,7 @@ unsigned char iicConfig(unsigned int DeviceIdPS, XIicPs *iic_ptr) {
 	   context when data has been sent and received, specify a pointer to the
 	   IIC driver instance as the callback reference so the handlers are able to
 	   access the instance data. */
-    // TODO: remove this before handing in assignment... never used...
-    // XIicPs_SetStatusHandler(iic_ptr, (void *) iic_ptr, handler);
+    XIicPs_SetStatusHandler(iic_ptr, (void *) iic_ptr, handler);
 
     // Set the IIC serial clock rate.
     status = XIicPs_SetSClk(&Iic0, IIC_SCLK_RATE);

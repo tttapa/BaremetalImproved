@@ -89,28 +89,6 @@ void mainOperation() {
     static FlightMode previousFlightMode = FlightMode::UNINITIALIZED;
 
 
-    /* Keep the attitude controller's state estimate near the unit quaternion
-       [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
-       passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
-       versa. */
-    real_t yawJump =
-        calculateYawJump(attitudeController.getOrientationEuler().yaw);
-    attitudeController.calculateJumpedQuaternions(yawJump);
-
-    /**
-     * =========================================================================
-     * ============================ READ MEASURMENTS ===========================
-     * =========================================================================
-     * 
-     * In the following code, the measurements from the RC, IMU/AHRS, sonar and
-     * IMP will be read. Naturally, each tick the RC and AHRS will have a new
-     * measurement. However, the sonar and IMP might not have sent a new value.
-     * This is flagged by the booleans hasNewSonarMeasurement and hasNewIMPMeas-
-     * urement.
-     * 
-     * =========================================================================
-     */
-    
 #pragma region Read measurements
     /* Read RC data and update the global struct. */
     setRCInput(readRC());
@@ -119,7 +97,6 @@ void mainOperation() {
     // TODO: replace long function calls with e.g. readIMUAndUpdateAHRS();
     IMUMeasurement imuMeasurement = readIMU();
     Quaternion ahrsQuat           = updateAHRS(imuMeasurement);
-    Quaternion jumpedAhrsQuat     = getJumpedOrientation(yawJump);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement      = readSonar();
@@ -291,6 +268,7 @@ void mainOperation() {
                                              correctedSonarMeasurement);
             else
                 autonomousController.initGround(correctedPositionMeasurement);
+            positionController.init(correctedPositionMeasurement);
         }
 
         /* Update autonomous controller using most recent position. */
@@ -348,7 +326,7 @@ void mainOperation() {
         real_t q2                = q12ref.q2ref;
         real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
-        attitudeController.setReferenceEuler(quatQ12Ref + quatInputBias);
+        attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
 
 #pragma endregion
 
@@ -400,6 +378,14 @@ void mainOperation() {
     }
 #pragma endregion
 
+    /* Keep the attitude controller's state estimate near the unit quaternion
+       [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
+       passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
+       versa. */
+    real_t yawJump =
+        calculateYawJump(attitudeController.getOrientationEuler().yaw);
+    attitudeController.calculateJumpedQuaternions(yawJump);
+
     /* Calculate the torque motor signals. The attitude controller's reference
        orientation has already been updated in the code above. */
     AttitudeControlSignal uxyz = attitudeController.updateControlSignal(uc);
@@ -410,6 +396,7 @@ void mainOperation() {
         outputMotorPWM(motorSignals);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
+    Quaternion jumpedAhrsQuat = getAHRSJumpedOrientation(yawJump);
     attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gx,
                                        imuMeasurement.gy, imuMeasurement.gz},
                                       yawJump);
@@ -438,8 +425,7 @@ void mainOperation() {
 
     /* Logger. */
 
-    LogEntry logEntry;
-    /*
+LogEntry logEntry;
     logEntry.setSize(64);
     logEntry.setMode(int32_t(getFlightMode()));
     logEntry.setFrametime(getMillis());
@@ -450,59 +436,53 @@ void mainOperation() {
     logEntry.setRcRoll(getRoll());
     logEntry.setRcPitch(getPitch());
     logEntry.setRcYaw(getYaw());
-    logEntry.setReferenceOrientation(
-        toCppArray(attitudeController.getReferenceQuat()));
-    logEntry.setReferenceOrientationEuler(
-        toCppArray(attitudeController.getReferenceEuler()));
+    logEntry.setReferenceOrientation(toCppArray(attitudeController.getReferenceQuat()));
+    logEntry.setReferenceOrientationEuler(toCppArray(attitudeController.getReferenceEuler()));
     logEntry.set__pad0(0);
     logEntry.setReferenceHeight(altitudeController.getReferenceHeight());
-    logEntry.setReferenceLocation(
-        toCppArray(positionController.getReferencePosition()));
+    logEntry.setReferenceLocation(toCppArray(positionController.getReferencePosition()));
     logEntry.setMeasurementOrientation(toCppArray(ahrsQuat));
-    logEntry.setMeasurementAngularVelocity(
-        toCppArray(GyroMeasurement{imuMeasurement}));
+    logEntry.setMeasurementAngularVelocity(toCppArray(GyroMeasurement{imuMeasurement}));
     logEntry.setMeasurementHeight(correctedSonarMeasurement);
     logEntry.setMeasurementLocation(toCppArray(correctedPositionMeasurement));
-    logEntry.setAttitudeObserverState(
-        toCppArray(attitudeController.getStateEstimate()));
-    logEntry.setAltitudeObserverState(
-        toCppArray(altitudeController.getStateEstimate()));
-    logEntry.setNavigationObserverState(
-        toCppArray(positionController.getStateEstimate()));
+    logEntry.setAttitudeObserverState(toCppArray(attitudeController.getStateEstimate()));
+    logEntry.setAltitudeObserverState(toCppArray(altitudeController.getStateEstimate()));
+    logEntry.setNavigationObserverState(toCppArray(positionController.getCorrectedStateEstimate()));
     logEntry.setAttitudeYawOffset(yawJump);
-    logEntry.setAttitudeControlSignals(
-        toCppArray(attitudeController.getControlSignal()));
+    logEntry.setAttitudeControlSignals(toCppArray(attitudeController.getControlSignal()));
     logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);
-    logEntry.setPositionControlSignal(
-        toCppArray(positionController.getControlSignal()));
+    logEntry.setPositionControlSignal(toCppArray(positionController.getControlSignal()));
     logEntry.setMotorControlSignals(toCppArray(motorSignals));
-    logEntry.setCommonThrust(uc);
-    logEntry.setHoverThrust(biasManager.getThrustBias());
-    */
-    logEntry.setSize(64);
-    logEntry.setMode(int32_t(getFlightMode()));
-    logEntry.setFrametime(getMillis());
-    logEntry.setFramecounter(getTickCount());
-    logEntry.setDroneConfig(configManager.getControllerConfiguration());
-    logEntry.setRcTuning(getTuner());
-    logEntry.setRcThrottle(getThrottle());
-    logEntry.setRcRoll(getRoll());
-    logEntry.setRcPitch(getPitch());
-    logEntry.setRcYaw(getYaw());
-    logEntry.set__pad0(0);
-    logEntry.setReferenceHeight(altitudeController.getReferenceHeight());
-    logEntry.setMeasurementHeight(correctedSonarMeasurement);
-    logEntry.setAttitudeYawOffset(yawJump);
-    logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);
-    logEntry.setPositionControlSignal(
-        {positionController.getControlSignal().q1ref,
-         positionController.getControlSignal().q2ref});
     logEntry.setCommonThrust(uc);
     logEntry.setHoverThrust(biasManager.getThrustBias());
 
     // TODO:
-    (void) yawMeasurement;
-    (void) ahrsQuat;
+    (void)yawMeasurement;
+
+    // logEntry.setSize(64);
+    // logEntry.setMode(int32_t(getFlightMode()));
+    // logEntry.setFrametime(getMillis());
+    // logEntry.setFramecounter(getTickCount());
+    // logEntry.setDroneConfig(configManager.getControllerConfiguration());
+    // logEntry.setRcTuning(getTuner());
+    // logEntry.setRcThrottle(getThrottle());
+    // logEntry.setRcRoll(getRoll());
+    // logEntry.setRcPitch(getPitch());
+    // logEntry.setRcYaw(getYaw());
+    // logEntry.set__pad0(0);
+    // logEntry.setReferenceHeight(altitudeController.getReferenceHeight());
+    // logEntry.setMeasurementHeight(correctedSonarMeasurement);
+    // logEntry.setAttitudeYawOffset(yawJump);
+    // logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);
+    // logEntry.setPositionControlSignal(
+    //     {(float)positionController.getControlSignal().q1ref,
+    //      (float)positionController.getControlSignal().q2ref});
+    // logEntry.setCommonThrust(uc);
+    // logEntry.setHoverThrust(biasManager.getThrustBias());
+
+    // // TODO:
+    // (void) yawMeasurement;
+    // (void) ahrsQuat;
 
     //setYawJump(yawJump);
     //setIMUMeasurement(imuMeasurement);
@@ -552,7 +532,7 @@ real_t calculateYawJump(real_t yaw) {
     return modYaw - yaw;
 }
 
-/*
+
 template <class ArrayElementType = float, class StructType = void>
 static ArrayElementType (&toCppArray(
     StructType &data))[sizeof(StructType) / sizeof(ArrayElementType)] {
@@ -569,5 +549,5 @@ static const ArrayElementType (&toCppArray(
     return reinterpret_cast<const ArrayElementType(
             &)[sizeof(StructType) / sizeof(ArrayElementType)]>(data);
 }
-*/
+
 #pragma endregion

@@ -6,16 +6,16 @@
 #include <real_t.h>
 
 /** Highest valid x-coordinate. */
-const real_t X_MAX = 8.0;
+const real_t X_MAX = 10.0;
 
 /** Lowest valid x-coordinate. */
-const real_t X_MIN = -8.0;
+const real_t X_MIN = 0.0;
 
 /** Highest valid y-coordinate. */
-const real_t Y_MAX = 4.0;
+const real_t Y_MAX = 10.0;
 
 /** Lowest valid y-coordinate. */
-const real_t Y_MIN = -4.0;
+const real_t Y_MIN = 0.0;
 
 /**
  * Position (x,y) reference to track, consisting of a position. This value is
@@ -158,6 +158,11 @@ class PositionController {
      * in m/s.
      */
     PositionState stateEstimate;
+    
+    /**
+     * Correction // TODO:
+     */
+    Position correction;
 
   public:
     /**
@@ -283,19 +288,6 @@ class PositionController {
         PositionStateBlind stateEstimateBlind,
         PositionControlSignalBlind controlSignalBlind);
 
-    /**
-     * Shift the position controller's estimate of the position by the given
-     * correction.
-     * 
-     * @param   correctionX
-     *          Correction to be added to the x-coordinate of the estimate of
-     *          the position controller.
-     * @param   correctionY
-     *          Correction to be added to the y-coordinate of the estimate of
-     *          the position controller.
-     */
-    void correctPosition(real_t correctionX, real_t correctionY);
-
     /** Get the position controller's control signal. */
     PositionControlSignal getControlSignal() { return this->controlSignal; }
 
@@ -311,10 +303,19 @@ class PositionController {
     /** Get the position controller's state estimate. */
     PositionState getStateEstimate() { return this->stateEstimate; }
 
+    /** Get the position state estimated, corrected by position correction. */
+    PositionState getCorrectedStateEstimate();
+
     /**
      * Reset the position controller.
+     * 
+     * @param   currentPosition
+     *          Current position of the drone.
      */
-    void init();
+    void init(Position currentPosition);
+
+    // TODO: comment
+    void setCorrection(Position newCorrection);
 
     /**
      * Update the position controller with the given reference position. This
