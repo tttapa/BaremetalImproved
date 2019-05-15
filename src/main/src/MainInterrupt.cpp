@@ -214,7 +214,10 @@ void mainOperation() {
      * Step 5: Verify the working of the autonomous navigation by setting the
      * drone to TEST_NAVIGATION mode. The autonomous controller will first
      * loiter for 15 seconds, then it will navigate to prespecified positions
-     * in a loop. If you have a good position controller, 
+     * in a loop. If you have a good position controller with a clamp of five
+     * degrees or less, then this should be no problem.
+     * 
+     * Step 6: 
      * 
      * =========================================================================
      * 
