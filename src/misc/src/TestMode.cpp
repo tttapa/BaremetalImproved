@@ -8,13 +8,13 @@ static constexpr int NUM_NAVIGATION_TARGETS = 7;
 
 /** Points to cycle through when during the NAVIGATION test mode. */
 static const Position NAVIGATION_TARGETS[NUM_NAVIGATION_TARGETS] = {
-    Position{0.0, 0.0}, //
-Position{1.0, 0.0}, //
-Position{1.0, 1.0}, //
-Position{-1.0, 1.0}, //
-Position{-1.0, -1.0}, //
-Position{1.0, -1.0}, //
-Position{1.0, 0.0}, //
+    Position{0.0, 0.0},    //
+    Position{1.0, 0.0},    //
+    Position{1.0, 1.0},    //
+    Position{-1.0, 1.0},   //
+    Position{-1.0, -1.0},  //
+    Position{1.0, -1.0},   //
+    Position{1.0, 0.0},    //
 };
 
 /** Current navigation target index. */
@@ -26,14 +26,19 @@ TestMode getTestMode() { return TEST_MODE; }
 /** Get whether switching to altitude mode is enabled. */
 bool canStartAltitudeHoldMode() { return isAltitudeHoldModeEnabled(); }
 
-/** Get whether switching to autonomous mode from the ground is enabled. */
-bool canStartAutonomousModeGround() {
-    return isAutonomousGroundEnabled() && biasManager.getThrustBias() < 0.03;
+/** Get whether switching to autonomous mode is enabled. */
+bool canStartAutonomousMode() {
+    return canStartAutonomousModeAir() || canStartAutonomousModeGround();
 }
 
 /** Get whether switching to autonomous mode from the air is enabled. */
 bool canStartAutonomousModeAir() {
     return isAutonomousAirEnabled() && biasManager.getThrustBias() >= 0.03;
+}
+
+/** Get whether switching to autonomous mode from the ground is enabled. */
+bool canStartAutonomousModeGround() {
+    return isAutonomousGroundEnabled() && biasManager.getThrustBias() < 0.03;
 }
 
 /** Get the next navigation target during TEST_NAVIGATION mode. */
@@ -46,10 +51,11 @@ Position getNextNavigationTestTarget() {
 
 /** Get whether switching to altitude mode is enabled. */
 bool isAltitudeHoldModeEnabled() {
-    return TEST_MODE == TestMode::TEST_ALTITUDE_HOLD ||       //
-           TEST_MODE == TestMode::TEST_LOITERING ||           //
-           TEST_MODE == TestMode::TEST_NAVIGATION ||          //
-           TEST_MODE == TestMode::TEST_LANDING ||             //
+    return TEST_MODE == TestMode::TEST_ALTITUDE_HOLD ||  //
+           TEST_MODE == TestMode::TEST_LOITERING ||      //
+           TEST_MODE == TestMode::TEST_NAVIGATION ||     //
+           TEST_MODE == TestMode::TEST_LANDING ||
+           TEST_MODE == TestMode::TEST_QR_WALKING ||          //
            TEST_MODE == TestMode::TEST_QR_NAVIGATION_LOST ||  //
            TEST_MODE == TestMode::TEST_PRETAKEOFF ||          //
            TEST_MODE == TestMode::TEST_TAKEOFF ||             //
@@ -58,10 +64,11 @@ bool isAltitudeHoldModeEnabled() {
 
 /** Get whether autonomous mode can be activated from the air. */
 bool isAutonomousAirEnabled() {
-    return TEST_MODE == TestMode::TEST_LOITERING ||   //
-           TEST_MODE == TestMode::TEST_NAVIGATION ||  //
-           TEST_MODE == TestMode::TEST_NAVIGATION ||  //
-           TEST_MODE == TestMode::TEST_LANDING ||     //
+    return TEST_MODE == TestMode::TEST_LOITERING ||           //
+           TEST_MODE == TestMode::TEST_NAVIGATION ||          //
+           TEST_MODE == TestMode::TEST_LANDING ||             //
+           TEST_MODE == TestMode::TEST_QR_WALKING ||          //
+           TEST_MODE == TestMode::TEST_QR_NAVIGATION_LOST ||  //
            TEST_MODE == TestMode::DEMO;
 }
 
@@ -82,7 +89,8 @@ bool isNavigationEnabled() {
  * using QR codes to navigate.
  */
 bool isNavigationEnabledQRCodes() {
-    return TEST_MODE == TestMode::TEST_QR_NAVIGATION_LOST ||  //
+    return TEST_MODE == TestMode::TEST_QR_WALKING ||          //
+           TEST_MODE == TestMode::TEST_QR_NAVIGATION_LOST ||  //
            TEST_MODE == TestMode::DEMO;
 }
 
@@ -96,16 +104,32 @@ bool isNavigationEnabledTestTargets() {
 
 /** Get whether the drone is able to land. */
 bool isLandingEnabled() {
-    return TEST_MODE == TestMode::TEST_LANDING ||  //
+    return TEST_MODE == TestMode::TEST_LANDING ||             //
+           TEST_MODE == TestMode::TEST_QR_WALKING ||          //
+           TEST_MODE == TestMode::TEST_QR_NAVIGATION_LOST ||  //
            TEST_MODE == TestMode::DEMO;  // Remove this if you can't land!
 }
-
-/** Get whether the drone should switch from LOITERING to LANDING. */
-bool shouldLandAfterLoitering() { return TEST_MODE == TestMode::TEST_LANDING; }
 
 /** Get whether the drone should loiter indefinitely after taking off. */
 bool shouldLoiterIndefinitelyAfterTakeoff() {
     return TEST_MODE == TestMode::TEST_TAKEOFF;
+}
+/** Get whether the drone should loiter indefinitely with air initialization. */
+bool shouldLoiterIndefinitelyWithInitAir() {
+    return TEST_MODE == TestMode::TEST_LOITERING;
+}
+
+/**
+ * Get whether the loitering timer should be shortened. This is only the case
+ * during TEST_QR_WALKING mode.
+ */
+bool shouldLoiteringTimerBeShortened() {
+    return TEST_MODE == TestMode::TEST_QR_WALKING;
+}
+
+/** Get the whether the drone should take off after pretakeoff. */
+bool shouldTakeOffAfterPreTakeoff() {
+    return TEST_MODE == TestMode::TEST_TAKEOFF || TEST_MODE == TestMode::DEMO;
 }
 
 /**

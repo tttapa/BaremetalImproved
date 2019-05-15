@@ -88,7 +88,6 @@ void mainOperation() {
     /* Previous flight mode initialized when the function is first called. */
     static FlightMode previousFlightMode = FlightMode::UNINITIALIZED;
 
-
 #pragma region Read measurements
     /* Read RC data and update the global struct. */
     setRCInput(readRC());
@@ -106,8 +105,10 @@ void mainOperation() {
 
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
-    Position positionMeasurementBlocks, positionMeasurement;
-    static Position correctedPositionMeasurement = {0.5, 0.5};
+    Position positionMeasurementBlocks, positionMeasurement,
+        correctedPositionMeasurement;
+    ColVector<2> correctedPositionVec, globalPositionEstimateVec;
+    static Position globalPositionEstimate;
     real_t yawMeasurement;
     bool hasNewIMPMeasurement = false;
     if (visionComm->isDoneWriting()) {
@@ -116,12 +117,11 @@ void mainOperation() {
         positionMeasurementBlocks = visionData.position;
         positionMeasurement       = positionMeasurementBlocks * BLOCKS_2_METERS;
         yawMeasurement            = visionData.yawAngle;
-        ColVector<2> correctedPosition = getCorrectedPosition(
-            ColVector<2>{positionMeasurement.x, positionMeasurement.y},
-            sonarMeasurement, attitudeController.getOrientationQuat());
-        correctedPositionMeasurement = {
-            correctedPosition[0],
-            correctedPosition[1]};  // TODO: adapter function
+        correctedPositionVec      = getCorrectedPosition(
+            {positionMeasurement.x, positionMeasurement.y}, sonarMeasurement,
+            attitudeController.getOrientationQuat());
+        correctedPositionMeasurement = {correctedPositionVec[0],
+                                        correctedPositionVec[1]};
     }
 #pragma endregion
 
@@ -149,9 +149,8 @@ void mainOperation() {
      * 
      * =========================================================================
      */
-    EulerAngles refEul;
+    EulerAngles refEul;  // TODO: should this be like uc or upateAttitudeEuler?
     static real_t uc;
-
 
     /**
      * =========================================================================
@@ -194,15 +193,82 @@ void mainOperation() {
      * in a loop. If you have a good position controller with a clamp of five
      * degrees or less, then this should be no problem.
      * 
-     * Step 6: 
+     * Step 6: Test your landing procedure by switching to TEST_LANDING mode.
+     * To do this, switch to AUTONOMOUS mode when the drone is stable hovering
+     * in ALTITUDE-HOLD mode. This test mode will have the drone loiter for 15
+     * seconds, then it will initiate the landing procedure. You can switch back
+     * to MANUAL mode once the drone has landed.
+     * 
+     * Step 7: Verify the working of the QR codes by walking with the drone in
+     * TEST_QR_WALKING mode (no propellers). "Hover" above the first QR code and
+     * then switch to AUTONOMOUS mode. After "loitering" for 3 seconds, the
+     * drone will try to decrypt the QR code three times. If it fails all three
+     * times, it will set the reference height 15cm higher and try again. If
+     * this also fails, do the same with a reference height 15cm lower than the
+     * original reference height and try again. Finally, it will try again at
+     * the original reference height. If no QR was decoded, then the controller
+     * will give up and land.
+     * 
+     * If, on the other hand, the first QR code was decoded successfully, then
+     * the position controller's reference position will shift from the first
+     * QR code to the next QR code at a speed of 0.5m/s. As soon as the position
+     * controller's estimated position matches the reference position (within
+     * 10 cm), it will try to decrypt the next QR code. Repeat this until the
+     * controller receives a QR_LAND instruction. Then the controller will
+     * initiate its landing procedure.
+     * 
+     * After landing, switch back to MANUAL mode to reset it. If the drone gets
+     * lost during navigation (if the position estimate jumps a square for
+     * example), then the drone will attempt to correct its position using the
+     * position stored in the QR codes. This will be tested in Step 8.
+     * 
+     * Step 8: If the drone gets lost during navigation, there is a mechanism in
+     * place to correct the drone's position as soon as it can decode a QR code.
+     * If, for example, the drone's position measurement jumps by 1 square
+     * during navigation, then the drone will no longer converge to the proper
+     * QR code. If this happens, the drone will perform a spiral search for the
+     * nearest QR code (which contains the global position) and correct its
+     * position estimate with this information.
+     * 
+     * Now, switch the drone to TEST_QR_NAVIGATION_LOST mode. During this test,
+     * the drone will loiter for 15 seconds, then it will intentionally mess up
+     * its position estimate by 1 square and perform a spiral search for the
+     * first QR code. Just switch to AUTONOMOUS mode above the first QR code.
+     * 
+     * Step 9: Switch the drone to TEST_PRETAKEOFF mode. This time, keep the RC
+     * throttle at zero and switch to AUTONOMOUS mode while the drone is
+     * grounded. This will perform the pre-takeoff routine which can be used to
+     * start up your own ESCs and to give the motors some intertia before taking
+     * off. After this, the drone will return to the GROUND_IDLE state.
+     * 
+     * Step 10: Switch the drone to TEST_TAKEOFF mode. Again, keep the RC
+     * throttle at zero and switch to AUTONOMOUS mode while the drone is
+     * grounded. The drone will perform its pre-takeoff routine, then it will
+     * take off and loiter until the pilot switches back to ALTITUDE-HOLD mode.
+     * 
+     * Step 11: Everything should be ready for the demo. Switch the drone to
+     * DEMO mode. The pilot can finally switch to AUTONOMOUS mode from either
+     * the ground (RC throttle is zero) or from the air (RC throttle is not
+     * zero). Make sure in either case that AUTONOMOUS mode is initialized above
+     * the first QR code. If it starts from the ground, the drone will perform
+     * its pre-takeoff and takeoff routines. Then, (in both cases) it will
+     * loiter for 15 seconds. After that, it will follow the QR trail and land
+     * at the final QR code. Finally, the WPT switch can be used to start
+     * wireless power transfer.
+     * 
+     * Note that wireless power transfer can also be used in MANUAL mode if the
+     * RC throttle is zero.
      * 
      * =========================================================================
-     * 
+     */
+
     /* First, set the actual flight mode based on which tests are allowed to
        be run. */
     FlightMode flightMode = getFlightMode();
-    if(flightMode == A)
-
+    if (flightMode == FlightMode::AUTONOMOUS && !canStartAutonomousMode())
+        flightMode = FlightMode::ALTITUDE_HOLD;
+    if (flightMode == FlightMode::ALTITUDE_HOLD && !canStartAltitudeHoldMode())
+        flightMode = FlightMode::MANUAL;
 
     /**
      * =========================================================================
@@ -216,13 +282,11 @@ void mainOperation() {
      * =========================================================================
      * !!! MANUAL mode is always enabled. If the mode switches to ALTITUDE-  !!!
      * !!! HOLD mode or AUTONOMOUS mode, but the altitude controller is not  !!!
-     * !!! ready to test (see src/misc/TestMode.hpp), then the  and it is disabled, then
+     * !!! ready to test (see src/misc/TestMode.hpp), then the flight mode   !!!
+     * !!! will remain in MANUAL mode.                                       !!!
      * =========================================================================
      */
-
-     if(getFlightMode() == FlightMode::MANUAL || //
-        (getFlightMode() == FlightMode::ALTITUDE_HOLD && !isAltitudeHoldModeEnabled()) ||
-        (getFlightMode() == FlightMode::AUTONOMOUS &&)
+    if (flightMode == FlightMode::MANUAL) {
 
 #pragma region Manual mode
         /* Check whether the drone should be armed or disarmed. This should
@@ -230,8 +294,8 @@ void mainOperation() {
         armedManager.update();
 
         /* Start gradual thrust change if last mode was altitude hold. */
-        //if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
-        //    gtcManager.start(uc); // Previous value of uc...
+        if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
+            gtcManager.start(uc);  // Previous value of uc...
 
         //=========================== COMMON THRUST ==========================//
 
@@ -250,15 +314,74 @@ void mainOperation() {
 
         /* Update the attitude controller's reference using the RC. */
         attitudeController.updateRCReference();
-
 #pragma endregion
     }
 
+    /**
+     * =========================================================================
+     * ======================= ALTITUDE-HOLD FLIGHT MODE =======================
+     * =========================================================================
+     * 
+     * As mentioned above, uc comes from the altitude controller, whose height
+     * can be adjusted using the RC throttle. The reference roll and pitch still
+     * come directly from the RC pitch and roll. The RC yaw will be used to
+     * control how fast the reference yaw changes.
+     * 
+     * =========================================================================
+     * !!! ALTITUDE-HOLD mode is enabled in every mode but TEST_MANUAL. In   !!!
+     * !!! all other modes, switching to AUTONOMOUS mode has no effect: the  !!!
+     * !!! drone will remain in ALTITUDE-HOLD mode.                          !!!
+     * =========================================================================
+     */
+    if (flightMode == FlightMode::ALTITUDE_HOLD) {
 
-    /* Calculate the reference orientation and common thrust based on the
-       current state of the main FSM and the sensor inputs. */
-    if (getFlightMode() == FlightMode::AUTONOMOUS &&
-        (canStartAutonomousModeAir() || canStartAutonomousModeGround())) {
+#pragma region Altitude - hold mode
+        /* Initialize altitude controller to track the current corrected sonar
+           measurement if we switch from manual mode. */
+        if (previousFlightMode == FlightMode::MANUAL)
+            altitudeController.init(correctedSonarMeasurement);
+
+        /* Update the altitude controller's reference using the RC. */
+        altitudeController.updateRCReference();
+
+        //=========================== COMMON THRUST ==========================//
+
+        /* Update the altitude controller's signal at sonar frequency. */
+        if (hasNewSonarMeasurement)
+            uc = biasManager.getThrustBias() +
+                 altitudeController.updateControlSignal().ut;
+
+        //======================= REFERENCE ORIENTATION ======================//
+
+        /* Update the attitude controller's reference using the RC. */
+        attitudeController.updateRCReference();
+#pragma endregion
+    }
+
+    /**
+     * =========================================================================
+     * ========================= AUTONOMOUS FLIGHT MODE ========================
+     * =========================================================================
+     * 
+     * The calculation of the common thrust and the reference orientation is
+     * much more complex in autonomous mode. The common thrust can either be
+     * directly given by the autonomous controller (for example if the drone is
+     * too low to the ground, and the sonar cannot be trusted) or it is determi-
+     * ned by the altitude controller. Similarly for the reference orientation,
+     * the autonomous controller can send a value directly to the attitude
+     * controller in order to bypass the position controller. Otherwise the
+     * reference orientation is calculated by the position controller and the 
+     * anti-yaw-drift controller.
+     * 
+     * =========================================================================
+     * !!! AUTONOMOUS mode is enabled from the air in the following test     !!!
+     * !!! modes: TEST_LOITERING, TEST_NAVIGATION, TEST_LANDING, TEST_QR_WAL-!!!
+     * !!! KING, TEST_QR_NAVIGATION_LOST and DEMO. AUTONOMOUS mode is enabled!!!
+     * !!! from the ground in the following test modes: TEST_PRETAKEOFF,     !!!
+     * !!! TEST_TAKEOFF, DEMO.                                               !!!
+     * =========================================================================
+     */
+    if (flightMode == FlightMode::AUTONOMOUS) {
 
 #pragma region Autonomous mode
         // TODO: improve this with file
@@ -271,9 +394,16 @@ void mainOperation() {
             positionController.init(correctedPositionMeasurement);
         }
 
+        /* Calculate global position estimate. */
+        globalPositionEstimateVec = getGlobalPositionEstimate(
+            correctedPositionVec, positionController.getStateEstimate(),
+            getTime() - positionController.getLastMeasurementTime());
+        globalPositionEstimate = {globalPositionEstimateVec[0],
+                                  globalPositionEstimate[1]};
+
         /* Update autonomous controller using most recent position. */
         AutonomousOutput output =
-            autonomousController.update(correctedPositionMeasurement);
+            autonomousController.update(globalPositionEstimate);
 
         //=========================== COMMON THRUST ==========================//
 
@@ -301,7 +431,7 @@ void mainOperation() {
             else if (hasNewIMPMeasurement) {
                 positionController.updateObserver(
                     attitudeController.getOrientationQuat(),
-                    correctedPositionMeasurement);
+                    globalPositionEstimate);
                 q12ref = positionController.updateControlSignal(
                     output.referencePosition);
             }
@@ -327,47 +457,19 @@ void mainOperation() {
         real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
-
 #pragma endregion
-
-    } else if (canStartAltitudeHoldMode() &&
-               getFlightMode() == FlightMode::ALTITUDE_HOLD) {
-
-#pragma region Altitude - hold mode
-        /* Initialize altitude controller to track the current corrected sonar
-           measurement if we switch from manual mode. */
-        if (previousFlightMode == FlightMode::MANUAL)
-            altitudeController.init(correctedSonarMeasurement);
-
-        /* Update the altitude controller's reference using the RC. */
-        altitudeController.updateRCReference();
-
-        //=========================== COMMON THRUST ==========================//
-
-        /* Update the altitude controller's signal at sonar frequency. */
-        if (hasNewSonarMeasurement)
-            uc = biasManager.getThrustBias() +
-                 altitudeController.updateControlSignal().ut;
-
-        //======================= REFERENCE ORIENTATION ======================//
-
-        /* Update the attitude controller's reference using the RC. */
-        attitudeController.updateRCReference();
-
-#pragma endregion
-
     }
 
 #pragma region Final thrust corrections(ESC, GTC, Calibration)
     /* Pass the common thrust through the ESC startup script if it's enabled. */
-    // if (escStartupScript.isEnabled())
-    //     uc = escStartupScript.update(uc);
+    if (escStartupScript.isEnabled())
+        uc = escStartupScript.update(uc);
 
     /* Gradual thrust change active? */
-    // if (gtcManager.isBusy()) {
-    //     gtcManager.update();
-    //     uc = gtcManager.getThrust();
-    // }
+    if (gtcManager.isBusy()) {
+        gtcManager.update();
+        uc = gtcManager.getThrust();
+    }
 
     /* Drone calibration? */
     if (configManager.getControllerConfiguration() == CALIBRATION_MODE) {
@@ -425,7 +527,7 @@ void mainOperation() {
 
     /* Logger. */
 
-LogEntry logEntry;
+    LogEntry logEntry;
     logEntry.setSize(64);
     logEntry.setMode(int32_t(getFlightMode()));
     logEntry.setFrametime(getMillis());
@@ -436,28 +538,37 @@ LogEntry logEntry;
     logEntry.setRcRoll(getRoll());
     logEntry.setRcPitch(getPitch());
     logEntry.setRcYaw(getYaw());
-    logEntry.setReferenceOrientation(toCppArray(attitudeController.getReferenceQuat()));
-    logEntry.setReferenceOrientationEuler(toCppArray(attitudeController.getReferenceEuler()));
+    logEntry.setReferenceOrientation(
+        toCppArray(attitudeController.getReferenceQuat()));
+    logEntry.setReferenceOrientationEuler(
+        toCppArray(attitudeController.getReferenceEuler()));
     logEntry.set__pad0(0);
     logEntry.setReferenceHeight(altitudeController.getReferenceHeight());
-    logEntry.setReferenceLocation(toCppArray(positionController.getReferencePosition()));
+    logEntry.setReferenceLocation(
+        toCppArray(positionController.getReferencePosition()));
     logEntry.setMeasurementOrientation(toCppArray(ahrsQuat));
-    logEntry.setMeasurementAngularVelocity(toCppArray(GyroMeasurement{imuMeasurement}));
+    logEntry.setMeasurementAngularVelocity(
+        toCppArray(GyroMeasurement{imuMeasurement}));
     logEntry.setMeasurementHeight(correctedSonarMeasurement);
-    logEntry.setMeasurementLocation(toCppArray(correctedPositionMeasurement));
-    logEntry.setAttitudeObserverState(toCppArray(attitudeController.getStateEstimate()));
-    logEntry.setAltitudeObserverState(toCppArray(altitudeController.getStateEstimate()));
-    logEntry.setNavigationObserverState(toCppArray(positionController.getCorrectedStateEstimate()));
+    logEntry.setMeasurementLocation(toCppArray(globalPositionEstimate));
+    logEntry.setAttitudeObserverState(
+        toCppArray(attitudeController.getStateEstimate()));
+    logEntry.setAltitudeObserverState(
+        toCppArray(altitudeController.getStateEstimate()));
+    logEntry.setNavigationObserverState(
+        toCppArray(positionController.getStateEstimate()));
     logEntry.setAttitudeYawOffset(yawJump);
-    logEntry.setAttitudeControlSignals(toCppArray(attitudeController.getControlSignal()));
+    logEntry.setAttitudeControlSignals(
+        toCppArray(attitudeController.getControlSignal()));
     logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);
-    logEntry.setPositionControlSignal(toCppArray(positionController.getControlSignal()));
+    logEntry.setPositionControlSignal(
+        toCppArray(positionController.getControlSignal()));
     logEntry.setMotorControlSignals(toCppArray(motorSignals));
     logEntry.setCommonThrust(uc);
     logEntry.setHoverThrust(biasManager.getThrustBias());
 
     // TODO:
-    (void)yawMeasurement;
+    (void) yawMeasurement;
 
     // logEntry.setSize(64);
     // logEntry.setMode(int32_t(getFlightMode()));
@@ -531,7 +642,6 @@ real_t calculateYawJump(real_t yaw) {
     /* Return the yaw jump. */
     return modYaw - yaw;
 }
-
 
 template <class ArrayElementType = float, class StructType = void>
 static ArrayElementType (&toCppArray(

@@ -60,10 +60,14 @@ static constexpr real_t LANDING_REFERENCE_HEIGHT_DECREASE_SPEED = 0.25;
  */
 static constexpr real_t LANDING_THROTTLE = 0.05;
 
+/** The autonomous controller will loiter for 15 seconds before navigating. */
+static constexpr real_t LOITER_DURATION_LONG = 15.0;
+
 /**
- * The autonomous controller will loiter for 15 seconds before navigating.
+ * The autonomous controller will loiter for 3 seconds before navigating. This
+ * is the case during the TEST_QR_WALKING mode.
  */
-static constexpr real_t LOITER_DURATION = 3.0;
+static constexpr real_t LOITER_DURATION_SHORT = 3.0;
 
 /**
  * If the Cryptography team fails to decrypt the image sent by the Image
@@ -235,7 +239,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::NEW_TARGET:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.setCorrection(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
+            positionController.correctPositionEstimate(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
 
             /* Tell the autonomous controller's FSM to start navigating to the
                position of the next QR code sent by the Cryptography team. */
@@ -247,7 +251,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::LAND:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.setCorrection(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
+            positionController.correctPositionEstimate(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
 
             /* Tell the autonomous controller's FSM to start landing. */
             if (isLandingEnabled())
@@ -261,7 +265,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::QR_UNKNOWN:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.setCorrection(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
+            positionController.correctPositionEstimate(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
 
             // TODO: what do we do with unknown QR data?
             /* Switch this FSM to QR_IDLE. */
@@ -404,8 +408,12 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
             bypassAltitudeController = true;
             commonThrust             = PRE_TAKEOFF_COMMON_THRUST;
             updatePositionController = false;
-            if (getElapsedTime() > PRE_TAKEOFF_DURATION)
-                setAutonomousState(TAKEOFF);
+            if (getElapsedTime() > PRE_TAKEOFF_DURATION) {
+                if (shouldTakeOffAfterPreTakeoff())
+                    setAutonomousState(TAKEOFF); /* Take off. */
+                else
+                    setAutonomousState(IDLE_GROUND); /* Return to idle. */
+            }
             break;
 
         case TAKEOFF:
@@ -434,12 +442,21 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
                Switch to CONVERGING: when timer expires. */
             if (getThrottle() <= LANDING_THROTTLE && isLandingEnabled())
                 startLanding(true, currentPosition);
-            else if (!this->shouldLoiterIndefinitely &&
-                     getElapsedTime() > LOITER_DURATION) {
-                if (shouldLandAfterLoitering())
-                    startLanding(true, currentPosition);
-                else if (isNavigationEnabled())
-                    setAutonomousState(CONVERGING);
+            else if (!this->shouldLoiterIndefinitely) {
+                if ((shouldLoiteringTimerBeShortened() &&
+                     getElapsedTime() > LOITER_DURATION_SHORT) ||
+                    getElapsedTime() > LOITER_DURATION_LONG) {
+
+                    if (isNavigationEnabled())
+                        setAutonomousState(CONVERGING);
+                    else if (isLandingEnabled())
+                        startLanding(true, currentPosition);
+
+                    /* Are we testing QR search? -> Intentionally make the
+                                                    position jump! */
+                    if (shouldTestQRSearch())
+                        positionController.correctPositionEstimate({0.0, 1.0});
+                }
             }
             /* Stay in LOITERING otherwise. */
             break;
@@ -524,7 +541,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition) {
 
 void AutonomousController::initAir(Position currentPosition,
                                    AltitudeReference referenceHeight) {
-    startLoitering(false);
+    startLoitering(shouldLoiterIndefinitelyWithInitAir());
     this->previousTarget  = currentPosition;
     this->nextTarget      = currentPosition;
     this->referenceHeight = referenceHeight;
