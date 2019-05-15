@@ -399,7 +399,7 @@ void mainOperation() {
             correctedPositionVec, positionController.getStateEstimate(),
             getTime() - positionController.getLastMeasurementTime());
         globalPositionEstimate = {globalPositionEstimateVec[0],
-                                  globalPositionEstimate[1]};
+                                  globalPositionEstimateVec[1]};
 
         /* Update autonomous controller using most recent position. */
         AutonomousOutput output =
