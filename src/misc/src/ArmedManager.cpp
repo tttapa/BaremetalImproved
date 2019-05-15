@@ -34,6 +34,10 @@ void ArmedManager::update() {
         return;
     }
 
+    /* Only do arming if the buzzer is not busy. */
+    if (buzzerManager.isInstructionBusy())
+        return;
+
     /* If we're waiting for the armed status to change. */
     if (this->isWaitingForChange) {
 
