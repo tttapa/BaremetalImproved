@@ -350,7 +350,7 @@ LogEntry logEntry;
     logEntry.setMeasurementLocation(toCppArray(correctedPositionMeasurement));
     logEntry.setAttitudeObserverState(toCppArray(attitudeController.getStateEstimate()));
     logEntry.setAltitudeObserverState(toCppArray(altitudeController.getStateEstimate()));
-    logEntry.setNavigationObserverState(toCppArray(positionController.getStateEstimate()));
+    logEntry.setNavigationObserverState(toCppArray(positionController.getCorrectedStateEstimate()));
     logEntry.setAttitudeYawOffset(yawJump);
     logEntry.setAttitudeControlSignals(toCppArray(attitudeController.getControlSignal()));
     logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);

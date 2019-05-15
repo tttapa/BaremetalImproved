@@ -40,8 +40,14 @@ void PositionController::init(Position currentPosition) {
     this->lastMeasurementTime = 0.0;
 }
 
-void PositionController::setPosition(Position currentPosition) {
-    this->stateEstimate.p = currentPosition;
+void PositionController::setCorrection(Position newCorrection) {
+    this->correction = newCorrection;
+}
+
+void PositionState PositionController::getCorrectedStateEstimate() {
+    return PositionState{this->stateEstimate.q1, this->stateEstimate.q2,
+                         this->stateEstimate.p + this->correction,
+                         this->stateEstimate.vx, this->stateEstimate.vy};
 }
 
 PositionControlSignal
