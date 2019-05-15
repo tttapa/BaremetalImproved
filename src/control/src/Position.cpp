@@ -44,7 +44,7 @@ void PositionController::setCorrection(Position newCorrection) {
     this->correction = newCorrection;
 }
 
-void PositionState PositionController::getCorrectedStateEstimate() {
+PositionState PositionController::getCorrectedStateEstimate() {
     return PositionState{this->stateEstimate.q1, this->stateEstimate.q2,
                          this->stateEstimate.p + this->correction,
                          this->stateEstimate.vx, this->stateEstimate.vy};

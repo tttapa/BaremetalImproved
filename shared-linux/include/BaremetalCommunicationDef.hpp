@@ -110,6 +110,9 @@ struct Position {
     Position operator+(const Position& rhs) const {
         return {this->x + rhs.x, this->y + rhs.y};
     }
+    Position operator-(const Position& rhs) const {
+        return {this->x - rhs.x, this->y - rhs.y};
+    }
 };
 
 inline std::ostream &operator<<(std::ostream &os, Position pos) {

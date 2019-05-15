@@ -235,7 +235,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::NEW_TARGET:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.setCorrection(qrComm->getCurrentPosition() + Position{0.5, 0.5} - this->stateEstimate.p);
+            positionController.setCorrection(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
 
             /* Tell the autonomous controller's FSM to start navigating to the
                position of the next QR code sent by the Cryptography team. */
@@ -247,7 +247,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::LAND:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.setCorrection(qrComm->getCurrentPosition() + Position{0.5, 0.5} - this->stateEstimate.p);
+            positionController.setCorrection(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
 
             /* Tell the autonomous controller's FSM to start landing. */
             if (isLandingEnabled())
@@ -261,7 +261,7 @@ void AutonomousController::updateQRFSM() {
 
         case QRFSMState::QR_UNKNOWN:
             /* Correct the drone's position if it got lost during navigation. */
-            positionController.setPosition(qrComm->getCurrentPosition() + Position{0.5, 0.5} - this->stateEstimate.p);
+            positionController.setCorrection(qrComm->getCurrentPosition() + Position{0.5, 0.5} - positionController.getStateEstimate().p);
 
             // TODO: what do we do with unknown QR data?
             /* Switch this FSM to QR_IDLE. */

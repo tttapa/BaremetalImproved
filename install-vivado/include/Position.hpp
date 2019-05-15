@@ -6,16 +6,16 @@
 #include <real_t.h>
 
 /** Highest valid x-coordinate. */
-const real_t X_MAX = 8.0;
+const real_t X_MAX = 10.0;
 
 /** Lowest valid x-coordinate. */
-const real_t X_MIN = -8.0;
+const real_t X_MIN = 0.0;
 
 /** Highest valid y-coordinate. */
-const real_t Y_MAX = 4.0;
+const real_t Y_MAX = 10.0;
 
 /** Lowest valid y-coordinate. */
-const real_t Y_MIN = -4.0;
+const real_t Y_MIN = 0.0;
 
 /**
  * Position (x,y) reference to track, consisting of a position. This value is
@@ -158,6 +158,11 @@ class PositionController {
      * in m/s.
      */
     PositionState stateEstimate;
+    
+    /**
+     * Correction // TODO:
+     */
+    Position correction;
 
   public:
     /**
@@ -298,6 +303,9 @@ class PositionController {
     /** Get the position controller's state estimate. */
     PositionState getStateEstimate() { return this->stateEstimate; }
 
+    /** Get the position state estimated, corrected by position correction. */
+    PositionState getCorrectedStateEstimate();
+
     /**
      * Reset the position controller.
      * 
@@ -306,14 +314,8 @@ class PositionController {
      */
     void init(Position currentPosition);
 
-    /**
-     * Set the position controller's estimate position. This should be used if
-     * the drone gets lost during navigation.
-     * 
-     * @param   currentPosition
-     *          Current position of the drone.
-     */
-    void setPosition(Position currentPosition);
+    // TODO: comment
+    void setCorrection(Position newCorrection);
 
     /**
      * Update the position controller with the given reference position. This
