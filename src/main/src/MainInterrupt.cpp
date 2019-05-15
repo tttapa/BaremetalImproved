@@ -25,6 +25,9 @@
 /** Whether an interrupt is currently running. */
 volatile bool isInterruptRunning = false;
 
+/** Current flight mode, depending on current test mode. */
+static FlightMode flightMode = FlightMode::UNINITIALIZED;
+
 /**
  * In manual flight mode, leave some thrust margin. There are two reasons for
  * this. Firstly, it is not safe to fly at 100% thrust. Secondly, if that were
@@ -48,7 +51,7 @@ void updateFSM() {
 
     /* Update LEDs. */
     writeToLEDs(isInterruptRunning, armedManager.isArmed(),
-                getFlightMode() == FlightMode::AUTONOMOUS,
+                flightMode == FlightMode::AUTONOMOUS,
                 getWPTMode() == WPTMode::ON);
 
     /* Set isInterruptRunning to true, mainLoop will set it to false. */
@@ -264,7 +267,7 @@ void mainOperation() {
 
     /* First, set the actual flight mode based on which tests are allowed to
        be run. */
-    FlightMode flightMode = getFlightMode();
+    flightMode = getFlightMode();
     if (flightMode == FlightMode::AUTONOMOUS && !canStartAutonomousMode())
         flightMode = FlightMode::ALTITUDE_HOLD;
     if (flightMode == FlightMode::ALTITUDE_HOLD && !canStartAltitudeHoldMode())
@@ -517,10 +520,10 @@ void mainOperation() {
     /* Update input biases. */
     // TODO: remember input bias so we can fly immediately in autonomous
     biasManager.updatePitchBias(attitudeController.getReferenceEuler().pitch,
-                                getFlightMode());
+                                flightMode);
     biasManager.updateRollBias(attitudeController.getReferenceEuler().roll,
-                               getFlightMode());
-    biasManager.updateThrustBias(uc, getFlightMode());
+                               flightMode);
+    biasManager.updateThrustBias(uc, flightMode);
 #pragma endregion
 
 #pragma region Logger
@@ -529,7 +532,7 @@ void mainOperation() {
 
     LogEntry logEntry;
     logEntry.setSize(64);
-    logEntry.setMode(int32_t(getFlightMode()));
+    logEntry.setMode(int32_t(flightMode));
     logEntry.setFrametime(getMillis());
     logEntry.setFramecounter(getTickCount());
     logEntry.setDroneConfig(configManager.getControllerConfiguration());
@@ -620,7 +623,7 @@ void mainOperation() {
 #pragma endregion
 
     /* Store flight mode. */
-    previousFlightMode = getFlightMode();
+    previousFlightMode = flightMode;
 }
 
 #pragma region Helper functions
