@@ -19,14 +19,14 @@ real_t distsq(Position a, Position b) {
 }
 
 void PositionController::clampControlSignal() {
-    if (this->controlSignal.q1ref > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q1ref = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q1ref < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q1ref = -REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q2ref > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q2ref = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q2ref < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q2ref = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12ref[0] > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12ref[0] = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12ref[0] < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12ref[0] = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12ref[1] > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12ref[1] = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12ref[1] < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12ref[1] = -REFERENCE_QUATERNION_CLAMP;
 }
 
 void PositionController::init(Position currentPosition) {
@@ -110,8 +110,7 @@ void PositionController::updateObserverBlind(Quaternion orientation) {
 
     PositionStateBlind stateBlind = {
         this->stateEstimate.p,
-        this->stateEstimate.vx,
-        this->stateEstimate.vy,
+        this->stateEstimate.v
     };
     PositionControlSignalBlind controlSignalBlind = {orientation[1],
                                                      orientation[2]};
