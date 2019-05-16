@@ -125,11 +125,12 @@ void mainOperation() {
     real_t yawMeasurement;
     bool hasNewIMPMeasurement = false;
     if (visionComm->isDoneWriting()) {
-        hasNewIMPMeasurement      = true;
-        VisionData visionData     = visionComm->read();
-        positionMeasurementBlocks = visionData.position;
-        positionMeasurement       = positionMeasurementBlocks * BLOCKS_2_METERS;
-        yawMeasurement            = visionData.yawAngle;
+        hasNewIMPMeasurement          = true;
+        VisionData visionData         = visionComm->read();
+        VisionPosition visionPosition = visionData.position;
+        positionMeasurementBlocks     = {visionPosition.x, visionPosition.y};
+        positionMeasurement = positionMeasurementBlocks * BLOCKS_TO_METERS;
+        yawMeasurement      = visionData.yawAngle;
         correctedPositionMeasurement =
             getCorrectedPosition(positionMeasurement, sonarMeasurement,
                                  attitudeController.getOrientationQuat());
@@ -420,7 +421,7 @@ void mainOperation() {
      * !!! TEST_TAKEOFF, DEMO.                                               !!!
      * =========================================================================
      */
-    AutonomousOutput autoOutput;    /* Should be visible to the logger. */
+    AutonomousOutput autoOutput; /* Should be visible to the logger. */
     if (flightMode == FlightMode::AUTONOMOUS) {
 
 #pragma region Autonomous mode
@@ -438,7 +439,7 @@ void mainOperation() {
                     round(X_CENTER_BLOCKS) * BLOCKS_TO_METERS,
                     round(Y_CENTER_BLOCKS) * BLOCKS_TO_METERS};
                 autonomousController.initGround(startingPosition);
-                positionController.init(startingPosition)
+                positionController.init(startingPosition);
             }
         }
 
@@ -450,8 +451,8 @@ void mainOperation() {
             getTime() - positionController.getLastMeasurementTime());
 
         /* Update autonomous controller using most recent position. */
-        autoOutput = autonomousController.update(
-            globalPositionEstimate, correctedSonarMeasurement);
+        autoOutput = autonomousController.update(globalPositionEstimate,
+                                                 correctedSonarMeasurement);
 
         /* Update altitude observer? */
         shouldUpdateAltitudeObserver = autoOutput.updateAltitudeObserver;
@@ -509,10 +510,9 @@ void mainOperation() {
             biasManager.getPitchBias(),
             biasManager.getRollBias(),
         });
-        real_t q1                = q12ref.q1ref;
-        real_t q2                = q12ref.q2ref;
-        real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
-        Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
+        real_t q1                = q12ref.q12[0];
+        real_t q2 = q12ref.q12[1] real_t q0 = 1 - sqrt(q1 * q1 + q2 * q2);
+        Quaternion quatQ12Ref               = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
 
 #pragma endregion
@@ -590,14 +590,15 @@ void mainOperation() {
 #pragma region Logger
 
     /* Logger. */
-    LogEntry logEntry = getLogData();
-    logEntry.imuMeasurement = imuMeasurement;
+    LogEntry logEntry         = getLogData();
+    logEntry.imuMeasurement   = imuMeasurement;
     logEntry.autonomousOutput = autoOutput;
-    logEntry.flightMode = flightMode;
-    logEntry.ledInstruction = {isInterruptRunning, armedManager.isArmed(),
-                flightMode == FlightMode::AUTONOMOUS, wptMode == WPTMode::ON};
-    logEntry.wptMode = wptMode;
-    logEntry.yawMeasurement = yawMeasurement;
+    logEntry.flightMode       = flightMode;
+    logEntry.ledInstruction   = {isInterruptRunning, armedManager.isArmed(),
+                               flightMode == FlightMode::AUTONOMOUS,
+                               wptMode == WPTMode::ON};
+    logEntry.wptMode          = wptMode;
+    logEntry.yawMeasurement   = yawMeasurement;
 
     /* Output log data if logger is done writing. */
     if (loggerComm->isDoneReading())
