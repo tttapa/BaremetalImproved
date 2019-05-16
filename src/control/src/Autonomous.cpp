@@ -482,15 +482,15 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_IdleGround() {
 
     /* Otherwise, stay in IDLE_GROUND. */
     output = AutonomousOutput{
-        false,       // ✖ Don't use altitude controller
-        {},          //   /
-        0.0,         //...bypass with zero common thrust
-        false,       // ✖ Don't update altitude observer
-        false,       // ✖ Don't use position controller
-        {},          //   /
-        {0.0, 0.0},  //...bypass with upright orientation
-        false,       // ✖ Don't update position controller
-        false,       //   /
+        false,         // ✖ Don't use altitude controller
+        {},            //   /
+        {0.0},         //...bypass with zero common thrust
+        false,         // ✖ Don't update altitude observer
+        false,         // ✖ Don't use position controller
+        {},            //   /
+        {{0.0, 0.0}},  //...bypass with upright orientation
+        false,         // ✖ Don't update position controller
+        false,         //   /
     };
     return output;
 }
@@ -511,15 +511,15 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_PreTakeoff() {
 
     /* Otherwise, stay in PRE_TAKEOFF. */
     output = AutonomousOutput{
-        false,                      // ✖ Don't use altitude controller
-        {},                         //   /
-        PRE_TAKEOFF_COMMON_THRUST,  //...bypass with pre-takeoff common thrust
-        false,                      // ✖ Don't update altitude observer
-        false,                      // ✖ Don't use position controller
-        {},                         //   /
-        {0.0, 0.0},                 //...bypass with upright orientation
-        false,                      // ✖ Don't update position controller
-        false,                      //   /
+        false,                        // ✖ Don't use altitude controller
+        {},                           //   /
+        {PRE_TAKEOFF_COMMON_THRUST},  //...bypass with pre-takeoff common thrust
+        false,                        // ✖ Don't update altitude observer
+        false,                        // ✖ Don't use position controller
+        {},                           //   /
+        {{0.0, 0.0}},                 //...bypass with upright orientation
+        false,                        // ✖ Don't update position controller
+        false,                        //   /
     };
     return output;
 }
@@ -542,8 +542,8 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
             false,  // ✖ Don't use altitude controller
             {},     //   /
                     //...bypass with the base hovering thrust plus a few percent
-            biasManager.getAutonomousHoveringThrust() +
-                TAKEOFF_BLIND_MARGINAL_THRUST,
+            {biasManager.getAutonomousHoveringThrust() +
+             TAKEOFF_BLIND_MARGINAL_THRUST},
             false,       // ✖ Don't update altitude observer
             true,        // ✔ Use position controller
             nextTarget,  //...with current reference position
@@ -557,7 +557,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
         output = AutonomousOutput{
             true,             // ✔ Use altitude controller
             referenceHeight,  //...with current reference height
-            0.0,              //   /
+            {},               //   /
             true,             // ✔ Update altitude observer
             true,             // ✔ Use position controller
             nextTarget,       //...with current reference position
@@ -608,7 +608,7 @@ AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
     output = AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
-        0.0,              //   /
+        {},               //   /
         true,             // ✔ Update altitude observer
         true,             // ✔ Use position controller
         nextTarget,       //...with current reference position
@@ -663,7 +663,7 @@ AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
     output = AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
-        0.0,              //   /
+        {},               //   /
         true,             // ✔ Update altitude observer
         true,             // ✔ Use position controller
         nextTarget,       //...with current reference position
@@ -698,7 +698,7 @@ AutonomousController::updateAutonomousFSM_Navigating(Position currentPosition) {
     output = AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
-        0.0,              //   /
+        {},               //   /
         true,             // ✔ Update altitude observer
         true,             // ✔ Use position controller
         interpolation,    //...with interpolation point as reference
@@ -727,7 +727,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
         output                         = AutonomousOutput{
             true,  // ✔ Use altitude controller
             referenceHeight,  //...with current reference height
-            0.0,              //   /
+            {},               //   /
             true,        // ✔ Update altitude observer
             true,        // ✔ Use position controller
             nextTarget,  //...with current reference position
@@ -743,7 +743,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
             false,  // ✖ Don't use altitude controller
             {},     //   /
                     //...bypass with the actual hovering thrust minus a percent
-            biasManager.getThrustBias() + LANDING_BLIND_MARGINAL_THRUST,
+            {biasManager.getThrustBias() + LANDING_BLIND_MARGINAL_THRUST},
             false,       // ✖ Don't update altitude observer
             true,        // ✔ Use position controller
             nextTarget,  //...with current reference position
@@ -763,15 +763,15 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_WPT() {
 
     /* Otherwise, stay in WPT. */
     output = AutonomousOutput{
-        false,       // ✖ Don't use altitude controller
-        {},          //   /
-        0.0,         //...bypass with zero common thrust
-        false,       // ✖ Don't update altitude observer
-        false,       // ✖ Don't use position controller
-        {},          //   /
-        {0.0, 0.0},  //...bypass with upright orientation
-        false,       // ✖ Don't update position controller
-        false,       //   /
+        false,         // ✖ Don't use altitude controller
+        {},            //   /
+        {0.0},         //...bypass with zero common thrust
+        false,         // ✖ Don't update altitude observer
+        false,         // ✖ Don't use position controller
+        {},            //   /
+        {{0.0, 0.0}},  //...bypass with upright orientation
+        false,         // ✖ Don't update position controller
+        false,         //   /
     };
     return output;
 }
@@ -782,11 +782,11 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Error() {
     output = AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
-        0.0,              //   /
+        {},               //   /
         true,             // ✔ Update altitude observer
         false,            // ✖ Don't use position controller
         {},               //   /
-        {0.0, 0.0},       //...bypass with upright orientation
+        {{0.0, 0.0}},     //...bypass with upright orientation
         false,            // ✖ Don't update position controller
         false,            //   /
     };
