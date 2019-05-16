@@ -319,7 +319,7 @@ class PositionController {
      *
      * @return  The control signal to be sent to the attitude controller. The
      *          result only contains the quaternion components q1 and q2. The
-     *          last component q3 should be determined by the anti-yaw-drift`
+     *          last component q3 should be determined by the anti-yaw-drift
      *          controller and from that the full quaternion should be
      *          constructed.
      */
@@ -335,7 +335,7 @@ class PositionController {
      *
      * @return  The control signal to be sent to the attitude controller. The
      *          result only contains the quaternion components q1 and q2. The
-     *          last component q3 should be determined by the anti-yaw-drift`
+     *          last component q3 should be determined by the anti-yaw-drift
      *          controller and from that the full quaternion should be
      *          constructed.
      */
