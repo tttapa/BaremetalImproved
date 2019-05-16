@@ -121,7 +121,7 @@ void mainOperation() {
        measurement and the drone's orientation. */
     Position positionMeasurementBlocks, positionMeasurement,
         correctedPositionMeasurement, globalPositionEstimate;
-    real_t yawMeasurement;
+    static real_t yawMeasurement = 0.0;
     bool hasNewIMPMeasurement = false;
     if (visionComm->isDoneWriting()) {
         hasNewIMPMeasurement          = true;
