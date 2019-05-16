@@ -111,6 +111,6 @@ void PositionController::updateObserverBlind(Quaternion orientation) {
     PositionControlSignalBlind controlSignalBlind = {
         {orientation[1], orientation[2]}};
 
-    this->stateEstimate =
-        codegenCurrentStateEstimateBlind(stateBlind, controlSignalBlind);
+    this->stateEstimate = codegenCurrentStateEstimateBlind(
+        stateBlind, controlSignalBlind, orientation);
 }
