@@ -242,7 +242,9 @@ AutonomousController::updateAutonomousFSM(Position currentPosition,
         case LANDING: return updateAutonomousFSM_Landing();
         case WPT: return updateAutonomousFSM_WPT();
         case ERROR: return updateAutonomousFSM_Error();
-        default: return {false, {}, {}, false, false, {}, {}, false, false};
+        default:
+            output = {false, {}, {}, false, false, {}, {}, false, false};
+            return output;
     }
 }
 
@@ -479,7 +481,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_IdleGround() {
         setAutonomousState(PRE_TAKEOFF);
 
     /* Otherwise, stay in IDLE_GROUND. */
-    return AutonomousOutput{
+    output = AutonomousOutput{
         false,       // ✖ Don't use altitude controller
         {},          //   /
         0.0,         //...bypass with zero common thrust
@@ -490,6 +492,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_IdleGround() {
         false,       // ✖ Don't update position controller
         false,       //   /
     };
+    return output;
 }
 
 AutonomousOutput AutonomousController::updateAutonomousFSM_PreTakeoff() {
@@ -507,7 +510,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_PreTakeoff() {
         setAutonomousState(IDLE_GROUND);
 
     /* Otherwise, stay in PRE_TAKEOFF. */
-    return AutonomousOutput{
+    output = AutonomousOutput{
         false,                      // ✖ Don't use altitude controller
         {},                         //   /
         PRE_TAKEOFF_COMMON_THRUST,  //...bypass with pre-takeoff common thrust
@@ -518,6 +521,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_PreTakeoff() {
         false,                      // ✖ Don't update position controller
         false,                      //   /
     };
+    return output;
 }
 
 AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
@@ -534,7 +538,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
 
     /* Stage 1: blind takeoff, so we can't trust the sonar or IMP. */
     if (getElapsedTime() < TAKEOFF_BLIND_DURATION)
-        return AutonomousOutput{
+        output = AutonomousOutput{
             false,  // ✖ Don't use altitude controller
             {},     //   /
                     //...bypass with the base hovering thrust plus a few percent
@@ -550,7 +554,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
 
     /* Stage 2: we can trust the sonar and IMP. */
     else
-        return AutonomousOutput{
+        output = AutonomousOutput{
             true,             // ✔ Use altitude controller
             referenceHeight,  //...with current reference height
             0.0,              //   /
@@ -561,6 +565,8 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
             true,             // ✔ Update position controller
             true,             //...trusting IMP
         };
+    
+    return output;
 }
 
 AutonomousOutput
@@ -598,7 +604,7 @@ AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
     }
 
     /* Otherwise, stay in LOITERING. */
-    return AutonomousOutput{
+    output = AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
         0.0,              //   /
@@ -609,6 +615,7 @@ AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
         true,             // ✔ Update position controller
         true,             //...trusting IMP
     };
+    return output;
 }
 
 AutonomousOutput
@@ -652,7 +659,7 @@ AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
     if (!inHorizontalBounds || !inVerticalBounds)
         this->autonomousStateStartTime = getTime(); /* Reset timer. */
 
-    return AutonomousOutput{
+    output = AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
         0.0,              //   /
@@ -663,6 +670,7 @@ AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
         true,             // ✔ Update position controller
         true,             //...trusting IMP
     };
+    return output;
 }
 
 AutonomousOutput
@@ -686,7 +694,7 @@ AutonomousController::updateAutonomousFSM_Navigating(Position currentPosition) {
     Position delta         = (nextTarget - previousTarget) * factor;
     Position interpolation = previousTarget + delta;
 
-    return AutonomousOutput{
+    output = AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
         0.0,              //   /
@@ -697,6 +705,7 @@ AutonomousController::updateAutonomousFSM_Navigating(Position currentPosition) {
         true,             // ✔ Update position controller
         true,             //...trusting IMP
     };
+    return output;
 }
 
 AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
@@ -714,7 +723,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
         referenceHeight.z -= LANDING_REFERENCE_HEIGHT_SPEED * SECONDS_PER_TICK;
         /* Reset timer: use it during stage 2 to know when to go to idle. */
         this->autonomousStateStartTime = getTime();
-        return AutonomousOutput{
+        output = AutonomousOutput{
             true,             // ✔ Use altitude controller
             referenceHeight,  //...with current reference height
             0.0,              //   /
@@ -729,7 +738,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
 
     /* Stage 2: blind landing, so we can't trust the sonar or IMP. */
     else {
-        return AutonomousOutput{
+        output = AutonomousOutput{
             false,  // ✖ Don't use altitude controller
             {},     //   /
                     //...bypass with the actual hovering thrust minus a percent
@@ -742,6 +751,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
             false,       //...trusting accelerometer
         };
     }
+    return output;
 }
 
 AutonomousOutput AutonomousController::updateAutonomousFSM_WPT() {
@@ -751,7 +761,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_WPT() {
         setAutonomousState(IDLE_GROUND);
 
     /* Otherwise, stay in WPT. */
-    return AutonomousOutput{
+    output = AutonomousOutput{
         false,       // ✖ Don't use altitude controller
         {},          //   /
         0.0,         //...bypass with zero common thrust
@@ -762,12 +772,13 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_WPT() {
         false,       // ✖ Don't update position controller
         false,       //   /
     };
+    return output;
 }
 
 AutonomousOutput AutonomousController::updateAutonomousFSM_Error() {
 
     /* Stay in ERROR until the pilot switches back to ALTITUDE-HOLD mode. */
-    return AutonomousOutput{
+    output = AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
         0.0,              //   /
@@ -778,6 +789,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Error() {
         false,            // ✖ Don't update position controller
         false,            //   /
     };
+    return output;
 }
 
 #pragma endregion

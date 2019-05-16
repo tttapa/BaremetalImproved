@@ -75,6 +75,11 @@ class BuzzerManager {
      */
     void clearBeepQueue();
 
+    /** Get the current instruction playing on the buzzer. */
+    BuzzerInstruction getCurrentInstruction() {
+        return this->currentInstruction;
+    }
+
     /**
      * Returns the number of instructions left in the beep queue.
      */

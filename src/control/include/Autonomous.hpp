@@ -85,6 +85,9 @@ class AutonomousController {
     /** Previous target position. */
     Position previousTarget;
 
+    /** Most recent output of the autonomous controller. */
+    AutonomousOutput output;
+
     /**
      * Number of times the Cryptography team failed to decrypt the image sent by
      * the Image Processing team.
@@ -249,6 +252,9 @@ class AutonomousController {
      * code at the drone's current position.
      */
     int getQRErrorCount() { return qrErrorCount; }
+
+    /** Get the autonomous controller's most recent output. */
+    AutonomousOutput getOutput() { return this->output; }
 
     /** Get the current QR state. */
     QRFSMState getQRState() { return qrState; }
