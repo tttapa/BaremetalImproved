@@ -107,9 +107,8 @@ void mainOperation() {
     setRCInput(readRC());
 
     /* Read IMU measurement and update the AHRS. */
-    // TODO: replace long function calls with e.g. readIMUAndUpdateAHRS();
     IMUMeasurement imuMeasurement = readIMU();
-    Quaternion ahrsQuat           = updateAHRS(imuMeasurement);
+    updateAHRS(imuMeasurement);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement       = readSonar();
@@ -511,8 +510,9 @@ void mainOperation() {
             biasManager.getRollBias(),
         });
         real_t q1                = q12ref.q12[0];
-        real_t q2 = q12ref.q12[1] real_t q0 = 1 - sqrt(q1 * q1 + q2 * q2);
-        Quaternion quatQ12Ref               = Quaternion(q0, q1, q2, 0);
+        real_t q2                = q12ref.q12[1];
+        real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
+        Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
 
 #pragma endregion

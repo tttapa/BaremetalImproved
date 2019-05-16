@@ -26,20 +26,20 @@ PositionControlSignal PositionController::codegenControlSignal(
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q12ref[0] = $c1$u0;
-            controlSignal.q12ref[1] = $c1$u1;
+            controlSignal.q12[0] = $c1$u0;
+            controlSignal.q12[1] = $c1$u1;
             break;
         case 2:
-            controlSignal.q12ref[0] = $c2$u0;
-            controlSignal.q12ref[1] = $c2$u1;
+            controlSignal.q12[0] = $c2$u0;
+            controlSignal.q12[1] = $c2$u1;
             break;
         case 3:
-            controlSignal.q12ref[0] = $c3$u0;
-            controlSignal.q12ref[1] = $c3$u1;
+            controlSignal.q12[0] = $c3$u0;
+            controlSignal.q12[1] = $c3$u1;
             break;
         case 4:
-            controlSignal.q12ref[0] = $c4$u0;
-            controlSignal.q12ref[1] = $c4$u1;
+            controlSignal.q12[0] = $c4$u0;
+            controlSignal.q12[1] = $c4$u1;
             break;
         default: controlSignal = {};
     }
@@ -59,20 +59,20 @@ PositionControlSignal PositionController::codegenControlSignalBlind(
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q12ref[0] = $c1$uBlind0;
-            controlSignal.q12ref[1] = $c1$uBlind1;
+            controlSignal.q12[0] = $c1$uBlind0;
+            controlSignal.q12[1] = $c1$uBlind1;
             break;
         case 2:
-            controlSignal.q12ref[0] = $c2$uBlind0;
-            controlSignal.q12ref[1] = $c2$uBlind1;
+            controlSignal.q12[0] = $c2$uBlind0;
+            controlSignal.q12[1] = $c2$uBlind1;
             break;
         case 3:
-            controlSignal.q12ref[0] = $c3$uBlind0;
-            controlSignal.q12ref[1] = $c3$uBlind1;
+            controlSignal.q12[0] = $c3$uBlind0;
+            controlSignal.q12[1] = $c3$uBlind1;
             break;
         case 4:
-            controlSignal.q12ref[0] = $c4$uBlind0;
-            controlSignal.q12ref[1] = $c4$uBlind1;
+            controlSignal.q12[0] = $c4$uBlind0;
+            controlSignal.q12[1] = $c4$uBlind1;
             break;
         default: controlSignal = {};
     }
