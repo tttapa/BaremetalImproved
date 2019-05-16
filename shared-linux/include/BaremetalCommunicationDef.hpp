@@ -1,6 +1,6 @@
 #pragma once
 
-#include <LogEntry.h>
+#include <LogEntry.hpp>
 #include <SharedStruct.hpp>
 #include <cassert>
 #include <cmath>  // NAN
@@ -24,6 +24,8 @@ enum class QRFSMState : int32_t {
     QR_UNKNOWN = 5,
     /// The Cryptography team could not decode the image sent to them.
     ERROR = -1,
+    /// There is no QR code in the camera frame
+    NO_QR = -2,
 };
 
 /**
@@ -91,7 +93,7 @@ struct TestStruct : SharedStruct<TestStruct> {
  * @brief   A struct for x and y coordinates of vision/QR positions.
  */
 struct Position {
-    float x = 0.0, y = 0.0;  // TODO: was NaN
+    float x = NAN, y = NAN;
     explicit operator bool() const volatile {
         return !(std::isnan(x) || std::isnan(y));
     }
@@ -102,9 +104,6 @@ struct Position {
     void operator=(const Position &p) volatile {
         this->x = p.x;
         this->y = p.y;
-    }
-    Position operator*(float factor) const {
-        return {this->x * factor, this->y * factor};
     }
 };
 
