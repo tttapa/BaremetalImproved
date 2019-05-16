@@ -1,6 +1,6 @@
 # Create library target and specify the implementation files to compile.
 add_library(communication
-    src/logger.drone.cpp)
+    src/GetLogData.cpp)
 
 # Set target include directories 
 #   These are the folders where the compiler will search for included header 
