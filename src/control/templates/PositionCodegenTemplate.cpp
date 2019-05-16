@@ -26,20 +26,20 @@ PositionControlSignal PositionController::codegenControlSignal(
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q1ref = $c1$u0;
-            controlSignal.q2ref = $c1$u1;
+            controlSignal.q12ref[0] = $c1$u0;
+            controlSignal.q12ref[1] = $c1$u1;
             break;
         case 2:
-            controlSignal.q1ref = $c2$u0;
-            controlSignal.q2ref = $c2$u1;
+            controlSignal.q12ref[0] = $c2$u0;
+            controlSignal.q12ref[1] = $c2$u1;
             break;
         case 3:
-            controlSignal.q1ref = $c3$u0;
-            controlSignal.q2ref = $c3$u1;
+            controlSignal.q12ref[0] = $c3$u0;
+            controlSignal.q12ref[1] = $c3$u1;
             break;
         case 4:
-            controlSignal.q1ref = $c4$u0;
-            controlSignal.q2ref = $c4$u1;
+            controlSignal.q12ref[0] = $c4$u0;
+            controlSignal.q12ref[1] = $c4$u1;
             break;
         default: controlSignal = {};
     }
@@ -59,20 +59,20 @@ PositionControlSignal PositionController::codegenControlSignalBlind(
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q1ref = $c1$uBlind0;
-            controlSignal.q2ref = $c1$uBlind1;
+            controlSignal.q12ref[0] = $c1$uBlind0;
+            controlSignal.q12ref[1] = $c1$uBlind1;
             break;
         case 2:
-            controlSignal.q1ref = $c2$uBlind0;
-            controlSignal.q2ref = $c2$uBlind1;
+            controlSignal.q12ref[0] = $c2$uBlind0;
+            controlSignal.q12ref[1] = $c2$uBlind1;
             break;
         case 3:
-            controlSignal.q1ref = $c3$uBlind0;
-            controlSignal.q2ref = $c3$uBlind1;
+            controlSignal.q12ref[0] = $c3$uBlind0;
+            controlSignal.q12ref[1] = $c3$uBlind1;
             break;
         case 4:
-            controlSignal.q1ref = $c4$uBlind0;
-            controlSignal.q2ref = $c4$uBlind1;
+            controlSignal.q12ref[0] = $c4$uBlind0;
+            controlSignal.q12ref[1] = $c4$uBlind1;
             break;
         default: controlSignal = {};
     }
@@ -186,10 +186,9 @@ PositionState PositionController::codegenCurrentStateEstimateBlind(
 
     stateEstimateBlind.p[0] = $xBlind0;
     stateEstimateBlind.p[1] = $xBlind1;
-    stateEstimateBlind.vx   = $xBlind2;
-    stateEstimateBlind.vy   = $xBlind3;
+    stateEstimateBlind.v[0] = $xBlind2;
+    stateEstimateBlind.v[1] = $xBlind3;
 
     return PositionState{controlSignalBlind.q1, controlSignalBlind.q2,
-                         stateEstimateBlind.p, stateEstimateBlind.vx,
-                         stateEstimateBlind.vy};
+                         stateEstimateBlind.p, stateEstimateBlind.v};
 }

@@ -51,9 +51,8 @@ struct PositionStateBlind {
     PositionStateBlind(Position p, real_t vx, real_t vy)
         : p{p}, vx{vx}, vy{vy} {}
     PositionStateBlind() = default;
-    Position p;  ///< Position (x,y) in meters.
-    real_t vx;   ///< X velocity (m/s).
-    real_t vy;   ///< Y velocity (m/s).
+    Position p;            ///< Position (x,y) in meters.
+    HorizontalVelocity v;  ///< Horizontal velocity in m/s.
 };
 
 struct PositionControlSignalBlind {
