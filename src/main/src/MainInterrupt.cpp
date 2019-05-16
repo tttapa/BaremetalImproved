@@ -37,6 +37,15 @@ static FlightMode flightMode = FlightMode::UNINITIALIZED;
  */
 const real_t MAX_THROTTLE = 0.80;
 
+/**
+ * If the throttle goes below 0.05, no thrust will be sent to the motors. In
+ * this case, it is possible to turn on WPT in manual mode. It is also possible
+ * to switch to AUTONOMOUS mode and take off from the ground if the throttle is
+ * below this value (given that the drone has hovered once in ALTITUDE-HOLD
+ * mode).
+ */
+const float MIN_THROTTLE = 0.05;
+
 // TODO: change drone mass!
 // TODO: types degree, radian, meter, block
 // TODO: where should this be?
@@ -275,7 +284,8 @@ void mainOperation() {
         flightMode = FlightMode::MANUAL;
 
     /* If we've just exited ALTITUDE-HOLD mode, set the autonomous controller's
-       hovering thrust. */
+       hovering thrust (only has effect if hovering thrust is >= 0.30, see
+       BiasManager.hpp). */
     if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
         biasManager.setAutonomousHoveringThrust(biasManager.getThrustBias());
 
@@ -309,7 +319,7 @@ void mainOperation() {
         //=========================== COMMON THRUST ==========================//
 
         /* Common thrust comes directly from the RC, but leave margin. */
-        if (getThrottle() < 0.01) {
+        if (getThrottle() < MIN_THROTTLE) {
             uc = 0.0;
             attitudeController.init(); /* Reset attitude observer. */
             resetAHRSOrientation();    /* Reset AHRS to [1000]. */
@@ -494,11 +504,12 @@ void mainOperation() {
 
     /* WPT can be turned on from MANUAL mode (zero thrust) or from AUTONOMOUS
        mode if the drone is grounded.  */
-    bool wptManual = (flightMode == FlightMode::MANUAL && getThrottle() < 0.03);
+    bool wptManual =
+        (flightMode == FlightMode::MANUAL && getThrottle() <= MIN_THROTTLE);
     bool wptAutonomous = (flightMode == FlightMode::AUTONOMOUS &&
                           autonomousController.getAutonomousState() == WPT);
-    if(getWPTMode() == WPTMode::ON && (wptManual || wptAutonomous)) {
-        outputWPT((getTuner() + 1.0) / 2.0);    /* Duty cycle: 0% to 100%. */
+    if (getWPTMode() == WPTMode::ON && (wptManual || wptAutonomous)) {
+        outputWPT((getTuner() + 1.0) / 2.0); /* Duty cycle: 0% to 100%. */
         uc = 0.0;
     }
 

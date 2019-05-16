@@ -75,12 +75,13 @@ class BiasManager {
      * controller. This also means that the pilot must fly in ALTITUDE-HOLD mode
      * before initiating AUTONOMOUS mode from the ground.
      * 
+     * This function only has effect if the given hovering thrust is greater
+     * than or equal to 0.30.
+     * 
      * @param   hoveringThrust
      *          New hovering thrust.
      */
-    void setAutonomousHoveringThrust(real_t hoveringThrust) {
-        this->autonomousHoveringThrust = hoveringThrust;
-    }
+    void setAutonomousHoveringThrust(real_t hoveringThrust);
 
     /**
      * Update the roll bias (exponential filter) using the given RC roll in
