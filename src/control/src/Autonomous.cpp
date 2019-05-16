@@ -106,7 +106,7 @@ static constexpr real_t NAVIGATION_SPEED = 0.5;
 static constexpr real_t PRE_TAKEOFF_DURATION = 6.0;
 
 /** During the pre-takeoff stage, the common thrust will be set to 0.20. */
-static constexpr real_t PRE_TAKEOFF_COMMON_THRUST = 0.20;
+static constexpr real_t PRE_TAKEOFF_COMMON_THRUST = 0.35;
 
 /** The nominal reference height for the drone in autonomous mode is 1 meter. */
 static constexpr real_t REFERENCE_HEIGHT = 1.0;
@@ -121,14 +121,14 @@ static constexpr real_t REFERENCE_HEIGHT_ADJUSTMENT = 0.15;
  * The blind stage of the takeoff, meaning the sonar is not yet accurate,
  * lasts 0.4 seconds.
  */
-static constexpr real_t TAKEOFF_BLIND_DURATION = 0.4;
+static constexpr real_t TAKEOFF_BLIND_DURATION = 0.5;
 
 /**
  * During the blind stage of the takeoff, meaning the sonar is not yet accurate,
  * a marginal signal of 3% above the hovering signal will be sent to the "common
  * motor".
  */
-static constexpr real_t TAKEOFF_BLIND_MARGINAL_THRUST = 0.03;
+static constexpr real_t TAKEOFF_BLIND_MARGINAL_THRUST = 0.04;
 
 /** The entire takeoff will last 2 seconds. */
 static constexpr real_t TAKEOFF_DURATION = 2.0;
@@ -558,6 +558,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
         };
 
     /* Stage 2: we can trust the sonar and IMP. */
+    biasManager.setThrustBias(biasManager.getAutonomousHoveringThrust());
     else
         output = AutonomousOutput{
             true,             // ✔ Use altitude controller

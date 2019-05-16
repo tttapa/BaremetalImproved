@@ -84,6 +84,14 @@ class BiasManager {
     void setAutonomousHoveringThrust(real_t hoveringThrust);
 
     /**
+     * Set the thrust bias. This should only be used after the blind stage of
+     * takeoff in AUTONOMOUS mode.
+     */
+    void setThrustBias(real_t hoveringThrust) {
+        this->thrustBias = hoveringThrust;
+    }
+
+    /**
      * Update the roll bias (exponential filter) using the given RC roll in
      * radians.
      * 
