@@ -154,12 +154,12 @@ PositionState PositionController::codegenCurrentStateEstimate(
 
     /* Jump rejection on x-velocity. */
     if ((dAbsV[0] <= 0 && absdV[0] < V_THRESHOLD_TOWARDS) ||  //
-        dAbsV[0] >= 0 && absdV[0] < V_THRESHOLD_AWAY)
+        (dAbsV[0] >= 0 && absdV[0] < V_THRESHOLD_AWAY))
         stateEstimate.v[0] = v1[0];
 
     /* Jump rejection on y-velocity. */
     if ((dAbsV[1] <= 0 && absdV[1] < V_THRESHOLD_TOWARDS) ||  //
-        dAbsV[1] >= 0 && absdV[1] < V_THRESHOLD_AWAY)
+        (dAbsV[1] >= 0 && absdV[1] < V_THRESHOLD_AWAY))
         stateEstimate.v[1] = v1[1];
 
     /* Set orientation and position. */
