@@ -200,6 +200,11 @@ void AutonomousController::startNavigatingBlocks(Position nextTargetBlocks) {
     startNavigating(nextTargetBlocks * BLOCKS_TO_METERS);
 }
 
+void AutonomousController::startNavigatingBlocks(
+    VisionPosition nextTargetBlocks) {
+    startNavigatingBlocks({nextTargetBlocks.x, nextTargetBlocks.y});
+}
+
 AutonomousOutput
 AutonomousController::updateAutonomousFSM(Position currentPosition,
                                           real_t currentHeight) {

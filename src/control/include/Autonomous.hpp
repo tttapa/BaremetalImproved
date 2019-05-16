@@ -177,6 +177,17 @@ class AutonomousController {
     void startNavigatingBlocks(Position nextTargetBlocks);
 
     /**
+     * Tell the autonomous controller's FSM to switch to the NAVIGATING state
+     * and start navigating to the given target. This will be called from the QR
+     * FSM when the Cryptography team decodes a QR_NEW_TARGET instruction.
+     * 
+     * @param   nextTargetBlocks
+     *          Position to navigate to in blocks, which will be the next QR
+     *          code during autonomous mode.
+     */
+    void startNavigatingBlocks(VisionPosition nextTargetBlocks);
+
+    /**
      * Update the autonomous controller's finite state machine (FSM). The
      * resulting struct contains the following information:
      *    - should the altitude controller be used?
