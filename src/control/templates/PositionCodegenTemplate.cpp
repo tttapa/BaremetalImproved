@@ -163,8 +163,8 @@ PositionState PositionController::codegenCurrentStateEstimate(
         stateEstimate.v[1] = v1[1];
 
     /* Set orientation and position. */
-    stateEstimate.q1   = orientation[1];
-    stateEstimate.q2   = orientation[2];
+    stateEstimate.q[0] = orientation[1];
+    stateEstimate.q[1] = orientation[2];
     stateEstimate.p[0] = measurement.p[0];
     stateEstimate.p[1] = measurement.p[1];
 
@@ -180,7 +180,7 @@ PositionState PositionController::codegenCurrentStateEstimate(
  */
 PositionState PositionController::codegenCurrentStateEstimateBlind(
     PositionStateBlind stateEstimateBlind,
-    PositionControlSignalBlind controlSignalBlind) {
+    PositionControlSignalBlind controlSignalBlind, Quaternion orientation) {
 
     PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
 
@@ -189,6 +189,10 @@ PositionState PositionController::codegenCurrentStateEstimateBlind(
     stateEstimateBlind.v[0] = $xBlind2;
     stateEstimateBlind.v[1] = $xBlind3;
 
-    return PositionState{controlSignalBlind.q1, controlSignalBlind.q2,
-                         stateEstimateBlind.p, stateEstimateBlind.v};
+    PositionState stateEstimate = {};
+    stateEstimate.q[0]          = orientation[1];
+    stateEstimate.q[1]          = orientation[2];
+    stateEstimate.p             = stateEstimateBlind.p;
+    stateEstimate.v             = stateEstimateBlind.v;
+    return stateEstimate;
 }

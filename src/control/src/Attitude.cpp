@@ -76,7 +76,7 @@ void AttitudeController::clampControlSignal(real_t commonThrust) {
         uz *= factor;
     }
 
-    this->controlSignal = AttitudeControlSignal{ux, uy, uz};
+    this->controlSignal = AttitudeControlSignal{{ux, uy, uz}};
 }
 
 void AttitudeController::init() {
