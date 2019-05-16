@@ -269,6 +269,9 @@ class PositionController {
     /** Get the position controller's measurement. */
     PositionMeasurement getMeasurement() { return this->measurement; }
 
+    /** Get the position controller's reference. */
+    PositionReference getReference() { return this->reference; }
+
     /** Get the position controller's reference position. */
     Position getReferencePosition() { return this->reference.p; }
 
