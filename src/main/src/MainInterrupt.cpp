@@ -58,6 +58,11 @@ const float MIN_THROTTLE = 0.05;
 
 void updateFSM() {
 
+    /* Write to Linux, so our new framework's unit tests pass. */
+    uint32_t l2b = testcomm->l2b;
+    if (l2b != 0)
+        testcomm->b2l = ~l2b;
+
     /* Generate heartbeat, so kill switch is activated when software hangs. */
     generateHeartbeat();
 
