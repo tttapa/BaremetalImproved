@@ -492,12 +492,15 @@ void mainOperation() {
             uc = 0.0;
     }
 
-    /* WPT? */
+    /* WPT can be turned on from MANUAL mode (zero thrust) or from AUTONOMOUS
+       mode if the drone is grounded.  */
     bool wptManual = (flightMode == FlightMode::MANUAL && getThrottle() < 0.03);
     bool wptAutonomous = (flightMode == FlightMode::AUTONOMOUS &&
                           autonomousController.getAutonomousState() == WPT);
-    if(getWPTMode() == WPTMode::ON && (wptManual || wptAutonomous))
+    if(getWPTMode() == WPTMode::ON && (wptManual || wptAutonomous)) {
         outputWPT((getTuner() + 1.0) / 2.0);    /* Duty cycle: 0% to 100%. */
+        uc = 0.0;
+    }
 
 #pragma endregion
 
