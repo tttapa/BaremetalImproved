@@ -99,12 +99,12 @@ PositionIntegralWindup PositionController::codegenIntegralWindup(
     }
 
     /* Update integral windup. */
-    integralWindup[0] += $int0;
-    integralWindup[1] += $int1;
-    if (fabs(integralWindup[0]) > maxIntegralWindup)
-        integralWindup[0] = copysign(maxIntegralWindup, integralWindup[0]);
-    if (fabs(integralWindup[1]) > maxIntegralWindup)
-        integralWindup[1] = copysign(maxIntegralWindup, integralWindup[1]);
+    integralWindup.p[0] += $int0;
+    integralWindup.p[1] += $int1;
+    if (fabs(integralWindup.p[0]) > maxIntegralWindup)
+        integralWindup.p[0] = copysign(maxIntegralWindup, integralWindup.p[0]);
+    if (fabs(integralWindup.p[1]) > maxIntegralWindup)
+        integralWindup.p[1] = copysign(maxIntegralWindup, integralWindup.p[1]);
 
     return integralWindup;
 }
@@ -128,12 +128,12 @@ PositionIntegralWindup PositionController::codegenIntegralWindupBlind(
     }
 
     /* Update integral windup. */
-    integralWindup[0] += $intBlind0;
-    integralWindup[1] += $intBlind1;
-    if (fabs(integralWindup[0]) > maxIntegralWindup)
-        integralWindup[0] = copysign(maxIntegralWindup, integralWindup[0]);
-    if (fabs(integralWindup[1]) > maxIntegralWindup)
-        integralWindup[1] = copysign(maxIntegralWindup, integralWindup[1]);
+    integralWindup.p[0] += $intBlind0;
+    integralWindup.p[1] += $intBlind1;
+    if (fabs(integralWindup.p[0]) > maxIntegralWindup)
+        integralWindup.p[0] = copysign(maxIntegralWindup, integralWindup.p[0]);
+    if (fabs(integralWindup.p[1]) > maxIntegralWindup)
+        integralWindup.p[1] = copysign(maxIntegralWindup, integralWindup.p[1]);
 
     return integralWindup;
 }

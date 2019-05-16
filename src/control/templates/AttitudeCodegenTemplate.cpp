@@ -16,24 +16,24 @@ AttitudeControlSignal AttitudeController::codegenControlSignal(
     AttitudeControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.ux = $c1$u0;
-            controlSignal.uy = $c1$u1;
-            controlSignal.uz = $c1$u2;
+            controlSignal.uxyz[0] = $c1$u0;
+            controlSignal.uxyz[1] = $c1$u1;
+            controlSignal.uxyz[2] = $c1$u2;
             break;
         case 2:
-            controlSignal.ux = $c2$u0;
-            controlSignal.uy = $c2$u1;
-            controlSignal.uz = $c2$u2;
+            controlSignal.uxyz[0] = $c2$u0;
+            controlSignal.uxyz[1] = $c2$u1;
+            controlSignal.uxyz[2] = $c2$u2;
             break;
         case 3:
-            controlSignal.ux = $c3$u0;
-            controlSignal.uy = $c3$u1;
-            controlSignal.uz = $c3$u2;
+            controlSignal.uxyz[0] = $c3$u0;
+            controlSignal.uxyz[1] = $c3$u1;
+            controlSignal.uxyz[2] = $c3$u2;
             break;
         case 4:
-            controlSignal.ux = $c4$u0;
-            controlSignal.uy = $c4$u1;
-            controlSignal.uz = $c4$u2;
+            controlSignal.uxyz[0] = $c4$u0;
+            controlSignal.uxyz[1] = $c4$u1;
+            controlSignal.uxyz[2] = $c4$u2;
             break;
         default: controlSignal = {};
     }
@@ -60,15 +60,15 @@ AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
     }
 
     /* Update integral windup. */
-    integralWindup.q1 += $int0;
-    integralWindup.q2 += $int1;
-    integralWindup.q3 += $int2;
-    if (fabs(integralWindup.q1) > maxIntegralWindup)
-        integralWindup.q1 = copysign(maxIntegralWindup, integralWindup.q1);
-    if (fabs(integralWindup.q2) > maxIntegralWindup)
-        integralWindup.q2 = copysign(maxIntegralWindup, integralWindup.q2);
-    if (fabs(integralWindup.q3) > maxIntegralWindup)
-        integralWindup.q3 = copysign(maxIntegralWindup, integralWindup.q3);
+    integralWindup.q123[0] += $int0;
+    integralWindup.q123[1] += $int1;
+    integralWindup.q123[2] += $int2;
+    if (fabs(integralWindup.q123[0]) > maxIntegralWindup)
+        integralWindup.q123[0] = copysign(maxIntegralWindup, integralWindup.q123[0]);
+    if (fabs(integralWindup.q123[1]) > maxIntegralWindup)
+        integralWindup.q123[1] = copysign(maxIntegralWindup, integralWindup.q123[1]);
+    if (fabs(integralWindup.q123[2]) > maxIntegralWindup)
+        integralWindup.q123[2] = copysign(maxIntegralWindup, integralWindup.q123[2]);
 
     return integralWindup;
 }
