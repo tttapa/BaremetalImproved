@@ -48,7 +48,7 @@ const real_t Y_MAX = Y_MAX_BLOCKS * BLOCKS_TO_METERS;
 const real_t Y_MIN = Y_MIN_BLOCKS * BLOCKS_TO_METERS;
 
 struct PositionStateBlind {
-    PositionStateBlind(Position p, real_t vx, real_t vy) : p{p}, v{v} {}
+    PositionStateBlind(Position p, HorizontalVelocity v) : p{p}, v{v} {}
     PositionStateBlind() = default;
     Position p;            ///< Position (x,y) in meters.
     HorizontalVelocity v;  ///< Horizontal velocity in m/s.
