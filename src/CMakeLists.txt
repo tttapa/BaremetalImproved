@@ -10,12 +10,14 @@
 add_subdirectory(greet) # TODO
 add_subdirectory(test-vivado) # TODO
 
-add_subdirectory(matrix)
-add_subdirectory(utilities)
-add_subdirectory(quaternion)
+include(${CMAKE_SOURCE_DIR}/shared-linux/cmake/shared-linux.cmake)
+
+# add_subdirectory(matrix)
+# add_subdirectory(utilities)
+# add_subdirectory(quaternion)
+# add_subdirectory(communication)
 add_subdirectory(misc)
 add_subdirectory(control)
-add_subdirectory(communication)
 add_subdirectory(instances)
 add_subdirectory(time)
 add_subdirectory(main)
