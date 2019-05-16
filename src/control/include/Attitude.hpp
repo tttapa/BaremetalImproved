@@ -2,76 +2,9 @@
 
 /* Includes from src. */
 #include <EulerAngles.hpp>
-#include <OutputTypes.hpp>  ///< MotorSignals
+#include <LoggerStructs.hpp>
 #include <Quaternion.hpp>
 #include <real_t.h>
-
-/**
- * Attitude reference to track, consisting of a single quaternion.
- */
-struct AttitudeReference {
-    AttitudeReference(Quaternion q) : q{q} {}
-    AttitudeReference() = default;
-    Quaternion q;  ///< Orientation.
-};
-
-/**
- * Measurement from the IMU, consisting of one quaternion for the drone's
- * orientation and three floats for the drone's angular velocity, measured in
- * rad/s.
- */
-struct AttitudeMeasurement {
-    AttitudeMeasurement(Quaternion q, real_t wx, real_t wy, real_t wz)
-        : q{q}, wx{wx}, wy{wy}, wz{wz} {}
-    AttitudeMeasurement() = default;
-    Quaternion q;  ///< Orientation.
-    real_t wx;     ///< X angular velocity (rad/s).
-    real_t wy;     ///< Y angular velocity (rad/s).
-    real_t wz;     ///< Z angular velocity (rad/s).
-};
-
-/**
- * Estimate of the state of the drone's attitude, consisting of the drone's
- * orientation (1 quaternion q), angular velocity in rad/s (3 components: wx,
- * wy, wz) and the angular velocity of the torque motors in rad/s (3 components:
- * nx, ny, nz).
- */
-struct AttitudeState {
-    AttitudeState(Quaternion q, real_t wx, real_t wy, real_t wz)
-        : q{q}, wx{wx}, wy{wy}, wz{wz}, nx{nx}, ny{ny}, nz{nz} {}
-    AttitudeState() = default;
-    Quaternion q;  ///< Orientation.
-    real_t wx;     ///< X angular velocity (rad/s).
-    real_t wy;     ///< Y angular velocity (rad/s).
-    real_t wz;     ///< Z angular velocity (rad/s).
-    real_t nx;     ///< X motor angular velocity (rad/s).
-    real_t ny;     ///< Y motor angular velocity (rad/s).
-    real_t nz;     ///< Z motor angular velocity (rad/s).
-};
-
-/**
- * Integral of the error of the quaternion components q1, q2 and q3.
- */
-struct AttitudeIntegralWindup {
-    AttitudeIntegralWindup(real_t q1, real_t q2, real_t q3)
-        : q1{q1}, q2{q2}, q3{q3} {}
-    AttitudeIntegralWindup() = default;
-    real_t q1;  ///< Orientation q1 component.
-    real_t q2;  ///< Orientation q2 component.
-    real_t q3;  ///< Orientation q3 component.
-};
-
-/**
- * PWM control signals sent to the torque motors (3 components: ux, uy, uz).
- */
-struct AttitudeControlSignal {
-    AttitudeControlSignal(real_t ux, real_t uy, real_t uz)
-        : ux{ux}, uy{uy}, uz{uz} {}
-    AttitudeControlSignal() = default;
-    real_t ux;  ///< X motor signal (/).
-    real_t uy;  ///< Y motor signal (/).
-    real_t uz;  ///< Z motor signal (/).
-};
 
 /**
  * Transform the given attitude control signal to the duty cycles to be sent to

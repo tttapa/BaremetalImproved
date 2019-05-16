@@ -77,9 +77,8 @@ target_link_libraries(control
         misc
         quaternion
         utilities
-        vivado-types
-    PRIVATE
         communication
+    PRIVATE
         instances
         time
         src-vivado

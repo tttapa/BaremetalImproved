@@ -641,7 +641,6 @@ AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
 
     /* Stay in CONVERGING until the QR FSM changes this FSM's state. Just reset
        the timer if we've exited the convergence distance. */
-    // TODO: define distsq in BaremetalCommunicationDef
     real_t horizontalDistanceSq    = distsq(currentPosition, nextTarget);
     real_t maxHorizontalDistanceSq = sq(CONVERGENCE_DISTANCE_HORIZONTAL);
     real_t verticalDistance    = std::abs(currentHeight - referenceHeight.z);

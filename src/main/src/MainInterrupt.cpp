@@ -3,9 +3,9 @@
 
 #pragma region Includes
 /* Includes from src. */
-#include <BaremetalCommunicationDef.hpp>
 #include <ControllerInstances.hpp>
 #include <LogEntry.h>
+#include <LoggerStructs.hpp>
 #include <MiscInstances.hpp>
 #include <RCValues.hpp>
 #include <SharedMemoryInstances.hpp>

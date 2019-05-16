@@ -1,6 +1,6 @@
 #pragma once
-#include <Autonomous.hpp>                 ///< AutonomousState
-#include <BaremetalCommunicationDef.hpp>  ///< FlightMode
+#include <Autonomous.hpp>     ///< AutonomousState
+#include <LoggerStructs.hpp>  ///< FlightMode
 #include <real_t.h>
 
 /**

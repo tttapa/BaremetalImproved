@@ -1,7 +1,7 @@
 #pragma once
 
 /* Includes from src. */
-#include <OutputTypes.hpp>  ///< MotorSignals
+#include <LoggerStructs.hpp>  ///< MotorSignals
 
 /**
  * Clamps the given duty cycles if necessary and sends them to the PWM generator

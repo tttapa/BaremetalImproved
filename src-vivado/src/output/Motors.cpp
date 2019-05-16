@@ -41,15 +41,26 @@ const float DEAD_DUTY_CYCLE = 0.0;
 const float PWM_FREQUENCY = 500.0;
 #pragma endregion
 
+float clampValue(float value) {
+    if (value < 0.0)
+        value = 0.0;
+    if (value > 1.0)
+        value = 1.0;
+    return value;
+}
+
 void outputMotorPWM(MotorSignals motorSignals) {
 
-    /* We don't have to clamp the given signals to [0,1] because MotorSignals
-       does this automatically. Scale the motor signals to duty cycle limits. */
-    float v0, v1, v2, v3;
-    v0 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * motorSignals.v0;
-    v1 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * motorSignals.v1;
-    v2 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * motorSignals.v2;
-    v3 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * motorSignals.v3;
+    /* Clamp motor signals to [0.0, 1.0], then scale them to the duty cycle
+       limits. */
+    float v0 = clampValue(motorSignals.v0);
+    float v1 = clampValue(motorSignals.v1);
+    float v2 = clampValue(motorSignals.v2);
+    float v3 = clampValue(motorSignals.v3);
+    v0 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * v0;
+    v1 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * v1;
+    v2 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * v2;
+    v3 = MIN_DUTY_CYCLE + (MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * v3;
 
     /* Write the period and value to create the PWM signal. Period =
        clock frequency / PWM frequency. Duty cycle = % * period. */
