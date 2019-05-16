@@ -57,7 +57,7 @@ struct PositionStateBlind {
 struct PositionControlSignalBlind {
     PositionControlSignalBlind(Vec2f q) : q{q} {}
     PositionControlSignalBlind() = default;
-    real_t q;  ///< Reference quaternion components q1 and q2 for attitude
+    Vec2f q;  ///< Reference quaternion components q1 and q2 for attitude
 };
 
 /**
