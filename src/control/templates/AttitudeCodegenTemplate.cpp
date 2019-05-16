@@ -39,6 +39,7 @@ AttitudeController::codegenControlSignal(AttitudeState stateEstimate,
             break;
         default: controlSignal = {};
     }
+    (void)integralWindup;
     return controlSignal;
 }
 

@@ -43,6 +43,7 @@ PositionControlSignal PositionController::codegenControlSignal(
             break;
         default: controlSignal = {};
     }
+    (void)integralWindup;
     return controlSignal;
 }
 
@@ -75,6 +76,7 @@ PositionControlSignal PositionController::codegenControlSignalBlind(
             break;
         default: controlSignal = {};
     }
+    (void)integralWindup;
     return controlSignal;
 }
 
