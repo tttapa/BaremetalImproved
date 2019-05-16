@@ -26,8 +26,14 @@
 /** Whether an interrupt is currently running. */
 volatile bool isInterruptRunning = false;
 
+/** Flight mode from the previous cycle. */
+static FlightMode previousFlightMode = FlightMode::UNINITIALIZED;
+
 /** Current flight mode, depending on current test mode. */
 static FlightMode flightMode = FlightMode::UNINITIALIZED;
+
+/** Current WPT mode, depending on the current state of the drone. */
+static WPTMode wptMode = WPTMode::OFF;
 
 /**
  * In manual flight mode, leave some thrust margin. There are two reasons for
@@ -61,8 +67,7 @@ void updateFSM() {
 
     /* Update LEDs. */
     writeToLEDs(isInterruptRunning, armedManager.isArmed(),
-                flightMode == FlightMode::AUTONOMOUS,
-                getWPTMode() == WPTMode::ON);
+                flightMode == FlightMode::AUTONOMOUS, wptMode == WPTMode::ON);
 
     /* Set isInterruptRunning to true, mainLoop will set it to false. */
     isInterruptRunning = true;
@@ -98,9 +103,6 @@ void updateFSM() {
 // is complete.
 void mainOperation() {
 
-    /* Previous flight mode initialized when the function is first called. */
-    static FlightMode previousFlightMode = FlightMode::UNINITIALIZED;
-
 #pragma region Read measurements
     /* Read RC data and update the global struct. */
     setRCInput(readRC());
@@ -111,17 +113,17 @@ void mainOperation() {
     Quaternion ahrsQuat           = updateAHRS(imuMeasurement);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
-    bool hasNewSonarMeasurement      = readSonar();
-    real_t sonarMeasurement          = getFilteredSonarMeasurement();
-    real_t correctedSonarMeasurement = getCorrectedHeight(
+    bool hasNewSonarMeasurement       = readSonar();
+    bool shouldUpdateAltitudeObserver = hasNewSonarMeasurement;
+    real_t sonarMeasurement           = getFilteredSonarMeasurement();
+    real_t correctedSonarMeasurement  = getCorrectedHeight(
         sonarMeasurement, attitudeController.getOrientationQuat());
 
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
     Position positionMeasurementBlocks, positionMeasurement,
-        correctedPositionMeasurement;
+        correctedPositionMeasurement, globalPositionEstimate;
     ColVector<2> correctedPositionVec, globalPositionEstimateVec;
-    static Position globalPositionEstimate;
     real_t yawMeasurement;
     bool hasNewIMPMeasurement = false;
     if (visionComm->isDoneWriting()) {
@@ -289,6 +291,18 @@ void mainOperation() {
     if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
         biasManager.setAutonomousHoveringThrust(biasManager.getThrustBias());
 
+    /* Also, set the actual WPT mode based on the current state of the drone.
+       WPT can be turned on from MANUAL mode (zero thrust) or from AUTONOMOUS
+       mode if the drone is grounded.*/
+    bool wptManualMode =
+        (flightMode == FlightMode::MANUAL && getThrottle() <= MIN_THROTTLE);
+    bool wptAutonomousMode = (flightMode == FlightMode::AUTONOMOUS &&
+                              autonomousController.getAutonomousState() == WPT);
+    if (getWPTMode() == WPTMode::ON && (wptManualMode || wptAutonomousMode))
+        wptMode = WPTMode::ON;
+    else
+        wptMode = WPTMode::OFF;
+
     /**
      * =========================================================================
      * =========================== MANUAL FLIGHT MODE ==========================
@@ -308,6 +322,9 @@ void mainOperation() {
     if (flightMode == FlightMode::MANUAL) {
 
 #pragma region Manual mode
+
+        //=========================== MISCELLANEOUS ==========================//
+
         /* Check whether the drone should be armed or disarmed. This should
                only occur in manual mode. */
         armedManager.update();
@@ -333,6 +350,7 @@ void mainOperation() {
 
         /* Update the attitude controller's reference using the RC. */
         attitudeController.updateRCReference();
+
 #pragma endregion
     }
 
@@ -355,10 +373,15 @@ void mainOperation() {
     if (flightMode == FlightMode::ALTITUDE_HOLD) {
 
 #pragma region Altitude - hold mode
+
+        //========================== INITIALIZATION ==========================//
+
         /* Initialize altitude controller to track the current corrected sonar
            measurement if we switch from manual mode. */
         if (previousFlightMode == FlightMode::MANUAL)
             altitudeController.init(correctedSonarMeasurement);
+
+        //=========================== MISCELLANEOUS ==========================//
 
         /* Update the altitude controller's reference using the RC. */
         altitudeController.updateRCReference();
@@ -374,6 +397,7 @@ void mainOperation() {
 
         /* Update the attitude controller's reference using the RC. */
         attitudeController.updateRCReference();
+
 #pragma endregion
     }
 
@@ -403,6 +427,9 @@ void mainOperation() {
     if (flightMode == FlightMode::AUTONOMOUS) {
 
 #pragma region Autonomous mode
+
+        //========================== INITIALIZATION ==========================//
+
         if (previousFlightMode == FlightMode::ALTITUDE_HOLD) {
             if (canStartAutonomousModeAir())
                 autonomousController.initAir(correctedPositionMeasurement,
@@ -411,6 +438,8 @@ void mainOperation() {
                 autonomousController.initGround(correctedPositionMeasurement);
             positionController.init(correctedPositionMeasurement);
         }
+
+        //=========================== MISCELLANEOUS ==========================//
 
         /* Calculate global position estimate. */
         globalPositionEstimateVec = getGlobalPositionEstimate(
@@ -422,6 +451,21 @@ void mainOperation() {
         /* Update autonomous controller using most recent position. */
         AutonomousOutput output = autonomousController.update(
             globalPositionEstimate, correctedSonarMeasurement);
+
+        /* Update altitude observer? */
+        shouldUpdateAltitudeObserver = output.updateAltitudeObserver;
+
+        /* Update position observer? */
+        if (output.updatePositionObserver) {
+            if (output.trustIMPForPosition) { /* Blind @ IMU frequency */
+                positionController.updateObserverBlind(
+                    attitudeController.getOrientationQuat());
+            } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
+                positionController.updateObserver(
+                    attitudeController.getOrientationQuat(),
+                    globalPositionEstimate);
+            }
+        }
 
         //=========================== COMMON THRUST ==========================//
 
@@ -438,23 +482,12 @@ void mainOperation() {
         // TODO: if yaw turns, this should be different?
         static PositionControlSignal q12ref;
 
-        /* Update position observer? */
-        if (output.updatePositionObserver) {
-            if (output.trustIMPForPosition) { /* Blind @ IMU frequency */
-                positionController.updateObserverBlind(
-                    attitudeController.getOrientationQuat());
-            } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
-                positionController.updateObserver(
-                    attitudeController.getOrientationQuat(),
-                    globalPositionEstimate);
-            }
-        }
-
         /* Use position controller. */
         if (output.usePositionController) {
             if (!output.trustIMPForPosition) { /* Blind @ IMU frequency */
                 q12ref = positionController.updateControlSignalBlind(
                     output.referencePosition);
+                `
             } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
                 q12ref = positionController.updateControlSignal(
                     output.referencePosition);
@@ -480,10 +513,12 @@ void mainOperation() {
         real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
+
 #pragma endregion
     }
 
 #pragma region Final thrust corrections(ESC, GTC, Calibration)
+
     /* Pass the common thrust through the ESC startup script if it's enabled. */
     if (escStartupScript.isEnabled())
         uc = escStartupScript.update(uc);
@@ -502,13 +537,8 @@ void mainOperation() {
             uc = 0.0;
     }
 
-    /* WPT can be turned on from MANUAL mode (zero thrust) or from AUTONOMOUS
-       mode if the drone is grounded.  */
-    bool wptManual =
-        (flightMode == FlightMode::MANUAL && getThrottle() <= MIN_THROTTLE);
-    bool wptAutonomous = (flightMode == FlightMode::AUTONOMOUS &&
-                          autonomousController.getAutonomousState() == WPT);
-    if (getWPTMode() == WPTMode::ON && (wptManual || wptAutonomous)) {
+    /* Wireless power transfer? */
+    if (wptMode == WPTMode::ON) {
         outputWPT((getTuner() + 1.0) / 2.0); /* Duty cycle: 0% to 100%. */
         uc = 0.0;
     }
@@ -537,7 +567,7 @@ void mainOperation() {
     attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gx,
                                        imuMeasurement.gy, imuMeasurement.gz},
                                       yawJump);
-    if (hasNewSonarMeasurement)
+    if (shouldUpdateAltitudeObserver)
         altitudeController.updateObserver(correctedSonarMeasurement);
 
 #pragma region Updates

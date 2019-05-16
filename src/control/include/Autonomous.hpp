@@ -144,9 +144,6 @@ class AutonomousController {
     /** Estimated time to navigate from previous target to next target. */
     real_t navigationTime = 0.0;
 
-    /** Next QR code location. */
-    Position nextQRPosition;
-
     /** Next target position. */
     Position nextTarget;
 
@@ -215,11 +212,11 @@ class AutonomousController {
      * and start navigating to the given target. This will be called from the QR
      * FSM when the Cryptography team decodes a QR_NEW_TARGET instruction.
      * 
-     * @param   nextQRPosition
+     * @param   nextTarget
      *          Position to navigate to, which will be the next QR code during
      *          autonomous mode.
      */
-    void startNavigating(Position nextQRPosition);
+    void startNavigating(Position nextTarget);
 
     /**
      * Update the autonomous controller's finite state machine (FSM). The
@@ -285,9 +282,6 @@ class AutonomousController {
      * previous target to its next target.
      */
     real_t getNavigationTime() { return navigationTime; }
-
-    /** Get the next QR position. */
-    Position getNextQRPosition() { return nextQRPosition; }
 
     /** Get the autonomous controller's next target position. */
     Position getNextTarget() { return nextTarget; }

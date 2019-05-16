@@ -37,7 +37,7 @@ void PositionController::init(Position currentPosition) {
     this->stateEstimate       = {0.0, 0.0, currentPosition, 0.0, 0.0};
     this->integralWindup      = {};
     this->controlSignal       = {};
-    this->lastMeasurementTime = 0.0;
+    this->lastMeasurementTime = getTime();
 }
 
 void PositionController::correctPositionEstimate(Position correctPosition) {

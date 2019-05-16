@@ -140,7 +140,6 @@ static constexpr real_t TAKEOFF_DURATION = 2.0;
 static constexpr real_t TAKEOFF_THROTTLE = 0.50;
 #pragma endregion
 
-
 bool isValidSearchTarget(Position position) {
     return position.x >= X_MIN && position.x <= X_MAX && position.y >= Y_MIN &&
            position.y <= Y_MAX;
@@ -151,8 +150,8 @@ real_t AutonomousController::getElapsedTime() {
 }
 
 Position AutonomousController::getNextSearchTarget() {
-    real_t x = this->nextQRPosition.x;
-    real_t y = this->nextQRPosition.y;
+    real_t x = this->nextTarget.x;
+    real_t y = this->nextTarget.y;
 
     /* Spiral outward until we reach the next tile to check. */
     real_t dx          = 1.0;
@@ -186,8 +185,8 @@ void AutonomousController::setNextTarget(Position target) {
     this->nextTarget     = target;
 }
 
-void AutonomousController::startNavigating(Position nextQRPosition) {
-    setNextTarget(nextQRPosition);
+void AutonomousController::startNavigating(Position nextTarget) {
+    setNextTarget(nextTarget);
     real_t d             = dist(this->previousTarget, this->nextTarget);
     this->navigationTime = d / NAVIGATION_SPEED;
     setAutonomousState(NAVIGATING);
@@ -217,6 +216,11 @@ AutonomousController::updateAutonomousFSM(Position currentPosition,
      * Converging <-> Navigating          |
      * Converging -> Landing              |
      * Landing -> Idle                    |
+     * -------------------------------------------------------------------------
+     * 
+     * !!! WHEN SWITCHING TO NAVIGATING, USE startNavigating(). DON'T USE    !!!
+     * !!! setAutonomousState().                                             !!!
+     * 
      */
     switch (this->autonomousState) {
         case IDLE_GROUND: return updateAutonomousFSM_IdleGround();
@@ -235,9 +239,6 @@ AutonomousController::updateAutonomousFSM(Position currentPosition,
 }
 
 void AutonomousController::updateQRFSM() {
-
-    /* Load the QR state from shared memory. */
-    this->qrState = qrComm->getQRState();
 
     /* Don't update QR FSM if the drone is not in CONVERGING state. */
     if (this->autonomousState != CONVERGING)
@@ -261,7 +262,9 @@ void AutonomousController::updateQRFSM() {
      * QR_Crypto_Busy -> QR_New_Target     |
      * QR_Crypto_Busy -> QR_Land           |
      * QR_Crypto_Busy -> QR_Unknown        |
+     * -------------------------------------------------------------------------
      */
+    this->qrState = qrComm->getQRState();
     switch (this->qrState) {
         case QRFSMState::IDLE: return updateQRFSM_Idle();
         case QRFSMState::NEW_TARGET: return updateQRFSM_NewTarget();
@@ -279,7 +282,7 @@ void AutonomousController::updateQRFSM() {
 void AutonomousController::initAir(Position currentPosition,
                                    AltitudeReference referenceHeight) {
     setAutonomousState(LOITERING);
-    this->shouldLoiterIndefinitely = true;
+    this->shouldLoiterIndefinitely = shouldLoiterIndefinitelyWithInitAir();
     this->previousTarget           = currentPosition;
     this->nextTarget               = currentPosition;
     this->referenceHeight          = referenceHeight;
@@ -370,7 +373,6 @@ void AutonomousController::updateQRFSM_QRUnknown() {
 void AutonomousController::updateQRFSM_NoQR() {
 
     /* Start (or continue) spiral-searching for QR code. */
-    qrErrorCount = 0;
     qrTilesSearched++;
     Position nextSearchTarget = getNextSearchTarget();
     while (!isValidSearchTarget(nextSearchTarget) &&
@@ -381,10 +383,8 @@ void AutonomousController::updateQRFSM_NoQR() {
 
     /* Set the autonomous FSM to NAVIGATING, and navigate to the next search
        target if we haven't run out of tiles to search. */
-    if (qrTilesSearched <= MAX_QR_SEARCH_COUNT) {
-        setAutonomousState(NAVIGATING);
-        setNextTarget(nextSearchTarget);
-    }
+    if (qrTilesSearched <= MAX_QR_SEARCH_COUNT)
+        startNavigating(nextSearchTarget);
 
     /* Set the autonomous FSM to LANDING if we've run out of tiles to search and
        landing is enabled. */
@@ -411,18 +411,24 @@ void AutonomousController::updateQRFSM_Error() {
     if (qrErrorCount == 1 * MAX_QR_ERROR_COUNT) {
         referenceHeight.z = REFERENCE_HEIGHT + REFERENCE_HEIGHT_ADJUSTMENT;
         autonomousStateStartTime = getTime(); /* Reset convergence timer. */
+        qrComm->setQRStateIdle();
+        return;
     }
 
     /* Decrease the reference height a bit if we've failed 6 times. */
     if (qrErrorCount == 2 * MAX_QR_ERROR_COUNT) {
         referenceHeight.z = REFERENCE_HEIGHT + REFERENCE_HEIGHT_ADJUSTMENT;
         autonomousStateStartTime = getTime(); /* Reset convergence timer. */
+        qrComm->setQRStateIdle();
+        return;
     }
 
     /* Reset the reference height if we've failed 9 times. */
     if (qrErrorCount == 3 * MAX_QR_ERROR_COUNT) {
         referenceHeight.z        = REFERENCE_HEIGHT;
         autonomousStateStartTime = getTime(); /* Reset convergence timer. */
+        qrComm->setQRStateIdle();
+        return;
     }
 
     /* Switch to QR_READ_REQUEST if we've failed less than 12 times. */
@@ -463,15 +469,15 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_IdleGround() {
 
     /* Otherwise, stay in IDLE_GROUND. */
     return AutonomousOutput{
-        false,      // ✖ Don't use altitude controller
-        {},         //   /
-        {0.0},      //...bypass with zero common thrust
-        false,      // ✖ Don't update altitude observer
-        false,      // ✖ Don't use position controller
-        {},         //   /
-        {0.0, 0.0}, //...bypass with upright orientation
-        false,      // ✖ Don't update position controller
-        false,      //   /
+        false,       // ✖ Don't use altitude controller
+        {},          //   /
+        0.0,         //...bypass with zero common thrust
+        false,       // ✖ Don't update altitude observer
+        false,       // ✖ Don't use position controller
+        {},          //   /
+        {0.0, 0.0},  //...bypass with upright orientation
+        false,       // ✖ Don't update position controller
+        false,       //   /
     };
 }
 
@@ -521,7 +527,8 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
             false,  // ✖ Don't use altitude controller
             {},     //   /
                     //...bypass with the base hovering thrust plus a few percent
-            {biasManager.getAutonomousHoveringThrust() + TAKEOFF_BLIND_MARGINAL_THRUST},
+            biasManager.getAutonomousHoveringThrust() +
+                TAKEOFF_BLIND_MARGINAL_THRUST,
             false,       // ✖ Don't update altitude observer
             true,        // ✔ Use position controller
             nextTarget,  //...with current reference position
@@ -535,7 +542,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
         return AutonomousOutput{
             true,             // ✔ Use altitude controller
             referenceHeight,  //...with current reference height
-            {0.0},            //   /
+            0.0,              //   /
             true,             // ✔ Update altitude observer
             true,             // ✔ Use position controller
             nextTarget,       //...with current reference position
@@ -575,14 +582,15 @@ AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
     else if (loiteringFinished && isNavigationEnabled()) {
         setAutonomousState(CONVERGING);
         if (shouldTestQRSearch())
-            positionController.correctPositionEstimate({0.0, 1.0});
+            positionController.correctPositionEstimate(
+                positionController.getStateEstimate().p + {0.0, 1.0});
     }
 
     /* Otherwise, stay in LOITERING. */
     return AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
-        {0.0},            //   /
+        0.0,              //   /
         true,             // ✔ Update altitude observer
         true,             // ✔ Use position controller
         nextTarget,       //...with current reference position
@@ -637,7 +645,7 @@ AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
     return AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
-        {0.0},            //   /
+        0.0,              //   /
         true,             // ✔ Update altitude observer
         true,             // ✔ Use position controller
         nextTarget,       //...with current reference position
@@ -673,7 +681,7 @@ AutonomousController::updateAutonomousFSM_Navigating(Position currentPosition) {
     return AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
-        {0.0},            //   /
+        0.0,              //   /
         true,             // ✔ Update altitude observer
         true,             // ✔ Use position controller
         interpolation,    //...with interpolation point as reference
@@ -696,11 +704,12 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
                 height until we reach the minimum value. */
     if (referenceHeight.z > LANDING_LOWEST_REFERENCE_HEIGHT) {
         referenceHeight.z -= LANDING_REFERENCE_HEIGHT_SPEED * SECONDS_PER_TICK;
-        setAutonomousState(LANDING); /* Reset timer: use it in stage 2. */
+        /* Reset timer: use it during stage 2 to know when to go to idle. */
+        this->autonomousStateStartTime = getTime();
         return AutonomousOutput{
             true,             // ✔ Use altitude controller
             referenceHeight,  //...with current reference height
-            {0.0},            //   /
+            0.0,              //   /
             true,             // ✔ Update altitude observer
             true,             // ✔ Use position controller
             nextTarget,       //...with current reference position
@@ -735,25 +744,25 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_WPT() {
 
     /* Otherwise, stay in WPT. */
     return AutonomousOutput{
-        false,      // ✖ Don't use altitude controller
-        {},         //   /
-        {0.0},      //...bypass with zero common thrust
-        false,      // ✖ Don't update altitude observer
-        false,      // ✖ Don't use position controller
-        {},         //   /
-        {0.0, 0.0}, //...bypass with upright orientation
-        false,      // ✖ Don't update position controller
-        false,      //   /
+        false,       // ✖ Don't use altitude controller
+        {},          //   /
+        0.0,         //...bypass with zero common thrust
+        false,       // ✖ Don't update altitude observer
+        false,       // ✖ Don't use position controller
+        {},          //   /
+        {0.0, 0.0},  //...bypass with upright orientation
+        false,       // ✖ Don't update position controller
+        false,       //   /
     };
 }
 
 AutonomousOutput AutonomousController::updateAutonomousFSM_Error() {
 
     /* Stay in ERROR until the pilot switches back to ALTITUDE-HOLD mode. */
-    return AutonomousOutput {
+    return AutonomousOutput{
         true,             // ✔ Use altitude controller
         referenceHeight,  //...with current reference height
-        {0.0},            //   /
+        0.0,              //   /
         true,             // ✔ Update altitude observer
         false,            // ✖ Don't use position controller
         {},               //   /

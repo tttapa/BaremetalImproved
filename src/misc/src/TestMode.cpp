@@ -4,9 +4,10 @@
 /** Current test mode is MANUAL. */
 static const TestMode TEST_MODE = TestMode::DEMO;
 
+/** The drone will cycle through 7 targets during the TEST_NAVIGATION mode. */
 static constexpr int NUM_NAVIGATION_TARGETS = 7;
 
-/** Points to cycle through when during the NAVIGATION test mode. */
+/** Points to cycle through when during the TEST_NAVIGATION mode. */
 static const Position NAVIGATION_TARGETS[NUM_NAVIGATION_TARGETS] = {
     Position{0.0, 0.0},    //
     Position{1.0, 0.0},    //
@@ -19,6 +20,9 @@ static const Position NAVIGATION_TARGETS[NUM_NAVIGATION_TARGETS] = {
 
 /** Current navigation target index. */
 static int navigationTargetIndex = 0;
+
+/** The threshold for initialization in the air is a thrust bias of 0.30. */
+static constexpr real_t THRUST_BIAS_THRESHOLD = 0.30;
 
 /** Get the drone's test mode. */
 TestMode getTestMode() { return TEST_MODE; }
@@ -33,12 +37,14 @@ bool canStartAutonomousMode() {
 
 /** Get whether switching to autonomous mode from the air is enabled. */
 bool canStartAutonomousModeAir() {
-    return isAutonomousAirEnabled() && biasManager.getThrustBias() >= 0.03;
+    return isAutonomousAirEnabled() &&
+           biasManager.getThrustBias() >= THRUST_BIAS_THRESHOLD;
 }
 
 /** Get whether switching to autonomous mode from the ground is enabled. */
 bool canStartAutonomousModeGround() {
-    return isAutonomousGroundEnabled() && biasManager.getThrustBias() < 0.03;
+    return isAutonomousGroundEnabled() &&
+           biasManager.getThrustBias() < THRUST_BIAS_THRESHOLD;
 }
 
 /** Get the next navigation target during TEST_NAVIGATION mode. */
