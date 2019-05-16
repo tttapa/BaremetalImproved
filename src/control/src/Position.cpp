@@ -28,7 +28,7 @@ void PositionController::clampControlSignal() {
 void PositionController::init(Position currentPosition) {
 
     /* Reset the position controller. */
-    this->stateEstimate       = {0.0, 0.0, currentPosition, 0.0, 0.0};
+    this->stateEstimate       = {{}, currentPosition, {}};
     this->integralWindup      = {};
     this->controlSignal       = {};
     this->lastMeasurementTime = getTime();

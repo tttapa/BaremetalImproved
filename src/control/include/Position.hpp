@@ -190,6 +190,10 @@ class PositionController {
      *          Integral windup from the last cycle.
      * @param   reference
      *          Reference position to track.
+     * @param   stateEstimate
+     *          Estimate of the current state, determined this cycle.
+     * @param   droneConfiguration
+     *          Configuration of the drone.
      * 
      * @return  The current integral windup.
      */
@@ -205,6 +209,10 @@ class PositionController {
      *          Integral windup from the last cycle.
      * @param   reference
      *          Reference position to track.
+     * @param   stateEstimate
+     *          Estimate of the current state, determined this cycle.
+     * @param   droneConfiguration
+     *          Configuration of the drone.
      * 
      * @return  The current integral windup.
      */
@@ -249,10 +257,12 @@ class PositionController {
      * @param   controlSignalBlind
      *          Struct containing the quaternion components q1 and q2 of the
      *          drone's orientation estimate.
+     * @param   orientation
+     *          Current orientation of the drone.
      */
     static PositionState codegenCurrentStateEstimateBlind(
         PositionStateBlind stateEstimateBlind,
-        PositionControlSignalBlind controlSignalBlind);
+        PositionControlSignalBlind controlSignalBlind, Quaternion orientation);
 
     /** Get the position controller's control signal. */
     PositionControlSignal getControlSignal() { return this->controlSignal; }
