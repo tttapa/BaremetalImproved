@@ -10,13 +10,9 @@
  */
 static constexpr real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
 
-real_t dist(Position a, Position b) {
-    return norm(b - a);
-}
+real_t dist(Position a, Position b) { return norm(b - a); }
 
-real_t distsq(Position a, Position b) {
-    return normsq(b - a);
-}
+real_t distsq(Position a, Position b) { return normsq(b - a); }
 
 void PositionController::clampControlSignal() {
     if (this->controlSignal.q12ref[0] > REFERENCE_QUATERNION_CLAMP)
@@ -38,9 +34,10 @@ void PositionController::init(Position currentPosition) {
     this->lastMeasurementTime = getTime();
 }
 
-void PositionController::correctPositionEstimate(Position correctPosition) {
-    Position delta = correctPosition - stateEstimate.p;
-    Position offsetBlocks = round(delta * METERS_TO_BLOCKS);
+void PositionController::correctPositionEstimateBlocks(
+    Position correctPosition) {
+    Position deltaBlocks = correctPosition - stateEstimate.p * METERS_TO_BLOCKS;
+    Position offsetBlocks = round(deltaBlocks);
     this->stateEstimate.p += offsetBlocks * BLOCKS_TO_METERS;
 }
 
@@ -108,10 +105,8 @@ void PositionController::updateObserver(Quaternion orientation,
 
 void PositionController::updateObserverBlind(Quaternion orientation) {
 
-    PositionStateBlind stateBlind = {
-        this->stateEstimate.p,
-        this->stateEstimate.v
-    };
+    PositionStateBlind stateBlind                 = {this->stateEstimate.p,
+                                     this->stateEstimate.v};
     PositionControlSignalBlind controlSignalBlind = {orientation[1],
                                                      orientation[2]};
 

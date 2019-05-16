@@ -288,9 +288,9 @@ class PositionController {
      * position component of the estimate will jump to the correct square.
      * 
      * @param   correctPosition
-     *          Correct position, read from the QR code.
+     *          Correct position, read from the QR code, in blocks.
      */
-    void correctPositionEstimate(Position correctPosition);
+    void correctPositionEstimateBlocks(Position correctPosition);
 
     /**
      * Update the position controller with the given reference position. This

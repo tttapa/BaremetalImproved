@@ -565,7 +565,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
             true,             // ✔ Update position controller
             true,             //...trusting IMP
         };
-    
+
     return output;
 }
 
@@ -599,8 +599,9 @@ AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
     else if (loiteringFinished && isNavigationEnabled()) {
         setAutonomousState(CONVERGING);
         if (shouldTestQRSearch())
-            positionController.correctPositionEstimate(
-                positionController.getStateEstimate().p + Position{0.0, 1.0});
+            positionController.correctPositionEstimateBlocks(
+                positionController.getStateEstimate().p * METERS_TO_BLOCKS +
+                Position{0.0, 1.0});
     }
 
     /* Otherwise, stay in LOITERING. */
@@ -723,16 +724,16 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
         referenceHeight.z -= LANDING_REFERENCE_HEIGHT_SPEED * SECONDS_PER_TICK;
         /* Reset timer: use it during stage 2 to know when to go to idle. */
         this->autonomousStateStartTime = getTime();
-        output = AutonomousOutput{
-            true,             // ✔ Use altitude controller
+        output                         = AutonomousOutput{
+            true,  // ✔ Use altitude controller
             referenceHeight,  //...with current reference height
             0.0,              //   /
-            true,             // ✔ Update altitude observer
-            true,             // ✔ Use position controller
-            nextTarget,       //...with current reference position
-            {},               //   /
-            true,             // ✔ Update position controller
-            true,             //...trusting IMP
+            true,        // ✔ Update altitude observer
+            true,        // ✔ Use position controller
+            nextTarget,  //...with current reference position
+            {},          //   /
+            true,  // ✔ Update position controller
+            true,  //...trusting IMP
         };
     }
 
