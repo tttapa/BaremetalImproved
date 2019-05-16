@@ -4,7 +4,7 @@
 #pragma region Includes
 /* Includes from src. */
 #include <ControllerInstances.hpp>
-#include <LogEntry.h>
+#include <LogEntry.hpp>
 #include <LoggerStructs.hpp>
 #include <MiscInstances.hpp>
 #include <RCValues.hpp>
