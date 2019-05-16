@@ -420,6 +420,7 @@ void mainOperation() {
      * !!! TEST_TAKEOFF, DEMO.                                               !!!
      * =========================================================================
      */
+    AutonomousOutput autoOutput;    /* Should be visible to the logger. */
     if (flightMode == FlightMode::AUTONOMOUS) {
 
 #pragma region Autonomous mode
@@ -449,15 +450,15 @@ void mainOperation() {
             getTime() - positionController.getLastMeasurementTime());
 
         /* Update autonomous controller using most recent position. */
-        AutonomousOutput output = autonomousController.update(
+        autoOutput = autonomousController.update(
             globalPositionEstimate, correctedSonarMeasurement);
 
         /* Update altitude observer? */
-        shouldUpdateAltitudeObserver = output.updateAltitudeObserver;
+        shouldUpdateAltitudeObserver = autoOutput.updateAltitudeObserver;
 
         /* Update position observer? */
-        if (output.updatePositionObserver) {
-            if (output.trustIMPForPosition) { /* Blind @ IMU frequency */
+        if (autoOutput.updatePositionObserver) {
+            if (autoOutput.trustIMPForPosition) { /* Blind @ IMU frequency */
                 positionController.updateObserverBlind(
                     attitudeController.getOrientationQuat());
             } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
@@ -469,12 +470,12 @@ void mainOperation() {
 
         //=========================== COMMON THRUST ==========================//
 
-        if (output.useAltitudeController) {
-            altitudeController.setReference(output.referenceHeight);
+        if (autoOutput.useAltitudeController) {
+            altitudeController.setReference(autoOutput.referenceHeight);
             uc = biasManager.getThrustBias() +
                  altitudeController.updateControlSignal().ut;
         } else {
-            uc = output.commonThrust.ut;
+            uc = autoOutput.commonThrust.ut;
         }
 
         //======================= REFERENCE ORIENTATION ======================//
@@ -483,14 +484,14 @@ void mainOperation() {
         static PositionControlSignal q12ref;
 
         /* Use position controller. */
-        if (output.usePositionController) {
-            if (!output.trustIMPForPosition) { /* Blind @ IMU frequency */
+        if (autoOutput.usePositionController) {
+            if (!autoOutput.trustIMPForPosition) { /* Blind @ IMU frequency */
                 q12ref = positionController.updateControlSignalBlind(
-                    output.referencePosition);
+                    autoOutput.referencePosition);
 
             } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
                 q12ref = positionController.updateControlSignal(
-                    output.referencePosition);
+                    autoOutput.referencePosition);
             }
             /* Normal position controller should hold its previous control
                signal while IMP has not sent a new measurement. */
@@ -498,7 +499,7 @@ void mainOperation() {
 
         /* Bypass position controller. */
         else
-            q12ref = output.q12ref;
+            q12ref = autoOutput.q12ref;
 
         /* Set the attitude controller's reference orientation. We should
                add the input bias in order to center the position controller's
@@ -564,8 +565,7 @@ void mainOperation() {
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
     Quaternion jumpedAhrsQuat = getAHRSJumpedOrientation(yawJump);
-    attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gyro[0],
-                                       imuMeasurement.gyro[1], imuMeasurement.gyro[2]},
+    attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gyro.g},
                                       yawJump);
     if (shouldUpdateAltitudeObserver)
         altitudeController.updateObserver(correctedSonarMeasurement);
@@ -590,94 +590,16 @@ void mainOperation() {
 #pragma region Logger
 
     /* Logger. */
-
     LogEntry logEntry = getLogData();
-    logEntry.setSize(64);
-    logEntry.setMode(int32_t(flightMode));
-    logEntry.setFrametime(getMillis());
-    logEntry.setFramecounter(getTickCount());
-    logEntry.setDroneConfig(configManager.getControllerConfiguration());
-    logEntry.setRcTuning(getTuner());
-    logEntry.setRcThrottle(getThrottle());
-    logEntry.setRcRoll(getRoll());
-    logEntry.setRcPitch(getPitch());
-    logEntry.setRcYaw(getYaw());
-    logEntry.setReferenceOrientation(
-        toCppArray(attitudeController.getReferenceQuat()));
-    logEntry.setReferenceOrientationEuler(
-        toCppArray(attitudeController.getReferenceEuler()));
-    logEntry.set__pad0(0);
-    logEntry.setReferenceHeight(altitudeController.getReferenceHeight());
-    logEntry.setReferenceLocation(
-        toCppArray(positionController.getReferencePosition()));
-    logEntry.setMeasurementOrientation(toCppArray(ahrsQuat));
-    logEntry.setMeasurementAngularVelocity(
-        toCppArray(GyroMeasurement{imuMeasurement}));
-    logEntry.setMeasurementHeight(correctedSonarMeasurement);
-    logEntry.setMeasurementLocation(toCppArray(globalPositionEstimate));
-    logEntry.setAttitudeObserverState(
-        toCppArray(attitudeController.getStateEstimate()));
-    logEntry.setAltitudeObserverState(
-        toCppArray(altitudeController.getStateEstimate()));
-    logEntry.setNavigationObserverState(
-        toCppArray(positionController.getStateEstimate()));
-    logEntry.setAttitudeYawOffset(yawJump);
-    logEntry.setAttitudeControlSignals(
-        toCppArray(attitudeController.getControlSignal()));
-    logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);
-    logEntry.setPositionControlSignal(
-        toCppArray(positionController.getControlSignal()));
-    logEntry.setMotorControlSignals(toCppArray(motorSignals));
-    logEntry.setCommonThrust(uc);
-    logEntry.setHoverThrust(biasManager.getThrustBias());
-
-    // TODO:
-    (void) yawMeasurement;
-
-    // logEntry.setSize(64);
-    // logEntry.setMode(int32_t(getFlightMode()));
-    // logEntry.setFrametime(getMillis());
-    // logEntry.setFramecounter(getTickCount());
-    // logEntry.setDroneConfig(configManager.getControllerConfiguration());
-    // logEntry.setRcTuning(getTuner());
-    // logEntry.setRcThrottle(getThrottle());
-    // logEntry.setRcRoll(getRoll());
-    // logEntry.setRcPitch(getPitch());
-    // logEntry.setRcYaw(getYaw());
-    // logEntry.set__pad0(0);
-    // logEntry.setReferenceHeight(altitudeController.getReferenceHeight());
-    // logEntry.setMeasurementHeight(correctedSonarMeasurement);
-    // logEntry.setAttitudeYawOffset(yawJump);
-    // logEntry.setAltitudeControlSignal(altitudeController.getControlSignal().ut);
-    // logEntry.setPositionControlSignal(
-    //     {(float)positionController.getControlSignal().q1ref,
-    //      (float)positionController.getControlSignal().q2ref});
-    // logEntry.setCommonThrust(uc);
-    // logEntry.setHoverThrust(biasManager.getThrustBias());
-
-    // // TODO:
-    // (void) yawMeasurement;
-    // (void) ahrsQuat;
-
-    //setYawJump(yawJump);
-    //setIMUMeasurement(imuMeasurement);
-    //setAHRSQuat(ahrsQuat);
-    //setJumpedAHRSQuat(jumpedAhrsQuat);
-    //if (hasNewSonarMeasurement) {
-    //    setSonarMeasurement(sonarMeasurement);
-    //    setCorrectedSonarMeasurement(correctedSonarMeasurement);
-    //}
-    //if (hasNewIMPMeasurement) {
-    //    setPositionMeasurementBlocks(positionMeasurementBlocks);
-    //    setPositionMeasurement(positionMeasurement);
-    //    setYawMeasurement(yawMeasurement);
-    //    setCorrectedPositionMeasurement(correctedPositionMeasurement);
-    //}
-    //setCommonThrust(uc);
-    //setMotorSignals(motorSignals);
+    logEntry.imuMeasurement = imuMeasurement;
+    logEntry.autonomousOutput = autoOutput;
+    logEntry.flightMode = flightMode;
+    logEntry.ledInstruction = {isInterruptRunning, armedManager.isArmed(),
+                flightMode == FlightMode::AUTONOMOUS, wptMode == WPTMode::ON};
+    logEntry.wptMode = wptMode;
+    logEntry.yawMeasurement = yawMeasurement;
 
     /* Output log data if logger is done writing. */
-
     if (loggerComm->isDoneReading())
         loggerComm->write(logEntry);
 

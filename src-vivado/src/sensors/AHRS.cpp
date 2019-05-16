@@ -26,7 +26,7 @@ Quaternion getAHRSJumpedOrientation(float yawJumpToAdd) {
 void initAHRS(IMUMeasurement imu) {
     /* Use accelerometer values to ensure that the initial quaternion is
 	   oriented correctly. */
-    orientation = Quaternion::fromDirection(imu.accel);
+    orientation = Quaternion::fromDirection(imu.accel.a);
 
     /* AHRS is now initialized. */
     xil_printf("AHRS init ok\r\n");

@@ -102,9 +102,9 @@ float calcAccel(int rawAccel) {
  * @todo	Test this function.
  */
 Vec3f getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
-                                 float biasNorm) {
+                          float biasNorm) {
     /* Accelerometer measurements with bias removed in g. */
-    Vec3f correctedAccel = (biasQuat).rotate(Vec3f
+    Vec3f correctedAccel = (biasQuat).rotate(Vec3f{
         -calcAccel(raw.axInt),
         +calcAccel(raw.ayInt),
         -calcAccel(raw.azInt),
@@ -122,8 +122,7 @@ Vec3f getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
  * 			Bias of the gyroscope, calculated during calibration of IMU.
  * @return	Unbiased gyroscope measurement in rad/s.
  */
-GyroMeasurement getGyroMeasurement(RawGyroMeasurement raw,
-                                   GyroMeasurement bias) {
+Vec3f getGyroMeasurement(RawGyroMeasurement raw, GyroMeasurement bias) {
 
     /* Gyroscope measurements with bias removed in rad/s. */
     float gx = -(calcGyro(raw.gxInt) - bias.gyro[0]);
@@ -131,7 +130,7 @@ GyroMeasurement getGyroMeasurement(RawGyroMeasurement raw,
     float gz = -(calcGyro(raw.gzInt) - bias.gyro[2]);
 
     /* Return measurement. */
-    return GyroMeasurement{gx, gy, gz};
+    return {gx, gy, gz};
 }
 #pragma endregion
 
@@ -342,15 +341,14 @@ IMUMeasurement readIMU() {
 
     /* Read gyroscope and convert to rad/s. */
     RawGyroMeasurement gyroRaw      = readGyro();
-    GyroMeasurement gyroMeasurement = getGyroMeasurement(gyroRaw, gyroBias);
+    Vec3f gyro = getGyroMeasurement(gyroRaw, gyroBias);
     // TODO: are sleeps necessary (data corruption?) = 20% of PWM on-time
     usleep(100);
 
     /* Read accelerometer and convert to g. */
     RawAccelMeasurement accelRaw = readAccel();
-    Vec3f accel =
-        getAccelMeasurement(accelRaw, accelBiasQuat, accelBiasNorm);
+    Vec3f accel = getAccelMeasurement(accelRaw, accelBiasQuat, accelBiasNorm);
 
     /* Return IMU measurement (gyro+accel). */
-    return IMUMeasurement{gryoMeasurement.gyro, accel};
+    return IMUMeasurement{{gyro}, {accel}};
 }
