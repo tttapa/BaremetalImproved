@@ -41,7 +41,7 @@ float invSqrt(float x);
 Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
     
     /* Flip az for implementation of Madgwick. */
-    imu.az = -imu.az;
+    imu.accel[2] = -imu.accel[2];
 
 	float recipNorm;
 	float s0, s1, s2, s3;
@@ -49,19 +49,19 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 	float _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2 ,_8q1, _8q2, q0q0, q1q1, q2q2, q3q3;
 
 	// Rate of change of quaternion from gyroscope
-	qDot1 = 0.5f * (-orientation[1] * imu.gx - orientation[2] * imu.gy - orientation[3] * imu.gz);
-	qDot2 = 0.5f * (orientation[0] * imu.gx + orientation[2] * imu.gz - orientation[3] * imu.gy);
-	qDot3 = 0.5f * (orientation[0] * imu.gy - orientation[1] * imu.gz + orientation[3] * imu.gx);
-	qDot4 = 0.5f * (orientation[0] * imu.gz + orientation[1] * imu.gy - orientation[2] * imu.gx);
+	qDot1 = 0.5f * (-orientation[1] * imu.gyro[0] - orientation[2] * imu.gyro[1] - orientation[3] * imu.gyro[2]);
+	qDot2 = 0.5f * (orientation[0] * imu.gyro[0] + orientation[2] * imu.gyro[2] - orientation[3] * imu.gyro[1]);
+	qDot3 = 0.5f * (orientation[0] * imu.gyro[1] - orientation[1] * imu.gyro[2] + orientation[3] * imu.gyro[0]);
+	qDot4 = 0.5f * (orientation[0] * imu.gyro[2] + orientation[1] * imu.gyro[1] - orientation[2] * imu.gyro[0]);
 
 	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
-	if(!((imu.ax == 0.0f) && (imu.ay == 0.0f) && (imu.az == 0.0f))) {
+	if(!((imu.accel[0] == 0.0f) && (imu.accel[1] == 0.0f) && (imu.accel[2] == 0.0f))) {
 
 		// Normalise accelerometer measurement
-		recipNorm = invSqrt(imu.ax * imu.ax + imu.ay * imu.ay + imu.az * imu.az);
-		imu.ax *= recipNorm;
-		imu.ay *= recipNorm;
-		imu.az *= recipNorm;   
+		recipNorm = invSqrt(imu.accel[0] * imu.accel[0] + imu.accel[1] * imu.accel[1] + imu.accel[2] * imu.accel[2]);
+		imu.accel[0] *= recipNorm;
+		imu.accel[1] *= recipNorm;
+		imu.accel[2] *= recipNorm;   
 
 		// Auxiliary variables to avoid repeated arithmetic
 		_2q0 = 2.0f * orientation[0];
@@ -79,10 +79,10 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 		q3q3 = orientation[3] * orientation[3];
 
 		// Gradient decent algorithm corrective step
-		s0 = _4q0 * q2q2 + _2q2 * imu.ax + _4q0 * q1q1 - _2q1 * imu.ay;
-		s1 = _4q1 * q3q3 - _2q3 * imu.ax + 4.0f * q0q0 * orientation[1] - _2q0 * imu.ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * imu.az;
-		s2 = 4.0f * q0q0 * orientation[2] + _2q0 * imu.ax + _4q2 * q3q3 - _2q3 * imu.ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * imu.az;
-		s3 = 4.0f * q1q1 * orientation[3] - _2q1 * imu.ax + 4.0f * q2q2 * orientation[3] - _2q2 * imu.ay;
+		s0 = _4q0 * q2q2 + _2q2 * imu.accel[0] + _4q0 * q1q1 - _2q1 * imu.accel[1];
+		s1 = _4q1 * q3q3 - _2q3 * imu.accel[0] + 4.0f * q0q0 * orientation[1] - _2q0 * imu.accel[1] - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * imu.accel[2];
+		s2 = 4.0f * q0q0 * orientation[2] + _2q0 * imu.accel[0] + _4q2 * q3q3 - _2q3 * imu.accel[1] - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * imu.accel[2];
+		s3 = 4.0f * q1q1 * orientation[3] - _2q1 * imu.accel[0] + 4.0f * q2q2 * orientation[3] - _2q2 * imu.accel[1];
 		recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
 		s0 *= recipNorm;
 		s1 *= recipNorm;

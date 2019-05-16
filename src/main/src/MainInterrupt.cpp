@@ -121,7 +121,6 @@ void mainOperation() {
        measurement and the drone's orientation. */
     Position positionMeasurementBlocks, positionMeasurement,
         correctedPositionMeasurement, globalPositionEstimate;
-    ColVector<2> correctedPositionVec, globalPositionEstimateVec;
     real_t yawMeasurement;
     bool hasNewIMPMeasurement = false;
     if (visionComm->isDoneWriting()) {
@@ -130,11 +129,9 @@ void mainOperation() {
         positionMeasurementBlocks = visionData.position;
         positionMeasurement       = positionMeasurementBlocks * BLOCKS_2_METERS;
         yawMeasurement            = visionData.yawAngle;
-        correctedPositionVec      = getCorrectedPosition(
-            {positionMeasurement.x, positionMeasurement.y}, sonarMeasurement,
-            attitudeController.getOrientationQuat());
-        correctedPositionMeasurement = {correctedPositionVec[0],
-                                        correctedPositionVec[1]};
+        correctedPositionMeasurement =
+            getCorrectedPosition(positionMeasurement, sonarMeasurement,
+                                 attitudeController.getOrientationQuat());
     }
 #pragma endregion
 
@@ -446,11 +443,9 @@ void mainOperation() {
         //=========================== MISCELLANEOUS ==========================//
 
         /* Calculate global position estimate. */
-        globalPositionEstimateVec = getGlobalPositionEstimate(
-            correctedPositionVec, positionController.getStateEstimate(),
+        globalPositionEstimate = getGlobalPositionEstimate(
+            correctedPositionMeasurement, positionController.getStateEstimate(),
             getTime() - positionController.getLastMeasurementTime());
-        globalPositionEstimate = {globalPositionEstimateVec[0],
-                                  globalPositionEstimateVec[1]};
 
         /* Update autonomous controller using most recent position. */
         AutonomousOutput output = autonomousController.update(
@@ -568,8 +563,8 @@ void mainOperation() {
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
     Quaternion jumpedAhrsQuat = getAHRSJumpedOrientation(yawJump);
-    attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gx,
-                                       imuMeasurement.gy, imuMeasurement.gz},
+    attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gyro[0],
+                                       imuMeasurement.gyro[1], imuMeasurement.gyro[2]},
                                       yawJump);
     if (shouldUpdateAltitudeObserver)
         altitudeController.updateObserver(correctedSonarMeasurement);

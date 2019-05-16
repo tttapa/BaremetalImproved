@@ -40,7 +40,7 @@ static real_t yawJump;
 
 #pragma region Getters
 AccelMeasurement getAccelMeasurement() {
-    return {imuMeasurement.ax, imuMeasurement.ay, imuMeasurement.az};
+    return {imuMeasurement.accel[0], imuMeasurement.accel[1], imuMeasurement.accel[2]};
 }
 
 Quaternion getAHRSQuat() { return ahrsQuat; }
@@ -54,7 +54,7 @@ Position getCorrectedPositionMeasurement() {
 real_t getCorrectedSonarMeasurement() { return correctedSonarMeasurement; }
 
 GyroMeasurement getGyroMeasurement() {
-    return {imuMeasurement.gx, imuMeasurement.gy, imuMeasurement.gz};
+    return {imuMeasurement.gyro[0], imuMeasurement.gyro[1], imuMeasurement.gyro[2]};
 }
 
 IMUMeasurement getIMUMeasurement() { return imuMeasurement; }

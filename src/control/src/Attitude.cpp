@@ -110,6 +110,11 @@ AttitudeController::updateControlSignal(real_t commonThrust) {
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement,
                                         real_t yawJumpToSubtract) {
+
+    /* Save measurement for logger. */
+    this->measurement = measurement;
+
+    /* Update state estimate. */
     this->stateEstimate = AttitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());

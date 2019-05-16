@@ -4,20 +4,24 @@
 #include <MiscInstances.hpp>
 #include <Time.hpp>
 
+/* Use "Position" for readability: actual type is Vec2f. */
+using Position = Vec2f;
+
+/* Use "HorizontalVelocity" for readability: actual type is Vec2f. */
+using HorizontalVelocity = Vec2f;
+
 /**
  * The largest reference quaternion component that can be sent to the attitude
  * control system is 0.0436.
  */
 static constexpr real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
 
-real_t dist(Position position1, Position position2) {
-    return std::sqrt(distsq(position1, position2));
+real_t dist(Position a, Position b) {
+    return norm(b - a);
 }
 
-real_t distsq(Position position1, Position position2) {
-    real_t dx = position2.x - position1.x;
-    real_t dy = position2.y - position1.y;
-    return dx * dx + dy * dy;
+real_t distsq(Position a, Position b) {
+    return normsq(b - a);
 }
 
 void PositionController::clampControlSignal() {
@@ -41,12 +45,9 @@ void PositionController::init(Position currentPosition) {
 }
 
 void PositionController::correctPositionEstimate(Position correctPosition) {
-    real_t dx                  = correctPosition.x - stateEstimate.p.x;
-    real_t dy                  = correctPosition.y - stateEstimate.p.y;
-    real_t offsetXBlocks       = round(dx * METERS_TO_BLOCKS);
-    real_t offsetYBlocks       = round(dy * METERS_TO_BLOCKS);
-    this->stateEstimate.p.x += offsetXBlocks * BLOCKS_TO_METERS;
-    this->stateEstimate.p.y += offsetYBlocks * BLOCKS_TO_METERS;
+    Position delta = correctPosition - stateEstimate.p;
+    Position offsetBlocks = round(delta * METERS_TO_BLOCKS);
+    this->stateEstimate.p += offsetBlocks * BLOCKS_TO_METERS;
 }
 
 PositionControlSignal
@@ -97,6 +98,10 @@ PositionController::updateControlSignalBlind(PositionReference reference) {
 
 void PositionController::updateObserver(Quaternion orientation,
                                         PositionMeasurement measurement) {
+
+    /* Save measurement for logger. */
+    this->measurement = measurement;
+
     /* Calculate the current state estimate. */
     this->stateEstimate = PositionController::codegenCurrentStateEstimate(
         this->stateEstimate, measurement, orientation,

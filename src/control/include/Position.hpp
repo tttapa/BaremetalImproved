@@ -171,6 +171,9 @@ class PositionController {
      */
     real_t lastMeasurementTime = 0.0;
 
+    /** Position measurement from IMP (or accelerometer data). */
+    PositionMeasurement measurement;
+
     /** Reference position (x,y), which is stored to pass on to the logger. */
     PositionReference reference;
 
@@ -316,6 +319,9 @@ class PositionController {
     /** Get the position controller's last measurement time. */
     real_t getLastMeasurementTime() { return this->lastMeasurementTime; }
 
+    /** Get the position controller's measurement. */
+    PositionMeasurement getMeasurement() { return this->measurement; }
+
     /** Get the position controller's reference position. */
     Position getReferencePosition() { return this->reference.p; }
 
@@ -330,7 +336,13 @@ class PositionController {
      */
     void init(Position currentPosition);
 
-    // TODO: comment
+    /**
+     * Correct the position controller's estimate with the given position. The
+     * position component of the estimate will jump to the correct square.
+     * 
+     * @param   correctPosition
+     *          Correct position, read from the QR code.
+     */
     void correctPositionEstimate(Position correctPosition);
 
     /**

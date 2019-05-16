@@ -141,8 +141,8 @@ static constexpr real_t TAKEOFF_THROTTLE = 0.50;
 #pragma endregion
 
 bool isValidSearchTarget(Position position) {
-    return position.x >= X_MIN && position.x <= X_MAX && position.y >= Y_MIN &&
-           position.y <= Y_MAX;
+    return position[0] >= X_MIN && position[0] <= X_MAX &&
+           position[1] >= Y_MIN && position[1] <= Y_MAX;
 }
 
 real_t AutonomousController::getElapsedTime() {
@@ -150,8 +150,8 @@ real_t AutonomousController::getElapsedTime() {
 }
 
 Position AutonomousController::getNextSearchTarget() {
-    real_t x = this->nextTarget.x;
-    real_t y = this->nextTarget.y;
+    real_t x = this->nextTarget[0];
+    real_t y = this->nextTarget[1];
 
     /* Spiral outward until we reach the next tile to check. */
     real_t dx          = 1.0 * BLOCKS_TO_METERS;
@@ -172,7 +172,7 @@ Position AutonomousController::getNextSearchTarget() {
         x += dx;
         y += dy;
     }
-    return Position(x, y);
+    return Position{x, y};
 }
 
 void AutonomousController::setAutonomousState(AutonomousState nextState) {
@@ -337,7 +337,8 @@ void AutonomousController::updateQRFSM_Idle() {
 void AutonomousController::updateQRFSM_NewTarget() {
 
     /* Correct the drone's position if it got lost during navigation. */
-    positionController.correctPositionEstimateBlocks(qrComm->getCurrentPosition());
+    positionController.correctPositionEstimateBlocks(
+        qrComm->getCurrentPosition());
 
     /* Switch autonomous FSM to NAVIGATING, and set the target to the position
        of the next QR code sent by the Cryptography team. */
@@ -350,7 +351,8 @@ void AutonomousController::updateQRFSM_NewTarget() {
 void AutonomousController::updateQRFSM_Land() {
 
     /* Correct the drone's position if it got lost during navigation. */
-    positionController.correctPositionEstimateBlocks(qrComm->getCurrentPosition());
+    positionController.correctPositionEstimateBlocks(
+        qrComm->getCurrentPosition());
 
     /* Switch the autonomous FSM to LANDING if landing is enabled. */
     if (isLandingEnabled())
@@ -370,7 +372,8 @@ void AutonomousController::updateQRFSM_Land() {
 void AutonomousController::updateQRFSM_QRUnknown() {
 
     /* Correct the drone's position if it got lost during navigation. */
-    positionController.correctPositionEstimateBlocks(qrComm->getCurrentPosition());
+    positionController.correctPositionEstimateBlocks(
+        qrComm->getCurrentPosition());
 
     // TODO: what do we do with unknown QR data?
 
@@ -680,11 +683,9 @@ AutonomousController::updateAutonomousFSM_Navigating(Position currentPosition) {
 
     /* Otherwise, stay in NAVIGATING. Interpolate the reference point between
        the last target and the next target during this time. */
-    real_t dx = (nextTarget.x - previousTarget.x) * getElapsedTime() /
-                this->navigationTime;
-    real_t dy = (nextTarget.y - previousTarget.y) * getElapsedTime() /
-                this->navigationTime;
-    Position interpolation = {previousTarget.x + dx, previousTarget.y + dy};
+    real_t factor          = getElapsedTime() / this->navigationTime;
+    Position delta         = (nextTarget - previousTarget) * factor;
+    Position interpolation = previousTarget + delta;
 
     return AutonomousOutput{
         true,             // ✔ Use altitude controller

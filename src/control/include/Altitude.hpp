@@ -76,6 +76,9 @@ class AltitudeController {
     /** Integral of the error of the height of the drone. */
     AltitudeIntegralWindup integralWindup;
 
+    /** Corrected height measurement from the sonar. */
+    AltitudeMeasurement measurement;
+
     /** Reference height to track in meters. */
     AltitudeReference reference;
 
@@ -157,6 +160,9 @@ class AltitudeController {
 
     /** Get the altitude controller's integral windup. */
     AltitudeIntegralWindup getIntegralWindup() { return this->integralWindup; }
+
+    /** Get the altitude controller's measurement. */
+    AltitudeMeasurement getMeasurement() { return this->measurement; }
 
     /** Get the altitude controller's reference. */
     AltitudeReference getReference() { return this->reference; }

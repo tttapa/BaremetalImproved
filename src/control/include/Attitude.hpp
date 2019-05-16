@@ -113,6 +113,9 @@ class AttitudeController {
      */
     EulerAngles orientationEuler;
 
+    /** Measurement orientation and angular velocity from the IMU and AHRS. */
+    AttitudeMeasurement measurement;
+
     /** Reference orientation to track. */
     AttitudeReference reference;
 
@@ -221,6 +224,9 @@ class AttitudeController {
 
     /** Get the attitude controller's integral windup. */
     AttitudeIntegralWindup getIntegralWindup() { return this->integralWindup; }
+
+    /** Get the attitude controller's measurement. */
+    AttitudeMeasurement getMeasurement() { return this->measurement; }
 
     /**
      * Returns the quaternion of the attitude controller's estimate of the
