@@ -224,9 +224,9 @@ bool calibrateIMUStep() {
         float factor = 1.0 / (float) (CALIBRATION_SAMPLES);
 
         /* Calculate gyroscope bias. */
-        gyroBias.gyro[0] = calcGyro(gyroRawSum[0] * factor);
-        gyroBias.gyro[1] = calcGyro(gyroRawSum[1] * factor);
-        gyroBias.gyro[2] = calcGyro(gyroRawSum[2] * factor);
+        gyroBias.g[0] = calcGyro(gyroRawSum[0] * factor);
+        gyroBias.g[1] = calcGyro(gyroRawSum[1] * factor);
+        gyroBias.g[2] = calcGyro(gyroRawSum[2] * factor);
 
         /* Calculate accelerometer bias quaternion. */
         Vec3f accelBiasAverage = {
