@@ -10,7 +10,6 @@
 add_subdirectory(greet) # TODO
 add_subdirectory(test-vivado) # TODO
 
-add_subdirectory(matrix)
 add_subdirectory(utilities)
 add_subdirectory(quaternion)
 add_subdirectory(misc)
