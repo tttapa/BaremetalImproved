@@ -46,5 +46,6 @@ install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/../../shared-linux/include/BaremetalCommunicationDef.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../shared-linux/include/LogEntry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../shared-linux/include/LoggerStructs.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../shared-linux/include/SharedStruct.hpp
 DESTINATION include)
