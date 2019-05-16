@@ -11,22 +11,22 @@
 FlightMode getFlightMode();
 
 /**
- * Get the current RC pitch.
+ * Get the current RC pitch in [-1, 1].
  */
 real_t getPitch();
 
 /**
- * Get the current RC roll.
+ * Get the current RC roll in [-1, 1].
  */
 real_t getRoll();
 
 /**
- * Get the current RC throttle.
+ * Get the current RC throttle in [0, 1].
  */
 real_t getThrottle();
 
 /**
- * Get the current RC tuner knob value.
+ * Get the current RC tuner knob value in [-1, 1].
  */
 real_t getTuner();
 
@@ -36,7 +36,7 @@ real_t getTuner();
 WPTMode getWPTMode();
 
 /**
- * Get the current RC yaw.
+ * Get the current RC yaw in [-1, 1].
  */
 real_t getYaw();
 

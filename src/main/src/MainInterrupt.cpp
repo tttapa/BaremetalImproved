@@ -15,6 +15,7 @@
 
 /* Includes from src-vivado. */
 #include <output/Motors.hpp>
+#include <output/WPT.hpp>
 #include <platform/AxiGpio.hpp>
 #include <sensors/AHRS.hpp>
 #include <sensors/IMU.hpp>
@@ -426,7 +427,7 @@ void mainOperation() {
 
         // TODO: if yaw turns, this should be different?
         static PositionControlSignal q12ref;
-        
+
         /* Update position observer? */
         if (output.updatePositionObserver) {
             if (output.trustIMPForPosition) { /* Blind @ IMU frequency */
@@ -490,6 +491,14 @@ void mainOperation() {
         else
             uc = 0.0;
     }
+
+    /* WPT? */
+    bool wptManual = (flightMode == FlightMode::MANUAL && getThrottle() < 0.03);
+    bool wptAutonomous = (flightMode == FlightMode::AUTONOMOUS &&
+                          autonomousController.getAutonomousState() == WPT);
+    if(getWPTMode() == WPTMode::ON && (wptManual || wptAutonomous))
+        outputWPT((getTuner() + 1.0) / 2.0);    /* Duty cycle: 0% to 100%. */
+
 #pragma endregion
 
     /* Keep the attitude controller's state estimate near the unit quaternion
