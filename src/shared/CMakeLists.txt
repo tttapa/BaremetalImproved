@@ -1,5 +1,5 @@
 # Create library target and specify the implementation files to compile.
-add_library(communication
+add_library(shared
     src/GetLogData.cpp)
 
 # Set target include directories 
