@@ -5,17 +5,41 @@
 #include <Quaternion.hpp>
 #include <real_t.h>
 
+/** Blocks to meters. */
+const real_t BLOCKS_TO_METERS = 0.30;
+
+/** Meters to blocks. */
+const real_t METERS_TO_BLOCKS = 1.0 / BLOCKS_TO_METERS;
+
+/** Highest valid x-coordinate in blocks. */
+const real_t X_MAX_BLOCKS = 9.5;
+
+/** Lowest valid x-coordinate in blocks. */
+const real_t X_MIN_BLOCKS = -0.5;
+
+/** Center x-coordinate in blocks. */
+const real_t X_CENTER_BLOCKS = (X_MIN_BLOCKS + X_MAX_BLOCKS) / 2.0;
+
+/** Highest valid y-coordinate in blocks. */
+const real_t Y_MAX_BLOCKS = 9.5;
+
+/** Lowest valid y-coordinate in blocks. */
+const real_t Y_MIN_BLOCKS = -0.5;
+
+/** Center y-coordinate in blocks. */
+const real_t Y_CENTER_BLOCKS = (Y_MIN_BLOCKS + Y_MAX_BLOCKS) / 2.0;
+
 /** Highest valid x-coordinate. */
-const real_t X_MAX = 10.0;
+const real_t X_MAX = X_MAX_BLOCKS * BLOCKS_TO_METERS;
 
 /** Lowest valid x-coordinate. */
-const real_t X_MIN = 0.0;
+const real_t X_MIN = X_MIN_BLOCKS * BLOCKS_TO_METERS;
 
 /** Highest valid y-coordinate. */
-const real_t Y_MAX = 10.0;
+const real_t Y_MAX = Y_MAX_BLOCKS * BLOCKS_TO_METERS;
 
 /** Lowest valid y-coordinate. */
-const real_t Y_MIN = 0.0;
+const real_t Y_MIN = Y_MIN_BLOCKS * BLOCKS_TO_METERS;
 
 /**
  * Position (x,y) reference to track, consisting of a position. This value is

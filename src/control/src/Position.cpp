@@ -41,15 +41,12 @@ void PositionController::init(Position currentPosition) {
 }
 
 void PositionController::correctPositionEstimate(Position correctPosition) {
-    // TODO: meters2blocks
-    const real_t BLOCKS2METERS = 0.30;
-    const real_t METERS2BLOCKS = 1.0 / BLOCKS2METERS;
     real_t dx                  = correctPosition.x - stateEstimate.p.x;
     real_t dy                  = correctPosition.y - stateEstimate.p.y;
-    real_t offsetXBlocks       = round(dx * METERS2BLOCKS);
-    real_t offsetYBlocks       = round(dy * METERS2BLOCKS);
-    this->stateEstimate.p.x += offsetXBlocks * BLOCKS2METERS;
-    this->stateEstimate.p.y += offsetYBlocks * BLOCKS2METERS;
+    real_t offsetXBlocks       = round(dx * METERS_TO_BLOCKS);
+    real_t offsetYBlocks       = round(dy * METERS_TO_BLOCKS);
+    this->stateEstimate.p.x += offsetXBlocks * BLOCKS_TO_METERS;
+    this->stateEstimate.p.y += offsetYBlocks * BLOCKS_TO_METERS;
 }
 
 PositionControlSignal

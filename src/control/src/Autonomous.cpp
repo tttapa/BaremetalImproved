@@ -154,8 +154,8 @@ Position AutonomousController::getNextSearchTarget() {
     real_t y = this->nextTarget.y;
 
     /* Spiral outward until we reach the next tile to check. */
-    real_t dx          = 1.0;
-    real_t dy          = 0.0;
+    real_t dx          = 1.0 * BLOCKS_TO_METERS;
+    real_t dy          = 0.0 * BLOCKS_TO_METERS;
     int tilesUntilTurn = 0;
     int nextTurnIndex  = 1;
     for (int i = 0; i < this->qrTilesSearched; i++) {
@@ -185,11 +185,19 @@ void AutonomousController::setNextTarget(Position target) {
     this->nextTarget     = target;
 }
 
+void AutonomousController::setNextTargetBlocks(Position targetBlocks) {
+    setNextTarget(targetBlocks * BLOCKS_TO_METERS);
+}
+
 void AutonomousController::startNavigating(Position nextTarget) {
     setNextTarget(nextTarget);
     real_t d             = dist(this->previousTarget, this->nextTarget);
     this->navigationTime = d / NAVIGATION_SPEED;
     setAutonomousState(NAVIGATING);
+}
+
+void AutonomousController::startNavigatingBlocks(Position nextTargetBlocks) {
+    startNavigating(nextTargetBlocks * BLOCKS_TO_METERS);
 }
 
 AutonomousOutput
@@ -315,7 +323,7 @@ void AutonomousController::updateQRFSM_Idle() {
        TEST_NAVIGATION mode. */
     if (getElapsedTime() > CONVERGENCE_DURATION &&
         isNavigationEnabledTestTargets())
-        startNavigating(getNextNavigationTestTarget());
+        startNavigatingBlocks(getNextNavigationTestTarget());
 
     /* Set this FSM to QR_READ_REQUEST if the convergence timer expires and
        we're allowed to navigate with QR codes. */
@@ -329,11 +337,11 @@ void AutonomousController::updateQRFSM_Idle() {
 void AutonomousController::updateQRFSM_NewTarget() {
 
     /* Correct the drone's position if it got lost during navigation. */
-    positionController.correctPositionEstimate(qrComm->getCurrentPosition());
+    positionController.correctPositionEstimateBlocks(qrComm->getCurrentPosition());
 
     /* Switch autonomous FSM to NAVIGATING, and set the target to the position
        of the next QR code sent by the Cryptography team. */
-    startNavigating(qrComm->getTargetPosition());
+    startNavigatingBlocks(qrComm->getTargetPosition());
 
     /* Switch to QR_IDLE. */
     qrComm->setQRStateIdle();
@@ -342,7 +350,7 @@ void AutonomousController::updateQRFSM_NewTarget() {
 void AutonomousController::updateQRFSM_Land() {
 
     /* Correct the drone's position if it got lost during navigation. */
-    positionController.correctPositionEstimate(qrComm->getCurrentPosition());
+    positionController.correctPositionEstimateBlocks(qrComm->getCurrentPosition());
 
     /* Switch the autonomous FSM to LANDING if landing is enabled. */
     if (isLandingEnabled())
@@ -362,7 +370,7 @@ void AutonomousController::updateQRFSM_Land() {
 void AutonomousController::updateQRFSM_QRUnknown() {
 
     /* Correct the drone's position if it got lost during navigation. */
-    positionController.correctPositionEstimate(qrComm->getCurrentPosition());
+    positionController.correctPositionEstimateBlocks(qrComm->getCurrentPosition());
 
     // TODO: what do we do with unknown QR data?
 

@@ -54,8 +54,6 @@ const float MIN_THROTTLE = 0.05;
 
 // TODO: change drone mass!
 // TODO: types degree, radian, meter, block
-// TODO: where should this be?
-const real_t BLOCKS_2_METERS = 0.30;
 
 void updateFSM() {
 
@@ -431,12 +429,18 @@ void mainOperation() {
         //========================== INITIALIZATION ==========================//
 
         if (previousFlightMode == FlightMode::ALTITUDE_HOLD) {
-            if (canStartAutonomousModeAir())
+            if (canStartAutonomousModeAir()) {
                 autonomousController.initAir(correctedPositionMeasurement,
                                              correctedSonarMeasurement);
-            else
-                autonomousController.initGround(correctedPositionMeasurement);
-            positionController.init(correctedPositionMeasurement);
+                positionController.init(correctedPositionMeasurement);
+            } else {
+                // TODO: autonomous controller inits in the middle
+                Position startingPosition = {
+                    round(X_CENTER_BLOCKS) * BLOCKS_TO_METERS,
+                    round(Y_CENTER_BLOCKS) * BLOCKS_TO_METERS};
+                autonomousController.initGround(startingPosition);
+                positionController.init(startingPosition)
+            }
         }
 
         //=========================== MISCELLANEOUS ==========================//
@@ -580,7 +584,6 @@ void mainOperation() {
     // TODO: kill if the drone tilts too far? (droneControllersActivated flag)
 
     /* Update input biases. */
-    // TODO: remember input bias so we can fly immediately in autonomous
     biasManager.updatePitchBias(attitudeController.getReferenceEuler().pitch,
                                 flightMode);
     biasManager.updateRollBias(attitudeController.getReferenceEuler().roll,

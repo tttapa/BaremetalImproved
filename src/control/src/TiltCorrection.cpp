@@ -34,10 +34,6 @@ real_t sgn(real_t value) { return copysign(1.0, value); }
 ColVector<2>
 getGlobalPositionEstimate(ColVector<2> correctedPositionMeasurement,
                           PositionState lastPositionEstimate, real_t Ts) {
-
-    // TODO: BLOCKS2METERS
-    static constexpr real_t BLOCKS2METERS = 0.30;
-    static constexpr real_t METERS2BLOCKS = 1.0 / BLOCKS2METERS;
     real_t xExpected = lastPositionEstimate.p.x + lastPositionEstimate.vx * Ts;
     real_t yExpected = lastPositionEstimate.p.y + lastPositionEstimate.vy * Ts;
     real_t dx        = xExpected - lastPositionEstimate.p.x;
@@ -46,8 +42,9 @@ getGlobalPositionEstimate(ColVector<2> correctedPositionMeasurement,
     /* Calculate offset to be added to the given (x,y) using the expected
        location. E.g. expected (0, 0), measured (0.7, -1.1) should return
        (-0.6, +0.9). */
-    real_t offsetXBlocks = round(dx * METERS2BLOCKS);
-    real_t offsetYBlocks = round(dy * METERS2BLOCKS);
+    real_t offsetXBlocks = round(dx * METERS_TO_BLOCKS);
+    real_t offsetYBlocks = round(dy * METERS_TO_BLOCKS);
     return correctedPositionMeasurement +
-           ColVector<2>{offsetXBlocks, offsetYBlocks};
+           ColVector<2>{offsetXBlocks * BLOCKS_TO_METERS,
+                        offsetYBlocks * BLOCKS_TO_METERS};
 }

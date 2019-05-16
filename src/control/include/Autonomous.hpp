@@ -185,7 +185,7 @@ class AutonomousController {
     /**
      * Calculates the next target in an outward spiral search for the QR code.
      * 
-     * @return  The next target to check.
+     * @return  The next target to check in meters.
      */
     Position getNextSearchTarget();
 
@@ -203,9 +203,18 @@ class AutonomousController {
      * "nextTarget", then set "nextTarget" equal to the given target.
      * 
      * @param   target
-     *          New "nextTarget" for the autonomous controller.
+     *          New "nextTarget" for the autonomous controller in meters.
      */
     void setNextTarget(Position target);
+
+    /**
+     * Set this autonomous controller's "previousTarget" to the value of
+     * "nextTarget", then set "nextTarget" equal to the given target.
+     * 
+     * @param   targetBlocks
+     *          New "nextTarget" for the autonomous controller in blocks.
+     */
+    void setNextTargetBlocks(Position targetBlocks);
 
     /**
      * Tell the autonomous controller's FSM to switch to the NAVIGATING state
@@ -213,10 +222,21 @@ class AutonomousController {
      * FSM when the Cryptography team decodes a QR_NEW_TARGET instruction.
      * 
      * @param   nextTarget
-     *          Position to navigate to, which will be the next QR code during
-     *          autonomous mode.
+     *          Position to navigate to in meters, which will be the next QR
+     *          code during autonomous mode.
      */
     void startNavigating(Position nextTarget);
+
+    /**
+     * Tell the autonomous controller's FSM to switch to the NAVIGATING state
+     * and start navigating to the given target. This will be called from the QR
+     * FSM when the Cryptography team decodes a QR_NEW_TARGET instruction.
+     * 
+     * @param   nextTargetBlocks
+     *          Position to navigate to in blocks, which will be the next QR
+     *          code during autonomous mode.
+     */
+    void startNavigatingBlocks(Position nextTargetBlocks);
 
     /**
      * Update the autonomous controller's finite state machine (FSM). The
