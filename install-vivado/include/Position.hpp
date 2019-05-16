@@ -307,7 +307,7 @@ class PositionController {
     void init(Position currentPosition);
 
     // TODO: comment
-    void correctPositionEstimate(Position correction);
+    void correctPositionEstimate(Position correctPosition);
 
     /**
      * Update the position controller with the given reference position. This

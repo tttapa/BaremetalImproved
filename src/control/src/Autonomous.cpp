@@ -583,7 +583,7 @@ AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
         setAutonomousState(CONVERGING);
         if (shouldTestQRSearch())
             positionController.correctPositionEstimate(
-                positionController.getStateEstimate().p + {0.0, 1.0});
+                positionController.getStateEstimate().p + Position{0.0, 1.0});
     }
 
     /* Otherwise, stay in LOITERING. */

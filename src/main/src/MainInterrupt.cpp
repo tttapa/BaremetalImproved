@@ -487,7 +487,7 @@ void mainOperation() {
             if (!output.trustIMPForPosition) { /* Blind @ IMU frequency */
                 q12ref = positionController.updateControlSignalBlind(
                     output.referencePosition);
-                `
+
             } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
                 q12ref = positionController.updateControlSignal(
                     output.referencePosition);
