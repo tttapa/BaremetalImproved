@@ -310,10 +310,10 @@ if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'u')
         if element == 1
-            string = 'controlSignalBlind.q[0]';
+            string = 'controlSignalBlind.q12[0]';
         end
         if element == 2
-            string = 'controlSignalBlind.q[1]';
+            string = 'controlSignalBlind.q12[1]';
         end
     end
      
