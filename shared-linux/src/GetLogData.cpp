@@ -20,12 +20,12 @@ LogEntry getLogData() {
     logentry.attitudeStateEstimate  = attitudeController.getStateEstimate();
     logentry.positionControlSignal  = positionController.getControlSignal();
     logentry.positionIntegralWindup = positionController.getIntegralWindup();
-    logentry.referenceLocation      = positionController.getMeasurement();
-    logentry.positionReference      = positionController.getReference();
-    logentry.positionStateEstimate  = positionController.getStateEstimate();
-    logentry.autonomousOutput       = autonomousController.getOutput();
+    logentry.referenceLocation = positionController.getMeasurement();
+    logentry.positionReference = positionController.getReference();
+    logentry.positionStateEstimate = positionController.getStateEstimate();
+    logentry.autonomousOutput = autonomousController.getOutput();
 
-    logentry.rcInput           = getRCInput();
+    logentry.rcInput = getRCInput();
     logentry.buzzerInstruction = buzzerManager.getCurrentInstruction();
 
     logentry.millis    = getMillis();

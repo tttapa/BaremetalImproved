@@ -403,12 +403,12 @@ struct AutonomousOutput {
  */
 struct AccelMeasurement {
     AccelMeasurement() = default;
-    AccelMeasurement(Vec3f accel) : accel{accel} {}
+    AccelMeasurement(Vec3f a) : a{a} {}
     
     /**
      * Accelerometer measurement of the acceleration in g.
      */
-    Vec3f accel = {0.0, 0.0, 0.0};
+    Vec3f a = {0.0, 0.0, 0.0};
 };
 
 // This is an automatically generated struct, edit it in the code generator
@@ -417,12 +417,12 @@ struct AccelMeasurement {
  */
 struct GyroMeasurement {
     GyroMeasurement() = default;
-    GyroMeasurement(Vec3f gyro) : gyro{gyro} {}
+    GyroMeasurement(Vec3f g) : g{g} {}
     
     /**
      * Gyroscope measurement of the angular velocity in rad/s.
      */
-    Vec3f gyro = {0.0, 0.0, 0.0};
+    Vec3f g = {0.0, 0.0, 0.0};
 };
 
 // This is an automatically generated struct, edit it in the code generator
@@ -432,17 +432,17 @@ struct GyroMeasurement {
  */
 struct IMUMeasurement {
     IMUMeasurement() = default;
-    IMUMeasurement(Vec3f gyro, Vec3f accel) : gyro{gyro}, accel{accel} {}
+    IMUMeasurement(GyroMeasurement gyro, AccelMeasurement accel) : gyro{gyro}, accel{accel} {}
     
     /**
      * Gyroscope measurement of the angular velocity in rad/s.
      */
-    Vec3f gyro = {0.0, 0.0, 0.0};
+    GyroMeasurement gyro = {};
 
     /**
      * Accelerometer measurement of the acceleration in g.
      */
-    Vec3f accel = {0.0, 0.0, 0.0};
+    AccelMeasurement accel = {};
 };
 
 // This is an automatically generated struct, edit it in the code generator
