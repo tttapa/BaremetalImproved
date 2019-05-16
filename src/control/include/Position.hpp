@@ -1,6 +1,7 @@
 #pragma once
 
 /* Includes from src. */
+#include <BaremetalCommunicationDef.hpp>  ///< VisionPosition
 #include <LoggerStructs.hpp>
 #include <Quaternion.hpp>
 #include <real_t.h>

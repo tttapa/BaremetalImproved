@@ -43,10 +43,8 @@ void PositionController::correctPositionEstimateBlocks(
 
 void PositionController::correctPositionEstimateBlocks(
     VisionPosition correctPosition) {
-    correctPositionEstimateBlocks({correctPosition.x, correctPosition.y});
-    Position deltaBlocks = correctPosition - stateEstimate.p * METERS_TO_BLOCKS;
-    Position offsetBlocks = round(deltaBlocks);
-    this->stateEstimate.p += offsetBlocks * BLOCKS_TO_METERS;
+    correctPositionEstimateBlocks(
+        Position{correctPosition.x, correctPosition.y});
 }
 
 PositionControlSignal

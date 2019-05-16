@@ -2,7 +2,7 @@
 #include <cstdint>
 
 /* Includes from src. */
-#include <SensorTypes.hpp>  ///< IMUMeasurement
+#include <LoggerStructs.hpp>  ///< IMUMeasurement
 
 /* Raw 16-bit signed data from the accelerometer. */
 struct RawAccelMeasurement {

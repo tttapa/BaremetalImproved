@@ -4,6 +4,7 @@
 #pragma region Includes
 /* Includes from src. */
 #include <ControllerInstances.hpp>
+#include <GetLogData.hpp>
 #include <LogEntry.hpp>
 #include <LoggerStructs.hpp>
 #include <MiscInstances.hpp>
@@ -590,7 +591,7 @@ void mainOperation() {
 
     /* Logger. */
 
-    LogEntry logEntry;
+    LogEntry logEntry = getLogData();
     logEntry.setSize(64);
     logEntry.setMode(int32_t(flightMode));
     logEntry.setFrametime(getMillis());

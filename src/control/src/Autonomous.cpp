@@ -202,7 +202,7 @@ void AutonomousController::startNavigatingBlocks(Position nextTargetBlocks) {
 
 void AutonomousController::startNavigatingBlocks(
     VisionPosition nextTargetBlocks) {
-    startNavigatingBlocks({nextTargetBlocks.x, nextTargetBlocks.y});
+    startNavigatingBlocks(Position{nextTargetBlocks.x, nextTargetBlocks.y});
 }
 
 AutonomousOutput
