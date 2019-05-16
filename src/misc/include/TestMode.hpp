@@ -33,7 +33,7 @@ enum TestMode {
      * mode. During this time, the drone will cycle through an array of
      * prespecified targets, navigating and converging on each one.
      */
-    TEST_NAVIGATING = 3,
+    TEST_NAVIGATION = 3,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
@@ -45,11 +45,33 @@ enum TestMode {
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
+     * from the air. The drone will loiter for 15 seconds, then it will read the
+     * first QR code as soon as the drone is stable. After decrypting the QR
+     * code, it will fly to the second QR code, but will arrive 1 tile off. When
+     * ANC asks to scan the current QR code, IMP will respone that there is no
+     * QR code below the drone. Then the drone will perform a spiral search to
+     * find the QR code, and then it will land.
+     */
+    TEST_QR_WALKING = 5,
+
+    /**
+     * All flight modes are active, but autonomous mode can only be activated
+     * from the air. The drone will loiter for 15 seconds, then it will read the
+     * first QR code as soon as the drone is stable. After decrypting the QR
+     * code, it will fly to the second QR code, but will arrive 1 tile off. When
+     * ANC asks to scan the current QR code, IMP will respone that there is no
+     * QR code below the drone. Then the drone will perform a spiral search to
+     * find the QR code, and then it will land.
+     */
+    TEST_QR_NAVIGATION_LOST = 6,
+
+    /**
+     * All flight modes are active, but autonomous mode can only be activated
      * from the ground. The drone will perform a pre-takeoff routine and
      * maintain the signals that were sent in the last iteration of the pre-
      * takeoff routine until the pilot switches back to altitude-hold mode.
      */
-    TEST_PRETAKEOFF = 5,
+    TEST_PRETAKEOFF = 7,
 
     /**
      * All flight modes are active, but autonomous mode can only be activated
@@ -57,7 +79,7 @@ enum TestMode {
      * will perform the takeoff routine, and finally it will remain in LOITERING
      * until the pilot switches back to altitude-hold mode.
      */
-    TEST_TAKEOFF = 6,
+    TEST_TAKEOFF = 8,
 
     /**
      * All flight modes are active, and autonomous mode can be activated from
@@ -69,7 +91,7 @@ enum TestMode {
      * drone is told to take off again, or the pilot switches back to altitude-
      * hold mode.
      */
-    DEMO = 7,
+    DEMO = 9,
 
 };
 
@@ -79,11 +101,17 @@ TestMode getTestMode();
 /** Get whether switching to altitude mode is enabled. */
 bool canStartAltitudeHoldMode();
 
-/** Get whether switching to autonomous mode from the ground is enabled. */
-bool canStartAutonomousModeGround();
+/** Get whether switching to autonomous mode is enabled. */
+bool canStartAutonomousMode();
 
 /** Get whether switching to autonomous mode from the air is enabled. */
 bool canStartAutonomousModeAir();
+
+/** Get whether switching to autonomous mode from the ground is enabled. */
+bool canStartAutonomousModeGround();
+
+/** Get the next navigation target during TEST_NAVIGATION mode. */
+Position getNextNavigationTestTarget();
 
 /** Get whether switching to altitude mode is enabled. */
 bool isAltitudeHoldModeEnabled();
@@ -95,10 +123,39 @@ bool isAutonomousAirEnabled();
 bool isAutonomousGroundEnabled();
 
 /** Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING. */
-bool isNavigatingEnabled();
+bool isNavigationEnabled();
+
+/**
+ * Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING,
+ * using QR codes to navigate.
+ */
+bool isNavigationEnabledQRCodes();
+
+/**
+ * Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING,
+ * using prespecified test targets to navigate.
+ */
+bool isNavigationEnabledTestTargets();
 
 /** Get whether the drone is able to land. */
 bool isLandingEnabled();
 
-/** Get whether the drone should switch from LOITERING to LANDING. */
-bool shouldLandAfterLoitering();
+/** Get whether the drone should loiter indefinitely after taking off. */
+bool shouldLoiterIndefinitelyAfterTakeoff();
+
+/** Get whether the drone should loiter indefinitely with air initialization. */
+bool shouldLoiterIndefinitelyWithInitAir();
+
+/**
+ * Get whether the loitering timer should be shortened. This is only the case
+ * during TEST_QR_WALKING mode.
+ */
+bool shouldLoiteringTimerBeShortened();
+
+/** Get the whether the drone should take off after pretakeoff. */
+bool shouldTakeOffAfterPreTakeoff();
+
+/**
+ * Get whether the spiral search will be tested after reading the first QR code.
+ */
+bool shouldTestQRSearch();

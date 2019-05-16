@@ -1,7 +1,7 @@
 #pragma once
 
 /* Includes from src. */
-#include <OutputTypes.hpp>  ///< BuzzerInstruction
+#include <LoggerStructs.hpp>  ///< BuzzerInstruction
 
 /**
  * The beep queue has a maximum size of 30 instructions. If the buffer is full
@@ -74,6 +74,11 @@ class BuzzerManager {
      * Clears the beep queue.
      */
     void clearBeepQueue();
+
+    /** Get the current instruction playing on the buzzer. */
+    BuzzerInstruction getCurrentInstruction() {
+        return this->currentInstruction;
+    }
 
     /**
      * Returns the number of instructions left in the beep queue.

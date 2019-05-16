@@ -70,6 +70,11 @@ AltitudeControlSignal AltitudeController::updateControlSignal() {
 }
 
 void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
+
+    /* Save measurement for logger. */
+    this->measurement = measurement;
+
+    /* Update state estimate. */
     this->stateEstimate = AltitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());

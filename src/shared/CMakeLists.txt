@@ -1,9 +1,6 @@
 # Create library target and specify the implementation files to compile.
-add_library(instances
-    src/ControllerInstances.cpp
-    src/MiscInstances.cpp
-    src/SharedMemoryInstances.cpp
-)
+add_library(shared
+    src/GetLogData.cpp)
 
 # Set target include directories 
 #   These are the folders where the compiler will search for included header 
@@ -13,7 +10,7 @@ add_library(instances
 #   Any header files in the `src` directory are private, they are only required 
 #   to compile the implementation files of the library, users of the library
 #   should not include them.
-target_include_directories(instances
+target_include_directories(shared
     PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -22,19 +19,18 @@ target_include_directories(instances
 )
 
 # Tell CMake to compile this library with C++17 features enabled
-# target_compile_features(instances PUBLIC cxx_std_17)
+# target_compile_features(shared PUBLIC cxx_std_17)
 
 # Link the library with its dependencies.
 #   This manages both the include directories of the dependencies, as well as  
 #   the actual linking of the other libraries.
 #   Libraries that are used in the public header files should be public,
 #   libraries that are only used in the implementation files should be private.
-target_link_libraries(instances 
-    PUBLIC 
-        communication
-        control
+target_link_libraries(shared 
+    PRIVATE
+        instances
         misc
-        shared
+        time
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)
@@ -43,14 +39,25 @@ target_link_libraries(instances
 #     add_subdirectory(test) 
 # endif()
 
-install(TARGETS instances
-        EXPORT instances
+install(TARGETS shared
+        EXPORT shared
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT instances DESTINATION lib)
+install(EXPORT shared DESTINATION lib)
 install(
 FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ControllerInstances.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/MiscInstances.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/SharedMemoryInstances.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Array.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ArrayHelpers.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/BaremetalCommunicationDef.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EulerAngles.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/GetLogData.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/HouseholderQR.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/LeastSquares.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/LoggerStructs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Matrix.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/MatrixHelpers.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Quaternion.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/real_t.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/SharedStruct.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Square.hpp
 DESTINATION include)

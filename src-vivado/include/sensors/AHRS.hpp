@@ -3,7 +3,7 @@
 /* Includes from src. */
 #include <EulerAngles.hpp>
 #include <Quaternion.hpp>
-#include <SensorTypes.hpp>  ///< IMUMeasurement
+#include <LoggerStructs.hpp>  ///< IMUMeasurement
 
 /* Includes from src-vivado. */
 #include <sensors/IMU.hpp>

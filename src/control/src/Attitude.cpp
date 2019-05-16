@@ -34,11 +34,13 @@ static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 
 MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
                                             real_t commonThrust) {
-    return MotorSignals{
-        commonThrust + controlSignal.ux + controlSignal.uy - controlSignal.uz,
-        commonThrust + controlSignal.ux - controlSignal.uy + controlSignal.uz,
-        commonThrust - controlSignal.ux + controlSignal.uy + controlSignal.uz,
-        commonThrust - controlSignal.ux - controlSignal.uy - controlSignal.uz};
+    real_t ux = controlSignal.uxyz[0];
+    real_t uy = controlSignal.uxyz[1];
+    real_t uz = controlSignal.uxyz[2];
+    return MotorSignals{commonThrust + ux + uy - uz,  //
+                        commonThrust + ux - uy + uz,  //
+                        commonThrust - ux + uy + uz,  //
+                        commonThrust - ux - uy - uz};
 }
 
 void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {
@@ -53,9 +55,9 @@ void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {
 void AttitudeController::clampControlSignal(real_t commonThrust) {
 
     /* Load values from the attitude controller. */
-    real_t ux = this->controlSignal.ux;
-    real_t uy = this->controlSignal.uy;
-    real_t uz = this->controlSignal.uz;
+    real_t ux = this->controlSignal.uxyz[0];
+    real_t uy = this->controlSignal.uxyz[1];
+    real_t uz = this->controlSignal.uxyz[2];
 
     /* Clamp the yaw torque motor separately to ensure ux, uy compensation. */
     if (uz > YAW_SIGNAL_CLAMP)
@@ -74,7 +76,7 @@ void AttitudeController::clampControlSignal(real_t commonThrust) {
         uz *= factor;
     }
 
-    this->controlSignal = AttitudeControlSignal{ux, uy, uz};
+    this->controlSignal = AttitudeControlSignal{{ux, uy, uz}};
 }
 
 void AttitudeController::init() {
@@ -110,6 +112,11 @@ AttitudeController::updateControlSignal(real_t commonThrust) {
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement,
                                         real_t yawJumpToSubtract) {
+
+    /* Save measurement for logger. */
+    this->measurement = measurement;
+
+    /* Update state estimate. */
     this->stateEstimate = AttitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());

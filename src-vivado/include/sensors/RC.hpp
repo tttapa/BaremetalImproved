@@ -1,7 +1,7 @@
 #pragma once
 
 /* Includes from src. */
-#include <SensorTypes.hpp>  ///< RCInput
+#include <LoggerStructs.hpp>  ///< RCInput
 
 /**
  * Read the RC voltages from the registers.

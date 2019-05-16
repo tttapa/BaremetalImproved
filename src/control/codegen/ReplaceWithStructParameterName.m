@@ -47,13 +47,13 @@ if strcmp(controllerName, 'Attitude')
     
     if strcmp(struct,'y_int')
         if element == 1
-            string = 'integralWindup.q1';
+            string = 'integralWindup.q123[0]';
         end
         if element == 2
-            string = 'integralWindup.q2';
+            string = 'integralWindup.q123[1]';
         end
         if element == 3
-            string = 'integralWindup.q3';
+            string = 'integralWindup.q123[2]';
         end
     end
     
@@ -71,22 +71,22 @@ if strcmp(controllerName, 'Attitude')
            string = 'stateEstimate.q[3]';
         end
         if element == 5
-           string = 'stateEstimate.wx';
+           string = 'stateEstimate.w[0]';
         end
         if element == 6
-           string = 'stateEstimate.wy';
+           string = 'stateEstimate.w[1]';
         end
         if element == 7
-           string = 'stateEstimate.wz';
+           string = 'stateEstimate.w[2]';
         end
         if element == 8
-           string = 'stateEstimate.nx';
+           string = 'stateEstimate.n[0]';
         end
         if element == 9
-           string = 'stateEstimate.ny';
+           string = 'stateEstimate.n[1]';
         end
         if element == 10
-           string = 'stateEstimate.nz';
+           string = 'stateEstimate.n[2]';
         end 
     end
     
@@ -107,13 +107,13 @@ if strcmp(controllerName, 'Attitude')
     
     if strcmp(struct, 'u') 
        if element == 1
-           string = 'controlSignal.ux';
+           string = 'controlSignal.uxyz[0]';
        end
        if element == 2
-           string = 'controlSignal.uy';
+           string = 'controlSignal.uxyz[1]';
        end
        if element == 3
-           string = 'controlSignal.uz';
+           string = 'controlSignal.uxyz[2]';
        end
     end
     
@@ -131,13 +131,13 @@ if strcmp(controllerName, 'Attitude')
           string = 'measurement.q[3]';
        end
        if element == 5
-          string = 'measurement.wx';
+          string = 'measurement.w[0]';
        end
        if element == 6 
-          string = 'measurement.wy';
+          string = 'measurement.w[1]';
        end
        if element == 7
-          string = 'measurement.wz';
+          string = 'measurement.w[2]';
        end
     end
     
@@ -155,22 +155,22 @@ if strcmp(controllerName, 'Attitude')
           string = 'prediction.q[3]';
        end
        if element == 5
-          string = 'prediction.wx';
+          string = 'prediction.w[0]';
        end
        if element == 6
-          string = 'prediction.wy';
+          string = 'prediction.w[1]';
        end
        if element == 7
-          string = 'prediction.wz';
+          string = 'prediction.w[2]';
        end
        if element == 8
-          string = 'prediction.nx';
+          string = 'prediction.n[0]';
        end
        if element == 9
-          string = 'prediction.ny';
+          string = 'prediction.n[1]';
        end
        if element == 10
-          string = 'prediction.nz';
+          string = 'prediction.n[2]';
        end 
     end
     
@@ -188,22 +188,22 @@ if strcmp(controllerName, 'Attitude')
           string = 'innovation.q[3]';
        end
        if element == 5
-          string = 'innovation.wx';
+          string = 'innovation.w[0]';
        end
        if element == 6
-          string = 'innovation.wy';
+          string = 'innovation.w[1]';
        end
        if element == 7
-          string = 'innovation.wz';
+          string = 'innovation.w[2]';
        end
        if element == 8
-          string = 'innovation.nx';
+          string = 'innovation.n[0]';
        end
        if element == 9
-          string = 'innovation.ny';
+          string = 'innovation.n[1]';
        end
        if element == 10
-          string = 'innovation.nz';
+          string = 'innovation.n[2]';
        end 
     end  
 end
@@ -256,64 +256,64 @@ if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'x_hat')
        if element == 1
-           string = 'stateEstimate.q1';
+           string = 'stateEstimate.q[0]';
        end
        if element == 2
-           string = 'stateEstimate.q2';
+           string = 'stateEstimate.q[1]';
        end
        if element == 3
-           string = 'stateEstimate.p.x';
+           string = 'stateEstimate.p[0]';
        end
        if element == 4
-           string = 'stateEstimate.p.y';
+           string = 'stateEstimate.p[1]';
        end
        if element == 5
-           string = 'stateEstimate.vx';
+           string = 'stateEstimate.v[0]';
        end
        if element == 6
-           string = 'stateEstimate.vy';
+           string = 'stateEstimate.v[1]';
        end
     end
     
     if strcmp(struct, 'ref')
        if element == 1
-          string = 'reference.p.x';
+          string = 'reference.p[0]';
        end
        if element == 2
-          string = 'reference.p.y';
+          string = 'reference.p[1]';
        end
     end
     
     if strcmp(struct, 'y_int')
         if element == 1
-            string = 'integralWindup.x';
+            string = 'integralWindup.p[0]';
         end
         if element == 2
-            string = 'integralWindup.y';
+            string = 'integralWindup.p[1]';
         end
     end
     
     if strcmp(struct, 'x_hat_blind_copy')
        if element == 1
-           string = 'stateEstimateBlindCopy.p.x';
+           string = 'stateEstimateBlindCopy.p[0]';
        end
        if element == 2
-           string = 'stateEstimateBlindCopy.p.y';
+           string = 'stateEstimateBlindCopy.p[1]';
        end
        if element == 3
-           string = 'stateEstimateBlindCopy.vx';
+           string = 'stateEstimateBlindCopy.v[0]';
        end
        if element == 4
-           string = 'stateEstimateBlindCopy.vy';
+           string = 'stateEstimateBlindCopy.v[1]';
        end
     end
     
     if strcmp(struct, 'u')
         if element == 1
-            string = 'controlSignalBlind.q1';
+            string = 'controlSignalBlind.q12[0]';
         end
         if element == 2
-            string = 'controlSignalBlind.q2';
+            string = 'controlSignalBlind.q12[1]';
         end
     end
      

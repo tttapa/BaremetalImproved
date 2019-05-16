@@ -135,22 +135,21 @@ void eagleSetupIPC(void) {
     //
     // See Figure 3-5 on p.78 of the Zynq-7000 Technical Reference Manual
     // https://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdf
-    //
+    // 
     // [31:20] → base address of section
     // [19] 0 → NS
     // [18] 0 → 1 MiB "sections"
     // [17] 0 → Global
-    // [16] 1 → Shareable
+    // [16] 0 → Non-shareable
     // [15] 0 → Access Permission [2]
     // [14:12] 100 → TEX → Normal memory, non-cacheable
     // [11:10] 11 → Access Permission [1:0] → Full Access
     // [9] 0
     // [8:5] 1111 → Domain
-    // [4] 1 → Execute Never
+    // [4] 0 → Execute Never off
     // [3:2] 00 → CB → non-cacheable
     // [1:0] 10 → 1 MiB "sections"
-
-    eagleSetTLBAttributes(0xFFFF0000, 0b1'0'100'11'0'1111'1'00'10);
+    eagleSetTLBAttributes(0xFFFF0000, 0b0'0'100'11'0'1111'0'00'10);
 }
 
 

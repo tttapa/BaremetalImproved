@@ -19,9 +19,10 @@ include(${CMAKE_SOURCE_DIR}/shared-linux/cmake/shared-linux.cmake)
 add_subdirectory(misc)
 add_subdirectory(control)
 add_subdirectory(instances)
-add_subdirectory(time)
 add_subdirectory(main)
-add_subdirectory(vivado-types)
+add_subdirectory(misc)
+add_subdirectory(shared)
+add_subdirectory(time)
 
 # add_custom_target(vivado-link
 #         COMMAND ar x $<TARGET_FILE:greet>

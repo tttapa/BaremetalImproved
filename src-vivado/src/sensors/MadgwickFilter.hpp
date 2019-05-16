@@ -2,7 +2,7 @@
 
 /* Includes from src-vivado. */
 #include <Quaternion.hpp>
-#include <SensorTypes.hpp>  ///< IMUMeasurement
+#include <LoggerStructs.hpp>  ///< IMUMeasurement
 
 // TODO: block comment
 //

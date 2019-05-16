@@ -21,10 +21,10 @@ extern BuzzerManager buzzerManager;
 extern ConfigurationManager configManager;
 
 /** Instance of the ESC statup script. */
-// extern ESCStartupScript escStartupScript;
+extern ESCStartupScript escStartupScript;
 
 /** Instance of the gradual thrust change manager. */
-//extern GradualThrustChangeManager gtcManager;
+extern GradualThrustChangeManager gtcManager;
 
 /**
  * Initialize the miscellaneous instances.

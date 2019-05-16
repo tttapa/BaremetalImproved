@@ -9,6 +9,8 @@ real_t getPitch() { return rcInput.pitch; }
 
 real_t getRoll() { return rcInput.roll; }
 
+RCInput getRCInput() { return rcInput; }
+
 real_t getThrottle() { return rcInput.throttle; }
 
 real_t getTuner() { return rcInput.tuner; }

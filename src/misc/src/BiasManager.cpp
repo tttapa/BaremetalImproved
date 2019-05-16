@@ -5,6 +5,13 @@
 
 #pragma region Constants
 /**
+ * If the main interrupt tries to set the autonomous controller's base hovering
+ * thrust equal to any value less than 0.30, it will be ignored. This base
+ * value is used for taking off in autonomous mode.
+ */
+static constexpr real_t AUTONOMOUS_HOVERING_THRUST_THRESHOLD = 0.30;
+
+/**
  * Weight used in the exponential filters for the roll and pitch biases when
  * the pilot is in control of these parameters, i.e. the MANUAL and
  * ALTITUDE_HOLD flight modes. This base weight is for an IMU frequency of 119
@@ -47,6 +54,11 @@ void BiasManager::init() {
     this->pitchBias  = 0.0;
     this->rollBias   = 0.0;
     this->thrustBias = 0.0;
+}
+
+void BiasManager::setAutonomousHoveringThrust(real_t hoveringThrust) {
+    if(hoveringThrust >= AUTONOMOUS_HOVERING_THRUST_THRESHOLD)
+        this->autonomousHoveringThrust = hoveringThrust;
 }
 
 void BiasManager::updateRollBias(real_t referenceRollRads,

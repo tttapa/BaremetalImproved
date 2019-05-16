@@ -21,6 +21,7 @@ AltitudeController::codegenControlSignal(AltitudeState stateEstimate,
         case 4: controlSignal.ut = $c4$u0; break;
         default: controlSignal = {};
     }
+    (void)integralWindup;
     return controlSignal;
 }
 
