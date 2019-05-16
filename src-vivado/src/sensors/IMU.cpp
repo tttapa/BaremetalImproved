@@ -125,9 +125,9 @@ Vec3f getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
 Vec3f getGyroMeasurement(RawGyroMeasurement raw, GyroMeasurement bias) {
 
     /* Gyroscope measurements with bias removed in rad/s. */
-    float gx = -(calcGyro(raw.gxInt) - bias.gyro[0]);
-    float gy = +(calcGyro(raw.gyInt) - bias.gyro[1]);
-    float gz = -(calcGyro(raw.gzInt) - bias.gyro[2]);
+    float gx = -(calcGyro(raw.gxInt) - bias.g[0]);
+    float gy = +(calcGyro(raw.gyInt) - bias.g[1]);
+    float gz = -(calcGyro(raw.gzInt) - bias.g[2]);
 
     /* Return measurement. */
     return {gx, gy, gz};
