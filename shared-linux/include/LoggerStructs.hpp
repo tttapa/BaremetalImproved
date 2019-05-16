@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Quaternion.hpp>
-#include <ControllerInstances.hpp>,
-#include <Matrix.hpp>,
-#include <MiscInstances.hpp>,
-#include <RCValues.hpp>,
+#include <ControllerInstances.hpp>
+#include <Matrix.hpp>
+#include <MiscInstances.hpp>
+#include <RCValues.hpp>
 #include <Time.hpp>
 
 // This is an automatically generated enum, edit it in the code generator
