@@ -47,7 +47,7 @@ install(EXPORT shared DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/Array.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ArrayHelper.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ArrayHelpers.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/BaremetalCommunicationDef.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EulerAngles.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GetLogData.hpp

@@ -16,7 +16,7 @@ set(CMAKE_IMPORT_FILE_VERSION 1)
 set(_targetsDefined)
 set(_targetsNotDefined)
 set(_expectedTargets)
-foreach(_expectedTarget time)
+foreach(_expectedTarget shared)
   list(APPEND _expectedTargets ${_expectedTarget})
   if(NOT TARGET ${_expectedTarget})
     list(APPEND _targetsNotDefined ${_expectedTarget})
@@ -48,12 +48,12 @@ if(_IMPORT_PREFIX STREQUAL "/")
   set(_IMPORT_PREFIX "")
 endif()
 
-# Create imported target time
-add_library(time STATIC IMPORTED)
+# Create imported target shared
+add_library(shared STATIC IMPORTED)
 
-set_target_properties(time PROPERTIES
+set_target_properties(shared PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "shared;\$<LINK_ONLY:src-vivado>"
+  INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:instances>;\$<LINK_ONLY:misc>;\$<LINK_ONLY:time>"
 )
 
 if(CMAKE_VERSION VERSION_LESS 2.8.12)
@@ -62,7 +62,7 @@ endif()
 
 # Load information for each installed configuration.
 get_filename_component(_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-file(GLOB CONFIG_FILES "${_DIR}/time-*.cmake")
+file(GLOB CONFIG_FILES "${_DIR}/shared-*.cmake")
 foreach(f ${CONFIG_FILES})
   include(${f})
 endforeach()
@@ -92,7 +92,7 @@ unset(_IMPORT_CHECK_TARGETS)
 # Make sure the targets which have been exported in some other 
 # export set exist.
 unset(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets)
-foreach(_target "shared" "src-vivado" )
+foreach(_target "instances" "misc" "time" )
   if(NOT TARGET "${_target}" )
     set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets "${${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets} ${_target}")
   endif()

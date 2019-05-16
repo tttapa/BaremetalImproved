@@ -2,7 +2,8 @@
 
 /* Includes from src. */
 #include <Altitude.hpp>
-#include <BaremetalCommunicationDef.hpp>  ///< QRFSMState, Position
+#include <BaremetalCommunicationDef.hpp>  ///< QRFSMState
+#include <LoggerStructs.hpp>
 #include <Position.hpp>
 
 /** States present in the autonomous controller's finite state machine (FSM). */
@@ -38,72 +39,6 @@ enum AutonomousState {
      * and start beeping.
      */
     ERROR = -1,
-};
-
-/**
- * Output of the autonomous control system, which contains the following
- * information:
- *    - should the altitude controller be used?
- *    - if the altitude controller is used, what reference should we use?
- *    - if the altitude controller is not used, what is the common thrust?
- *    - should the altitude observer be updated?
- *    - should the position controller be used?
- *    - if the position controller is used, what reference should be use?
- *    - if the position controller is not used, what is the reference
- *      orientation?
- *    - should the position observer be updated?
- *    - if the position controller should be updated, should we trust IMP?
- *      (if not, we'll trust the accelerometer to determine the position)
- */
-struct AutonomousOutput {
-
-    /**
-     * Whether the altitude controller should be used. If this is false, then
-     * this AutonomousOutput's commonThrust should be used instead of the
-     * altitude controller's common thrust.
-     */
-    bool useAltitudeController;
-
-    /**
-     * Reference height to be sent to the altitude controller, if it is not
-     * bypassed.
-     */
-    AltitudeReference referenceHeight;
-
-    /**
-     * Control signal to send to the common motor if the altitude controller is
-     * bypassed.
-     */
-    AltitudeControlSignal commonThrust;
-
-    /** Whether the altitude observer should be updated. */
-    bool updateAltitudeObserver;
-
-    /**
-     * Whether the position controller should be used. If this is false, then
-     * this AutonomousOutput's reference orientation should be used instead of
-     * the position controller's reference orientation.
-     */
-    bool usePositionController;
-
-    /** Reference position to be sent to the position controller. */
-    Position referencePosition;
-
-    /**
-     * Control signal to send to the attitude controller if the position
-     * controller is bypassed.
-     */
-    PositionControlSignal q12ref;
-
-    /** Whether the position observer should be updated. */
-    bool updatePositionObserver;
-
-    /**
-     * If this is true, then the drone should trust IMP's value to determine the
-     * position. Otherwise, it will use the accelerometer's ax and ay data to
-     * determine the position, according to the mathematical model.
-     */
-    bool trustIMPForPosition;
 };
 
 /**
@@ -149,6 +84,9 @@ class AutonomousController {
 
     /** Previous target position. */
     Position previousTarget;
+
+    /** Most recent output of the autonomous controller. */
+    AutonomousOutput output;
 
     /**
      * Number of times the Cryptography team failed to decrypt the image sent by
@@ -239,6 +177,17 @@ class AutonomousController {
     void startNavigatingBlocks(Position nextTargetBlocks);
 
     /**
+     * Tell the autonomous controller's FSM to switch to the NAVIGATING state
+     * and start navigating to the given target. This will be called from the QR
+     * FSM when the Cryptography team decodes a QR_NEW_TARGET instruction.
+     * 
+     * @param   nextTargetBlocks
+     *          Position to navigate to in blocks, which will be the next QR
+     *          code during autonomous mode.
+     */
+    void startNavigatingBlocks(VisionPosition nextTargetBlocks);
+
+    /**
      * Update the autonomous controller's finite state machine (FSM). The
      * resulting struct contains the following information:
      *    - should the altitude controller be used?
@@ -314,6 +263,9 @@ class AutonomousController {
      * code at the drone's current position.
      */
     int getQRErrorCount() { return qrErrorCount; }
+
+    /** Get the autonomous controller's most recent output. */
+    AutonomousOutput getOutput() { return this->output; }
 
     /** Get the current QR state. */
     QRFSMState getQRState() { return qrState; }
