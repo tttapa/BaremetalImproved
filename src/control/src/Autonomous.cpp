@@ -558,7 +558,6 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
         };
 
     /* Stage 2: we can trust the sonar and IMP. */
-    biasManager.setThrustBias(biasManager.getAutonomousHoveringThrust());
     else
         output = AutonomousOutput{
             true,             // ✔ Use altitude controller
@@ -571,6 +570,8 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
             true,             // ✔ Update position controller
             true,             //...trusting IMP
         };
+
+    biasManager.setThrustBias(biasManager.getAutonomousHoveringThrust());
 
     return output;
 }
