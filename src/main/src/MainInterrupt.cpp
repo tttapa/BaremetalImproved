@@ -128,7 +128,7 @@ void mainOperation() {
         hasNewIMPMeasurement      = true;
         VisionData visionData     = visionComm->read();
         positionMeasurementBlocks = visionData.position;
-        positionMeasurement       = positionMeasurementBlocks * BLOCKS_2_METERS;
+        positionMeasurement       = positionMeasurementBlocks * BLOCKS_TO_METERS;
         yawMeasurement            = visionData.yawAngle;
         correctedPositionMeasurement =
             getCorrectedPosition(positionMeasurement, sonarMeasurement,
@@ -438,7 +438,7 @@ void mainOperation() {
                     round(X_CENTER_BLOCKS) * BLOCKS_TO_METERS,
                     round(Y_CENTER_BLOCKS) * BLOCKS_TO_METERS};
                 autonomousController.initGround(startingPosition);
-                positionController.init(startingPosition)
+                positionController.init(startingPosition);
             }
         }
 
@@ -509,8 +509,8 @@ void mainOperation() {
             biasManager.getPitchBias(),
             biasManager.getRollBias(),
         });
-        real_t q1                = q12ref.q1ref;
-        real_t q2                = q12ref.q2ref;
+        real_t q1                = q12ref.q12[0];
+        real_t q2                = q12ref.q12[1]
         real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
