@@ -148,7 +148,7 @@ PositionState PositionController::codegenCurrentStateEstimate(
 
     /* Implement jump rejection to preserve a decent drone velocity. */
     HorizontalVelocity v0    = stateEstimate.v;
-    HorizontalVelocity v1    = (measurement - stateEstimate.p) / timeElapsed;
+    HorizontalVelocity v1    = (measurement.p - stateEstimate.p) / timeElapsed;
     HorizontalVelocity absdV = abs(v1 - v0);
     HorizontalVelocity dAbsV = abs(v1) - abs(v0);
 

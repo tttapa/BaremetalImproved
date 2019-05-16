@@ -256,10 +256,10 @@ if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'x_hat')
        if element == 1
-           string = 'stateEstimate.q1';
+           string = 'stateEstimate.q[0]';
        end
        if element == 2
-           string = 'stateEstimate.q2';
+           string = 'stateEstimate.q[1]';
        end
        if element == 3
            string = 'stateEstimate.p[0]';
@@ -310,10 +310,10 @@ if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'u')
         if element == 1
-            string = 'controlSignalBlind.q1';
+            string = 'controlSignalBlind.q[0]';
         end
         if element == 2
-            string = 'controlSignalBlind.q2';
+            string = 'controlSignalBlind.q[1]';
         end
     end
      
