@@ -53,9 +53,9 @@ void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {
 void AttitudeController::clampControlSignal(real_t commonThrust) {
 
     /* Load values from the attitude controller. */
-    real_t ux = this->controlSignal.ux;
-    real_t uy = this->controlSignal.uy;
-    real_t uz = this->controlSignal.uz;
+    real_t ux = this->controlSignal.uxyz[0];
+    real_t uy = this->controlSignal.uxyz[1];
+    real_t uz = this->controlSignal.uxyz[2];
 
     /* Clamp the yaw torque motor separately to ensure ux, uy compensation. */
     if (uz > YAW_SIGNAL_CLAMP)
