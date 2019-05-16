@@ -1,1 +1,0 @@
-../../../shared-linux/src/logger.drone.cpp

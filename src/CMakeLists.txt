@@ -24,7 +24,6 @@ add_subdirectory(control)
 add_subdirectory(instances)
 add_subdirectory(main)
 add_subdirectory(misc)
-add_subdirectory(shared)
 add_subdirectory(time)
 
 # add_custom_target(vivado-link

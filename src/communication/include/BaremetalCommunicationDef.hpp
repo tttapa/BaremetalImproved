@@ -1,1 +1,0 @@
-../../../shared-linux/include/BaremetalCommunicationDef.hpp
