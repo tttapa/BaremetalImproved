@@ -4,12 +4,6 @@
 #include <MiscInstances.hpp>
 #include <Time.hpp>
 
-/* Use "Position" for readability: actual type is Vec2f. */
-using Position = Vec2f;
-
-/* Use "HorizontalVelocity" for readability: actual type is Vec2f. */
-using HorizontalVelocity = Vec2f;
-
 /**
  * The largest reference quaternion component that can be sent to the attitude
  * control system is 0.0436.

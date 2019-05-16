@@ -5,6 +5,12 @@
 #include <Quaternion.hpp>
 #include <real_t.h>
 
+/* Use "Position" for readability: actual type is Vec2f. */
+using Position = Vec2f;
+
+/* Use "HorizontalVelocity" for readability: actual type is Vec2f. */
+using HorizontalVelocity = Vec2f;
+
 /** Blocks to meters. */
 const real_t BLOCKS_TO_METERS = 0.30;
 
