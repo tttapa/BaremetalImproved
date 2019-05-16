@@ -39,9 +39,8 @@ target_link_libraries(misc
         communication
         control
         instances
-        quaternion
+        shared
         time
-        utilities
     PRIVATE
         src-vivado
 )

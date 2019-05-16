@@ -74,13 +74,11 @@ target_include_directories(control
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(control 
     PUBLIC
-        misc
-        quaternion
-        utilities
         communication
+        misc
+        shared
     PRIVATE
         instances
-        time
         src-vivado
 )
 

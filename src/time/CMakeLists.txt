@@ -29,7 +29,7 @@ target_include_directories(time
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(time 
     PUBLIC 
-        utilities
+        shared
     PRIVATE
         src-vivado
 )

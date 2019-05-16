@@ -31,10 +31,10 @@ target_include_directories(instances
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(instances 
     PUBLIC 
-        misc
-        utilities
         communication
         control
+        misc
+        shared
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)
