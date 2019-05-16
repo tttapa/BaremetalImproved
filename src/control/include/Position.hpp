@@ -303,6 +303,15 @@ class PositionController {
     void correctPositionEstimateBlocks(Position correctPosition);
 
     /**
+     * Correct the position controller's estimate with the given position. The
+     * position component of the estimate will jump to the correct square.
+     * 
+     * @param   correctPosition
+     *          Correct position, read from the QR code, in blocks.
+     */
+    void correctPositionEstimateBlocks(VisionPosition correctPosition);
+
+    /**
      * Update the position controller with the given reference position. This
      * function should only be called when there is a new measurement from the
      * Image Processing team.
