@@ -41,9 +41,19 @@ enum AutonomousState {
 };
 
 /**
- * Output of the autonomous control system, which consists of a reference
- * position, reference height, whether the altitude controller should be
- * bypassed and which common thrust should be used if it is bypassed.
+ * Output of the autonomous control system, which contains the following
+ * information:
+ *    - should the altitude controller be used?
+ *    - if the altitude controller is used, what reference should we use?
+ *    - if the altitude controller is not used, what is the common thrust?
+ *    - should the altitude observer be updated?
+ *    - should the position controller be used?
+ *    - if the position controller is used, what reference should be use?
+ *    - if the position controller is not used, what is the reference
+ *      orientation?
+ *    - should the position observer be updated?
+ *    - if the position controller should be updated, should we trust IMP?
+ *      (if not, we'll trust the accelerometer to determine the position)
  */
 struct AutonomousOutput {
 
@@ -83,7 +93,7 @@ struct AutonomousOutput {
      * Control signal to send to the attitude controller if the position
      * controller is bypassed.
      */
-    PositionControlSignal qref12;
+    PositionControlSignal q12ref;
 
     /** Whether the position observer should be updated. */
     bool updatePositionObserver;
@@ -212,7 +222,7 @@ class AutonomousController {
     void startNavigating(Position nextQRPosition);
 
     /**
-     * Update the autonomous controller's finite state machine (FSM). TheIn the
+     * Update the autonomous controller's finite state machine (FSM). The
      * resulting struct contains the following information:
      *    - should the altitude controller be used?
      *    - if the altitude controller is used, what reference should we use?
@@ -233,7 +243,8 @@ class AutonomousController {
      * 
      * @return  The next AutonomousOutput.
      */
-    AutonomousOutput updateAutonomousFSM(Position currentPosition);
+    AutonomousOutput updateAutonomousFSM(Position currentPosition,
+                                         real_t currentHeight);
 
     /**
      * Update the autonomous controller's QR finite state machine (FSM) only
@@ -244,6 +255,24 @@ class AutonomousController {
      */
     void updateQRFSM();
 
+#pragma region Helper function declarations
+    AutonomousOutput updateAutonomousFSM_IdleGround();
+    AutonomousOutput updateAutonomousFSM_PreTakeoff();
+    AutonomousOutput updateAutonomousFSM_Takeoff();
+    AutonomousOutput updateAutonomousFSM_Loitering(Position currentPosition);
+    AutonomousOutput updateAutonomousFSM_Converging(Position currentPosition,
+                                                    real_t currentHeight);
+    AutonomousOutput updateAutonomousFSM_Navigating(Position currentPosition);
+    AutonomousOutput updateAutonomousFSM_Landing();
+    AutonomousOutput updateAutonomousFSM_WPT();
+    AutonomousOutput updateAutonomousFSM_Error();
+    void updateQRFSM_Idle();
+    void updateQRFSM_NewTarget();
+    void updateQRFSM_Land();
+    void updateQRFSM_QRUnknown();
+    void updateQRFSM_NoQR();
+    void updateQRFSM_Error();
+#pragma endregion
 
   public:
     /** Get the autonomous controller's autonomous state. */

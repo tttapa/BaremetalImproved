@@ -276,7 +276,7 @@ void mainOperation() {
     /* If we've just exited ALTITUDE-HOLD mode, set the autonomous controller's
        hovering thrust. */
     if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
-        setAutonomousHoveringThrust(getThrustBias());
+        biasManager.setAutonomousHoveringThrust(biasManager.getThrustBias());
 
     /**
      * =========================================================================
@@ -392,7 +392,6 @@ void mainOperation() {
     if (flightMode == FlightMode::AUTONOMOUS) {
 
 #pragma region Autonomous mode
-        // TODO: improve this with file
         if (previousFlightMode == FlightMode::ALTITUDE_HOLD) {
             if (canStartAutonomousModeAir())
                 autonomousController.initAir(correctedPositionMeasurement,
@@ -410,47 +409,52 @@ void mainOperation() {
                                   globalPositionEstimateVec[1]};
 
         /* Update autonomous controller using most recent position. */
-        AutonomousOutput output =
-            autonomousController.update(globalPositionEstimate);
+        AutonomousOutput output = autonomousController.update(
+            globalPositionEstimate, correctedSonarMeasurement);
 
         //=========================== COMMON THRUST ==========================//
 
-        if (output.bypassAltitudeController) {
-            uc = output.commonThrust;
-        } else {
+        if (output.useAltitudeController) {
             altitudeController.setReference(output.referenceHeight);
             uc = biasManager.getThrustBias() +
                  altitudeController.updateControlSignal().ut;
+        } else {
+            uc = output.commonThrust.ut;
         }
 
         //======================= REFERENCE ORIENTATION ======================//
 
         // TODO: if yaw turns, this should be different?
         static PositionControlSignal q12ref;
-        if (output.updatePositionController) {
-            /* Blind position controller @ IMU frequency. */
-            if (output.trustAccelerometerForPosition) {
+        
+        /* Update position observer? */
+        if (output.updatePositionObserver) {
+            if (output.trustIMPForPosition) { /* Blind @ IMU frequency */
                 positionController.updateObserverBlind(
                     attitudeController.getOrientationQuat());
-                q12ref = positionController.updateControlSignalBlind(
-                    output.referencePosition);
-            }
-            /* Normal position controller @ IMP frequency. */
-            else if (hasNewIMPMeasurement) {
+            } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
                 positionController.updateObserver(
                     attitudeController.getOrientationQuat(),
                     globalPositionEstimate);
+            }
+        }
+
+        /* Use position controller. */
+        if (output.usePositionController) {
+            if (!output.trustIMPForPosition) { /* Blind @ IMU frequency */
+                q12ref = positionController.updateControlSignalBlind(
+                    output.referencePosition);
+            } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
                 q12ref = positionController.updateControlSignal(
                     output.referencePosition);
             }
-
             /* Normal position controller should hold its previous control
-                   signal while IMP has not sent a new measurement. */
-
-        } else {
-            /* Keep reference upright if we're not supposed to update. */
-            q12ref = {0.0, 0.0};
+               signal while IMP has not sent a new measurement. */
         }
+
+        /* Bypass position controller. */
+        else
+            q12ref = output.q12ref;
 
         /* Set the attitude controller's reference orientation. We should
                add the input bias in order to center the position controller's
