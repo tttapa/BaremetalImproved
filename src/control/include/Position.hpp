@@ -4,6 +4,7 @@
 #include <BaremetalCommunicationDef.hpp>  ///< VisionPosition
 #include <LoggerStructs.hpp>
 #include <Quaternion.hpp>
+#include <Vector.hpp>
 
 /* Use "Position" for readability: actual type is Vec2f. */
 using Position = Vec2f;

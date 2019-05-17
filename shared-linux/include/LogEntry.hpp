@@ -121,7 +121,7 @@ struct __attribute__((packed)) LogEntry {
     /**
      * Height measurement from the sonar in meters (tilt corrected).
      */
-    real_t sensorHeightMeasurement;
+    float sensorHeightMeasurement;
     /**
      * Position measurement from IMP in meters (tilt corrected).
      */
@@ -129,9 +129,9 @@ struct __attribute__((packed)) LogEntry {
     /**
      * Yaw measurement from IMP in radians.
      */
-    real_t sensorYawMeasurement;
+    float sensorYawMeasurement;
     /**
      * Time since startup in seconds, calculated using getTickCount().
      */
-    real_t time;
+    float time;
 };

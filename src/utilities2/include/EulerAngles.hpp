@@ -15,11 +15,11 @@ struct EulerAngles {
      * Convert a quaternion to Euler angles.
      */
     static EulerAngles quat2eul(const Quaternion &q) {
-        const float yaw   = atan2(2.0 * (q[0] * q[1] + q[2] * q[3]),
-                                 1.0 - 2.0 * (q[1] * q[1] + q[2] * q[2]));
-        const float pitch = asin(2.0 * (q[0] * q[2] - q[3] * q[1]));
-        const float roll  = atan2(2.0 * (q[0] * q[3] + q[1] * q[2]),
-                                  1.0 - 2.0 * (q[2] * q[2] + q[3] * q[3]));
+        const float yaw   = atan2(2.0 * (q.w * q.x + q.y * q.z),
+                                 1.0 - 2.0 * (q.x * q.x + q.y * q.y));
+        const float pitch = asin(2.0 * (q.w * q.y - q.z * q.x));
+        const float roll  = atan2(2.0 * (q.w * q.z + q.x * q.y),
+                                  1.0 - 2.0 * (q.y * q.y + q.z * q.z));
         return EulerAngles{yaw, pitch, roll};
     }
 

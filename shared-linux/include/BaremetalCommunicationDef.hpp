@@ -47,8 +47,6 @@ struct VisionPosition {
     VisionPosition(float x, float y) : x{x}, y{y} {}
     VisionPosition(const volatile VisionPosition &p) : x{p.x}, y{p.y} {}
     VisionPosition(const VisionPosition &p) : x{p.x}, y{p.y} {}
-    VisionPosition(const ColVector<2> &p)
-        : x((real_t) p[0]), y((real_t) p[1]) {}
     void operator=(const VisionPosition &p) volatile {
         this->x = p.x;
         this->y = p.y;

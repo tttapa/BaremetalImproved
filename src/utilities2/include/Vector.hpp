@@ -1,5 +1,6 @@
 #pragma once
 #include <Square.hpp>
+#include <cmath>
 
 /* Vector with two components, x and y, represented by floats. */
 struct Vec2f {
@@ -10,7 +11,7 @@ struct Vec2f {
     Vec2f() = default;
 
     inline Vec2f operator+(const Vec2f &rhs) const {
-        return Vec2f{lhs.x + rhs.x, this->y + rhs.y};
+        return Vec2f{this->x + rhs.x, this->y + rhs.y};
     }
     inline Vec2f operator-(const Vec2f &rhs) const {
         return Vec2f{this->x - rhs.x, this->y - rhs.y};
@@ -21,8 +22,8 @@ struct Vec2f {
     inline Vec2f operator/(const float rhs) const {
         return Vec2f{this->x / rhs, this->y / rhs};
     }
-    static Vec2f normsq(const Vec2f &v) { return sq(v.x) + sq(v.y); }
-    static Vec2f norm(const Vec2f &v) { return sqrt(normsq(v)); }
+    static float normsq(const Vec2f &v) { return sq(v.x) + sq(v.y); }
+    static float norm(const Vec2f &v) { return sqrt(normsq(v)); }
     static Vec2f round(const Vec2f &v) {
         return Vec2f{std::round(v.x), std::round(v.y)};
     }
@@ -52,8 +53,8 @@ struct Vec3f {
     inline Vec3f operator/(const float rhs) const {
         return Vec3f{this->x / rhs, this->y / rhs, this->z / rhs};
     }
-    static Vec3f normsq(const Vec3f &v) { return sq(v.x) + sq(v.y) + sq(v.z); }
-    static Vec3f norm(const Vec3f &v) { return sqrt(normsq(v)); }
+    static float normsq(const Vec3f &v) { return sq(v.x) + sq(v.y) + sq(v.z); }
+    static float norm(const Vec3f &v) { return sqrt(normsq(v)); }
     static Vec3f round(const Vec3f &v) {
         return Vec3f{std::round(v.x), std::round(v.y), std::round(v.z)};
     }

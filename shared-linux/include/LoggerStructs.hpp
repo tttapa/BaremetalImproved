@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Quaternion.hpp>
+#include <stdint.h>
 
 // This is an automatically generated enum, edit it in the code generator
 /**
@@ -74,28 +75,28 @@ enum class WPTMode : int32_t {
 /**
  * Marginal PWM control signal sent to the 'common motor' (float).
  */
-struct __attribute__((packed)) AltitudeControlSignal {
+struct AltitudeControlSignal {
     AltitudeControlSignal() = default;
-    AltitudeControlSignal(real_t ut) : ut{ut} {}
+    AltitudeControlSignal(float ut) : ut{ut} {}
     
     /**
      * 'Common motor' marginal signal.
      */
-    real_t ut = 0.0;
+    float ut = 0.0;
 };
 
 // This is an automatically generated struct, edit it in the code generator
 /**
  * Integral of the error of the height of the drone in meters.
  */
-struct __attribute__((packed)) AltitudeIntegralWindup {
+struct AltitudeIntegralWindup {
     AltitudeIntegralWindup() = default;
-    AltitudeIntegralWindup(real_t z) : z{z} {}
+    AltitudeIntegralWindup(float z) : z{z} {}
     
     /**
      * Integral of the height estimate in meters.
      */
-    real_t z = 0.0;
+    float z = 0.0;
 };
 
 // This is an automatically generated struct, edit it in the code generator
@@ -103,28 +104,28 @@ struct __attribute__((packed)) AltitudeIntegralWindup {
  * Measurement of the drone height by the sonar in meters, corrected for the
  * tilt of the drone, represented by a float.
  */
-struct __attribute__((packed)) AltitudeMeasurement {
+struct AltitudeMeasurement {
     AltitudeMeasurement() = default;
-    AltitudeMeasurement(real_t z) : z{z} {}
+    AltitudeMeasurement(float z) : z{z} {}
     
     /**
      * Measurement height in meters.
      */
-    real_t z = 0.0;
+    float z = 0.0;
 };
 
 // This is an automatically generated struct, edit it in the code generator
 /**
  * Reference height to track in meters, represented by a float.
  */
-struct __attribute__((packed)) AltitudeReference {
+struct AltitudeReference {
     AltitudeReference() = default;
-    AltitudeReference(real_t z) : z{z} {}
+    AltitudeReference(float z) : z{z} {}
     
     /**
      * Reference height in meters.
      */
-    real_t z = 0.0;
+    float z = 0.0;
 };
 
 // This is an automatically generated struct, edit it in the code generator
@@ -133,24 +134,24 @@ struct __attribute__((packed)) AltitudeReference {
  * of the 'common motor' in rad/s (float), the height of the drone in meters
  * (float) and the vertical velocity of the drone in m/s (float).
  */
-struct __attribute__((packed)) AltitudeState {
+struct AltitudeState {
     AltitudeState() = default;
-    AltitudeState(real_t nt, real_t z, real_t vz) : nt{nt}, z{z}, vz{vz} {}
+    AltitudeState(float nt, float z, float vz) : nt{nt}, z{z}, vz{vz} {}
     
     /**
      * 'Common motor' marginal angular velocity in rad/s.
      */
-    real_t nt = 0.0;
+    float nt = 0.0;
 
     /**
      * Height of the drone in meters.
      */
-    real_t z = 0.0;
+    float z = 0.0;
 
     /**
      * Vertical velocity of the drone in m/s.
      */
-    real_t vz = 0.0;
+    float vz = 0.0;
 };
 
 // This is an automatically generated struct, edit it in the code generator
@@ -158,7 +159,7 @@ struct __attribute__((packed)) AltitudeState {
  * PWM control signals sent to the 'torque motors', consisting of a Vec3f. Each
  * component will be sent to a different 'torque motor'.
  */
-struct __attribute__((packed)) AttitudeControlSignal {
+struct AttitudeControlSignal {
     AttitudeControlSignal() = default;
     AttitudeControlSignal(Vec3f uxyz) : uxyz{uxyz} {}
     
@@ -173,7 +174,7 @@ struct __attribute__((packed)) AttitudeControlSignal {
  * Integral of the error of the quaternion components q1, q2 and q3, represented
  * by a Vec3f.
  */
-struct __attribute__((packed)) AttitudeIntegralWindup {
+struct AttitudeIntegralWindup {
     AttitudeIntegralWindup() = default;
     AttitudeIntegralWindup(Vec3f q123) : q123{q123} {}
     
@@ -188,7 +189,7 @@ struct __attribute__((packed)) AttitudeIntegralWindup {
  * Measurement from the IMU, consisting of a quaternion for the drone's
  * orientation and a Vec3f for the drone's angular velocity, measured in rad/s.
  */
-struct __attribute__((packed)) AttitudeMeasurement {
+struct AttitudeMeasurement {
     AttitudeMeasurement() = default;
     AttitudeMeasurement(Quaternion q, Vec3f w) : q{q}, w{w} {}
     
@@ -207,7 +208,7 @@ struct __attribute__((packed)) AttitudeMeasurement {
 /**
  * Reference orientation to track, represented by a quaternion.
  */
-struct __attribute__((packed)) AttitudeReference {
+struct AttitudeReference {
     AttitudeReference() = default;
     AttitudeReference(Quaternion q) : q{q} {}
     
@@ -223,7 +224,7 @@ struct __attribute__((packed)) AttitudeReference {
  * (quaterion), angular velocity in rad/s (Vec3f) and the angular velocity of
  * the 'torque motors' in rad/s (Vec3f).
  */
-struct __attribute__((packed)) AttitudeState {
+struct AttitudeState {
     AttitudeState() = default;
     AttitudeState(Quaternion q, Vec3f w, Vec3f n) : q{q}, w{w}, n{n} {}
     
@@ -248,7 +249,7 @@ struct __attribute__((packed)) AttitudeState {
  * Reference quaternion components q1 and q2 that will be sent to the attitude
  * controller, represented by a Vec2f.
  */
-struct __attribute__((packed)) PositionControlSignal {
+struct PositionControlSignal {
     PositionControlSignal() = default;
     PositionControlSignal(Vec2f q12) : q12{q12} {}
     
@@ -262,7 +263,7 @@ struct __attribute__((packed)) PositionControlSignal {
 /**
  * Integral of the error of the position in meters, represented by a Vec2f.
  */
-struct __attribute__((packed)) PositionIntegralWindup {
+struct PositionIntegralWindup {
     PositionIntegralWindup() = default;
     PositionIntegralWindup(Vec2f p) : p{p} {}
     
@@ -276,7 +277,7 @@ struct __attribute__((packed)) PositionIntegralWindup {
 /**
  * Measurement of the position in meters, represented by a Vec2f.
  */
-struct __attribute__((packed)) PositionMeasurement {
+struct PositionMeasurement {
     PositionMeasurement() = default;
     PositionMeasurement(Vec2f p) : p{p} {}
     
@@ -290,7 +291,7 @@ struct __attribute__((packed)) PositionMeasurement {
 /**
  * Reference position to track in meters, represented by a Vec2f.
  */
-struct __attribute__((packed)) PositionReference {
+struct PositionReference {
     PositionReference() = default;
     PositionReference(Vec2f p) : p{p} {}
     
@@ -306,7 +307,7 @@ struct __attribute__((packed)) PositionReference {
  * and q2 (Vec2f), the global position of the drone in meters (Vec2f) and the
  * horizontal velocity of the drone in m/s (Vec2f).
  */
-struct __attribute__((packed)) PositionState {
+struct PositionState {
     PositionState() = default;
     PositionState(Vec2f q, Vec2f p, Vec2f v) : q{q}, p{p}, v{v} {}
     
@@ -335,7 +336,7 @@ struct __attribute__((packed)) PositionState {
  * if the position controller should be updated, should it use IMP's measurement
  * or data from the accelerometer to determine the position of the drone?
  */
-struct __attribute__((packed)) AutonomousOutput {
+struct AutonomousOutput {
     AutonomousOutput() = default;
     AutonomousOutput(bool useAltitudeController, AltitudeReference referenceHeight, AltitudeControlSignal commonThrust, bool updateAltitudeObserver, bool usePositionController, PositionReference referencePosition, PositionControlSignal q12ref, bool updatePositionObserver, bool trustIMPForPosition) : useAltitudeController{useAltitudeController}, referenceHeight{referenceHeight}, commonThrust{commonThrust}, updateAltitudeObserver{updateAltitudeObserver}, usePositionController{usePositionController}, referencePosition{referencePosition}, q12ref{q12ref}, updatePositionObserver{updatePositionObserver}, trustIMPForPosition{trustIMPForPosition} {}
     
@@ -400,7 +401,7 @@ struct __attribute__((packed)) AutonomousOutput {
 /**
  * Accelerometer measurement acceleration in g (Vec3f).
  */
-struct __attribute__((packed)) AccelMeasurement {
+struct AccelMeasurement {
     AccelMeasurement() = default;
     AccelMeasurement(Vec3f a) : a{a} {}
     
@@ -414,7 +415,7 @@ struct __attribute__((packed)) AccelMeasurement {
 /**
  * Gyroscope measurement angular velocity in rad/s (Vec3f).
  */
-struct __attribute__((packed)) GyroMeasurement {
+struct GyroMeasurement {
     GyroMeasurement() = default;
     GyroMeasurement(Vec3f g) : g{g} {}
     
@@ -429,7 +430,7 @@ struct __attribute__((packed)) GyroMeasurement {
  * IMU measurement angular velocity in rad/s (Vec3f) and acceleration in g
  * (Vec3f).
  */
-struct __attribute__((packed)) IMUMeasurement {
+struct IMUMeasurement {
     IMUMeasurement() = default;
     IMUMeasurement(GyroMeasurement gyro, AccelMeasurement accel) : gyro{gyro}, accel{accel} {}
     
@@ -452,34 +453,34 @@ struct __attribute__((packed)) IMUMeasurement {
  * switches for the flight mode and the wireless power transfer. These are
  * represented by their respective enumerations.
  */
-struct __attribute__((packed)) RCInput {
+struct RCInput {
     RCInput() = default;
-    RCInput(real_t throttle, real_t roll, real_t pitch, real_t yaw, real_t tuner, FlightMode flightMode, WPTMode wptMode) : throttle{throttle}, roll{roll}, pitch{pitch}, yaw{yaw}, tuner{tuner}, flightMode{flightMode}, wptMode{wptMode} {}
+    RCInput(float throttle, float roll, float pitch, float yaw, float tuner, FlightMode flightMode, WPTMode wptMode) : throttle{throttle}, roll{roll}, pitch{pitch}, yaw{yaw}, tuner{tuner}, flightMode{flightMode}, wptMode{wptMode} {}
     
     /**
      * Value of the RC throttle in [0, 1].
      */
-    real_t throttle = 0.0;
+    float throttle = 0.0;
 
     /**
      * Value of the RC roll in [-1, 1].
      */
-    real_t roll = 0.0;
+    float roll = 0.0;
 
     /**
      * Value of the RC pitch in [-1, 1].
      */
-    real_t pitch = 0.0;
+    float pitch = 0.0;
 
     /**
      * Value of the RC yaw in [-1, 1].
      */
-    real_t yaw = 0.0;
+    float yaw = 0.0;
 
     /**
      * Value of the RC tuner knob in [-1, 1].
      */
-    real_t tuner = 0.0;
+    float tuner = 0.0;
 
     /**
      * Value of the RC flight mode (as a FlightMode).
@@ -497,14 +498,14 @@ struct __attribute__((packed)) RCInput {
  * Instruction to be sent to the buzzer containing a duration in seconds
  * (float), a buzzer period in ? (int) and a buzzer volume in ? (int).
  */
-struct __attribute__((packed)) BuzzerInstruction {
+struct BuzzerInstruction {
     BuzzerInstruction() = default;
-    BuzzerInstruction(real_t duration, int period, int volume) : duration{duration}, period{period}, volume{volume} {}
+    BuzzerInstruction(float duration, int period, int volume) : duration{duration}, period{period}, volume{volume} {}
     
     /**
      * Duration of the instruction in seconds.
      */
-    real_t duration = 0.0;
+    float duration = 0.0;
 
     /**
      * Period of sound, represented as an integer.
@@ -522,7 +523,7 @@ struct __attribute__((packed)) BuzzerInstruction {
  * Instruction to be sent to the LEDs, containing four booleans, representing
  * whether each of the four LEDs should be lit.
  */
-struct __attribute__((packed)) LEDInstruction {
+struct LEDInstruction {
     LEDInstruction() = default;
     LEDInstruction(bool led1, bool led2, bool led3, bool led4) : led1{led1}, led2{led2}, led3{led3}, led4{led4} {}
     
@@ -553,27 +554,27 @@ struct __attribute__((packed)) LEDInstruction {
  * (front-left, front-right, back-left, back-right). These four must be in the
  * interval [0.0, 1.0].
  */
-struct __attribute__((packed)) MotorSignals {
+struct MotorSignals {
     MotorSignals() = default;
-    MotorSignals(real_t v0, real_t v1, real_t v2, real_t v3) : v0{v0}, v1{v1}, v2{v2}, v3{v3} {}
+    MotorSignals(float v0, float v1, float v2, float v3) : v0{v0}, v1{v1}, v2{v2}, v3{v3} {}
     
     /**
      * Front-left motor duty cycle in [0.0, 1.0].
      */
-    real_t v0 = 0.0;
+    float v0 = 0.0;
 
     /**
      * Front-right motor duty cycle in [0.0, 1.0].
      */
-    real_t v1 = 0.0;
+    float v1 = 0.0;
 
     /**
      * Back-left motor duty cycle in [0.0, 1.0].
      */
-    real_t v2 = 0.0;
+    float v2 = 0.0;
 
     /**
      * Back-right motor duty cycle in [0.0, 1.0].
      */
-    real_t v3 = 0.0;
+    float v3 = 0.0;
 };
