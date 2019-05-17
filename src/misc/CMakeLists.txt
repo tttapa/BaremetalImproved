@@ -39,6 +39,7 @@ target_link_libraries(misc
         communication
         control
         instances
+        shared
         utilities2
         time
     PRIVATE

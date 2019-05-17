@@ -36,6 +36,7 @@ target_link_libraries(main
         communication
         instances
         src-vivado
+        shared
         logger
 )
 
