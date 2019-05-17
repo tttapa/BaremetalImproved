@@ -15,7 +15,7 @@ struct Quaternion {
     Quaternion(float w, float x, float y, float z) : w{w}, x{x}, y{y}, z{z} {}
 
     static Quaternion conjugate(const Quaternion &q) {
-        return {q.w, -q.x, -q.y, -q.z};
+        return Quaternion{q.w, -q.x, -q.y, -q.z};
     }
 
     Quaternion operator-() const { return conjugate(*this); }
@@ -45,15 +45,15 @@ struct Quaternion {
     Vec3f rotate(const Vec3f &v) {
 
         /* Rotation matrix. */
-        float M11 = 1 - 2 * sq(this->y) - 2 * sq(this->z);
-        float M12 = 2 * (this->x * this->y + this->w * this->z);
-        float M13 = 2 * (this->x * this->z - this->w * this->y);
-        float M21 = 2 * (this->x * this->y - this->w * this->z);
-        float M22 = 1 - 2 * sq(this->x) - 2 * sq(this->z);
-        float M23 = 2 * (this->y * this->z + this->w * this->x);
-        float M31 = 2 * (this->x * this->z + this->w * this->y);
-        float M32 = 2 * (this->y * this->z - this->w * this->x);
-        float M33 = 1 - 2 * sq(this->x) - 2 * sq(this->y);
+        float M11 = 1.0 - 2.0 * sq(this->y) - 2.0 * sq(this->z);
+        float M12 = 2.0 * (this->x * this->y + this->w * this->z);
+        float M13 = 2.0 * (this->x * this->z - this->w * this->y);
+        float M21 = 2.0 * (this->x * this->y - this->w * this->z);
+        float M22 = 1.0 - 2.0 * sq(this->x) - 2.0 * sq(this->z);
+        float M23 = 2.0 * (this->y * this->z + this->w * this->x);
+        float M31 = 2.0 * (this->x * this->z + this->w * this->y);
+        float M32 = 2.0 * (this->y * this->z - this->w * this->x);
+        float M33 = 1.0 - 2.0 * sq(this->x) - 2.0 * sq(this->y);
 
         return Vec3f{
             M11 * v.x + M12 * v.y + M13 * v.z,  //
@@ -93,8 +93,9 @@ struct Quaternion {
         float angle = std2::asinf(crossNorm / v.norm());
 
         /* Calculate the resulting quaternion. */
-        return Quaternion{std2::cosf(angle / 2), std2::sinf(angle / 2) * cross.x,
-                          std2::sinf(angle / 2) * cross.y,
-                          std2::sinf(angle / 2) * cross.z};
+        return Quaternion{std2::cosf(angle / 2.0),
+                          std2::sinf(angle / 2.0) * cross.x,
+                          std2::sinf(angle / 2.0) * cross.y,
+                          0.0};
     }
 };

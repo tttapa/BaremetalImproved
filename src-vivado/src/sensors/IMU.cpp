@@ -109,8 +109,7 @@ Vec3f getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
         +calcAccel(raw.ayInt),
         -calcAccel(raw.azInt),
     });
-    correctedAccel = correctedAccel / biasNorm;
-    return correctedAccel;
+    return correctedAccel / biasNorm;
 }
 
 /**
@@ -350,5 +349,5 @@ IMUMeasurement readIMU() {
     Vec3f accel = getAccelMeasurement(accelRaw, accelBiasQuat, accelBiasNorm);
 
     /* Return IMU measurement (gyro+accel). */
-    return IMUMeasurement{{gyro}, {accel}};
+    return IMUMeasurement{GyroMeasurement{gyro}, AccelMeasurement{accel}};
 }

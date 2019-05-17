@@ -27,7 +27,7 @@ struct Vec2f {
         return Vec2f{std2::absf(v.x), std2::absf(v.y)};
     }
     static float normsq(const Vec2f &v) { return sq(v.x) + sq(v.y); }
-    static float norm(const Vec2f &v) { return sqrt(normsq(v)); }
+    static float norm(const Vec2f &v) { return std2::sqrtf(normsq(v)); }
     static Vec2f round(const Vec2f &v) {
         return Vec2f{std2::roundf(v.x), std2::roundf(v.y)};
     }
@@ -62,7 +62,7 @@ struct Vec3f {
         return Vec3f{std2::absf(v.x), std2::absf(v.y), std2::absf(v.z)};
     }
     static float normsq(const Vec3f &v) { return sq(v.x) + sq(v.y) + sq(v.z); }
-    static float norm(const Vec3f &v) { return sqrt(normsq(v)); }
+    static float norm(const Vec3f &v) { return std2::sqrtf(normsq(v)); }
     static Vec3f round(const Vec3f &v) {
         return Vec3f{std2::roundf(v.x), std2::roundf(v.y), std2::roundf(v.z)};
     }

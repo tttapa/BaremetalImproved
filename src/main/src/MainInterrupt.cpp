@@ -515,7 +515,7 @@ void mainOperation() {
         });
         float q1                = q12ref.q12.x;
         float q2                = q12ref.q12.y;
-        float q0                = 1 - sqrt(q1 * q1 + q2 * q2);
+        float q0                = 1.0 - std2::sqrtf(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
 
