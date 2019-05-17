@@ -80,7 +80,7 @@ struct Quaternion {
 
         /* First check the edge case v ~ (0 0 1). */
         float eps = FLT_EPSILON;
-        if (std::absf(v.x) <= eps && std::absf(v.y) <= eps)
+        if (std2::absf(v.x) <= eps && std2::absf(v.y) <= eps)
             return Quaternion::unit();
 
         /* Calculate the cross product and its norm. */
@@ -90,11 +90,11 @@ struct Quaternion {
         cross.y /= crossNorm;
 
         /* Calculate the angle ϑ. */
-        float angle = std::asinf(crossNorm / v.norm());
+        float angle = std2::asinf(crossNorm / v.norm());
 
         /* Calculate the resulting quaternion. */
-        return Quaternion{std::cosf(angle / 2), std::sinf(angle / 2) * cross.x,
-                          std::sinf(angle / 2) * cross.y,
-                          std::sinf(angle / 2) * cross.z};
+        return Quaternion{std2::cosf(angle / 2), std2::sinf(angle / 2) * cross.x,
+                          std2::sinf(angle / 2) * cross.y,
+                          std2::sinf(angle / 2) * cross.z};
     }
 };

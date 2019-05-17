@@ -64,13 +64,13 @@ AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
     integralWindup.q123.x += $int0;
     integralWindup.q123.y += $int1;
     integralWindup.q123.z += $int2;
-    if (std::absf(integralWindup.q123.x) > maxIntegralWindup)
+    if (std2::absf(integralWindup.q123.x) > maxIntegralWindup)
         integralWindup.q123.x =
             copysign(maxIntegralWindup, integralWindup.q123.x);
-    if (std::absf(integralWindup.q123.y) > maxIntegralWindup)
+    if (std2::absf(integralWindup.q123.y) > maxIntegralWindup)
         integralWindup.q123.y =
             copysign(maxIntegralWindup, integralWindup.q123.y);
-    if (std::absf(integralWindup.q123.z) > maxIntegralWindup)
+    if (std2::absf(integralWindup.q123.z) > maxIntegralWindup)
         integralWindup.q123.z =
             copysign(maxIntegralWindup, integralWindup.q123.z);
 

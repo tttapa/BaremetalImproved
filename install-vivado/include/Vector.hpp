@@ -24,12 +24,12 @@ struct Vec2f {
     }
 
     static Vec2f abs(const Vec2f &v) {
-        return Vec2f{std::absf(v.x), std::absf(v.y)};
+        return Vec2f{std2::absf(v.x), std2::absf(v.y)};
     }
     static float normsq(const Vec2f &v) { return sq(v.x) + sq(v.y); }
     static float norm(const Vec2f &v) { return sqrt(normsq(v)); }
     static Vec2f round(const Vec2f &v) {
-        return Vec2f{std::roundf(v.x), std::roundf(v.y)};
+        return Vec2f{std2::roundf(v.x), std2::roundf(v.y)};
     }
     Vec2f abs() { return abs(*this); }
     float normsq() { return normsq(*this); }
@@ -59,12 +59,12 @@ struct Vec3f {
         return Vec3f{this->x / rhs, this->y / rhs, this->z / rhs};
     }
     static Vec3f abs(const Vec3f &v) {
-        return Vec3f{std::absf(v.x), std::absf(v.y), std::absf(v.z)};
+        return Vec3f{std2::absf(v.x), std2::absf(v.y), std2::absf(v.z)};
     }
     static float normsq(const Vec3f &v) { return sq(v.x) + sq(v.y) + sq(v.z); }
     static float norm(const Vec3f &v) { return sqrt(normsq(v)); }
     static Vec3f round(const Vec3f &v) {
-        return Vec3f{std::roundf(v.x), std::roundf(v.y), std::roundf(v.z)};
+        return Vec3f{std2::roundf(v.x), std2::roundf(v.y), std2::roundf(v.z)};
     }
     Vec3f abs() { return abs(*this); }
     float normsq() { return normsq(*this); }

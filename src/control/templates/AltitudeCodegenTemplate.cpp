@@ -48,7 +48,7 @@ AltitudeController::codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
 
     /* Update integral windup. */
     integralWindup.z += $int0;
-    if (std::absf(integralWindup.z) > maxIntegralWindup)
+    if (std2::absf(integralWindup.z) > maxIntegralWindup)
         integralWindup.z = copysign(maxIntegralWindup, integralWindup.z);
 
     return integralWindup;

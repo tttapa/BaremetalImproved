@@ -102,9 +102,9 @@ PositionIntegralWindup PositionController::codegenIntegralWindup(
     /* Update integral windup. */
     integralWindup.p.x += $int0;
     integralWindup.p.y += $int1;
-    if (std::absf(integralWindup.p.x) > maxIntegralWindup)
+    if (std2::absf(integralWindup.p.x) > maxIntegralWindup)
         integralWindup.p.x = copysign(maxIntegralWindup, integralWindup.p.x);
-    if (std::absf(integralWindup.p.y) > maxIntegralWindup)
+    if (std2::absf(integralWindup.p.y) > maxIntegralWindup)
         integralWindup.p.y = copysign(maxIntegralWindup, integralWindup.p.y);
 
     return integralWindup;
@@ -131,9 +131,9 @@ PositionIntegralWindup PositionController::codegenIntegralWindupBlind(
     /* Update integral windup. */
     integralWindup.p.x += $intBlind0;
     integralWindup.p.y += $intBlind1;
-    if (std::absf(integralWindup.p.x) > maxIntegralWindup)
+    if (std2::absf(integralWindup.p.x) > maxIntegralWindup)
         integralWindup.p.x = copysign(maxIntegralWindup, integralWindup.p.x);
-    if (std::absf(integralWindup.p.y) > maxIntegralWindup)
+    if (std2::absf(integralWindup.p.y) > maxIntegralWindup)
         integralWindup.p.y = copysign(maxIntegralWindup, integralWindup.p.y);
 
     return integralWindup;
