@@ -2,7 +2,7 @@
 #include <TestMode.hpp>
 
 /** Current test mode is MANUAL. */
-static const TestMode TEST_MODE = TestMode::DEMO;
+static const TestMode TEST_MODE = TestMode::TEST_TAKEOFF;
 
 /** The drone will cycle through 7 targets during the TEST_NAVIGATION mode. */
 static constexpr int NUM_NAVIGATION_TARGETS = 7;
@@ -66,6 +66,11 @@ bool isAltitudeHoldModeEnabled() {
            TEST_MODE == TestMode::TEST_PRETAKEOFF ||          //
            TEST_MODE == TestMode::TEST_TAKEOFF ||             //
            TEST_MODE == TestMode::DEMO;                       //
+}
+
+/** Get whether autonomous mode is enabled. */
+bool isAutonomousModeEnabled() {
+    return isAutonomousAirEnabled() || isAutonomousGroundEnabled();
 }
 
 /** Get whether autonomous mode can be activated from the air. */

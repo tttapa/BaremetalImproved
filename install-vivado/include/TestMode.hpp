@@ -116,6 +116,9 @@ Position getNextNavigationTestTarget();
 /** Get whether switching to altitude mode is enabled. */
 bool isAltitudeHoldModeEnabled();
 
+/** Get whether autonomous mode is enabled. */
+bool isAutonomousModeEnabled();
+
 /** Get whether autonomous mode can be activated from the air. */
 bool isAutonomousAirEnabled();
 

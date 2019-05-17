@@ -281,9 +281,9 @@ void mainOperation() {
     /* First, set the actual flight mode based on which tests are allowed to
        be run. */
     flightMode = getFlightMode();
-    if (flightMode == FlightMode::AUTONOMOUS && !canStartAutonomousMode())
+    if (flightMode == FlightMode::AUTONOMOUS && !isAutonomousModeEnabled())
         flightMode = FlightMode::ALTITUDE_HOLD;
-    if (flightMode == FlightMode::ALTITUDE_HOLD && !canStartAltitudeHoldMode())
+    if (flightMode == FlightMode::ALTITUDE_HOLD && !isAltitudeHoldModeEnabled())
         flightMode = FlightMode::MANUAL;
 
     /* If we've just exited ALTITUDE-HOLD mode, set the autonomous controller's
@@ -439,9 +439,8 @@ void mainOperation() {
                 positionController.init(correctedPositionMeasurement);
             } else {
                 // TODO: autonomous controller inits in the middle
-                Position startingPosition = {
-                    round(X_CENTER_BLOCKS) * BLOCKS_TO_METERS,
-                    round(Y_CENTER_BLOCKS) * BLOCKS_TO_METERS};
+                Position centerBlocks = Position{X_CENTER_BLOCKS, Y_CENTER_BLOCKS};
+                Position startingPosition = centerBlocks * BLOCKS_TO_METERS;
                 autonomousController.initGround(startingPosition);
                 positionController.init(startingPosition);
             }
