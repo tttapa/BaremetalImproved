@@ -1,5 +1,6 @@
 #include <Attitude.hpp>
 #include <math.h> /* sqrt */
+#include <MathFunctions.hpp>
 
 #define SQ(value) ((value) * (value))
 #define QUAT_0(value) (value.q.w = sqrt(1.0 - SQ(value.q.x) - SQ(value.q.y) - SQ(value.q.z)))
@@ -63,13 +64,13 @@ AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
     integralWindup.q123.x += $int0;
     integralWindup.q123.y += $int1;
     integralWindup.q123.z += $int2;
-    if (fabs(integralWindup.q123.x) > maxIntegralWindup)
+    if (std::absf(integralWindup.q123.x) > maxIntegralWindup)
         integralWindup.q123.x =
             copysign(maxIntegralWindup, integralWindup.q123.x);
-    if (fabs(integralWindup.q123.y) > maxIntegralWindup)
+    if (std::absf(integralWindup.q123.y) > maxIntegralWindup)
         integralWindup.q123.y =
             copysign(maxIntegralWindup, integralWindup.q123.y);
-    if (fabs(integralWindup.q123.z) > maxIntegralWindup)
+    if (std::absf(integralWindup.q123.z) > maxIntegralWindup)
         integralWindup.q123.z =
             copysign(maxIntegralWindup, integralWindup.q123.z);
 

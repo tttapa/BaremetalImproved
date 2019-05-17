@@ -3,6 +3,7 @@
 /* Includes from src. */
 #include <BiasManager.hpp>
 #include <ControllerInstances.hpp>  ///< PositionController correctPosition if drone gets lost during navigation
+#include <MathFunctions.hpp>
 #include <MiscInstances.hpp>  ///< ESCStartupScript instance
 #include <Position.hpp>
 #include <RCValues.hpp>
@@ -658,7 +659,7 @@ AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
        the timer if we've exited the convergence distance. */
     float horizontalDistanceSq    = distsq(currentPosition, nextTarget);
     float maxHorizontalDistanceSq = sq(CONVERGENCE_DISTANCE_HORIZONTAL);
-    float verticalDistance    = fabs(currentHeight - referenceHeight.z);
+    float verticalDistance    = std::absf(currentHeight - referenceHeight.z);
     float maxVerticalDistance = CONVERGENCE_DISTANCE_VERTICAL;
 
     bool inHorizontalBounds = horizontalDistanceSq <= maxHorizontalDistanceSq;

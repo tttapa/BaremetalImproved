@@ -1,8 +1,8 @@
 #pragma once
 #include <Square.hpp>
 #include <Vector.hpp>
-#include <cmath>
-#include <climits>
+#include <MathFunctions.hpp>
+#include <cfloat>
 
 /** Struct representing a quaterniong. */
 struct Quaternion {
@@ -79,8 +79,8 @@ struct Quaternion {
     	 */
 
         /* First check the edge case v ~ (0 0 1). */
-        float eps = std::numeric_limits<float>::epsilon();
-        if (abs(v.x) <= eps && abs(v.y) <= eps)
+        float eps = FLT_EPSILON;
+        if (std::absf(v.x) <= eps && std::absf(v.y) <= eps)
             return Quaternion::unit();
 
         /* Calculate the cross product and its norm. */
@@ -90,11 +90,11 @@ struct Quaternion {
         cross.y /= crossNorm;
 
         /* Calculate the angle ϑ. */
-        float angle = asin(crossNorm / v.norm());
+        float angle = std::asinf(crossNorm / v.norm());
 
         /* Calculate the resulting quaternion. */
-        return Quaternion{cos(angle / 2), sin(angle / 2) * cross.x,
-                          sin(angle / 2) * cross.y,
-                          sin(angle / 2) * cross.z};
+        return Quaternion{std::cosf(angle / 2), std::sinf(angle / 2) * cross.x,
+                          std::sinf(angle / 2) * cross.y,
+                          std::sinf(angle / 2) * cross.z};
     }
 };

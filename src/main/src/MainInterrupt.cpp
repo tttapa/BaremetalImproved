@@ -637,21 +637,4 @@ float calculateYawJump(float yaw) {
     return modYaw - yaw;
 }
 
-template <class ArrayElementType = float, class StructType = void>
-static ArrayElementType (&toCppArray(
-    StructType &data))[sizeof(StructType) / sizeof(ArrayElementType)] {
-    static_assert(sizeof(StructType) % sizeof(ArrayElementType) == 0);
-    return reinterpret_cast<
-        ArrayElementType(&)[sizeof(StructType) / sizeof(ArrayElementType)]>(
-        data);
-}
-
-template <class ArrayElementType = float, class StructType = void>
-static const ArrayElementType (&toCppArray(
-    const StructType &data))[sizeof(StructType) / sizeof(ArrayElementType)] {
-    static_assert(sizeof(StructType) % sizeof(ArrayElementType) == 0);
-    return reinterpret_cast<const ArrayElementType(
-            &)[sizeof(StructType) / sizeof(ArrayElementType)]>(data);
-}
-
 #pragma endregion

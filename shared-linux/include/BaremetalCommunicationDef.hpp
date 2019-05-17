@@ -62,8 +62,9 @@ inline std::ostream &operator<<(std::ostream &os, VisionPosition pos) {
  * @brief   The data format sent from Vision to ANC.
  */
 struct VisionData {
-    VisionPosition position;
-    double yawAngle;
+    VisionData() = default;
+    VisionPosition position = {};
+    double yawAngle = 0.0;
     // float sideLen;
 };
 

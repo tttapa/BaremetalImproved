@@ -3,6 +3,7 @@
 
 /* Includes from src. */
 #include <PublicHardwareConstants.hpp>  ///< SONAR_FREQUENCY
+#include <MathFunctions.hpp>
 
 /* Includes from src-vivado. */
 #include "../PrivateHardwareConstants.hpp"
@@ -74,7 +75,7 @@ bool readSonar() {
     /* Check if there is a new measurement available. */
     newSonarRaw = (float) Xil_In32((uintptr_t) SONAR_ADDR) /
                   (CLOCK_FREQUENCY * PWM_TO_HEIGHT);
-    if (fabs(newSonarRaw - oldSonarRaw) <= 0.00000001)
+    if (std::absf(newSonarRaw - oldSonarRaw) <= 0.00000001)
         return false;
 
     /* Save the new measurement. */
@@ -93,7 +94,7 @@ bool readSonar() {
     newSonarRaw = getMedian(measurements, MAX_MF_LENGTH, MF_BUFFER_SIZE_SMALL);
 
     /* Apply peak filter (only if filteredSonarMeasurement is not zero). */
-    float diff = fabs(newSonarRaw - filteredSonarMeasurement);
+    float diff = std::absf(newSonarRaw - filteredSonarMeasurement);
     if (diff > MAX_JUMP && jumpCounter < MAX_JUMP_COUNT) {
         jumpCounter++;
         // TODO: if there's a big jump, should we still say there's a new meas?

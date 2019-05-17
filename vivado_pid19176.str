@@ -1,0 +1,90 @@
+/*
+
+Vivado v2016.2 (64-bit)
+SW Build 1577090 on Thu Jun  2 16:32:35 MDT 2016
+Process ID: 19176
+
+Current time: 	5/17/19 7:33:34 AM CEST
+Time zone: 	Central European Time (Europe/Brussels)
+
+OS: CentOS Linux release 7.6.1810 (Core) 
+Version: 3.10.0-957.12.1.el7.x86_64
+Architecture: amd64
+Available processors (cores): 4
+
+DISPLAY: localhost:10.0
+Screen size: 3840x1162
+Screen resolution (DPI): 96
+Available screens: 2
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+
+Java version: 	1.8.0_66 64-bit
+Java home: 	/esat/micas-data/software/xilinx_vivado_2016.2/Vivado/2016.2/tps/lnx64/jre
+
+User name: 	r0662058
+User home directory: /users/start2017/r0662058
+User working directory: /users/start2017/r0662058/Documents/GitHub/BaremetalImproved
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI Base root directory: /esat/micas-data/software/xilinx_vivado_2016.2/Vivado
+RDI Data directory: /esat/micas-data/software/xilinx_vivado_2016.2/Vivado/2016.2/data
+RDI Bin directory: /esat/micas-data/software/xilinx_vivado_2016.2/Vivado/2016.2/bin
+
+Vivado preferences path: /users/start2017/r0662058/.Xilinx/Vivado/2016.2/vivado.ini
+Vivado layouts directory: /users/start2017/r0662058/.Xilinx/Vivado/2016.2/layouts
+
+GUI allocated memory:	123 MB
+GUI max memory:		3,052 MB
+Engine allocated memory: 4,840 MB
+
+*/
+
+// TclEventType: START_GUI
+// Tcl Message: start_gui 
+// [GUI Memory]: 31 MB (+29784kb) [00:01:47]
+// [Engine Memory]: 4,840 MB (+4923791kb) [00:01:47]
+// HMemoryUtils.trashcanNow. Engine heap size: 4,840 MB. GUI used memory: 22 MB. Current time: 5/17/19 7:33:40 AM CEST
+selectList(PAResourceEtoH.GettingStartedView_RECENT_PROJECTS, "/users/start2017/r0662058/Eagle/HW/drone/drone.xpr", 0); // q:v (JViewport:JComponent, cv:JFrame)
+// Opening Vivado Project: /users/start2017/r0662058/Eagle/HW/drone/drone.xpr. Version: Vivado v2016.2 
+// bL:g (cv:JFrame):  Open Project : addNotify
+// HMemoryUtils.trashcanNow. Engine heap size: 4,873 MB. GUI used memory: 22 MB. Current time: 5/17/19 7:34:20 AM CEST
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: FILE_SET_NEW
+// TclEventType: RUN_COMPLETED
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_CURRENT
+// TclEventType: IP_LOCK_CHANGE
+// TclEventType: PROJECT_NEW
+// Tcl Message: open_project /users/start2017/r0662058/Eagle/HW/drone/drone.xpr 
+// TclEventType: PROJECT_NEW
+// HMemoryUtils.trashcanNow. Engine heap size: 4,983 MB. GUI used memory: 22 MB. Current time: 5/17/19 7:34:45 AM CEST
+// [GUI Memory]: 45 MB (+13107kb) [00:03:17]
+// [GUI Memory]: 52 MB (+4650kb) [00:03:24]
+// [GUI Memory]: 74 MB (+20876kb) [00:03:25]
+// Tcl Message: open_project /users/start2017/r0662058/Eagle/HW/drone/drone.xpr 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories INFO: [IP_Flow 19-1700] Loaded user IP repository '/users/start2017/r0662058/Eagle/HW/TCL/IP_Repo'. INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/esat/micas-data/software/xilinx_vivado_2016.2/Vivado/2016.2/data/ip'. 
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// HMemoryUtils.trashcanNow. Engine heap size: 5,058 MB. GUI used memory: 41 MB. Current time: 5/17/19 7:35:13 AM CEST
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// Tcl Message: open_project: Time (s): cpu = 00:00:22 ; elapsed = 00:18:35 . Memory (MB): peak = 6034.914 ; gain = 192.293 ; free physical = 3938 ; free virtual = 38800 
+// Project name: drone; location: /users/start2017/r0662058/Eagle/HW/drone; part: xc7z010clg400-1
+// [GUI Memory]: 79 MB (+1079kb) [00:21:45]
+// TclEventType: DG_UPDATE_GRAPH
+// Elapsed time: 1190 seconds
+dismissDialog("Open Project"); // bL:g (cv:JFrame)
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_UPDATE_GRAPH
+// TclEventType: DG_ANALYSIS_MSG_RESET
+// TclEventType: DG_UPDATE_GRAPH
+// Tcl Message: update_compile_order -fileset sources_1 
+// HMemoryUtils.trashcanNow. Engine heap size: 5,065 MB. GUI used memory: 43 MB. Current time: 5/17/19 8:05:18 AM CEST
+// [GUI Memory]: 83 MB (+520kb) [01:02:48]
+// HMemoryUtils.trashcanNow. Engine heap size: 5,065 MB. GUI used memory: 43 MB. Current time: 5/17/19 8:35:23 AM CEST
+// HMemoryUtils.trashcanNow. Engine heap size: 5,065 MB. GUI used memory: 42 MB. Current time: 5/17/19 9:05:31 AM CEST

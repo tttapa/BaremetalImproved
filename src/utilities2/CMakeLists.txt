@@ -18,4 +18,4 @@ install(TARGETS utilities2
 EXPORT utilities2
 ARCHIVE DESTINATION lib
 INCLUDES DESTINATION include)
-install(EXPORT utilities2 DESTINATION /tmp)
+install(EXPORT utilities2 DESTINATION include)

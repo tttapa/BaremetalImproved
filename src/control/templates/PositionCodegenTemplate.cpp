@@ -1,6 +1,7 @@
 #include <Position.hpp>
 #include <math.h>   /* fabs, copysign */
 #include <string.h> /* memcpy */
+#include <MathFunctions.hpp>
 
 /**
  * If the drone's velocity changes by more than 0.30 m/s between measurements,
@@ -101,9 +102,9 @@ PositionIntegralWindup PositionController::codegenIntegralWindup(
     /* Update integral windup. */
     integralWindup.p.x += $int0;
     integralWindup.p.y += $int1;
-    if (fabs(integralWindup.p.x) > maxIntegralWindup)
+    if (std::absf(integralWindup.p.x) > maxIntegralWindup)
         integralWindup.p.x = copysign(maxIntegralWindup, integralWindup.p.x);
-    if (fabs(integralWindup.p.y) > maxIntegralWindup)
+    if (std::absf(integralWindup.p.y) > maxIntegralWindup)
         integralWindup.p.y = copysign(maxIntegralWindup, integralWindup.p.y);
 
     return integralWindup;
@@ -130,9 +131,9 @@ PositionIntegralWindup PositionController::codegenIntegralWindupBlind(
     /* Update integral windup. */
     integralWindup.p.x += $intBlind0;
     integralWindup.p.y += $intBlind1;
-    if (fabs(integralWindup.p.x) > maxIntegralWindup)
+    if (std::absf(integralWindup.p.x) > maxIntegralWindup)
         integralWindup.p.x = copysign(maxIntegralWindup, integralWindup.p.x);
-    if (fabs(integralWindup.p.y) > maxIntegralWindup)
+    if (std::absf(integralWindup.p.y) > maxIntegralWindup)
         integralWindup.p.y = copysign(maxIntegralWindup, integralWindup.p.y);
 
     return integralWindup;

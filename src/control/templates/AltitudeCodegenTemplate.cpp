@@ -1,6 +1,7 @@
 #include <Altitude.hpp>
 #include <math.h>   /* copysign, fabs */
 #include <string.h> /* memcpy */
+#include <MathFunctions.hpp>
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
@@ -47,7 +48,7 @@ AltitudeController::codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
 
     /* Update integral windup. */
     integralWindup.z += $int0;
-    if (fabs(integralWindup.z) > maxIntegralWindup)
+    if (std::absf(integralWindup.z) > maxIntegralWindup)
         integralWindup.z = copysign(maxIntegralWindup, integralWindup.z);
 
     return integralWindup;

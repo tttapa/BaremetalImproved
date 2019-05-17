@@ -3,6 +3,7 @@
 /* Includes from src. */
 #include <MiscInstances.hpp>  ///< ConfigurationManager instance
 #include <RCValues.hpp>
+#include <MathFunctions.hpp>
 
 /* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
@@ -67,8 +68,8 @@ void AttitudeController::clampControlSignal(float commonThrust) {
 
     /* Clamp ux, uy, uz such that all motor PWM duty cycles are in [0,1]. */
     // TODO: divide by e = epsilon + 1?
-    float absoluteSum    = fabs(ux) + fabs(uy) + fabs(uz);
-    float maxAbsoluteSum = min(commonThrust, 1 - commonThrust);
+    float absoluteSum    = std::absf(ux) + std::absf(uy) + std::absf(uz);
+    float maxAbsoluteSum = std::minf(commonThrust, 1 - commonThrust);
     if (absoluteSum > maxAbsoluteSum) {
         float factor = maxAbsoluteSum / absoluteSum;
         ux *= factor;

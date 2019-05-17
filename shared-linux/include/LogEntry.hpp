@@ -10,128 +10,125 @@
  *          machines is the same.
  */
 struct LogEntry {
-  // private:
-  //   size_t size;
-  //
-  // public:
-  //   LogEntry() : size(sizeof(LogEntry)) {}
+  
+    LogEntry() = default;
 
     /**
      * The altitude controller's control signal.
      */
-    AltitudeControlSignal altitudeControlSignal;
+    AltitudeControlSignal altitudeControlSignal = {};
     /**
      * The altitude controller's integral windup.
      */
-    AltitudeIntegralWindup altitudeIntegralWindup;
+    AltitudeIntegralWindup altitudeIntegralWindup = {};
     /**
      * The altitude controller's measurement.
      */
-    AltitudeMeasurement altitudeMeasurement;
+    AltitudeMeasurement altitudeMeasurement = {};
     /**
      * The altitude controller's reference.
      */
-    AltitudeReference altitudeReference;
+    AltitudeReference altitudeReference = {};
     /**
      * The altitude controller's state estimate.
      */
-    AltitudeState altitudeStateEstimate;
+    AltitudeState altitudeStateEstimate = {};
     /**
      * The attitude controller's control signal.
      */
-    AttitudeControlSignal attitudeControlSignal;
+    AttitudeControlSignal attitudeControlSignal = {};
     /**
      * The attitude controller's integral windup.
      */
-    AttitudeIntegralWindup attitudeIntegralWindup;
+    AttitudeIntegralWindup attitudeIntegralWindup = {};
     /**
      * The attitude controller's measurement.
      */
-    AttitudeMeasurement attitudeMeasurement;
+    AttitudeMeasurement attitudeMeasurement = {};
     /**
      * The attitude controller's reference.
      */
-    AttitudeReference attitudeReference;
+    AttitudeReference attitudeReference = {};
     /**
      * The attitude controller's state estimate.
      */
-    AttitudeState attitudeStateEstimate;
+    AttitudeState attitudeStateEstimate = {};
     /**
      * The position controller's control signal.
      */
-    PositionControlSignal positionControlSignal;
+    PositionControlSignal positionControlSignal = {};
     /**
      * The position controller's integral windup.
      */
-    PositionIntegralWindup positionIntegralWindup;
+    PositionIntegralWindup positionIntegralWindup = {};
     /**
      * The position controller's measurement.
      */
-    PositionMeasurement positionMeasurement;
+    PositionMeasurement positionMeasurement = {};
     /**
      * The position controller's reference.
      */
-    PositionReference positionReference;
+    PositionReference positionReference = {};
     /**
      * The position controller's state estimate.
      */
-    PositionState positionStateEstimate;
+    PositionState positionStateEstimate = {};
     /**
      * The autonomous controller's output.
      */
-    AutonomousOutput autonomousOutput;
+    AutonomousOutput autonomousOutput = {};
 
 
     /**
      * The IMU's measurement.
      */
-    IMUMeasurement imuMeasurement;
+    IMUMeasurement imuMeasurement = {};
     /**
      * The most recent reading of the RC.
      */
-    RCInput rcInput;
+    RCInput rcInput = {};
     /**
      * The current instruction playing on the buzzer.
      */
-    BuzzerInstruction buzzerInstruction;
+    BuzzerInstruction buzzerInstruction = {};
     /**
      * The current instruction displayed on the LEDs.
      */
-    LEDInstruction ledInstruction;
+    LEDInstruction ledInstruction = {};
     /**
      * The signal sent to the four motors (ESCs).
      */
-    MotorSignals motorSignals;
+    MotorSignals motorSignals = {};
     /**
      * The flight mode of the drone.
      */
-    FlightMode flightMode;
+    FlightMode flightMode = FlightMode::UNINITIALIZED;
     /**
      * The WPT mode of the drone.
      */
-    WPTMode wptMode;
+    WPTMode wptMode = WPTMode::OFF;
     /**
      * Time since startup in milliseconds.
      */
-    uint64_t millis;
+    uint64_t millis = 0;
     /**
      * IMU tick count since startup.
      */
-    uint32_t tickCount;
+    uint32_t tickCount = 0;
     /**
      * Height measurement from the sonar in meters (tilt corrected).
      */
-    float sensorHeightMeasurement;
+    float sensorHeightMeasurement = 0.0f;
     /**
      * Position measurement from IMP in meters (tilt corrected).
      */
-    Vec2f sensorPositionMeasurement;
+    Vec2f sensorPositionMeasurement = {};
     /**
      * Yaw measurement from IMP in radians.
      */
-    float sensorYawMeasurement;
+    float sensorYawMeasurement = 0.0f;
     /**
      * Time since startup in seconds, calculated using getTickCount().
      */
-    float time;
+    float time = 0.0f;
 };
