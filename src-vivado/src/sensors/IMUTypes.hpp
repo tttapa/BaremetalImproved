@@ -63,70 +63,70 @@ enum AccelMaxSpeed {
     SPEED_16_G = 3,
 };
 
-constexpr int getIMUBits(IMUFrequency frequency) {
+int getIMUBits(IMUFrequency frequency) {
     switch (frequency) {
         case FREQ_119_HZ: return 0b01100000;
         case FREQ_238_HZ: return 0b10000000;
         case FREQ_476_HZ: return 0b10100000;
         case FREQ_952_HZ: return 0b11000000;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
     }
+    return 0;
 }
 
-constexpr int getIMUBits(GyroMaxSpeed maxSpeed) {
+int getIMUBits(GyroMaxSpeed maxSpeed) {
     switch (maxSpeed) {
         case SPEED_245_DPS: return 0b00000000;
         case SPEED_500_DPS: return 0b00001000;
         case SPEED_2000_DPS: return 0b00011000;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
     }
+    return 0;
 }
 
-constexpr int getIMUBits(AccelMaxSpeed maxSpeed) {
+int getIMUBits(AccelMaxSpeed maxSpeed) {
     switch (maxSpeed) {
         case SPEED_2_G: return 0b00000000;
         case SPEED_4_G: return 0b00010000;
         case SPEED_8_G: return 0b00011000;
         case SPEED_16_G: return 0b00001000;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
     }
+    return 0;
 }
 
-constexpr float getIMUValue(IMUFrequency frequency) {
+float getIMUValue(IMUFrequency frequency) {
     switch (frequency) {
         case FREQ_119_HZ: return 119.0;
         case FREQ_238_HZ: return 238.0;
         case FREQ_476_HZ: return 476.0;
         case FREQ_952_HZ: return 952.0;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
     }
+    return 0.0;
 }
 
-constexpr float getIMUValue(GyroMaxSpeed maxSpeed) {
+float getIMUValue(GyroMaxSpeed maxSpeed) {
     switch (maxSpeed) {
         case SPEED_245_DPS: return 245.0;
         case SPEED_500_DPS: return 500.0;
         case SPEED_2000_DPS: return 2000.0;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
     }
+    return 0.0;
 }
 
-constexpr float getIMUValue(AccelMaxSpeed maxSpeed) {
+float getIMUValue(AccelMaxSpeed maxSpeed) {
     switch (maxSpeed) {
         case SPEED_2_G: return 2.0;
         case SPEED_4_G: return 4.0;
         case SPEED_8_G: return 8.0;
         case SPEED_16_G: return 16.0;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
     }
+    return 0.0;
 }
 
-constexpr int getIMUFactor(IMUFrequency frequency) {
+int getIMUFactor(IMUFrequency frequency) {
     switch (frequency) {
         case FREQ_119_HZ: return 1;
         case FREQ_238_HZ: return 2;
         case FREQ_476_HZ: return 3;
         case FREQ_952_HZ: return 4;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
     }
+    return 0.0;
 }

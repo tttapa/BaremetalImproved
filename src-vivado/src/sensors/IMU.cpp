@@ -67,7 +67,7 @@ int calibrationStepCounter;
 float calcGyro(int rawGyro) {
 
     /** Calculate the resolution of the gyroscope in degree/s. */
-    static constexpr float gyroResolution =
+    static const float gyroResolution =
         getIMUValue(GYRO_MAX_SPEED) / 32768.0; /* 2^15 */
 
     /** Convert the raw gyro value to rad/s. */
@@ -84,7 +84,7 @@ float calcGyro(int rawGyro) {
 float calcAccel(int rawAccel) {
 
     /** Calculate the resolution of the accelerometer in g. */
-    static constexpr float accelResolution =
+    static const float accelResolution =
         getIMUValue(ACCEL_MAX_SPEED) / 32768.0; /* 2^15 */
 
     /** Convert the raw accel value to g. */
@@ -109,7 +109,7 @@ Vec3f getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
         +calcAccel(raw.ayInt),
         -calcAccel(raw.azInt),
     });
-    correctedAccel /= biasNorm;
+    correctedAccel = correctedAccel / biasNorm;
     return correctedAccel;
 }
 
@@ -125,9 +125,9 @@ Vec3f getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
 Vec3f getGyroMeasurement(RawGyroMeasurement raw, GyroMeasurement bias) {
 
     /* Gyroscope measurements with bias removed in rad/s. */
-    float gx = -(calcGyro(raw.gxInt) - bias.g[0]);
-    float gy = +(calcGyro(raw.gyInt) - bias.g[1]);
-    float gz = -(calcGyro(raw.gzInt) - bias.g[2]);
+    float gx = -(calcGyro(raw.gxInt) - bias.g.x);
+    float gy = +(calcGyro(raw.gyInt) - bias.g.y);
+    float gz = -(calcGyro(raw.gzInt) - bias.g.z);
 
     /* Return measurement. */
     return {gx, gy, gz};
@@ -224,9 +224,9 @@ bool calibrateIMUStep() {
         float factor = 1.0 / (float) (CALIBRATION_SAMPLES);
 
         /* Calculate gyroscope bias. */
-        gyroBias.g[0] = calcGyro(gyroRawSum[0] * factor);
-        gyroBias.g[1] = calcGyro(gyroRawSum[1] * factor);
-        gyroBias.g[2] = calcGyro(gyroRawSum[2] * factor);
+        gyroBias.g.x = calcGyro(gyroRawSum[0] * factor);
+        gyroBias.g.y = calcGyro(gyroRawSum[1] * factor);
+        gyroBias.g.z = calcGyro(gyroRawSum[2] * factor);
 
         /* Calculate accelerometer bias quaternion. */
         Vec3f accelBiasAverage = {
@@ -235,7 +235,7 @@ bool calibrateIMUStep() {
             -calcAccel(accelRawSum[2] * factor),
         };
         accelBiasQuat = Quaternion::fromDirection(accelBiasAverage);
-        accelBiasNorm = norm(accelBiasAverage);
+        accelBiasNorm = accelBiasAverage.norm();
 
         /* Turn off all LEDs. */
         writeToLEDs(0, 0, 0, 0);
