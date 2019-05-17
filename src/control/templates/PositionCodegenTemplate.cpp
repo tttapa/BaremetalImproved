@@ -26,24 +26,24 @@ PositionControlSignal PositionController::codegenControlSignal(
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q12[0] = $c1$u0;
-            controlSignal.q12[1] = $c1$u1;
+            controlSignal.q.x = $c1$u0;
+            controlSignal.q.y = $c1$u1;
             break;
         case 2:
-            controlSignal.q12[0] = $c2$u0;
-            controlSignal.q12[1] = $c2$u1;
+            controlSignal.q.x = $c2$u0;
+            controlSignal.q.y = $c2$u1;
             break;
         case 3:
-            controlSignal.q12[0] = $c3$u0;
-            controlSignal.q12[1] = $c3$u1;
+            controlSignal.q.x = $c3$u0;
+            controlSignal.q.y = $c3$u1;
             break;
         case 4:
-            controlSignal.q12[0] = $c4$u0;
-            controlSignal.q12[1] = $c4$u1;
+            controlSignal.q.x = $c4$u0;
+            controlSignal.q.y = $c4$u1;
             break;
         default: controlSignal = {};
     }
-    (void)integralWindup;
+    (void) integralWindup;
     return controlSignal;
 }
 
@@ -59,24 +59,24 @@ PositionControlSignal PositionController::codegenControlSignalBlind(
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q12[0] = $c1$uBlind0;
-            controlSignal.q12[1] = $c1$uBlind1;
+            controlSignal.q12.x = $c1$uBlind0;
+            controlSignal.q12.y = $c1$uBlind1;
             break;
         case 2:
-            controlSignal.q12[0] = $c2$uBlind0;
-            controlSignal.q12[1] = $c2$uBlind1;
+            controlSignal.q12.x = $c2$uBlind0;
+            controlSignal.q12.y = $c2$uBlind1;
             break;
         case 3:
-            controlSignal.q12[0] = $c3$uBlind0;
-            controlSignal.q12[1] = $c3$uBlind1;
+            controlSignal.q12.x = $c3$uBlind0;
+            controlSignal.q12.y = $c3$uBlind1;
             break;
         case 4:
-            controlSignal.q12[0] = $c4$uBlind0;
-            controlSignal.q12[1] = $c4$uBlind1;
+            controlSignal.q12.x = $c4$uBlind0;
+            controlSignal.q12.y = $c4$uBlind1;
             break;
         default: controlSignal = {};
     }
-    (void)integralWindup;
+    (void) integralWindup;
     return controlSignal;
 }
 
@@ -99,12 +99,12 @@ PositionIntegralWindup PositionController::codegenIntegralWindup(
     }
 
     /* Update integral windup. */
-    integralWindup.p[0] += $int0;
-    integralWindup.p[1] += $int1;
-    if (fabs(integralWindup.p[0]) > maxIntegralWindup)
-        integralWindup.p[0] = copysign(maxIntegralWindup, integralWindup.p[0]);
-    if (fabs(integralWindup.p[1]) > maxIntegralWindup)
-        integralWindup.p[1] = copysign(maxIntegralWindup, integralWindup.p[1]);
+    integralWindup.p.x += $int0;
+    integralWindup.p.y += $int1;
+    if (fabs(integralWindup.p.x) > maxIntegralWindup)
+        integralWindup.p.x = copysign(maxIntegralWindup, integralWindup.p.x);
+    if (fabs(integralWindup.p.y) > maxIntegralWindup)
+        integralWindup.p.y = copysign(maxIntegralWindup, integralWindup.p.y);
 
     return integralWindup;
 }
@@ -128,12 +128,12 @@ PositionIntegralWindup PositionController::codegenIntegralWindupBlind(
     }
 
     /* Update integral windup. */
-    integralWindup.p[0] += $intBlind0;
-    integralWindup.p[1] += $intBlind1;
-    if (fabs(integralWindup.p[0]) > maxIntegralWindup)
-        integralWindup.p[0] = copysign(maxIntegralWindup, integralWindup.p[0]);
-    if (fabs(integralWindup.p[1]) > maxIntegralWindup)
-        integralWindup.p[1] = copysign(maxIntegralWindup, integralWindup.p[1]);
+    integralWindup.p.x += $intBlind0;
+    integralWindup.p.y += $intBlind1;
+    if (fabs(integralWindup.p.x) > maxIntegralWindup)
+        integralWindup.p.x = copysign(maxIntegralWindup, integralWindup.p.x);
+    if (fabs(integralWindup.p.y) > maxIntegralWindup)
+        integralWindup.p.y = copysign(maxIntegralWindup, integralWindup.p.y);
 
     return integralWindup;
 }
@@ -153,20 +153,20 @@ PositionState PositionController::codegenCurrentStateEstimate(
     HorizontalVelocity dAbsV = abs(v1) - abs(v0);
 
     /* Jump rejection on x-velocity. */
-    if ((dAbsV[0] <= 0 && absdV[0] < V_THRESHOLD_TOWARDS) ||  //
-        (dAbsV[0] >= 0 && absdV[0] < V_THRESHOLD_AWAY))
-        stateEstimate.v[0] = v1[0];
+    if ((dAbsV.x <= 0 && absdV.x < V_THRESHOLD_TOWARDS) ||  //
+        (dAbsV.x >= 0 && absdV.x < V_THRESHOLD_AWAY))
+        stateEstimate.v.x = v1.x;
 
     /* Jump rejection on y-velocity. */
-    if ((dAbsV[1] <= 0 && absdV[1] < V_THRESHOLD_TOWARDS) ||  //
-        (dAbsV[1] >= 0 && absdV[1] < V_THRESHOLD_AWAY))
-        stateEstimate.v[1] = v1[1];
+    if ((dAbsV.y <= 0 && absdV.y < V_THRESHOLD_TOWARDS) ||  //
+        (dAbsV.y >= 0 && absdV.y < V_THRESHOLD_AWAY))
+        stateEstimate.v.y = v1.y;
 
     /* Set orientation and position. */
-    stateEstimate.q[0] = orientation[1];
-    stateEstimate.q[1] = orientation[2];
-    stateEstimate.p[0] = measurement.p[0];
-    stateEstimate.p[1] = measurement.p[1];
+    stateEstimate.q.x = orientation.x;
+    stateEstimate.q.y = orientation.y;
+    stateEstimate.p.x = measurement.p.x;
+    stateEstimate.p.y = measurement.p.y;
 
     /* Drone configuration unused. */
     (void) droneConfiguration;
@@ -184,14 +184,14 @@ PositionState PositionController::codegenCurrentStateEstimateBlind(
 
     PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
 
-    stateEstimateBlind.p[0] = $xBlind0;
-    stateEstimateBlind.p[1] = $xBlind1;
-    stateEstimateBlind.v[0] = $xBlind2;
-    stateEstimateBlind.v[1] = $xBlind3;
+    stateEstimateBlind.p.x = $xBlind0;
+    stateEstimateBlind.p.y = $xBlind1;
+    stateEstimateBlind.v.x = $xBlind2;
+    stateEstimateBlind.v.y = $xBlind3;
 
     PositionState stateEstimate = {};
-    stateEstimate.q[0]          = orientation[1];
-    stateEstimate.q[1]          = orientation[2];
+    stateEstimate.q.x           = orientation.x;
+    stateEstimate.q.y           = orientation.y;
     stateEstimate.p             = stateEstimateBlind.p;
     stateEstimate.v             = stateEstimateBlind.v;
     return stateEstimate;

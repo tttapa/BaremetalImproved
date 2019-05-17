@@ -15,14 +15,14 @@ real_t dist(Position a, Position b) { return norm(b - a); }
 real_t distsq(Position a, Position b) { return normsq(b - a); }
 
 void PositionController::clampControlSignal() {
-    if (this->controlSignal.q12[0] > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q12[0] = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q12[0] < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q12[0] = -REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q12[1] > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q12[1] = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q12[1] < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q12[1] = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q.x > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q.x = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q.x < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q.x = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q.y > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q.y = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q.y < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q.y = -REFERENCE_QUATERNION_CLAMP;
 }
 
 void PositionController::init(Position currentPosition) {
@@ -114,10 +114,11 @@ void PositionController::updateObserverBlind(Quaternion orientation) {
     PositionStateBlind stateBlind = {this->stateEstimate.p,
                                      this->stateEstimate.v};
 
-    PositionControlSignalBlind controlSignalBlind = {{
-        orientation[1],
-        orientation[2],
-    }};
+    PositionControlSignalBlind controlSignalBlind =
+        PositionControlSignalBlind{Vec2f{
+            orientation.x,
+            orientation.y,
+        }};
 
     this->stateEstimate = codegenCurrentStateEstimateBlind(
         stateBlind, controlSignalBlind, orientation);

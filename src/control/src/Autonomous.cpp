@@ -141,8 +141,8 @@ static constexpr real_t TAKEOFF_THROTTLE = 0.50;
 #pragma endregion
 
 bool isValidSearchTarget(Position position) {
-    return position[0] >= X_MIN && position[0] <= X_MAX &&
-           position[1] >= Y_MIN && position[1] <= Y_MAX;
+    return position.x >= X_MIN && position.x <= X_MAX &&
+           position.y >= Y_MIN && position.y <= Y_MAX;
 }
 
 real_t AutonomousController::getElapsedTime() {
@@ -150,8 +150,8 @@ real_t AutonomousController::getElapsedTime() {
 }
 
 Position AutonomousController::getNextSearchTarget() {
-    real_t x = this->nextTarget[0];
-    real_t y = this->nextTarget[1];
+    real_t x = this->nextTarget.x;
+    real_t y = this->nextTarget.y;
 
     /* Spiral outward until we reach the next tile to check. */
     real_t dx          = 1.0 * BLOCKS_TO_METERS;

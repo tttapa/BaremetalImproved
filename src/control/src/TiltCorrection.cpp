@@ -6,10 +6,8 @@ Position getCorrectedPosition(Position impMeasurement, real_t sonarMeasurement,
     /* Calculate x- and y-component of the down vector using
        ealge-control-slides.pdf p.178. */
     Position downVectorXY = {
-        -2 *
-            (orientation[0] * orientation[2] + orientation[1] * orientation[3]),
-        +2 *
-            (orientation[0] * orientation[1] - orientation[2] * orientation[3]),
+        -2 * (orientation.w * orientation.y + orientation.x * orientation.z),
+        +2 * (orientation.w * orientation.x - orientation.y * orientation.z),
     };
 
     /* Correct the position of the drone. */
@@ -21,8 +19,8 @@ real_t getCorrectedHeight(real_t sonarMeasurement, Quaternion orientation) {
     /* Calculate the z-component of the down vector using
        eagle-control-slides.pdf p.178. */
     real_t downVectorZ =
-        -orientation[0] * orientation[0] + orientation[1] * orientation[1] +
-        orientation[2] * orientation[2] - orientation[3] * orientation[3];
+        -orientation.w * orientation.w + orientation.x * orientation.x +
+        orientation.y * orientation.y - orientation.z * orientation.z;
 
     /* Correct the height of the drone. */
     return -downVectorZ * sonarMeasurement;

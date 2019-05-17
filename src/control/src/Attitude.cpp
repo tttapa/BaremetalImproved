@@ -34,9 +34,9 @@ static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 
 MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
                                             real_t commonThrust) {
-    real_t ux = controlSignal.uxyz[0];
-    real_t uy = controlSignal.uxyz[1];
-    real_t uz = controlSignal.uxyz[2];
+    real_t ux = controlSignal.u.x;
+    real_t uy = controlSignal.u.y;
+    real_t uz = controlSignal.u.z;
     return MotorSignals{commonThrust + ux + uy - uz,  //
                         commonThrust + ux - uy + uz,  //
                         commonThrust - ux + uy + uz,  //
@@ -55,9 +55,9 @@ void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {
 void AttitudeController::clampControlSignal(real_t commonThrust) {
 
     /* Load values from the attitude controller. */
-    real_t ux = this->controlSignal.uxyz[0];
-    real_t uy = this->controlSignal.uxyz[1];
-    real_t uz = this->controlSignal.uxyz[2];
+    real_t ux = this->controlSignal.u.x;
+    real_t uy = this->controlSignal.u.y;
+    real_t uz = this->controlSignal.u.z;
 
     /* Clamp the yaw torque motor separately to ensure ux, uy compensation. */
     if (uz > YAW_SIGNAL_CLAMP)
@@ -76,7 +76,7 @@ void AttitudeController::clampControlSignal(real_t commonThrust) {
         uz *= factor;
     }
 
-    this->controlSignal = AttitudeControlSignal{{ux, uy, uz}};
+    this->controlSignal = AttitudeControlSignal{Vec3f{ux, uy, uz}};
 }
 
 void AttitudeController::init() {

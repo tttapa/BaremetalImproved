@@ -125,9 +125,9 @@ Vec3f getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
 Vec3f getGyroMeasurement(RawGyroMeasurement raw, GyroMeasurement bias) {
 
     /* Gyroscope measurements with bias removed in rad/s. */
-    float gx = -(calcGyro(raw.gxInt) - bias.g[0]);
-    float gy = +(calcGyro(raw.gyInt) - bias.g[1]);
-    float gz = -(calcGyro(raw.gzInt) - bias.g[2]);
+    float gx = -(calcGyro(raw.gxInt) - bias.g.x);
+    float gy = +(calcGyro(raw.gyInt) - bias.g.y);
+    float gz = -(calcGyro(raw.gzInt) - bias.g.z);
 
     /* Return measurement. */
     return {gx, gy, gz};
@@ -224,9 +224,9 @@ bool calibrateIMUStep() {
         float factor = 1.0 / (float) (CALIBRATION_SAMPLES);
 
         /* Calculate gyroscope bias. */
-        gyroBias.g[0] = calcGyro(gyroRawSum[0] * factor);
-        gyroBias.g[1] = calcGyro(gyroRawSum[1] * factor);
-        gyroBias.g[2] = calcGyro(gyroRawSum[2] * factor);
+        gyroBias.g.x = calcGyro(gyroRawSum[0] * factor);
+        gyroBias.g.y = calcGyro(gyroRawSum[1] * factor);
+        gyroBias.g.z = calcGyro(gyroRawSum[2] * factor);
 
         /* Calculate accelerometer bias quaternion. */
         Vec3f accelBiasAverage = {
@@ -340,8 +340,8 @@ bool initIMU() {
 IMUMeasurement readIMU() {
 
     /* Read gyroscope and convert to rad/s. */
-    RawGyroMeasurement gyroRaw      = readGyro();
-    Vec3f gyro = getGyroMeasurement(gyroRaw, gyroBias);
+    RawGyroMeasurement gyroRaw = readGyro();
+    Vec3f gyro                 = getGyroMeasurement(gyroRaw, gyroBias);
     // TODO: are sleeps necessary (data corruption?) = 20% of PWM on-time
     usleep(100);
 
@@ -350,5 +350,5 @@ IMUMeasurement readIMU() {
     Vec3f accel = getAccelMeasurement(accelRaw, accelBiasQuat, accelBiasNorm);
 
     /* Return IMU measurement (gyro+accel). */
-    return IMUMeasurement{{gyro}, {accel}};
+    return IMUMeasurement{GyroMeasurement{gyro}, AccelMeasurement{accel}};
 }

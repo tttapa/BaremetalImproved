@@ -34,7 +34,7 @@ target_link_libraries(instances
         communication
         control
         misc
-        shared
+        utilities
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)

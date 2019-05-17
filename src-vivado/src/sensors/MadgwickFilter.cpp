@@ -41,7 +41,7 @@ float invSqrt(float x);
 Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
     
     /* Flip az for implementation of Madgwick. */
-    imu.accel.a[2] = -imu.accel.a[2];
+    imu.accel.a.z = -imu.accel.a.z;
 
 	float recipNorm;
 	float s0, s1, s2, s3;
@@ -49,40 +49,40 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 	float _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2 ,_8q1, _8q2, q0q0, q1q1, q2q2, q3q3;
 
 	// Rate of change of quaternion from gyroscope
-	qDot1 = 0.5f * (-orientation[1] * imu.gyro.g[0] - orientation[2] * imu.gyro.g[1] - orientation[3] * imu.gyro.g[2]);
-	qDot2 = 0.5f * (orientation[0] * imu.gyro.g[0] + orientation[2] * imu.gyro.g[2] - orientation[3] * imu.gyro.g[1]);
-	qDot3 = 0.5f * (orientation[0] * imu.gyro.g[1] - orientation[1] * imu.gyro.g[2] + orientation[3] * imu.gyro.g[0]);
-	qDot4 = 0.5f * (orientation[0] * imu.gyro.g[2] + orientation[1] * imu.gyro.g[1] - orientation[2] * imu.gyro.g[0]);
+	qDot1 = 0.5f * (-orientation.x * imu.gyro.g.x - orientation.y * imu.gyro.g.y - orientation.z * imu.gyro.g.z);
+	qDot2 = 0.5f * (orientation.w * imu.gyro.g.x + orientation.y * imu.gyro.g.z - orientation.z * imu.gyro.g.y);
+	qDot3 = 0.5f * (orientation.w * imu.gyro.g.y - orientation.x * imu.gyro.g.z + orientation.z * imu.gyro.g.x);
+	qDot4 = 0.5f * (orientation.w * imu.gyro.g.z + orientation.x * imu.gyro.g.y - orientation.y * imu.gyro.g.x);
 
 	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
-	if(!((imu.accel.a[0] == 0.0f) && (imu.accel.a[1] == 0.0f) && (imu.accel.a[2] == 0.0f))) {
+	if(!((imu.accel.a.x == 0.0f) && (imu.accel.a.y == 0.0f) && (imu.accel.a.z == 0.0f))) {
 
 		// Normalise accelerometer measurement
-		recipNorm = invSqrt(imu.accel.a[0] * imu.accel.a[0] + imu.accel.a[1] * imu.accel.a[1] + imu.accel.a[2] * imu.accel.a[2]);
-		imu.accel.a[0] *= recipNorm;
-		imu.accel.a[1] *= recipNorm;
-		imu.accel.a[2] *= recipNorm;   
+		recipNorm = invSqrt(imu.accel.a.x * imu.accel.a.x + imu.accel.a.y * imu.accel.a.y + imu.accel.a.z * imu.accel.a.z);
+		imu.accel.a.x *= recipNorm;
+		imu.accel.a.y *= recipNorm;
+		imu.accel.a.z *= recipNorm;   
 
 		// Auxiliary variables to avoid repeated arithmetic
-		_2q0 = 2.0f * orientation[0];
-		_2q1 = 2.0f * orientation[1];
-		_2q2 = 2.0f * orientation[2];
-		_2q3 = 2.0f * orientation[3];
-		_4q0 = 4.0f * orientation[0];
-		_4q1 = 4.0f * orientation[1];
-		_4q2 = 4.0f * orientation[2];
-		_8q1 = 8.0f * orientation[1];
-		_8q2 = 8.0f * orientation[2];
-		q0q0 = orientation[0] * orientation[0];
-		q1q1 = orientation[1] * orientation[1];
-		q2q2 = orientation[2] * orientation[2];
-		q3q3 = orientation[3] * orientation[3];
+		_2q0 = 2.0f * orientation.w;
+		_2q1 = 2.0f * orientation.x;
+		_2q2 = 2.0f * orientation.y;
+		_2q3 = 2.0f * orientation.z;
+		_4q0 = 4.0f * orientation.w;
+		_4q1 = 4.0f * orientation.x;
+		_4q2 = 4.0f * orientation.y;
+		_8q1 = 8.0f * orientation.x;
+		_8q2 = 8.0f * orientation.y;
+		q0q0 = orientation.w * orientation.w;
+		q1q1 = orientation.x * orientation.x;
+		q2q2 = orientation.y * orientation.y;
+		q3q3 = orientation.z * orientation.z;
 
 		// Gradient decent algorithm corrective step
-		s0 = _4q0 * q2q2 + _2q2 * imu.accel.a[0] + _4q0 * q1q1 - _2q1 * imu.accel.a[1];
-		s1 = _4q1 * q3q3 - _2q3 * imu.accel.a[0] + 4.0f * q0q0 * orientation[1] - _2q0 * imu.accel.a[1] - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * imu.accel.a[2];
-		s2 = 4.0f * q0q0 * orientation[2] + _2q0 * imu.accel.a[0] + _4q2 * q3q3 - _2q3 * imu.accel.a[1] - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * imu.accel.a[2];
-		s3 = 4.0f * q1q1 * orientation[3] - _2q1 * imu.accel.a[0] + 4.0f * q2q2 * orientation[3] - _2q2 * imu.accel.a[1];
+		s0 = _4q0 * q2q2 + _2q2 * imu.accel.a.x + _4q0 * q1q1 - _2q1 * imu.accel.a.y;
+		s1 = _4q1 * q3q3 - _2q3 * imu.accel.a.x + 4.0f * q0q0 * orientation.x - _2q0 * imu.accel.a.y - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * imu.accel.a.z;
+		s2 = 4.0f * q0q0 * orientation.y + _2q0 * imu.accel.a.x + _4q2 * q3q3 - _2q3 * imu.accel.a.y - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * imu.accel.a.z;
+		s3 = 4.0f * q1q1 * orientation.z - _2q1 * imu.accel.a.x + 4.0f * q2q2 * orientation.z - _2q2 * imu.accel.a.y;
 		recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
 		s0 *= recipNorm;
 		s1 *= recipNorm;
@@ -98,17 +98,17 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 	}
 
 	// Integrate rate of change of quaternion to yield quaternion
-	orientation[0] += qDot1 * (1.0f / TICKS_PER_SECOND);
-	orientation[1] += qDot2 * (1.0f / TICKS_PER_SECOND);
-	orientation[2] += qDot3 * (1.0f / TICKS_PER_SECOND);
-	orientation[3] += qDot4 * (1.0f / TICKS_PER_SECOND);
+	orientation.w += qDot1 * (1.0f / TICKS_PER_SECOND);
+	orientation.x += qDot2 * (1.0f / TICKS_PER_SECOND);
+	orientation.y += qDot3 * (1.0f / TICKS_PER_SECOND);
+	orientation.z += qDot4 * (1.0f / TICKS_PER_SECOND);
 
 	// Normalise quaternion
-	recipNorm = invSqrt(orientation[0] * orientation[0] + orientation[1] * orientation[1] + orientation[2] * orientation[2] + orientation[3] * orientation[3]);
-	orientation[0] *= recipNorm;
-	orientation[1] *= recipNorm;
-	orientation[2] *= recipNorm;
-	orientation[3] *= recipNorm;
+	recipNorm = invSqrt(orientation.w * orientation.w + orientation.x * orientation.x + orientation.y * orientation.y + orientation.z * orientation.z);
+	orientation.w *= recipNorm;
+	orientation.x *= recipNorm;
+	orientation.y *= recipNorm;
+	orientation.z *= recipNorm;
 
 	return orientation;
 }

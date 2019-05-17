@@ -127,7 +127,7 @@ void mainOperation() {
     Position positionMeasurementBlocks, positionMeasurement,
         correctedPositionMeasurement, globalPositionEstimate;
     static real_t yawMeasurement = 0.0;
-    bool hasNewIMPMeasurement = false;
+    bool hasNewIMPMeasurement    = false;
     if (visionComm->isDoneWriting()) {
         hasNewIMPMeasurement          = true;
         VisionData visionData         = visionComm->read();
@@ -514,8 +514,8 @@ void mainOperation() {
             biasManager.getPitchBias(),
             biasManager.getRollBias(),
         });
-        real_t q1                = q12ref.q12[0];
-        real_t q2                = q12ref.q12[1];
+        real_t q1                = q12ref.q.x;
+        real_t q2                = q12ref.q.y;
         real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
@@ -603,9 +603,9 @@ void mainOperation() {
                                flightMode == FlightMode::AUTONOMOUS,
                                wptMode == WPTMode::ON};
     logEntry.wptMode          = wptMode;
-    logEntry.sensorHeightMeasurment = correctedSonarMeasurement;
+    logEntry.sensorHeightMeasurement   = correctedSonarMeasurement;
     logEntry.sensorPositionMeasurement = correctedPositionMeasurement;
-    logEntry.sensorYawMeasurement   = yawMeasurement;
+    logEntry.sensorYawMeasurement      = yawMeasurement;
 
     /* Output log data if logger is done writing. */
     if (loggerComm->isDoneReading())

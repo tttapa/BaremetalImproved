@@ -1,8 +1,9 @@
 #include <Attitude.hpp>
 #include <math.h> /* sqrt */
 
-#define SQ(x) ((x) * (x))
-#define QUAT_0(x) (x.q[0] = sqrt(1.0 - SQ(x.q[1]) - SQ(x.q[2]) - SQ(x.q[3])))
+#define SQ(value) ((value) * (value))
+#define QUAT_0(value)                                                          \
+    (value.q.w = sqrt(1.0 - SQ(value.q.x) - SQ(value.q.y) - SQ(value.q.z)))
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
@@ -16,24 +17,24 @@ AttitudeControlSignal AttitudeController::codegenControlSignal(
     AttitudeControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.uxyz[0] = $c1$u0;
-            controlSignal.uxyz[1] = $c1$u1;
-            controlSignal.uxyz[2] = $c1$u2;
+            controlSignal.u.x = $c1$u0;
+            controlSignal.u.y = $c1$u1;
+            controlSignal.u.z = $c1$u2;
             break;
         case 2:
-            controlSignal.uxyz[0] = $c2$u0;
-            controlSignal.uxyz[1] = $c2$u1;
-            controlSignal.uxyz[2] = $c2$u2;
+            controlSignal.u.x = $c2$u0;
+            controlSignal.u.y = $c2$u1;
+            controlSignal.u.z = $c2$u2;
             break;
         case 3:
-            controlSignal.uxyz[0] = $c3$u0;
-            controlSignal.uxyz[1] = $c3$u1;
-            controlSignal.uxyz[2] = $c3$u2;
+            controlSignal.u.x = $c3$u0;
+            controlSignal.u.y = $c3$u1;
+            controlSignal.u.z = $c3$u2;
             break;
         case 4:
-            controlSignal.uxyz[0] = $c4$u0;
-            controlSignal.uxyz[1] = $c4$u1;
-            controlSignal.uxyz[2] = $c4$u2;
+            controlSignal.u.x = $c4$u0;
+            controlSignal.u.y = $c4$u1;
+            controlSignal.u.z = $c4$u2;
             break;
         default: controlSignal = {};
     }
@@ -60,15 +61,18 @@ AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
     }
 
     /* Update integral windup. */
-    integralWindup.q123[0] += $int0;
-    integralWindup.q123[1] += $int1;
-    integralWindup.q123[2] += $int2;
-    if (fabs(integralWindup.q123[0]) > maxIntegralWindup)
-        integralWindup.q123[0] = copysign(maxIntegralWindup, integralWindup.q123[0]);
-    if (fabs(integralWindup.q123[1]) > maxIntegralWindup)
-        integralWindup.q123[1] = copysign(maxIntegralWindup, integralWindup.q123[1]);
-    if (fabs(integralWindup.q123[2]) > maxIntegralWindup)
-        integralWindup.q123[2] = copysign(maxIntegralWindup, integralWindup.q123[2]);
+    integralWindup.q.x += $int0;
+    integralWindup.q.y += $int1;
+    integralWindup.q.z += $int2;
+    if (fabs(integralWindup.q.x) > maxIntegralWindup)
+        integralWindup.q.x =
+            copysign(maxIntegralWindup, integralWindup.q.x);
+    if (fabs(integralWindup.q.y) > maxIntegralWindup)
+        integralWindup.q.y =
+            copysign(maxIntegralWindup, integralWindup.q.y);
+    if (fabs(integralWindup.q.z) > maxIntegralWindup)
+        integralWindup.q.z =
+            copysign(maxIntegralWindup, integralWindup.q.z);
 
     return integralWindup;
 }
@@ -86,84 +90,84 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
     AttitudeState innovation; /* = L (y - Cx) */
     switch (droneConfiguration) {
         case 1:
-            prediction.q[1] = $c1$p1;
-            prediction.q[2] = $c1$p2;
-            prediction.q[3] = $c1$p3;
-            prediction.w[0] = $c1$p4;
-            prediction.w[1] = $c1$p5;
-            prediction.w[2] = $c1$p6;
-            prediction.n[0] = $c1$p7;
-            prediction.n[1] = $c1$p8;
-            prediction.n[2] = $c1$p9;
-            innovation.q[1] = $c1$i1;
-            innovation.q[2] = $c1$i2;
-            innovation.q[3] = $c1$i3;
-            innovation.w[0] = $c1$i4;
-            innovation.w[1] = $c1$i5;
-            innovation.w[2] = $c1$i6;
-            innovation.n[0] = $c1$i7;
-            innovation.n[1] = $c1$i8;
-            innovation.n[2] = $c1$i9;
+            prediction.q.x = $c1$p1;
+            prediction.q.y = $c1$p2;
+            prediction.q.z = $c1$p3;
+            prediction.w.x = $c1$p4;
+            prediction.w.y = $c1$p5;
+            prediction.w.z = $c1$p6;
+            prediction.n.x = $c1$p7;
+            prediction.n.y = $c1$p8;
+            prediction.n.z = $c1$p9;
+            innovation.q.x = $c1$i1;
+            innovation.q.y = $c1$i2;
+            innovation.q.z = $c1$i3;
+            innovation.w.x = $c1$i4;
+            innovation.w.y = $c1$i5;
+            innovation.w.z = $c1$i6;
+            innovation.n.x = $c1$i7;
+            innovation.n.y = $c1$i8;
+            innovation.n.z = $c1$i9;
             break;
         case 2:
-            prediction.q[1] = $c2$p1;
-            prediction.q[2] = $c2$p2;
-            prediction.q[3] = $c2$p3;
-            prediction.w[0] = $c2$p4;
-            prediction.w[1] = $c2$p5;
-            prediction.w[2] = $c2$p6;
-            prediction.n[0] = $c2$p7;
-            prediction.n[1] = $c2$p8;
-            prediction.n[2] = $c2$p9;
-            innovation.q[1] = $c2$i1;
-            innovation.q[2] = $c2$i2;
-            innovation.q[3] = $c2$i3;
-            innovation.w[0] = $c2$i4;
-            innovation.w[1] = $c2$i5;
-            innovation.w[2] = $c2$i6;
-            innovation.n[0] = $c2$i7;
-            innovation.n[1] = $c2$i8;
-            innovation.n[2] = $c2$i9;
+            prediction.q.x = $c2$p1;
+            prediction.q.y = $c2$p2;
+            prediction.q.z = $c2$p3;
+            prediction.w.x = $c2$p4;
+            prediction.w.y = $c2$p5;
+            prediction.w.z = $c2$p6;
+            prediction.n.x = $c2$p7;
+            prediction.n.y = $c2$p8;
+            prediction.n.z = $c2$p9;
+            innovation.q.x = $c2$i1;
+            innovation.q.y = $c2$i2;
+            innovation.q.z = $c2$i3;
+            innovation.w.x = $c2$i4;
+            innovation.w.y = $c2$i5;
+            innovation.w.z = $c2$i6;
+            innovation.n.x = $c2$i7;
+            innovation.n.y = $c2$i8;
+            innovation.n.z = $c2$i9;
             break;
         case 3:
-            prediction.q[1] = $c3$p1;
-            prediction.q[2] = $c3$p2;
-            prediction.q[3] = $c3$p3;
-            prediction.w[0] = $c3$p4;
-            prediction.w[1] = $c3$p5;
-            prediction.w[2] = $c3$p6;
-            prediction.n[0] = $c3$p7;
-            prediction.n[1] = $c3$p8;
-            prediction.n[2] = $c3$p9;
-            innovation.q[1] = $c3$i1;
-            innovation.q[2] = $c3$i2;
-            innovation.q[3] = $c3$i3;
-            innovation.w[0] = $c3$i4;
-            innovation.w[1] = $c3$i5;
-            innovation.w[2] = $c3$i6;
-            innovation.n[0] = $c3$i7;
-            innovation.n[1] = $c3$i8;
-            innovation.n[2] = $c3$i9;
+            prediction.q.x = $c3$p1;
+            prediction.q.y = $c3$p2;
+            prediction.q.z = $c3$p3;
+            prediction.w.x = $c3$p4;
+            prediction.w.y = $c3$p5;
+            prediction.w.z = $c3$p6;
+            prediction.n.x = $c3$p7;
+            prediction.n.y = $c3$p8;
+            prediction.n.z = $c3$p9;
+            innovation.q.x = $c3$i1;
+            innovation.q.y = $c3$i2;
+            innovation.q.z = $c3$i3;
+            innovation.w.x = $c3$i4;
+            innovation.w.y = $c3$i5;
+            innovation.w.z = $c3$i6;
+            innovation.n.x = $c3$i7;
+            innovation.n.y = $c3$i8;
+            innovation.n.z = $c3$i9;
             break;
         case 4:
-            prediction.q[1] = $c4$p1;
-            prediction.q[2] = $c4$p2;
-            prediction.q[3] = $c4$p3;
-            prediction.w[0] = $c4$p4;
-            prediction.w[1] = $c4$p5;
-            prediction.w[2] = $c4$p6;
-            prediction.n[0] = $c4$p7;
-            prediction.n[1] = $c4$p8;
-            prediction.n[2] = $c4$p9;
-            innovation.q[1] = $c4$i1;
-            innovation.q[2] = $c4$i2;
-            innovation.q[3] = $c4$i3;
-            innovation.w[0] = $c4$i4;
-            innovation.w[1] = $c4$i5;
-            innovation.w[2] = $c4$i6;
-            innovation.n[0] = $c4$i7;
-            innovation.n[1] = $c4$i8;
-            innovation.n[2] = $c4$i9;
+            prediction.q.x = $c4$p1;
+            prediction.q.y = $c4$p2;
+            prediction.q.z = $c4$p3;
+            prediction.w.x = $c4$p4;
+            prediction.w.y = $c4$p5;
+            prediction.w.z = $c4$p6;
+            prediction.n.x = $c4$p7;
+            prediction.n.y = $c4$p8;
+            prediction.n.z = $c4$p9;
+            innovation.q.x = $c4$i1;
+            innovation.q.y = $c4$i2;
+            innovation.q.z = $c4$i3;
+            innovation.w.x = $c4$i4;
+            innovation.w.y = $c4$i5;
+            innovation.w.z = $c4$i6;
+            innovation.n.x = $c4$i7;
+            innovation.n.y = $c4$i8;
+            innovation.n.z = $c4$i9;
             break;
         default:
             prediction = {};
@@ -172,15 +176,15 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
     }
     QUAT_0(prediction);
     QUAT_0(innovation);
-    stateEstimate.q[0] = $x0;
-    stateEstimate.q[1] = $x1;
-    stateEstimate.q[2] = $x2;
-    stateEstimate.q[3] = $x3;
-    stateEstimate.w[0] = $x4;
-    stateEstimate.w[1] = $x5;
-    stateEstimate.w[2] = $x6;
-    stateEstimate.n[0] = $x7;
-    stateEstimate.n[1] = $x8;
-    stateEstimate.n[2] = $x9;
+    stateEstimate.q.w = $x0;
+    stateEstimate.q.x = $x1;
+    stateEstimate.q.y = $x2;
+    stateEstimate.q.z = $x3;
+    stateEstimate.w.x = $x4;
+    stateEstimate.w.y = $x5;
+    stateEstimate.w.z = $x6;
+    stateEstimate.n.x = $x7;
+    stateEstimate.n.y = $x8;
+    stateEstimate.n.z = $x9;
     return stateEstimate;
 }
