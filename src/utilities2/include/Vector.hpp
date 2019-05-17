@@ -58,11 +58,15 @@ struct Vec3f {
     inline Vec3f operator/(const float rhs) const {
         return Vec3f{this->x / rhs, this->y / rhs, this->z / rhs};
     }
+    static Vec3f abs(const Vec3f &v) {
+        return Vec3f{fabs(v.x), fabs(v.y), fabs(v.z)};
+    }
     static float normsq(const Vec3f &v) { return sq(v.x) + sq(v.y) + sq(v.z); }
     static float norm(const Vec3f &v) { return sqrt(normsq(v)); }
     static Vec3f round(const Vec3f &v) {
-        return Vec3f{std::round(v.x), std::round(v.y), std::round(v.z)};
+        return Vec3f{round(v.x), round(v.y), round(v.z)};
     }
+    Vec3f abs() { return abs(*this); }
     float normsq() { return normsq(*this); }
     float norm() { return norm(*this); }
     Vec3f round() { return round(*this); }

@@ -3,7 +3,8 @@
 #include <LogEntry.hpp>
 #include <SharedStruct.hpp>
 #include <cassert>
-#include <cmath>  // NAN
+#include <math>  // NAN
+#include <float.h>
 #include <ostream>
 
 /**
@@ -41,7 +42,7 @@ struct TestStruct : SharedStruct<TestStruct> {
 struct VisionPosition {
     float x = NAN, y = NAN;
     explicit operator bool() const volatile {
-        return !(std::isnan(x) || std::isnan(y));
+        return !(isnan(x) || isnan(y));
     }
     VisionPosition() = default;
     VisionPosition(float x, float y) : x{x}, y{y} {}

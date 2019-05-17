@@ -1,5 +1,6 @@
 #pragma once
 #include <Quaternion.hpp>
+#include <cmath>
 
 struct EulerAngles {
     float yaw;    ///< Z
@@ -27,12 +28,12 @@ struct EulerAngles {
      * Convert Euler angles to a quaternion.
      */
     static Quaternion eul2quat(const EulerAngles &eul) {
-        float cy = std::cos(eul.yaw / 2);
-        float sy = std::sin(eul.yaw / 2);
-        float cp = std::cos(eul.pitch / 2);
-        float sp = std::sin(eul.pitch / 2);
-        float cr = std::cos(eul.roll / 2);
-        float sr = std::sin(eul.roll / 2);
+        float cy = cos(eul.yaw / 2);
+        float sy = sin(eul.yaw / 2);
+        float cp = cos(eul.pitch / 2);
+        float sp = sin(eul.pitch / 2);
+        float cr = cos(eul.roll / 2);
+        float sr = sin(eul.roll / 2);
 
         return {
             cy * cp * cr + sy * sp * sr,

@@ -1,6 +1,8 @@
 #pragma once
 #include <Square.hpp>
 #include <Vector.hpp>
+#include <cmath>
+#include <climits>
 
 /** Struct representing a quaterniong. */
 struct Quaternion {
@@ -85,14 +87,14 @@ struct Quaternion {
         Vec3f cross     = {v.y, -v.x, 0};
         float crossNorm = cross.norm();
         cross.x /= crossNorm;
-        cross.y /= crossNorm;
+        cross.y /= crossNorm;`
 
         /* Calculate the angle ϑ. */
-        float angle = std::asin(crossNorm / v.norm());
+        float angle = asin(crossNorm / v.norm());
 
         /* Calculate the resulting quaternion. */
-        return Quaternion{std::cos(angle / 2), std::sin(angle / 2) * cross.x,
-                          std::sin(angle / 2) * cross.y,
-                          std::sin(angle / 2) * cross.z};
+        return Quaternion{cos(angle / 2), sin(angle / 2) * cross.x,
+                          sin(angle / 2) * cross.y,
+                          sin(angle / 2) * cross.z};
     }
 };
