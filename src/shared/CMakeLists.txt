@@ -9,4 +9,12 @@ add_library(shared INTERFACE)
 #   Any header files in the `src` directory are private, they are only required 
 #   to compile the implementation files of the library, users of the library
 #   should not include them.
-target_include_directories(shared INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(shared INTERFACE
+$<INSTALL_INTERFACE:include>
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
+
+install(TARGETS shared
+EXPORT shared
+INCLUDES DESTINATION include)
+install(EXPORT shared DESTINATION /tmp)

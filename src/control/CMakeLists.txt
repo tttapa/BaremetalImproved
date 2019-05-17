@@ -76,6 +76,7 @@ target_link_libraries(control
     PUBLIC
         communication
         misc
+        shared
         utilities2
     PRIVATE
         instances
