@@ -16,5 +16,6 @@ $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 
 install(TARGETS utilities2
 EXPORT utilities2
+ARCHIVE DESTINATION lib
 INCLUDES DESTINATION include)
 install(EXPORT utilities2 DESTINATION /tmp)
