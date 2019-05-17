@@ -67,8 +67,8 @@ void AttitudeController::clampControlSignal(float commonThrust) {
 
     /* Clamp ux, uy, uz such that all motor PWM duty cycles are in [0,1]. */
     // TODO: divide by e = epsilon + 1?
-    float absoluteSum    = std::abs(ux) + std::abs(uy) + std::abs(uz);
-    float maxAbsoluteSum = std::min(commonThrust, 1 - commonThrust);
+    float absoluteSum    = fabs(ux) + fabs(uy) + fabs(uz);
+    float maxAbsoluteSum = min(commonThrust, 1 - commonThrust);
     if (absoluteSum > maxAbsoluteSum) {
         float factor = maxAbsoluteSum / absoluteSum;
         ux *= factor;

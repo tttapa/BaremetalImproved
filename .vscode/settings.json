@@ -42,7 +42,9 @@
         "cstdarg": "cpp",
         "cstring": "cpp",
         "strstream": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "chrono": "cpp",
+        "ratio": "cpp"
     },
     "files.exclude": {
         "install-vivado": false // "false" = show flolder in file explorer

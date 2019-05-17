@@ -64,7 +64,7 @@ endif()
 # set (CMAKE_CXX_STANDARD 17)
 
 # Optimize during linking stage
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) # LTO
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE) # LTO
 
 # Allow linking the compiled code into a shared library (for Python modules)
 # set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -73,13 +73,11 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) # LTO
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 -O3 -g3 \
 -Wall -Wextra -Werror \
--Wsuggest-override \
--Wno-register \
 -Wno-missing-braces \
 -Wno-unknown-pragmas \
 -fdiagnostics-show-option \
 -DBAREMETAL \
--std=c++17")
+-std=c++14")
 
 # Compiler flags for C
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \

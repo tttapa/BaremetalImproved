@@ -69,7 +69,7 @@ constexpr int getIMUBits(IMUFrequency frequency) {
         case FREQ_238_HZ: return 0b10000000;
         case FREQ_476_HZ: return 0b10100000;
         case FREQ_952_HZ: return 0b11000000;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
+        
     }
 }
 
@@ -78,7 +78,7 @@ constexpr int getIMUBits(GyroMaxSpeed maxSpeed) {
         case SPEED_245_DPS: return 0b00000000;
         case SPEED_500_DPS: return 0b00001000;
         case SPEED_2000_DPS: return 0b00011000;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
+        
     }
 }
 
@@ -88,7 +88,7 @@ constexpr int getIMUBits(AccelMaxSpeed maxSpeed) {
         case SPEED_4_G: return 0b00010000;
         case SPEED_8_G: return 0b00011000;
         case SPEED_16_G: return 0b00001000;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
+        
     }
 }
 
@@ -98,7 +98,7 @@ constexpr float getIMUValue(IMUFrequency frequency) {
         case FREQ_238_HZ: return 238.0;
         case FREQ_476_HZ: return 476.0;
         case FREQ_952_HZ: return 952.0;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
+        
     }
 }
 
@@ -107,7 +107,7 @@ constexpr float getIMUValue(GyroMaxSpeed maxSpeed) {
         case SPEED_245_DPS: return 245.0;
         case SPEED_500_DPS: return 500.0;
         case SPEED_2000_DPS: return 2000.0;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
+        
     }
 }
 
@@ -117,7 +117,7 @@ constexpr float getIMUValue(AccelMaxSpeed maxSpeed) {
         case SPEED_4_G: return 4.0;
         case SPEED_8_G: return 8.0;
         case SPEED_16_G: return 16.0;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
+        
     }
 }
 
@@ -127,6 +127,6 @@ constexpr int getIMUFactor(IMUFrequency frequency) {
         case FREQ_238_HZ: return 2;
         case FREQ_476_HZ: return 3;
         case FREQ_952_HZ: return 4;
-        default: throw std::runtime_error(__PRETTY_FUNCTION__);
+        
     }
 }

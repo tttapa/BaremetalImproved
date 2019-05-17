@@ -24,12 +24,12 @@ struct Vec2f {
     }
 
     static Vec2f abs(const Vec2f &v) {
-        return Vec2f{std::abs(v.x), std::abs(v.y)};
+        return Vec2f{fabs(v.x), fabs(v.y)};
     }
     static float normsq(const Vec2f &v) { return sq(v.x) + sq(v.y); }
     static float norm(const Vec2f &v) { return sqrt(normsq(v)); }
     static Vec2f round(const Vec2f &v) {
-        return Vec2f{std::round(v.x), std::round(v.y)};
+        return Vec2f{round(v.x), round(v.y)};
     }
     Vec2f abs() { return abs(*this); }
     float normsq() { return normsq(*this); }
