@@ -127,7 +127,7 @@ void mainOperation() {
     Position positionMeasurementBlocks, positionMeasurement,
         correctedPositionMeasurement, globalPositionEstimate;
     static real_t yawMeasurement = 0.0;
-    bool hasNewIMPMeasurement = false;
+    bool hasNewIMPMeasurement    = false;
     if (visionComm->isDoneWriting()) {
         hasNewIMPMeasurement          = true;
         VisionData visionData         = visionComm->read();
@@ -603,9 +603,9 @@ void mainOperation() {
                                flightMode == FlightMode::AUTONOMOUS,
                                wptMode == WPTMode::ON};
     logEntry.wptMode          = wptMode;
-    logEntry.sensorHeightMeasurment = correctedSonarMeasurement;
+    logEntry.sensorHeightMeasurement   = correctedSonarMeasurement;
     logEntry.sensorPositionMeasurement = correctedPositionMeasurement;
-    logEntry.sensorYawMeasurement   = yawMeasurement;
+    logEntry.sensorYawMeasurement      = yawMeasurement;
 
     /* Output log data if logger is done writing. */
     if (loggerComm->isDoneReading())
