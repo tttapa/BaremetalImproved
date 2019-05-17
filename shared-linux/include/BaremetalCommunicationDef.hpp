@@ -3,7 +3,7 @@
 #include <LogEntry.hpp>
 #include <SharedStruct.hpp>
 #include <cassert>
-#include <math>  // NAN
+#include <cmath>  // NAN
 #include <float.h>
 #include <ostream>
 
