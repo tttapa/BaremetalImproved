@@ -2,8 +2,7 @@
 #include <math.h> /* sqrt */
 
 #define SQ(value) ((value) * (value))
-#define QUAT_0(value)                                                          \
-    (value.q.w = sqrt(1.0 - SQ(value.q.x) - SQ(value.q.y) - SQ(value.q.z)))
+#define QUAT_0(value) (value.q.w = sqrt(1.0 - SQ(value.q.x) - SQ(value.q.y) - SQ(value.q.z)))
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
