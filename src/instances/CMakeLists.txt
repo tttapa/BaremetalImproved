@@ -34,6 +34,7 @@ target_link_libraries(instances
         communication
         control
         misc
+        utilities2
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)
@@ -43,10 +44,8 @@ target_link_libraries(instances
 # endif()
 
 install(TARGETS instances
-        EXPORT instances
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT instances DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ControllerInstances.hpp

@@ -9,6 +9,4 @@ target_include_directories(src-vivado
 )
 
 install(TARGETS src-vivado
-        EXPORT src-vivado
         INCLUDES DESTINATION include)
-install(EXPORT src-vivado DESTINATION /tmp)

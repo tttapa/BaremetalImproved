@@ -77,16 +77,15 @@ target_link_libraries(control
         communication
         misc
         shared
+        utilities2
     PRIVATE
         instances
         src-vivado
 )
 
 install(TARGETS control
-        EXPORT control
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT control DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/Altitude.hpp

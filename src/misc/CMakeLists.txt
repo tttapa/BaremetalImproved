@@ -40,6 +40,7 @@ target_link_libraries(misc
         control
         instances
         shared
+        utilities2
         time
     PRIVATE
         src-vivado
@@ -52,10 +53,8 @@ target_link_libraries(misc
 # endif()
 
 install(TARGETS misc
-        EXPORT misc
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT misc DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ArmedManager.hpp

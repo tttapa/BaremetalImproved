@@ -45,10 +45,8 @@ if(NOT CMAKE_CROSSCOMPILING)
 endif()
 
 install(TARGETS main
-        EXPORT main
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT main DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/MainLoop.hpp
