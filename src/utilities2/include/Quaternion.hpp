@@ -1,5 +1,6 @@
 #pragma once
 #include <Square.hpp>
+#include <Vector.hpp>
 
 /** Struct representing a quaterniong. */
 struct Quaternion {
@@ -9,8 +10,7 @@ struct Quaternion {
     float z;
 
     Quaternion() : Quaternion{unit()} {}
-    Quaternion(float q0, float q1, float q2, float q3)
-        : q0{q0}, q1{q1}, q2{q2}, q3{q3} {}
+    Quaternion(float w, float x, float y, float Z) : w{w}, x{x}, y{y}, z{z} {}
 
     static Quaternion conjugate(const Quaternion &q) {
         return {q.w, -q.x, -q.y, -q.z};
