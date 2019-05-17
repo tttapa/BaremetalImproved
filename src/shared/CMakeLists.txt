@@ -44,11 +44,23 @@ target_link_libraries(shared
 install(TARGETS shared
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(
-FILES
+
+
+
+set (_resolvedFiles "")
+set (_files
     ${CMAKE_CURRENT_SOURCE_DIR}/include/BaremetalCommunicationDef.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GetLogData.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/LogEntry.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/LoggerStructs.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SharedStruct.hpp
+)
+
+foreach (_file ${_files})
+    get_filename_component(_resolvedFile "${_file}" REALPATH)
+    list (APPEND _resolvedFiles "${_resolvedFile}")
+endforeach()
+
+install(
+FILES ${_resolvedFiles}
 DESTINATION include)

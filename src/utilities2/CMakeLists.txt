@@ -17,3 +17,11 @@ $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 install(TARGETS utilities2
 ARCHIVE DESTINATION lib
 INCLUDES DESTINATION include)
+install(
+FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EulerAngles.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/MathFunctions.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Quaternion.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Square.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/Vector.hpp
+DESTINATION include)
