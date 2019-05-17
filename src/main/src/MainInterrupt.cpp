@@ -514,8 +514,8 @@ void mainOperation() {
             biasManager.getPitchBias(),
             biasManager.getRollBias(),
         });
-        float q1                = q12ref.q.x;
-        float q2                = q12ref.q.y;
+        float q1                = q12ref.q12.x;
+        float q2                = q12ref.q12.y;
         float q0                = 1 - sqrt(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);

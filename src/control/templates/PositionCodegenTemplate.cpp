@@ -26,20 +26,20 @@ PositionControlSignal PositionController::codegenControlSignal(
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q.x = $c1$u0;
-            controlSignal.q.y = $c1$u1;
+            controlSignal.q12.x = $c1$u0;
+            controlSignal.q12.y = $c1$u1;
             break;
         case 2:
-            controlSignal.q.x = $c2$u0;
-            controlSignal.q.y = $c2$u1;
+            controlSignal.q12.x = $c2$u0;
+            controlSignal.q12.y = $c2$u1;
             break;
         case 3:
-            controlSignal.q.x = $c3$u0;
-            controlSignal.q.y = $c3$u1;
+            controlSignal.q12.x = $c3$u0;
+            controlSignal.q12.y = $c3$u1;
             break;
         case 4:
-            controlSignal.q.x = $c4$u0;
-            controlSignal.q.y = $c4$u1;
+            controlSignal.q12.x = $c4$u0;
+            controlSignal.q12.y = $c4$u1;
             break;
         default: controlSignal = {};
     }
@@ -163,8 +163,8 @@ PositionState PositionController::codegenCurrentStateEstimate(
         stateEstimate.v.y = v1.y;
 
     /* Set orientation and position. */
-    stateEstimate.q.x = orientation.x;
-    stateEstimate.q.y = orientation.y;
+    stateEstimate.q12.x = orientation.x;
+    stateEstimate.q12.y = orientation.y;
     stateEstimate.p.x = measurement.p.x;
     stateEstimate.p.y = measurement.p.y;
 
@@ -190,8 +190,8 @@ PositionState PositionController::codegenCurrentStateEstimateBlind(
     stateEstimateBlind.v.y = $xBlind3;
 
     PositionState stateEstimate = {};
-    stateEstimate.q.x           = orientation.x;
-    stateEstimate.q.y           = orientation.y;
+    stateEstimate.q12.x           = orientation.x;
+    stateEstimate.q12.y           = orientation.y;
     stateEstimate.p             = stateEstimateBlind.p;
     stateEstimate.v             = stateEstimateBlind.v;
     return stateEstimate;

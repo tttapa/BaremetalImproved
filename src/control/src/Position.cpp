@@ -15,14 +15,14 @@ float dist(Position a, Position b) { return norm(b - a); }
 float distsq(Position a, Position b) { return normsq(b - a); }
 
 void PositionController::clampControlSignal() {
-    if (this->controlSignal.q.x > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q.x = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q.x < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q.x = -REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q.y > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q.y = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q.y < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q.y = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12.x > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12.x = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12.x < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12.x = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12.y > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12.y = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12.y < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12.y = -REFERENCE_QUATERNION_CLAMP;
 }
 
 void PositionController::init(Position currentPosition) {

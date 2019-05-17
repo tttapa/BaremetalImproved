@@ -47,13 +47,13 @@ if strcmp(controllerName, 'Attitude')
     
     if strcmp(struct,'y_int')
         if element == 1
-            string = 'integralWindup.q.x';
+            string = 'integralWindup.q123.x';
         end
         if element == 2
-            string = 'integralWindup.q.y';
+            string = 'integralWindup.q123.y';
         end
         if element == 3
-            string = 'integralWindup.q.z';
+            string = 'integralWindup.q123.z';
         end
     end
     
@@ -107,13 +107,13 @@ if strcmp(controllerName, 'Attitude')
     
     if strcmp(struct, 'u') 
        if element == 1
-           string = 'controlSignal.u.x';
+           string = 'controlSignal.uxyz.x';
        end
        if element == 2
-           string = 'controlSignal.u.y';
+           string = 'controlSignal.uxyz.y';
        end
        if element == 3
-           string = 'controlSignal.u.z';
+           string = 'controlSignal.uxyz.z';
        end
     end
     
@@ -256,10 +256,10 @@ if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'x_hat')
        if element == 1
-           string = 'stateEstimate.q.x';
+           string = 'stateEstimate.q12.x';
        end
        if element == 2
-           string = 'stateEstimate.q.y';
+           string = 'stateEstimate.q12.y';
        end
        if element == 3
            string = 'stateEstimate.p.x';
@@ -310,10 +310,10 @@ if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'u')
         if element == 1
-            string = 'controlSignalBlind.q.x';
+            string = 'controlSignalBlind.q12.x';
         end
         if element == 2
-            string = 'controlSignalBlind.q.y';
+            string = 'controlSignalBlind.q12.y';
         end
     end
      
