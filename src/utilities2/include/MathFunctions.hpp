@@ -10,9 +10,9 @@ namespace std2 {
     inline float roundf(float f) { return static_cast<float>(round(f)); }
     inline float cosf(float f) {return (float)cos(f);}
     inline float acosf(float f) {return (float)acos(f);}
-    inline float sinf(float f) {return (float)cos(f);}
-    inline float asinf(float f) {return (float)acos(f);}
-    inline float tanf(float f) {return (float)cos(f);}
-    inline float atanf(float f) {return (float)acos(f);}
+    inline float sinf(float f) {return (float)sin(f);}
+    inline float asinf(float f) {return (float)asin(f);}
+    inline float tanf(float f) {return (float)tan(f);}
+    inline float atanf(float f) {return (float)atan(f);}
     inline float atan2f(float f1, float f2) {return (float)atan2(f1, f2); }
 }
