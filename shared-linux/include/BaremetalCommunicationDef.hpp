@@ -42,7 +42,7 @@ struct TestStruct : SharedStruct<TestStruct> {
 struct VisionPosition {
     float x = NAN, y = NAN;
     explicit operator bool() const volatile {
-        return !(isnan(x) || isnan(y));
+        return !(std::isnan(x) || std::isnan(y));
     }
     VisionPosition() = default;
     VisionPosition(float x, float y) : x{x}, y{y} {}
