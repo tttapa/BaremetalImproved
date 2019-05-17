@@ -8,7 +8,7 @@
 #include <PublicHardwareConstants.hpp>  ///< TICKS_PER_SECOND
 
 /** Gradual thrust change lasts 1.0 seconds. */
-const real_t GTC_DURATION = 1.0;
+const float GTC_DURATION = 1.0;
 
 void GradualThrustChangeManager::init() {
     this->busy    = false;
@@ -16,7 +16,7 @@ void GradualThrustChangeManager::init() {
     this->thrust  = 0;
 }
 
-void GradualThrustChangeManager::start(real_t startThrust) {
+void GradualThrustChangeManager::start(float startThrust) {
     this->busy    = true;
     this->counter = 0;
     this->thrust  = startThrust;
@@ -28,10 +28,10 @@ void GradualThrustChangeManager::update() {
         return;
 
     /** Gradual thrust change duration in ticks. */
-    real_t GTC_DURATION_TICKS = TICKS_PER_SECOND * GTC_DURATION;
+    float GTC_DURATION_TICKS = TICKS_PER_SECOND * GTC_DURATION;
 
     /* Compute the number of ticks left. */
-    real_t ticksLeft = (real_t)(GTC_DURATION_TICKS - this->counter);
+    float ticksLeft = (float)(GTC_DURATION_TICKS - this->counter);
 
     /* If there are ticks left... */
     if (ticksLeft > 0)

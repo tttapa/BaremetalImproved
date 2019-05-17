@@ -1,6 +1,6 @@
 #include <Position.hpp>
 
-Position getCorrectedPosition(Position impMeasurement, real_t sonarMeasurement,
+Position getCorrectedPosition(Position impMeasurement, float sonarMeasurement,
                               Quaternion orientation) {
 
     /* Calculate x- and y-component of the down vector using
@@ -14,11 +14,11 @@ Position getCorrectedPosition(Position impMeasurement, real_t sonarMeasurement,
     return impMeasurement - sonarMeasurement * downVectorXY;
 }
 
-real_t getCorrectedHeight(real_t sonarMeasurement, Quaternion orientation) {
+float getCorrectedHeight(float sonarMeasurement, Quaternion orientation) {
 
     /* Calculate the z-component of the down vector using
        eagle-control-slides.pdf p.178. */
-    real_t downVectorZ =
+    float downVectorZ =
         -orientation.w * orientation.w + orientation.x * orientation.x +
         orientation.y * orientation.y - orientation.z * orientation.z;
 
@@ -28,7 +28,7 @@ real_t getCorrectedHeight(real_t sonarMeasurement, Quaternion orientation) {
 
 Position getGlobalPositionEstimate(Position correctedPositionMeasurement,
                                    PositionState lastPositionEstimate,
-                                   real_t Ts) {
+                                   float Ts) {
     Position expected = lastPositionEstimate.p + lastPositionEstimate.v * Ts;
     Position delta    = expected - lastPositionEstimate.p;
 

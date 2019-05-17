@@ -76,7 +76,7 @@ target_link_libraries(control
     PUBLIC
         communication
         misc
-        utilities
+        utilities2
     PRIVATE
         instances
         src-vivado

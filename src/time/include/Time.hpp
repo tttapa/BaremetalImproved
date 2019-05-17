@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include <real_t.h>
 
 /**
  * Increment the tick counter.
@@ -15,7 +14,7 @@ uint32_t getTickCount();
 /**
  * Get the time since startup in seconds.
  */
-real_t getTime();
+float getTime();
 
 /**
  * Get the number of milliseconds since boot.

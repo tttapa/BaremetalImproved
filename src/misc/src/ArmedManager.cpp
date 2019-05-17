@@ -24,8 +24,8 @@ static constexpr float ARMED_CHANGE_DELAY = 2.0;
 
 void ArmedManager::update() {
 
-    real_t throttle = getThrottle();
-    real_t yaw      = getYaw();
+    float throttle = getThrottle();
+    float yaw      = getYaw();
 
     /* Only do arming/disarming if we're in the changing zone. */
     if (throttle > THROTTLE_THRESHOLD ||

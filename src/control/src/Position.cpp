@@ -8,11 +8,11 @@
  * The largest reference quaternion component that can be sent to the attitude
  * control system is 0.0436.
  */
-static constexpr real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
+static constexpr float REFERENCE_QUATERNION_CLAMP = 0.0436;
 
-real_t dist(Position a, Position b) { return norm(b - a); }
+float dist(Position a, Position b) { return norm(b - a); }
 
-real_t distsq(Position a, Position b) { return normsq(b - a); }
+float distsq(Position a, Position b) { return normsq(b - a); }
 
 void PositionController::clampControlSignal() {
     if (this->controlSignal.q.x > REFERENCE_QUATERNION_CLAMP)

@@ -4,7 +4,6 @@
 #include <BaremetalCommunicationDef.hpp>  ///< VisionPosition
 #include <LoggerStructs.hpp>
 #include <Quaternion.hpp>
-#include <real_t.h>
 
 /* Use "Position" for readability: actual type is Vec2f. */
 using Position = Vec2f;
@@ -13,40 +12,40 @@ using Position = Vec2f;
 using HorizontalVelocity = Vec2f;
 
 /** Blocks to meters. */
-const real_t BLOCKS_TO_METERS = 0.30;
+const float BLOCKS_TO_METERS = 0.30;
 
 /** Meters to blocks. */
-const real_t METERS_TO_BLOCKS = 1.0 / BLOCKS_TO_METERS;
+const float METERS_TO_BLOCKS = 1.0 / BLOCKS_TO_METERS;
 
 /** Highest valid x-coordinate in blocks. */
-const real_t X_MAX_BLOCKS = 9.5;
+const float X_MAX_BLOCKS = 9.5;
 
 /** Lowest valid x-coordinate in blocks. */
-const real_t X_MIN_BLOCKS = -0.5;
+const float X_MIN_BLOCKS = -0.5;
 
 /** Center x-coordinate in blocks. */
-const real_t X_CENTER_BLOCKS = (X_MIN_BLOCKS + X_MAX_BLOCKS) / 2.0;
+const float X_CENTER_BLOCKS = (X_MIN_BLOCKS + X_MAX_BLOCKS) / 2.0;
 
 /** Highest valid y-coordinate in blocks. */
-const real_t Y_MAX_BLOCKS = 9.5;
+const float Y_MAX_BLOCKS = 9.5;
 
 /** Lowest valid y-coordinate in blocks. */
-const real_t Y_MIN_BLOCKS = -0.5;
+const float Y_MIN_BLOCKS = -0.5;
 
 /** Center y-coordinate in blocks. */
-const real_t Y_CENTER_BLOCKS = (Y_MIN_BLOCKS + Y_MAX_BLOCKS) / 2.0;
+const float Y_CENTER_BLOCKS = (Y_MIN_BLOCKS + Y_MAX_BLOCKS) / 2.0;
 
 /** Highest valid x-coordinate. */
-const real_t X_MAX = X_MAX_BLOCKS * BLOCKS_TO_METERS;
+const float X_MAX = X_MAX_BLOCKS * BLOCKS_TO_METERS;
 
 /** Lowest valid x-coordinate. */
-const real_t X_MIN = X_MIN_BLOCKS * BLOCKS_TO_METERS;
+const float X_MIN = X_MIN_BLOCKS * BLOCKS_TO_METERS;
 
 /** Highest valid y-coordinate. */
-const real_t Y_MAX = Y_MAX_BLOCKS * BLOCKS_TO_METERS;
+const float Y_MAX = Y_MAX_BLOCKS * BLOCKS_TO_METERS;
 
 /** Lowest valid y-coordinate. */
-const real_t Y_MIN = Y_MIN_BLOCKS * BLOCKS_TO_METERS;
+const float Y_MIN = Y_MIN_BLOCKS * BLOCKS_TO_METERS;
 
 struct PositionStateBlind {
     PositionStateBlind(Position p, HorizontalVelocity v) : p{p}, v{v} {}
@@ -71,7 +70,7 @@ struct PositionControlSignalBlind {
  * 
  * @return  the distance between the two given positions.
  */
-real_t dist(Position position1, Position position2);
+float dist(Position position1, Position position2);
 
 /**
  * Calculates the square of the distance the two given positions in meters.
@@ -83,7 +82,7 @@ real_t dist(Position position1, Position position2);
  * 
  * @return  the square of distance between the two given positions.
  */
-real_t distsq(Position position1, Position position2);
+float distsq(Position position1, Position position2);
 
 /**
  * Class to control the position of the drone. The first part is an observer to
@@ -114,7 +113,7 @@ class PositionController {
      * Time that the last measurement from the Image Processing team was
      * received (see Time.hpp).
      */
-    real_t lastMeasurementTime = 0.0;
+    float lastMeasurementTime = 0.0;
 
     /** Position measurement from IMP (or accelerometer data). */
     PositionMeasurement measurement;
@@ -244,7 +243,7 @@ class PositionController {
      */
     static PositionState codegenCurrentStateEstimate(
         PositionState stateEstimate, PositionMeasurement measurement,
-        Quaternion orientation, real_t timeElapsed, int droneConfiguration);
+        Quaternion orientation, float timeElapsed, int droneConfiguration);
 
     /**
      * Calculate the current position estimate using the code generator. This
@@ -272,7 +271,7 @@ class PositionController {
     PositionIntegralWindup getIntegralWindup() { return this->integralWindup; }
 
     /** Get the position controller's last measurement time. */
-    real_t getLastMeasurementTime() { return this->lastMeasurementTime; }
+    float getLastMeasurementTime() { return this->lastMeasurementTime; }
 
     /** Get the position controller's measurement. */
     PositionMeasurement getMeasurement() { return this->measurement; }

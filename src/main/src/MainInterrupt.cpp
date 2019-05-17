@@ -42,7 +42,7 @@ static WPTMode wptMode = WPTMode::OFF;
  * to happen, then there would be no room for the attitude controller to make
  * adjustments.
  */
-const real_t MAX_THROTTLE = 0.80;
+const float MAX_THROTTLE = 0.80;
 
 /**
  * If the throttle goes below 0.05, no thrust will be sent to the motors. In
@@ -118,15 +118,15 @@ void mainOperation() {
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement       = readSonar();
     bool shouldUpdateAltitudeObserver = hasNewSonarMeasurement;
-    real_t sonarMeasurement           = getFilteredSonarMeasurement();
-    real_t correctedSonarMeasurement  = getCorrectedHeight(
+    float sonarMeasurement           = getFilteredSonarMeasurement();
+    float correctedSonarMeasurement  = getCorrectedHeight(
         sonarMeasurement, attitudeController.getOrientationQuat());
 
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
     Position positionMeasurementBlocks, positionMeasurement,
         correctedPositionMeasurement, globalPositionEstimate;
-    static real_t yawMeasurement = 0.0;
+    static float yawMeasurement = 0.0;
     bool hasNewIMPMeasurement    = false;
     if (visionComm->isDoneWriting()) {
         hasNewIMPMeasurement          = true;
@@ -166,7 +166,7 @@ void mainOperation() {
      * =========================================================================
      */
     EulerAngles refEul;  // TODO: should this be like uc or upateAttitudeEuler?
-    static real_t uc;
+    static float uc;
 
     /**
      * =========================================================================
@@ -514,9 +514,9 @@ void mainOperation() {
             biasManager.getPitchBias(),
             biasManager.getRollBias(),
         });
-        real_t q1                = q12ref.q.x;
-        real_t q2                = q12ref.q.y;
-        real_t q0                = 1 - sqrt(q1 * q1 + q2 * q2);
+        float q1                = q12ref.q.x;
+        float q2                = q12ref.q.y;
+        float q0                = 1 - sqrt(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
 
@@ -555,7 +555,7 @@ void mainOperation() {
        [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
        passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
        versa. */
-    real_t yawJump =
+    float yawJump =
         calculateYawJump(attitudeController.getOrientationEuler().yaw);
     attitudeController.calculateJumpedQuaternions(yawJump);
 
@@ -618,20 +618,20 @@ void mainOperation() {
 }
 
 #pragma region Helper functions
-real_t calculateYawJump(real_t yaw) {
+float calculateYawJump(float yaw) {
 
     /* Whenever the yaw passes 10 degrees (0.1745 rad), it will jump to -10
        degrees and vice versa. */
-    static constexpr real_t MAX_RADS = 0.1745;
+    static constexpr float MAX_RADS = 0.1745;
 
     /* The size of the interval is 2*MAX_YAW. */
-    real_t size = 2 * MAX_RADS;
+    float size = 2 * MAX_RADS;
 
     /* Inner mod gives [0, 2*MAX_RADS) for positive numbers and (-2*MAX_RADS,0]
        for negative numbers. Adding MAX_RADS and modding by 2*MAX_RADS ensures
        that yaw+MAX_RADS maps to [0, 2*MAX_RADS). Subtracting MAX_RADS maps
        yaw to [-MAX_RADS, +MAX_RADS]. */
-    real_t modYaw = fmod(fmod(yaw + MAX_RADS, size) + size, size) - MAX_RADS;
+    float modYaw = fmod(fmod(yaw + MAX_RADS, size) + size, size) - MAX_RADS;
 
     /* Return the yaw jump. */
     return modYaw - yaw;

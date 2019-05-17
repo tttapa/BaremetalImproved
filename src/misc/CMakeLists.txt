@@ -39,7 +39,7 @@ target_link_libraries(misc
         communication
         control
         instances
-        utilities
+        utilities2
         time
     PRIVATE
         src-vivado

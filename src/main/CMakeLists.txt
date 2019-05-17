@@ -30,7 +30,7 @@ target_include_directories(main
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(main 
     PUBLIC
-        utilities
+        utilities2
     PRIVATE 
         quaternion
         communication

@@ -6,13 +6,13 @@
  * If the drone's velocity changes by more than 0.30 m/s between measurements,
  * and the velocity is moving away from 0 m/s, then reject the jump.
  */
-static constexpr real_t V_THRESHOLD_AWAY = 0.30;
+static constexpr float V_THRESHOLD_AWAY = 0.30;
 
 /**
  * If the drone's velocity changes by more than 0.50 m/s between measurements,
  * and the velocity is moving toward 0 m/s, then reject the jump.
  */
-static constexpr real_t V_THRESHOLD_TOWARDS = 0.50;
+static constexpr float V_THRESHOLD_TOWARDS = 0.50;
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
@@ -89,7 +89,7 @@ PositionIntegralWindup PositionController::codegenIntegralWindup(
     PositionState stateEstimate, int droneConfiguration) {
 
     /* Set maximum integral windup based on drone configuration. */
-    real_t maxIntegralWindup;
+    float maxIntegralWindup;
     switch (droneConfiguration) {
         case 1: maxIntegralWindup = $c1$maxWindup; break;
         case 2: maxIntegralWindup = $c2$maxWindup; break;
@@ -118,7 +118,7 @@ PositionIntegralWindup PositionController::codegenIntegralWindupBlind(
     PositionState stateEstimate, int droneConfiguration) {
 
     /* Set maximum integral windup based on drone configuration. */
-    real_t maxIntegralWindup;
+    float maxIntegralWindup;
     switch (droneConfiguration) {
         case 1: maxIntegralWindup = $c1$maxWindup; break;
         case 2: maxIntegralWindup = $c2$maxWindup; break;
@@ -144,7 +144,7 @@ PositionIntegralWindup PositionController::codegenIntegralWindupBlind(
  */
 PositionState PositionController::codegenCurrentStateEstimate(
     PositionState stateEstimate, PositionMeasurement measurement,
-    Quaternion orientation, real_t timeElapsed, int droneConfiguration) {
+    Quaternion orientation, float timeElapsed, int droneConfiguration) {
 
     /* Implement jump rejection to preserve a decent drone velocity. */
     HorizontalVelocity v0    = stateEstimate.v;

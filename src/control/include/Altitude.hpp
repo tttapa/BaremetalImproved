@@ -3,7 +3,7 @@
 /* Includes from src. */
 #include <LoggerStructs.hpp>
 #include <Quaternion.hpp>
-#include <real_t.h>
+
 
 /**
  * Class to control the altitude of the drone. The first part is an observer to
@@ -116,7 +116,7 @@ class AltitudeController {
     AltitudeReference getReference() { return this->reference; }
 
     /** Get the altitude controller's reference height. */
-    real_t getReferenceHeight() { return this->reference.z; }
+    float getReferenceHeight() { return this->reference.z; }
 
     /** Get the altitude controller's state estimate. */
     AltitudeState getStateEstimate() { return this->stateEstimate; }
@@ -125,7 +125,7 @@ class AltitudeController {
      * Reset the altitude controller. Set the estimate height and the reference
      * height to the given height.
      */
-    void init(real_t correctedSonarMeasurement);
+    void init(float correctedSonarMeasurement);
 
     /**
      * Set the altitude controller's reference height.

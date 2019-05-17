@@ -1,8 +1,5 @@
 #pragma once
 
-/* Includes from src. */
-#include <real_t.h>
-
 /** The startup script lasts 5.0 seconds. */
 const float STARTUP_DURATION = 5.0;
 
@@ -47,14 +44,14 @@ class ESCStartupScript {
      * Time at which the ESC startup began. This will allow the startup script
      * to keep track of how long it's been busy.
      */
-    real_t startupStartTime = 0.0;
+    float startupStartTime = 0.0;
 
     /**
      * Time at which the ESC shutdown began. This adds a small delay to the
      * shutdown of the ESCs in order to prevent an accidental shutdown mid
      * flight.
      */
-    real_t shutdownStartTime = 0.0;
+    float shutdownStartTime = 0.0;
 
   public:
     /**
@@ -108,5 +105,5 @@ class ESCStartupScript {
      *          startup script, if the script is enabled.
      * @return  The given signal, if the script is disabled.
      */
-    real_t update(real_t commonThrust);
+    float update(float commonThrust);
 };

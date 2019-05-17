@@ -19,38 +19,38 @@
  * If the drone is stays with 0.12 meters of its destination for a period of
  * time, then it will have converged on its target (horizontally).
  */
-static constexpr real_t CONVERGENCE_DISTANCE_HORIZONTAL = 0.12;
+static constexpr float CONVERGENCE_DISTANCE_HORIZONTAL = 0.12;
 
 /**
  * If the drone is stays with 0.05 meters of its reference height for a period
  * of time, then it will have converged on its target (vertically).
  */
-static constexpr real_t CONVERGENCE_DISTANCE_VERTICAL = 0.05;
+static constexpr float CONVERGENCE_DISTANCE_VERTICAL = 0.05;
 
 /**
  * If the drone is stays with a certain distance of its destination for 1
  * second, then it will have converged on its target.
  */
-static constexpr real_t CONVERGENCE_DURATION = 1.0;
+static constexpr float CONVERGENCE_DURATION = 1.0;
 
 /**
  * The blind stage of the landing, meaning the sonar is not accurate anymore,
  * lasts 2.5 seconds.
  */
-static constexpr real_t LANDING_BLIND_DURATION = 2.5;
+static constexpr float LANDING_BLIND_DURATION = 2.5;
 
 /**
  * During the blind stage of the landing, meaning the sonar is not accurate
  * anymore, a marginal signal of 1% below the hovering signal will be sent to
  * the "common motor".
  */
-static constexpr real_t LANDING_BLIND_MARGINAL_THRUST = -0.01;
+static constexpr float LANDING_BLIND_MARGINAL_THRUST = -0.01;
 
 /**
  * In the first stage of the landing procedure, when the sonar is accurate, the
  * reference height will decrease until it hits 0.25 meters.
  */
-static constexpr real_t LANDING_LOWEST_REFERENCE_HEIGHT = 0.25;
+static constexpr float LANDING_LOWEST_REFERENCE_HEIGHT = 0.25;
 ;
 
 /**
@@ -58,23 +58,23 @@ static constexpr real_t LANDING_LOWEST_REFERENCE_HEIGHT = 0.25;
  * reference height will decrease at a speed of 0.25 m/s until it hits the
  * minimum value, see getLandingLowestReferenceHeight().
  */
-static constexpr real_t LANDING_REFERENCE_HEIGHT_SPEED = 0.25;
+static constexpr float LANDING_REFERENCE_HEIGHT_SPEED = 0.25;
 
 /**
  * If the autonomous controller is in the state LOITERING, NAVIGATING or
  * CONVERGING, then the drone will land if the throttle value goes below
  * 0.05.
  */
-static constexpr real_t LANDING_THROTTLE = 0.05;
+static constexpr float LANDING_THROTTLE = 0.05;
 
 /** The autonomous controller will loiter for 15 seconds before navigating. */
-static constexpr real_t LOITER_DURATION_LONG = 15.0;
+static constexpr float LOITER_DURATION_LONG = 15.0;
 
 /**
  * The autonomous controller will loiter for 3 seconds before navigating. This
  * is the case during the TEST_QR_WALKING mode.
  */
-static constexpr real_t LOITER_DURATION_SHORT = 3.0;
+static constexpr float LOITER_DURATION_SHORT = 3.0;
 
 /**
  * If the Cryptography team fails to decrypt the image sent by the Image
@@ -100,44 +100,44 @@ static constexpr int MAX_QR_SEARCH_COUNT = 49;
  * When the drone is navigating in autonomous mode, the reference will travel at
  * a speed of 0.5 m/s.
  */
-static constexpr real_t NAVIGATION_SPEED = 0.5;
+static constexpr float NAVIGATION_SPEED = 0.5;
 
 /** The pre-takeoff stage lasts 6.0 seconds. */
-static constexpr real_t PRE_TAKEOFF_DURATION = 6.0;
+static constexpr float PRE_TAKEOFF_DURATION = 6.0;
 
 /** During the pre-takeoff stage, the common thrust will be set to 0.20. */
-static constexpr real_t PRE_TAKEOFF_COMMON_THRUST = 0.35;
+static constexpr float PRE_TAKEOFF_COMMON_THRUST = 0.35;
 
 /** The nominal reference height for the drone in autonomous mode is 1 meter. */
-static constexpr real_t REFERENCE_HEIGHT = 1.0;
+static constexpr float REFERENCE_HEIGHT = 1.0;
 
 /**
  * If the QR code could not be read well, try taking images ± 0.15 meters from
  * the nominal reference height.
  */
-static constexpr real_t REFERENCE_HEIGHT_ADJUSTMENT = 0.15;
+static constexpr float REFERENCE_HEIGHT_ADJUSTMENT = 0.15;
 
 /**
  * The blind stage of the takeoff, meaning the sonar is not yet accurate,
  * lasts 0.4 seconds.
  */
-static constexpr real_t TAKEOFF_BLIND_DURATION = 0.5;
+static constexpr float TAKEOFF_BLIND_DURATION = 0.5;
 
 /**
  * During the blind stage of the takeoff, meaning the sonar is not yet accurate,
  * a marginal signal of 3% above the hovering signal will be sent to the "common
  * motor".
  */
-static constexpr real_t TAKEOFF_BLIND_MARGINAL_THRUST = 0.04;
+static constexpr float TAKEOFF_BLIND_MARGINAL_THRUST = 0.04;
 
 /** The entire takeoff will last 2 seconds. */
-static constexpr real_t TAKEOFF_DURATION = 2.0;
+static constexpr float TAKEOFF_DURATION = 2.0;
 
 /**
  * If the autonomous controller is in the state IDLE_GROUND, then the drone
  * will take off if the throttle value exceeds 0.50.
  */
-static constexpr real_t TAKEOFF_THROTTLE = 0.50;
+static constexpr float TAKEOFF_THROTTLE = 0.50;
 #pragma endregion
 
 bool isValidSearchTarget(Position position) {
@@ -145,17 +145,17 @@ bool isValidSearchTarget(Position position) {
            position.y >= Y_MIN && position.y <= Y_MAX;
 }
 
-real_t AutonomousController::getElapsedTime() {
+float AutonomousController::getElapsedTime() {
     return getTime() - this->autonomousStateStartTime;
 }
 
 Position AutonomousController::getNextSearchTarget() {
-    real_t x = this->nextTarget.x;
-    real_t y = this->nextTarget.y;
+    float x = this->nextTarget.x;
+    float y = this->nextTarget.y;
 
     /* Spiral outward until we reach the next tile to check. */
-    real_t dx          = 1.0 * BLOCKS_TO_METERS;
-    real_t dy          = 0.0 * BLOCKS_TO_METERS;
+    float dx          = 1.0 * BLOCKS_TO_METERS;
+    float dy          = 0.0 * BLOCKS_TO_METERS;
     int tilesUntilTurn = 0;
     int nextTurnIndex  = 1;
     for (int i = 0; i < this->qrTilesSearched; i++) {
@@ -191,7 +191,7 @@ void AutonomousController::setNextTargetBlocks(Position targetBlocks) {
 
 void AutonomousController::startNavigating(Position nextTarget) {
     setNextTarget(nextTarget);
-    real_t d             = dist(this->previousTarget, this->nextTarget);
+    float d             = dist(this->previousTarget, this->nextTarget);
     this->navigationTime = d / NAVIGATION_SPEED;
     setAutonomousState(NAVIGATING);
 }
@@ -207,7 +207,7 @@ void AutonomousController::startNavigatingBlocks(
 
 AutonomousOutput
 AutonomousController::updateAutonomousFSM(Position currentPosition,
-                                          real_t currentHeight) {
+                                          float currentHeight) {
 
     /**
      * ============================ AUTONOMOUS FSM ============================
@@ -312,7 +312,7 @@ void AutonomousController::initGround(Position currentPosition) {
 }
 
 AutonomousOutput AutonomousController::update(Position currentPosition,
-                                              real_t currentHeight) {
+                                              float currentHeight) {
     updateQRFSM();
     return updateAutonomousFSM(currentPosition, currentHeight);
 }
@@ -628,7 +628,7 @@ AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
 
 AutonomousOutput
 AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
-                                                     real_t currentHeight) {
+                                                     float currentHeight) {
 
     /* Switch to LANDING, and land at the current position, if landing is
        enabled and the pilot lowers the throttle enough. */
@@ -656,10 +656,10 @@ AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
 
     /* Stay in CONVERGING until the QR FSM changes this FSM's state. Just reset
        the timer if we've exited the convergence distance. */
-    real_t horizontalDistanceSq    = distsq(currentPosition, nextTarget);
-    real_t maxHorizontalDistanceSq = sq(CONVERGENCE_DISTANCE_HORIZONTAL);
-    real_t verticalDistance    = std::abs(currentHeight - referenceHeight.z);
-    real_t maxVerticalDistance = CONVERGENCE_DISTANCE_VERTICAL;
+    float horizontalDistanceSq    = distsq(currentPosition, nextTarget);
+    float maxHorizontalDistanceSq = sq(CONVERGENCE_DISTANCE_HORIZONTAL);
+    float verticalDistance    = std::abs(currentHeight - referenceHeight.z);
+    float maxVerticalDistance = CONVERGENCE_DISTANCE_VERTICAL;
 
     bool inHorizontalBounds = horizontalDistanceSq <= maxHorizontalDistanceSq;
     bool inVerticalBounds   = verticalDistance <= maxVerticalDistance;
@@ -698,7 +698,7 @@ AutonomousController::updateAutonomousFSM_Navigating(Position currentPosition) {
 
     /* Otherwise, stay in NAVIGATING. Interpolate the reference point between
        the last target and the next target during this time. */
-    real_t factor          = getElapsedTime() / this->navigationTime;
+    float factor          = getElapsedTime() / this->navigationTime;
     Position delta         = (nextTarget - previousTarget) * factor;
     Position interpolation = previousTarget + delta;
 

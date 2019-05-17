@@ -74,10 +74,10 @@ class AutonomousController {
     AutonomousState autonomousState;
 
     /** Time that the autonomous controller entered its current state. */
-    real_t autonomousStateStartTime = 0.0;
+    float autonomousStateStartTime = 0.0;
 
     /** Estimated time to navigate from previous target to next target. */
-    real_t navigationTime = 0.0;
+    float navigationTime = 0.0;
 
     /** Next target position. */
     Position nextTarget;
@@ -118,7 +118,7 @@ class AutonomousController {
      * 
      * @return  Seconds passed since the current autonomous state was entered.
      */
-    real_t getElapsedTime();
+    float getElapsedTime();
 
     /**
      * Calculates the next target in an outward spiral search for the QR code.
@@ -210,7 +210,7 @@ class AutonomousController {
      * @return  The next AutonomousOutput.
      */
     AutonomousOutput updateAutonomousFSM(Position currentPosition,
-                                         real_t currentHeight);
+                                         float currentHeight);
 
     /**
      * Update the autonomous controller's QR finite state machine (FSM) only
@@ -227,7 +227,7 @@ class AutonomousController {
     AutonomousOutput updateAutonomousFSM_Takeoff();
     AutonomousOutput updateAutonomousFSM_Loitering(Position currentPosition);
     AutonomousOutput updateAutonomousFSM_Converging(Position currentPosition,
-                                                    real_t currentHeight);
+                                                    float currentHeight);
     AutonomousOutput updateAutonomousFSM_Navigating(Position currentPosition);
     AutonomousOutput updateAutonomousFSM_Landing();
     AutonomousOutput updateAutonomousFSM_WPT();
@@ -245,12 +245,12 @@ class AutonomousController {
     AutonomousState getAutonomousState() { return this->autonomousState; }
 
     /** Get the time that the autonomous controller entered its state. */
-    real_t getAutonomousStateStartTime() { return autonomousStateStartTime; }
+    float getAutonomousStateStartTime() { return autonomousStateStartTime; }
     /**
      * Get the autonomous controller's estimated time to navigate from its
      * previous target to its next target.
      */
-    real_t getNavigationTime() { return navigationTime; }
+    float getNavigationTime() { return navigationTime; }
 
     /** Get the autonomous controller's next target position. */
     Position getNextTarget() { return nextTarget; }
@@ -274,7 +274,7 @@ class AutonomousController {
     int getQRTilesSearched() { return qrTilesSearched; }
 
     /** Get the autonomous controller's reference height. */
-    real_t getReferenceHeight() { return referenceHeight.z; }
+    float getReferenceHeight() { return referenceHeight.z; }
 
     /**
      * Reset the autonomous controller to the IDLE_AIR state and set the
@@ -319,5 +319,5 @@ class AutonomousController {
      * 
      * @return  The next AutonomousOutput.
      */
-    AutonomousOutput update(Position currentPosition, real_t currentHeight);
+    AutonomousOutput update(Position currentPosition, float currentHeight);
 };

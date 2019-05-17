@@ -11,7 +11,7 @@ void incrementTickCount() { tickCount++; }
 
 uint32_t getTickCount() { return tickCount; }
 
-real_t getTime() { return SECONDS_PER_TICK * getTickCount(); }
+float getTime() { return SECONDS_PER_TICK * getTickCount(); }
 
 uint64_t getMillis() {
     auto now = std::chrono::system_clock::now().time_since_epoch();

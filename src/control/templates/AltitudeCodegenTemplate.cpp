@@ -36,7 +36,7 @@ AltitudeController::codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
                                           int droneConfiguration) {
 
     /* Set maximum integral windup based on drone configuration. */
-    real_t maxIntegralWindup;
+    float maxIntegralWindup;
     switch (droneConfiguration) {
         case 1: maxIntegralWindup = $c1$maxWindup; break;
         case 2: maxIntegralWindup = $c2$maxWindup; break;

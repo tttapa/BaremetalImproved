@@ -1,5 +1,4 @@
 #pragma once
-#include <real_t.h>
 
 /** Whether an interrupt is currently running. */
 extern volatile bool isInterruptRunning;
@@ -11,7 +10,7 @@ extern volatile bool isInterruptRunning;
  */
 
 // TODO: comments
-real_t calculateYawJump(float yaw);
+float calculateYawJump(float yaw);
 
 void mainOperation();
 

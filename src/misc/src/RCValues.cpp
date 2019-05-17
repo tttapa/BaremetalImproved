@@ -5,18 +5,18 @@ static RCInput rcInput;
 
 FlightMode getFlightMode() { return rcInput.flightMode; }
 
-real_t getPitch() { return rcInput.pitch; }
+float getPitch() { return rcInput.pitch; }
 
-real_t getRoll() { return rcInput.roll; }
+float getRoll() { return rcInput.roll; }
 
 RCInput getRCInput() { return rcInput; }
 
-real_t getThrottle() { return rcInput.throttle; }
+float getThrottle() { return rcInput.throttle; }
 
-real_t getTuner() { return rcInput.tuner; }
+float getTuner() { return rcInput.tuner; }
 
 WPTMode getWPTMode() { return rcInput.wptMode; }
 
-real_t getYaw() { return rcInput.yaw; }
+float getYaw() { return rcInput.yaw; }
 
 void setRCInput(RCInput values) { rcInput = values; }

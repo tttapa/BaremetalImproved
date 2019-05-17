@@ -22,7 +22,7 @@ static const Position NAVIGATION_TARGETS[NUM_NAVIGATION_TARGETS] = {
 static int navigationTargetIndex = 0;
 
 /** The threshold for initialization in the air is a thrust bias of 0.30. */
-static constexpr real_t THRUST_BIAS_THRESHOLD = 0.30;
+static constexpr float THRUST_BIAS_THRESHOLD = 0.30;
 
 /** Get the drone's test mode. */
 TestMode getTestMode() { return TEST_MODE; }

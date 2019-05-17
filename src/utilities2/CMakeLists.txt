@@ -1,5 +1,5 @@
 # Create library target and specify the implementation files to compile.
-add_library(utilities INTERFACE)
+add_library(utilities2 INTERFACE)
 
 # Set target include directories 
 #   These are the folders where the compiler will search for included header 
@@ -9,4 +9,4 @@ add_library(utilities INTERFACE)
 #   Any header files in the `src` directory are private, they are only required 
 #   to compile the implementation files of the library, users of the library
 #   should not include them.
-target_include_directories(utilities INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(utilities2 INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
