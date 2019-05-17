@@ -29,8 +29,6 @@ target_include_directories(main
 #   Libraries that are used in the public header files should be public,
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(main 
-    PUBLIC
-        utilities2
     PRIVATE 
         quaternion
         communication

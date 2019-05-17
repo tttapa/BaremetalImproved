@@ -40,7 +40,6 @@ target_link_libraries(misc
         control
         instances
         shared
-        utilities2
         time
     PRIVATE
         src-vivado

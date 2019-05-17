@@ -42,10 +42,8 @@ target_link_libraries(shared
 # endif()
 
 install(TARGETS shared
-        EXPORT shared
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT shared DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/BaremetalCommunicationDef.hpp
