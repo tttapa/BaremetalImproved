@@ -2,31 +2,30 @@
 
 /* Includes from src. */
 #include <LoggerStructs.hpp>              ///< RCInput
-#include <real_t.h>
 
 /** Get the current RC flight mode. */
 FlightMode getFlightMode();
 
 /** Get the current RC pitch in [-1, 1]. */
-real_t getPitch();
+float getPitch();
 
 /** Return the entire RC input. */
 RCInput getRCInput();
 
 /** Get the current RC roll in [-1, 1]. */
-real_t getRoll();
+float getRoll();
 
 /** Get the current RC throttle in [0, 1]. */
-real_t getThrottle();
+float getThrottle();
 
 /** Get the current RC tuner knob value in [-1, 1]. */
-real_t getTuner();
+float getTuner();
 
 /** Get the current RC WPT mode. */
 WPTMode getWPTMode();
 
 /** Get the current RC yaw in [-1, 1]. */
-real_t getYaw();
+float getYaw();
 
 /**
  *  Set the RC manager's RCInput to the given RCInput.

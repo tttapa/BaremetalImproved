@@ -11,7 +11,7 @@ Position getCorrectedPosition(Position impMeasurement, float sonarMeasurement,
     };
 
     /* Correct the position of the drone. */
-    return impMeasurement - sonarMeasurement * downVectorXY;
+    return impMeasurement - downVectorXY * sonarMeasurement;
 }
 
 float getCorrectedHeight(float sonarMeasurement, Quaternion orientation) {
@@ -35,6 +35,6 @@ Position getGlobalPositionEstimate(Position correctedPositionMeasurement,
     /* Calculate offset to be added to the given (x,y) using the expected
        location. E.g. expected (0, 0), measured (0.7, -1.1) should return
        (-0.6, +0.9). */
-    Position offsetBlocks = round(delta * METERS_TO_BLOCKS);
+    Position offsetBlocks = (delta * METERS_TO_BLOCKS).round();
     return correctedPositionMeasurement + offsetBlocks * BLOCKS_TO_METERS;
 }

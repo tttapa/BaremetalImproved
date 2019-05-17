@@ -9,7 +9,7 @@
  * @note    For simplicity, we'll assume that the byte order and padding of both
  *          machines is the same.
  */
-struct __attribute__((packed)) LogEntry {
+struct LogEntry {
   // private:
   //   size_t size;
   //

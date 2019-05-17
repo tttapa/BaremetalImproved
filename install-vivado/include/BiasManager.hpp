@@ -1,7 +1,6 @@
 #pragma once
 #include <Autonomous.hpp>     ///< AutonomousState
 #include <LoggerStructs.hpp>  ///< FlightMode
-#include <real_t.h>
 
 /**
  * Class to keep track of and to update the drone's three input biases. The
@@ -21,19 +20,19 @@ class BiasManager {
      * base value for the actual hovering thrust. This is set whenever the pilot
      * leaves ALTITUDE-HOLD mode.
      */
-    real_t autonomousHoveringThrust = 0.0;
+    float autonomousHoveringThrust = 0.0;
 
     /**
      * Bias to be added to the RC roll. In steady state, this will evolve to
      * the equilibrium roll. The unit of this variable is radians.
      */
-    real_t rollBias = 0.0;
+    float rollBias = 0.0;
 
     /**
      * Bias to be added to the RC pitch. In steady state, this will evolve
      * to the equilibrium pitch. The unit of this variable is radians.
      */
-    real_t pitchBias = 0.0;
+    float pitchBias = 0.0;
 
     /**
      * Bias to be added to the altitude controller's marginal thrust. In
@@ -41,7 +40,7 @@ class BiasManager {
      * no unit (duty cycle of "common motor" PWM signal), and must always be in
      * [0,1].
      */
-    real_t thrustBias = 0.0;
+    float thrustBias = 0.0;
 
   public:
     /**
@@ -54,19 +53,19 @@ class BiasManager {
      * as a base value for the actual hovering thrust. This is set whenever the
      * pilot leaves ALTITUDE-HOLD mode.
      */
-    real_t getAutonomousHoveringThrust() { return autonomousHoveringThrust; }
+    float getAutonomousHoveringThrust() { return autonomousHoveringThrust; }
 
     /** Get the current bias to be added to the RC roll. */
-    real_t getRollBias() { return rollBias; }
+    float getRollBias() { return rollBias; }
 
     /** Get the current bias to be added to the RC pitch. */
-    real_t getPitchBias() { return pitchBias; }
+    float getPitchBias() { return pitchBias; }
 
     /**
      * Get the current bias to be added to the altitude controller's
      * marginal thrust.
      */
-    real_t getThrustBias() { return thrustBias; }
+    float getThrustBias() { return thrustBias; }
 
     /**
      * Set the hovering thrust to the given value. This should be called when
@@ -81,13 +80,13 @@ class BiasManager {
      * @param   hoveringThrust
      *          New hovering thrust.
      */
-    void setAutonomousHoveringThrust(real_t hoveringThrust);
+    void setAutonomousHoveringThrust(float hoveringThrust);
 
     /**
      * Set the thrust bias. This should only be used after the blind stage of
      * takeoff in AUTONOMOUS mode.
      */
-    void setThrustBias(real_t hoveringThrust) {
+    void setThrustBias(float hoveringThrust) {
         this->thrustBias = hoveringThrust;
     }
 
@@ -100,7 +99,7 @@ class BiasManager {
      * @param   flightMode
      *          The flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS).
      */
-    void updateRollBias(real_t referenceRollRads, FlightMode flightMode);
+    void updateRollBias(float referenceRollRads, FlightMode flightMode);
 
     /**
      * Update the roll bias (exponential filter) using the given RC roll in
@@ -114,7 +113,7 @@ class BiasManager {
      *          The state the autonomous controller is in, which should only be
      *          specified if the flight mode is AUTONOMOUS.
      */
-    void updateRollBias(real_t referenceRollRads, FlightMode flightMode,
+    void updateRollBias(float referenceRollRads, FlightMode flightMode,
                         AutonomousState autonomousState);
 
     /**
@@ -127,7 +126,7 @@ class BiasManager {
      * @param   flightMode
      *          The flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS).
      */
-    void updatePitchBias(real_t referencePitchRads, FlightMode flightMode);
+    void updatePitchBias(float referencePitchRads, FlightMode flightMode);
 
     /**
      * Update the pitch bias (exponential filter) using the given RC pitch in
@@ -142,7 +141,7 @@ class BiasManager {
      *          The state the autonomous controller is in, which should only be
      *          specified if the flight mode is AUTONOMOUS.
      */
-    void updatePitchBias(real_t referencePitchRads, FlightMode flightMode,
+    void updatePitchBias(float referencePitchRads, FlightMode flightMode,
                          AutonomousState autonomousState);
 
     /**
@@ -154,5 +153,5 @@ class BiasManager {
      * @param   flightMode
      *          The flight mode of the drone (MANUAL/ALTITUTDE_HOLD/AUTONOMOUS).
      */
-    void updateThrustBias(real_t commonThrust, FlightMode flightMode);
+    void updateThrustBias(float commonThrust, FlightMode flightMode);
 };

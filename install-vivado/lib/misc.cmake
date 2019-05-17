@@ -53,7 +53,7 @@ add_library(misc STATIC IMPORTED)
 
 set_target_properties(misc PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "communication;control;instances;shared;time;\$<LINK_ONLY:src-vivado>"
+  INTERFACE_LINK_LIBRARIES "communication;control;instances;shared;utilities2;time;\$<LINK_ONLY:src-vivado>"
 )
 
 if(CMAKE_VERSION VERSION_LESS 2.8.12)
@@ -92,7 +92,7 @@ unset(_IMPORT_CHECK_TARGETS)
 # Make sure the targets which have been exported in some other 
 # export set exist.
 unset(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets)
-foreach(_target "control" "instances" "time" "src-vivado" )
+foreach(_target "control" "instances" "shared" "utilities2" "time" "src-vivado" )
   if(NOT TARGET "${_target}" )
     set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets "${${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets} ${_target}")
   endif()

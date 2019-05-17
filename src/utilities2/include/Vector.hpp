@@ -22,11 +22,16 @@ struct Vec2f {
     inline Vec2f operator/(const float rhs) const {
         return Vec2f{this->x / rhs, this->y / rhs};
     }
+
+    static Vec2f abs(const Vec2f &v) {
+        return Vec2f{std::abs(v.x), std::abs(v.y)};
+    }
     static float normsq(const Vec2f &v) { return sq(v.x) + sq(v.y); }
     static float norm(const Vec2f &v) { return sqrt(normsq(v)); }
     static Vec2f round(const Vec2f &v) {
         return Vec2f{std::round(v.x), std::round(v.y)};
     }
+    Vec2f abs() { return abs(*this); }
     float normsq() { return normsq(*this); }
     float norm() { return norm(*this); }
     Vec2f round() { return round(*this); }

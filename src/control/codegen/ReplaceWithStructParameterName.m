@@ -256,10 +256,10 @@ if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'x_hat')
        if element == 1
-           string = 'stateEstimate.q12.x';
+           string = 'stateEstimate.q.x';
        end
        if element == 2
-           string = 'stateEstimate.q12.y';
+           string = 'stateEstimate.q.y';
        end
        if element == 3
            string = 'stateEstimate.p.x';

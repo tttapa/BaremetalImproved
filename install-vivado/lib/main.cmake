@@ -53,7 +53,7 @@ add_library(main STATIC IMPORTED)
 
 set_target_properties(main PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "utilities;\$<LINK_ONLY:quaternion>;\$<LINK_ONLY:communication>;\$<LINK_ONLY:instances>;\$<LINK_ONLY:src-vivado>;\$<LINK_ONLY:logger>"
+  INTERFACE_LINK_LIBRARIES "utilities2;\$<LINK_ONLY:quaternion>;\$<LINK_ONLY:communication>;\$<LINK_ONLY:instances>;\$<LINK_ONLY:src-vivado>;\$<LINK_ONLY:shared>;\$<LINK_ONLY:logger>"
 )
 
 if(CMAKE_VERSION VERSION_LESS 2.8.12)
@@ -92,7 +92,7 @@ unset(_IMPORT_CHECK_TARGETS)
 # Make sure the targets which have been exported in some other 
 # export set exist.
 unset(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets)
-foreach(_target "instances" "src-vivado" "logger" )
+foreach(_target "utilities2" "instances" "src-vivado" "shared" )
   if(NOT TARGET "${_target}" )
     set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets "${${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE_targets} ${_target}")
   endif()

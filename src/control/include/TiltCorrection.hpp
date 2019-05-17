@@ -1,8 +1,8 @@
 #pragma once
 
 /* Includes from src. */
-#include <Quaternion.hpp>
 #include <Position.hpp>
+#include <Quaternion.hpp>
 
 /**
  * Correct the given measurement sent by the Image Processing team using the
@@ -20,9 +20,8 @@
  * @return  A column vector with two rows, representing the corrected position
  *          of the drone (x,y).
  */
-ColVector<2> getCorrectedPosition(ColVector<2> impMeasurement,
-                                  float sonarMeasurement,
-                                  Quaternion orientation);
+Position getCorrectedPosition(Position impMeasurement, float sonarMeasurement,
+                              Quaternion orientation);
 
 /**
  * Correct the given sonar measurement using the most recent orientation. For
@@ -37,8 +36,7 @@ ColVector<2> getCorrectedPosition(ColVector<2> impMeasurement,
  */
 float getCorrectedHeight(float sonarMeasurement, Quaternion orientation);
 
-
 // TODO: documentation
-ColVector<2>
-getGlobalPositionEstimate(ColVector<2> correctedPositionMeasurement,
-                          PositionState lastPositionEstimate, float Ts);
+Position getGlobalPositionEstimate(Position correctedPositionMeasurement,
+                                   PositionState lastPositionEstimate,
+                                   float Ts);

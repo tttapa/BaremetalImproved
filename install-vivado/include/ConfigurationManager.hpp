@@ -1,8 +1,5 @@
 #pragma once
 
-/* Includes from src. */
-#include <real_t.h>
-
 /**
  * There are 5 controller configurations, the last of which being the
  * calibration mode.
@@ -86,5 +83,5 @@ class ConfigurationManager {
      * @param   commonThrust
      *          Current signal to be sent to the "common motor".
      */
-    void update(real_t commonThrust);
+    void update(float commonThrust);
 };

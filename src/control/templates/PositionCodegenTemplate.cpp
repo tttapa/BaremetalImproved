@@ -149,8 +149,8 @@ PositionState PositionController::codegenCurrentStateEstimate(
     /* Implement jump rejection to preserve a decent drone velocity. */
     HorizontalVelocity v0    = stateEstimate.v;
     HorizontalVelocity v1    = (measurement.p - stateEstimate.p) / timeElapsed;
-    HorizontalVelocity absdV = abs(v1 - v0);
-    HorizontalVelocity dAbsV = abs(v1) - abs(v0);
+    HorizontalVelocity absdV = (v1 - v0).abs();
+    HorizontalVelocity dAbsV = v1.abs() - v0.abs();
 
     /* Jump rejection on x-velocity. */
     if ((dAbsV.x <= 0 && absdV.x < V_THRESHOLD_TOWARDS) ||  //
@@ -163,8 +163,8 @@ PositionState PositionController::codegenCurrentStateEstimate(
         stateEstimate.v.y = v1.y;
 
     /* Set orientation and position. */
-    stateEstimate.q12.x = orientation.x;
-    stateEstimate.q12.y = orientation.y;
+    stateEstimate.q.x = orientation.x;
+    stateEstimate.q.y = orientation.y;
     stateEstimate.p.x = measurement.p.x;
     stateEstimate.p.y = measurement.p.y;
 
@@ -190,8 +190,8 @@ PositionState PositionController::codegenCurrentStateEstimateBlind(
     stateEstimateBlind.v.y = $xBlind3;
 
     PositionState stateEstimate = {};
-    stateEstimate.q12.x           = orientation.x;
-    stateEstimate.q12.y           = orientation.y;
+    stateEstimate.q.x           = orientation.x;
+    stateEstimate.q.y           = orientation.y;
     stateEstimate.p             = stateEstimateBlind.p;
     stateEstimate.v             = stateEstimateBlind.v;
     return stateEstimate;

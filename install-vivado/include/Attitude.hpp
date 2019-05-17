@@ -4,7 +4,6 @@
 #include <EulerAngles.hpp>
 #include <LoggerStructs.hpp>
 #include <Quaternion.hpp>
-#include <real_t.h>
 
 /**
  * Transform the given attitude control signal to the duty cycles to be sent to
@@ -18,7 +17,7 @@
  * @return  The duty cycles to the four motors.
  */
 MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
-                                            real_t commonThrust);
+                                            float commonThrust);
 
 /**
  * Class to control the attitude of the drone. The first part is an observer to
@@ -80,7 +79,7 @@ class AttitudeController {
      *          Radians to add to the EulerAngles representation of the drone's
      *          orientation and the reference orientation.
      */
-    void calculateJumpedQuaternions(real_t yawJumpRads);
+    void calculateJumpedQuaternions(float yawJumpRads);
 
     /**
      * Clamp the current attitude control signal such that the corrections are
@@ -91,7 +90,7 @@ class AttitudeController {
      *          Control signal to be sent to the "common motor": this must be in
      *          [0,1].
      */
-    void clampControlSignal(real_t commonThrust);
+    void clampControlSignal(float commonThrust);
 
     /**
      * Calculate the current attitude control signal using the code generator.
@@ -240,7 +239,7 @@ class AttitudeController {
      * @return  The control signal to be sent to the "torque motors" until the
      *          next IMU measurement.
      */
-    AttitudeControlSignal updateControlSignal(real_t commonThrust);
+    AttitudeControlSignal updateControlSignal(float commonThrust);
 
     /**
      * Update the attitude observer with the given IMU measurement. This
@@ -256,7 +255,7 @@ class AttitudeController {
      *          Yaw jump calculated in the beginning of the clock cycle.
      */
     void updateObserver(AttitudeMeasurement measurement,
-                        real_t yawJumpToSubtract);
+                        float yawJumpToSubtract);
 
     /**
      * Update the attitude controller's reference orientation using the RC

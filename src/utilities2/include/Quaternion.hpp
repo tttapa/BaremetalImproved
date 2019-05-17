@@ -10,7 +10,7 @@ struct Quaternion {
     float z;
 
     Quaternion() : Quaternion{unit()} {}
-    Quaternion(float w, float x, float y, float Z) : w{w}, x{x}, y{y}, z{z} {}
+    Quaternion(float w, float x, float y, float z) : w{w}, x{x}, y{y}, z{z} {}
 
     static Quaternion conjugate(const Quaternion &q) {
         return {q.w, -q.x, -q.y, -q.z};
@@ -54,9 +54,9 @@ struct Quaternion {
         float M33 = 1 - 2 * sq(this->x) - 2 * sq(this->y);
 
         return Vec3f{
-            M11 * v.x + *M12 * v.y + M13 * v.z,  //
-            M21 * v.x + *M22 * v.y + M23 * v.z,  //
-            M31 * v.x + *M32 * v.y + M33 * v.z,  //
+            M11 * v.x + M12 * v.y + M13 * v.z,  //
+            M21 * v.x + M22 * v.y + M23 * v.z,  //
+            M31 * v.x + M32 * v.y + M33 * v.z,  //
         };
     }
 

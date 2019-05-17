@@ -10,9 +10,9 @@
  */
 static constexpr float REFERENCE_QUATERNION_CLAMP = 0.0436;
 
-float dist(Position a, Position b) { return norm(b - a); }
+float dist(Position a, Position b) { return Vec2f::norm(b - a); }
 
-float distsq(Position a, Position b) { return normsq(b - a); }
+float distsq(Position a, Position b) { return Vec2f::normsq(b - a); }
 
 void PositionController::clampControlSignal() {
     if (this->controlSignal.q12.x > REFERENCE_QUATERNION_CLAMP)
@@ -37,8 +37,8 @@ void PositionController::init(Position currentPosition) {
 void PositionController::correctPositionEstimateBlocks(
     Position correctPosition) {
     Position deltaBlocks = correctPosition - stateEstimate.p * METERS_TO_BLOCKS;
-    Position offsetBlocks = round(deltaBlocks);
-    this->stateEstimate.p += offsetBlocks * BLOCKS_TO_METERS;
+    Position offsetBlocks = deltaBlocks.round();
+    this->stateEstimate.p = stateEstimate.p + offsetBlocks * BLOCKS_TO_METERS;
 }
 
 void PositionController::correctPositionEstimateBlocks(
