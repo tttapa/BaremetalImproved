@@ -43,6 +43,7 @@ struct Quaternion {
     Vec3f rotate(const Vec3f &v) {
 
         /* Rotation matrix. */
+        float M11 = 1 - 2 * sq(this->y) - 2 * sq(this->z);
         float M12 = 2 * (this->x * this->y + this->w * this->z);
         float M13 = 2 * (this->x * this->z - this->w * this->y);
         float M21 = 2 * (this->x * this->y - this->w * this->z);
