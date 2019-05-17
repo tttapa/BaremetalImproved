@@ -1,1 +1,0 @@
-To implement: logging system

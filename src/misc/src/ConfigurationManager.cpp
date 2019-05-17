@@ -48,7 +48,7 @@ void ConfigurationManager::previousConfiguration() {
         controllerConfiguration = NUM_CONTROLLER_CONFIGS;
 }
 
-void ConfigurationManager::update(real_t commonThrust) {
+void ConfigurationManager::update(float commonThrust) {
 
     /* Only update the configuration if the common thrust is near zero. */
     if (commonThrust < THROTTLE_THRESHOLD)
@@ -60,7 +60,7 @@ void ConfigurationManager::update(real_t commonThrust) {
 
 void ConfigurationManager::updateConfig() {
 
-    real_t tunerValue = getTuner();
+    float tunerValue = getTuner();
 
     /* Only do configuration if we're in the changing zone. */
     if (tunerValue < CONFIG_UPPER_THRESHOLD &&
@@ -100,7 +100,7 @@ void ConfigurationManager::updateConfig() {
 
 void ConfigurationManager::updateWiggles() {
 
-    real_t tunerValue = getTuner();
+    float tunerValue = getTuner();
 
     /* Only do wiggles if the buzzer is not busy. */
     if (buzzerManager.isInstructionBusy())

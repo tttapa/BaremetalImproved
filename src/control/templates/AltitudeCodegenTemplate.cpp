@@ -1,6 +1,7 @@
 #include <Altitude.hpp>
 #include <math.h>   /* copysign, fabs */
 #include <string.h> /* memcpy */
+#include <MathFunctions.hpp>
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
@@ -21,6 +22,7 @@ AltitudeController::codegenControlSignal(AltitudeState stateEstimate,
         case 4: controlSignal.ut = $c4$u0; break;
         default: controlSignal = {};
     }
+    (void)integralWindup;
     return controlSignal;
 }
 
@@ -35,7 +37,7 @@ AltitudeController::codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
                                           int droneConfiguration) {
 
     /* Set maximum integral windup based on drone configuration. */
-    real_t maxIntegralWindup;
+    float maxIntegralWindup;
     switch (droneConfiguration) {
         case 1: maxIntegralWindup = $c1$maxWindup; break;
         case 2: maxIntegralWindup = $c2$maxWindup; break;
@@ -46,7 +48,7 @@ AltitudeController::codegenIntegralWindup(AltitudeIntegralWindup integralWindup,
 
     /* Update integral windup. */
     integralWindup.z += $int0;
-    if (fabs(integralWindup.z) > maxIntegralWindup)
+    if (std2::absf(integralWindup.z) > maxIntegralWindup)
         integralWindup.z = copysign(maxIntegralWindup, integralWindup.z);
 
     return integralWindup;

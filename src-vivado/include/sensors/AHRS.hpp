@@ -3,14 +3,14 @@
 /* Includes from src. */
 #include <EulerAngles.hpp>
 #include <Quaternion.hpp>
-#include <SensorTypes.hpp>  ///< IMUMeasurement
+#include <LoggerStructs.hpp>  ///< IMUMeasurement
 
 /* Includes from src-vivado. */
 #include <sensors/IMU.hpp>
 
 // TODO: comments
-EulerAngles getOrientationEuler();
-Quaternion getOrientationQuat();
+EulerAngles getAHRSOrientationEuler();
+Quaternion getAHRSOrientationQuat();
 void resetAHRSOrientation();
 
 /**
@@ -23,7 +23,7 @@ void resetAHRSOrientation();
  * @return  The quaternion representation of the orientation rotated by the
  *          given yaw "jump".
  */
-Quaternion getJumpedOrientation(float yawJumpToAdd);
+Quaternion getAHRSJumpedOrientation(float yawJumpToAdd);
 
 /**
  * Initialize the Attitude and Heading Reference System using the initial IMU measurement.

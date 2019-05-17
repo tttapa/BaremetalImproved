@@ -6,8 +6,8 @@ add_library(misc
     src/ConfigurationManager.cpp
     src/ESCStartupScript.cpp
     src/GradualThrustChangeManager.cpp
-    src/LoggerValues.cpp
     src/RCValues.cpp
+    src/TestMode.cpp
 )
 
 # Set target include directories 
@@ -39,10 +39,9 @@ target_link_libraries(misc
         communication
         control
         instances
-        quaternion
+        shared
+        utilities2
         time
-        utilities
-        vivado-types
     PRIVATE
         src-vivado
 )
@@ -54,10 +53,8 @@ target_link_libraries(misc
 # endif()
 
 install(TARGETS misc
-        EXPORT misc
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT misc DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ArmedManager.hpp
@@ -66,6 +63,6 @@ FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ConfigurationManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ESCStartupScript.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GradualThrustChangeManager.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/LoggerValues.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/RCValues.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/TestMode.hpp
 DESTINATION include)

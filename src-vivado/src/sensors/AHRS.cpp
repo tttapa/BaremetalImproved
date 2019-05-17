@@ -12,11 +12,11 @@ static EulerAngles orientationEuler;
 /** Orientation of the drone, updated by Madgwick's algorithm. */
 static Quaternion orientation;
 
-EulerAngles getOrientationEuler() { return orientationEuler; }
+EulerAngles getAHRSOrientationEuler() { return orientationEuler; }
 
-Quaternion getOrientationQuat() { return orientation; }
+Quaternion getAHRSOrientationQuat() { return orientation; }
 
-Quaternion getJumpedOrientation(float yawJumpToAdd) {
+Quaternion getAHRSJumpedOrientation(float yawJumpToAdd) {
     EulerAngles jumpedOrientationEuler = {orientationEuler.yaw + yawJumpToAdd,
                                           orientationEuler.pitch,
                                           orientationEuler.roll};
@@ -26,8 +26,7 @@ Quaternion getJumpedOrientation(float yawJumpToAdd) {
 void initAHRS(IMUMeasurement imu) {
     /* Use accelerometer values to ensure that the initial quaternion is
 	   oriented correctly. */
-    ColVector<3> accel = {imu.ax, imu.ay, imu.az};
-    orientation        = Quaternion::fromDirection(accel);
+    orientation = Quaternion::fromDirection(imu.accel.a);
 
     /* AHRS is now initialized. */
     xil_printf("AHRS init ok\r\n");

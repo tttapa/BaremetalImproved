@@ -2,79 +2,8 @@
 
 /* Includes from src. */
 #include <EulerAngles.hpp>
-#include <OutputTypes.hpp>  ///< MotorSignals
+#include <LoggerStructs.hpp>
 #include <Quaternion.hpp>
-#include <real_t.h>
-
-/**
- * Attitude reference to track consisting of a yaw, pitch and a roll in radians.
- */
-struct AttitudeReference {
-    AttitudeReference(real_t yaw, real_t pitch, real_t roll)
-        : yaw{yaw}, pitch{pitch}, roll{roll} {}
-    AttitudeReference() = default;
-    real_t yaw;
-    real_t pitch;
-    real_t roll;
-};
-
-/**
- * Attitude measurement consisiting of a yaw, pitch and a roll in radians.
- */
-struct AttitudeMeasurement {
-    AttitudeMeasurement(real_t yaw, real_t pitch, real_t roll)
-        : yaw{yaw}, pitch{pitch}, roll{roll} {}
-    AttitudeMeasurement() = default;
-    real_t yaw;
-    real_t pitch;
-    real_t roll;
-};
-
-/**
- * Attitude state consisting of a yaw, pitch, roll (rad), change in yaw, 
- * pitch, roll (rad/s), and torque motor angular velocities in rad/s.
- */
-struct AttitudeState {
-    AttitudeState(real_t yaw, real_t pitch, real_t roll, real_t wyaw,
-                  real_t wpitch, real_t wroll, real_t nyaw, real_t npitch,
-                  real_t nroll)
-        : yaw{yaw}, pitch{pitch}, roll{roll}, wyaw{wyaw}, wpitch{wpitch},
-          wroll{wroll}, nyaw{nyaw}, npitch{npitch}, nroll{nroll} {}
-    AttitudeState() = default;
-    real_t yaw;
-    real_t pitch;
-    real_t roll;
-    real_t wyaw;
-    real_t wpitch;
-    real_t wroll;
-    real_t nyaw;
-    real_t npitch;
-    real_t nroll;
-};
-
-/**
- * Integral of the error of the yaw, pitch and roll in radians.
- */
-struct AttitudeIntegralWindup {
-    AttitudeIntegralWindup(real_t yaw, real_t pitch, real_t roll)
-        : yaw{yaw}, pitch{pitch}, roll{roll} {}
-    AttitudeIntegralWindup() = default;
-    real_t yaw;
-    real_t pitch;
-    real_t roll;
-};
-
-/**
- * PWM control signals sent to the torque motors (3 components: uyaw, upitch, uroll).
- */
-struct AttitudeControlSignal {
-    AttitudeControlSignal(real_t uyaw, real_t upitch, real_t uroll)
-        : uyaw{uyaw}, upitch{upitch}, uroll{uroll} {}
-    AttitudeControlSignal() = default;
-    real_t uyaw;
-    real_t upitch;
-    real_t uroll;
-};
 
 /**
  * Transform the given attitude control signal to the duty cycles to be sent to
@@ -88,7 +17,7 @@ struct AttitudeControlSignal {
  * @return  The duty cycles to the four motors.
  */
 MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
-                                            real_t commonThrust);
+                                            float commonThrust);
 
 /**
  * Class to control the attitude of the drone. The first part is an observer to
@@ -115,6 +44,9 @@ class AttitudeController {
      * too large.
      */
     EulerAngles orientationEuler;
+
+    /** Measurement orientation and angular velocity from the IMU and AHRS. */
+    AttitudeMeasurement measurement;
 
     /** Reference orientation to track. */
     AttitudeReference reference;
@@ -147,7 +79,7 @@ class AttitudeController {
      *          Radians to add to the EulerAngles representation of the drone's
      *          orientation and the reference orientation.
      */
-    void calculateJumpedQuaternions(real_t yawJumpRads);
+    void calculateJumpedQuaternions(float yawJumpRads);
 
     /**
      * Clamp the current attitude control signal such that the corrections are
@@ -158,7 +90,7 @@ class AttitudeController {
      *          Control signal to be sent to the "common motor": this must be in
      *          [0,1].
      */
-    void clampControlSignal(real_t commonThrust);
+    void clampControlSignal(float commonThrust);
 
     /**
      * Calculate the current attitude control signal using the code generator.
@@ -225,6 +157,9 @@ class AttitudeController {
     /** Get the attitude controller's integral windup. */
     AttitudeIntegralWindup getIntegralWindup() { return this->integralWindup; }
 
+    /** Get the attitude controller's measurement. */
+    AttitudeMeasurement getMeasurement() { return this->measurement; }
+
     /**
      * Returns the EulerAngles representation of the attitude controller's
      * estimate of the drone's orientation. This representation facilitates the
@@ -290,7 +225,7 @@ class AttitudeController {
      * @return  The control signal to be sent to the "torque motors" until the
      *          next IMU measurement.
      */
-    AttitudeControlSignal updateControlSignal(real_t commonThrust);
+    AttitudeControlSignal updateControlSignal(float commonThrust);
 
     /**
      * Update the attitude observer with the given IMU measurement. This
@@ -306,7 +241,7 @@ class AttitudeController {
      *          Yaw jump calculated in the beginning of the clock cycle.
      */
     void updateObserver(AttitudeMeasurement measurement,
-                        real_t yawJumpToSubtract);
+                        float yawJumpToSubtract);
 
     /**
      * Update the attitude controller's reference orientation using the RC

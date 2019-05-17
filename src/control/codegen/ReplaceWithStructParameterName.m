@@ -172,10 +172,10 @@ if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'x_hat')
        if element == 1
-           string = 'stateEstimate.q1';
+           string = 'stateEstimate.q.x';
        end
        if element == 2
-           string = 'stateEstimate.q2';
+           string = 'stateEstimate.q.y';
        end
        if element == 3
            string = 'stateEstimate.p.x';
@@ -184,10 +184,10 @@ if strcmp(controllerName, 'Position')
            string = 'stateEstimate.p.y';
        end
        if element == 5
-           string = 'stateEstimate.vx';
+           string = 'stateEstimate.v.x';
        end
        if element == 6
-           string = 'stateEstimate.vy';
+           string = 'stateEstimate.v.y';
        end
     end
     
@@ -202,10 +202,10 @@ if strcmp(controllerName, 'Position')
     
     if strcmp(struct, 'y_int')
         if element == 1
-            string = 'integralWindup.x';
+            string = 'integralWindup.p.x';
         end
         if element == 2
-            string = 'integralWindup.y';
+            string = 'integralWindup.p.y';
         end
     end
     
@@ -217,19 +217,19 @@ if strcmp(controllerName, 'Position')
            string = 'stateEstimateBlindCopy.p.y';
        end
        if element == 3
-           string = 'stateEstimateBlindCopy.vx';
+           string = 'stateEstimateBlindCopy.v.x';
        end
        if element == 4
-           string = 'stateEstimateBlindCopy.vy';
+           string = 'stateEstimateBlindCopy.v.y';
        end
     end
     
     if strcmp(struct, 'u')
         if element == 1
-            string = 'controlSignalBlind.q1';
+            string = 'controlSignalBlind.q12.x';
         end
         if element == 2
-            string = 'controlSignalBlind.q2';
+            string = 'controlSignalBlind.q12.y';
         end
     end
      

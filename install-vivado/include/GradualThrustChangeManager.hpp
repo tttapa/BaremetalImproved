@@ -1,8 +1,5 @@
 #pragma once
 
-/* Includes from src. */
-#include <real_t.h>
-
 /**
  * A class to manage the gradual thrust change. Gradual thrust change gives the
  * pilot an extra second to react when switching from "altitude-hold mode" to
@@ -16,16 +13,16 @@ class GradualThrustChangeManager {
 
   private:
     /** A boolean representing whether the gradual thrust change is busy. */
-    bool busy;
+    bool busy = false;
 
     /**
      * A counter to keep track of how long the gradual thrust change has been
      * busy.
      */
-    int counter;
+    int counter = 0;
 
     /** The common thrust as a result of the gradual thrust change. */
-    real_t thrust;
+    float thrust = 0.0;
 
   public:
     /**
@@ -36,7 +33,7 @@ class GradualThrustChangeManager {
     /**
      * Return the common thrust as a result of the gradual thrust change.
      */
-    real_t getThrust() { return this->thrust; };
+    float getThrust() { return this->thrust; };
 
     /**
      * Start the gradual thrust change. The gradual thrust change manager's
@@ -47,7 +44,7 @@ class GradualThrustChangeManager {
      *          The initial thrust to assign to the thrust of the gradual thrust 
      *          change manager when it's started.
      */
-    void start(real_t startThrust);
+    void start(float startThrust);
 
     /** 
      * Initialize the gradual thrust change manager.

@@ -2,6 +2,7 @@
 
 /* Includes from src. */
 #include <ArmedManager.hpp>
+#include <BiasManager.hpp>
 #include <BuzzerManager.hpp>
 #include <ConfigurationManager.hpp>
 #include <ESCStartupScript.hpp>
@@ -9,6 +10,9 @@
 
 /** Instance of the armed manager. */
 extern ArmedManager armedManager;
+
+/** Instance of the input bias manager. */
+extern BiasManager biasManager;
 
 /** Instance of the buzzer manager. */
 extern BuzzerManager buzzerManager;

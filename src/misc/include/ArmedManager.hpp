@@ -1,8 +1,5 @@
 #pragma once
 
-/* Includes from src. */
-#include <real_t.h>
-
 /**
  * Class to control whether the drone is armed or disarmed. To arm the drone,
  * the pilot must hold the left joystick in the bottom-right corner for 2
@@ -25,7 +22,7 @@ class ArmedManager {
     bool isWaitingForChange = false;
 
     /** Time at which the drone started waiting to arm or disarm. */
-    real_t waitingStartTime = 0.0;
+    float waitingStartTime = 0.0;
 
   public:
     /**

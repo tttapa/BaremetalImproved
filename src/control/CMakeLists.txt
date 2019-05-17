@@ -74,28 +74,18 @@ target_include_directories(control
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(control 
     PUBLIC
-        misc
-        quaternion
-        utilities
-        vivado-types
-    PRIVATE
         communication
+        misc
+        shared
+        utilities2
+    PRIVATE
         instances
-        time
         src-vivado
 )
 
-if(NOT CMAKE_CROSSCOMPILING)
-    # Run CMake again in the `test` folder, to discover the CMakeLists.txt file 
-    # that adds the tests.
-    add_subdirectory(test) 
-endif()
-
 install(TARGETS control
-        EXPORT control
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT control DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/Altitude.hpp

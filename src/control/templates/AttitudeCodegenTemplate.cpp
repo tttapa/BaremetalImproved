@@ -1,40 +1,40 @@
 #include <Attitude.hpp>
+#include <MathFunctions.hpp>
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template, or in the MATLAB code generator.
  */
-AttitudeControlSignal
-AttitudeController::codegenControlSignal(AttitudeState stateEstimate,
-                                         AttitudeReference reference,
-                                         AttitudeIntegralWindup integralWindup,
-                                         int droneConfiguration) {
+AttitudeControlSignal AttitudeController::codegenControlSignal(
+    AttitudeState stateEstimate, AttitudeReference reference,
+    AttitudeIntegralWindup integralWindup, int droneConfiguration) {
 
     /* Calculate control signal based on drone configuration. */
     AttitudeControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.ux = $c1$u0;
-            controlSignal.uy = $c1$u1;
-            controlSignal.uz = $c1$u2;
+            controlSignal.uxyz.x = $c1$u0;
+            controlSignal.uxyz.y = $c1$u1;
+            controlSignal.uxyz.z = $c1$u2;
             break;
         case 2:
-            controlSignal.ux = $c2$u0;
-            controlSignal.uy = $c2$u1;
-            controlSignal.uz = $c2$u2;
+            controlSignal.uxyz.x = $c2$u0;
+            controlSignal.uxyz.y = $c2$u1;
+            controlSignal.uxyz.z = $c2$u2;
             break;
         case 3:
-            controlSignal.ux = $c3$u0;
-            controlSignal.uy = $c3$u1;
-            controlSignal.uz = $c3$u2;
+            controlSignal.uxyz.x = $c3$u0;
+            controlSignal.uxyz.y = $c3$u1;
+            controlSignal.uxyz.z = $c3$u2;
             break;
         case 4:
-            controlSignal.ux = $c4$u0;
-            controlSignal.uy = $c4$u1;
-            controlSignal.uz = $c4$u2;
+            controlSignal.uxyz.x = $c4$u0;
+            controlSignal.uxyz.y = $c4$u1;
+            controlSignal.uxyz.z = $c4$u2;
             break;
         default: controlSignal = {};
     }
+    (void) integralWindup;
     return controlSignal;
 }
 
@@ -42,14 +42,12 @@ AttitudeController::codegenControlSignal(AttitudeState stateEstimate,
  * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template, or in the MATLAB code generator.
  */
-AttitudeIntegralWindup
-AttitudeController::codegenIntegralWindup(AttitudeIntegralWindup integralWindup,
-                                          AttitudeReference reference,
-                                          AttitudeState stateEstimate,
-                                          int droneConfiguration) {
+AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
+    AttitudeIntegralWindup integralWindup, AttitudeReference reference,
+    AttitudeState stateEstimate, int droneConfiguration) {
 
     /* Set maximum integral windup based on drone configuration. */
-    real_t maxIntegralWindup;
+    float maxIntegralWindup;
     switch (droneConfiguration) {
         case 1: maxIntegralWindup = $c1$maxWindup; break;
         case 2: maxIntegralWindup = $c2$maxWindup; break;
@@ -59,15 +57,18 @@ AttitudeController::codegenIntegralWindup(AttitudeIntegralWindup integralWindup,
     }
 
     /* Update integral windup. */
-    integralWindup.q1 += $int0;
-    integralWindup.q2 += $int1;
-    integralWindup.q3 += $int2;
-    if (fabs(integralWindup.q1) > maxIntegralWindup)
-        integralWindup.q1 = copysign(maxIntegralWindup, integralWindup.q1);
-    if (fabs(integralWindup.q2) > maxIntegralWindup)
-        integralWindup.q2 = copysign(maxIntegralWindup, integralWindup.q2);
-    if (fabs(integralWindup.q3) > maxIntegralWindup)
-        integralWindup.q3 = copysign(maxIntegralWindup, integralWindup.q3);
+    integralWindup.q123.x += $int0;
+    integralWindup.q123.y += $int1;
+    integralWindup.q123.z += $int2;
+    if (std2::absf(integralWindup.q123.x) > maxIntegralWindup)
+        integralWindup.q123.x =
+            copysign(maxIntegralWindup, integralWindup.q123.x);
+    if (std2::absf(integralWindup.q123.y) > maxIntegralWindup)
+        integralWindup.q123.y =
+            copysign(maxIntegralWindup, integralWindup.q123.y);
+    if (std2::absf(integralWindup.q123.z) > maxIntegralWindup)
+        integralWindup.q123.z =
+            copysign(maxIntegralWindup, integralWindup.q123.z);
 
     return integralWindup;
 }
@@ -76,11 +77,9 @@ AttitudeController::codegenIntegralWindup(AttitudeIntegralWindup integralWindup,
  * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template, or in the MATLAB code generator.
  */
-AttitudeState
-AttitudeController::codegenNextStateEstimate(AttitudeState stateEstimate,
-                                             AttitudeControlSignal controlSignal,
-                                             AttitudeMeasurement measurement,
-                                             int droneConfiguration) {
+AttitudeState AttitudeController::codegenNextStateEstimate(
+    AttitudeState stateEstimate, AttitudeControlSignal controlSignal,
+    AttitudeMeasurement measurement, int droneConfiguration) {
 
     /* Calculate next state using Kalman Filter based on drone configuration. */
     switch (droneConfiguration) {

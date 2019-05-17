@@ -1,47 +1,34 @@
 #pragma once
 
 /* Includes from src. */
-#include <BaremetalCommunicationDef.hpp>  ///< FlightMode, WPTMode
-#include <SensorTypes.hpp>                ///< RCInput
-#include <real_t.h>
+#include <LoggerStructs.hpp>              ///< RCInput
 
-/**
- * Get the current RC flight mode.
- */
+/** Get the current RC flight mode. */
 FlightMode getFlightMode();
 
-/**
- * Get the current RC pitch.
- */
-real_t getPitch();
+/** Get the current RC pitch in [-1, 1]. */
+float getPitch();
 
-/**
- * Get the current RC roll.
- */
-real_t getRoll();
+/** Return the entire RC input. */
+RCInput getRCInput();
 
-/**
- * Get the current RC throttle.
- */
-real_t getThrottle();
+/** Get the current RC roll in [-1, 1]. */
+float getRoll();
 
-/**
- * Get the current RC tuner knob value.
- */
-real_t getTuner();
+/** Get the current RC throttle in [0, 1]. */
+float getThrottle();
 
-/**
- * Get the current RC WPT mode.
- */
+/** Get the current RC tuner knob value in [-1, 1]. */
+float getTuner();
+
+/** Get the current RC WPT mode. */
 WPTMode getWPTMode();
 
-/**
- * Get the current RC yaw.
- */
-real_t getYaw();
+/** Get the current RC yaw in [-1, 1]. */
+float getYaw();
 
 /**
- * Set the RC manager's RCInput to the given RCInput.
+ *  Set the RC manager's RCInput to the given RCInput.
  * 
  * @param   this->rcInput
  *          New RCInput, see RC.hpp.

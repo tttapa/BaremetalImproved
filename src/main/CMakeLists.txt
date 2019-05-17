@@ -29,13 +29,13 @@ target_include_directories(main
 #   Libraries that are used in the public header files should be public,
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(main 
-    PUBLIC
-        utilities
     PRIVATE 
         quaternion
         communication
         instances
         src-vivado
+        shared
+        logger
 )
 
 if(NOT CMAKE_CROSSCOMPILING)
@@ -45,10 +45,8 @@ if(NOT CMAKE_CROSSCOMPILING)
 endif()
 
 install(TARGETS main
-        EXPORT main
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT main DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/MainLoop.hpp

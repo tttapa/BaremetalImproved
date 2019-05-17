@@ -91,9 +91,9 @@ FlightMode getFlightMode(float flightModeValue) {
 
     /* Get the current flight mode from the RC. */
     FlightMode newFlightMode;
-    if (flightModeValue < 1.0 / 3.0 * (RC_HIGH - RC_LOW))
+    if (flightModeValue < RC_LOW + 1.0 / 3.0 * (RC_HIGH - RC_LOW))
         newFlightMode = FlightMode::MANUAL;
-    else if (flightModeValue < 2.0 / 3.0 * (RC_HIGH - RC_LOW))
+    else if (flightModeValue < RC_LOW + 2.0 / 3.0 * (RC_HIGH - RC_LOW))
         newFlightMode = FlightMode::ALTITUDE_HOLD;
     else
         newFlightMode = FlightMode::AUTONOMOUS;
@@ -263,8 +263,8 @@ RCInput readRC() {
     float roll            = -rescaleMid(clampMid(getRCValue(ROLL_ADDR)));
     float yaw             = -rescaleMid(clampMid(getRCValue(YAW_ADDR)));
     float tuner           = rescaleMid(clampMid(getRCValue(TUNER_ADDR)));
-    float flightModeValue = rescale(clamp(getRCValue(FLIGHT_MODE_ADDR)));
-    float wptValue        = rescale(clamp(getRCValue(WPT_MODE_ADDR)));
+    float flightModeValue = clamp(getRCValue(FLIGHT_MODE_ADDR));
+    float wptValue        = clamp(getRCValue(WPT_MODE_ADDR));
 
     return RCInput{
         throttle,

@@ -1,95 +1,64 @@
 #pragma once
 
 /* Includes from src. */
-#include <BaremetalCommunicationDef.hpp>  ///< Position
+#include <BaremetalCommunicationDef.hpp>  ///< VisionPosition
+#include <LoggerStructs.hpp>
 #include <Quaternion.hpp>
-#include <real_t.h>
+#include <Vector.hpp>
+
+/* Use "Position" for readability: actual type is Vec2f. */
+using Position = Vec2f;
+
+/* Use "HorizontalVelocity" for readability: actual type is Vec2f. */
+using HorizontalVelocity = Vec2f;
+
+/** Blocks to meters. */
+const float BLOCKS_TO_METERS = 0.30;
+
+/** Meters to blocks. */
+const float METERS_TO_BLOCKS = 1.0 / BLOCKS_TO_METERS;
+
+/** Highest valid x-coordinate in blocks. */
+const float X_MAX_BLOCKS = 9.5;
+
+/** Lowest valid x-coordinate in blocks. */
+const float X_MIN_BLOCKS = -0.5;
+
+/** Center x-coordinate in blocks. */
+const float X_CENTER_BLOCKS = (X_MIN_BLOCKS + X_MAX_BLOCKS) / 2.0;
+
+/** Highest valid y-coordinate in blocks. */
+const float Y_MAX_BLOCKS = 9.5;
+
+/** Lowest valid y-coordinate in blocks. */
+const float Y_MIN_BLOCKS = -0.5;
+
+/** Center y-coordinate in blocks. */
+const float Y_CENTER_BLOCKS = (Y_MIN_BLOCKS + Y_MAX_BLOCKS) / 2.0;
 
 /** Highest valid x-coordinate. */
-const real_t X_MAX = 8.0;
+const float X_MAX = X_MAX_BLOCKS * BLOCKS_TO_METERS;
 
 /** Lowest valid x-coordinate. */
-const real_t X_MIN = -8.0;
+const float X_MIN = X_MIN_BLOCKS * BLOCKS_TO_METERS;
 
 /** Highest valid y-coordinate. */
-const real_t Y_MAX = 4.0;
+const float Y_MAX = Y_MAX_BLOCKS * BLOCKS_TO_METERS;
 
 /** Lowest valid y-coordinate. */
-const real_t Y_MIN = -4.0;
-
-/**
- * Position (x,y) reference to track, consisting of a position. This value is
- * measured in meters.
- */
-struct PositionReference {
-    PositionReference(Position p) : p{p} {}
-    PositionReference() = default;
-    Position p;  ///< Position (x,y) in meters.
-};
-
-/** 
- * Measurement from the Image Processing team, consisting of a position which
- * represents the global position in meters.
- */
-struct PositionMeasurement {
-    PositionMeasurement(Position p) : p{p} {}
-    PositionMeasurement() = default;
-    Position p;  ///< Position (x,y) in meters.
-};
-
-/**
- * Estimate of the state of the drone's position, consisting six components.
- * The first two floats are the quaternion components q1 and q2. The next two
- * floats represent the drone's global position, measured in meters. Finally,
- * two floats represent the horizontal velocity of the drone in m/s.
- */
-struct PositionState {
-    PositionState(real_t q1, real_t q2, Position p, real_t vx, real_t vy)
-        : q1{q1}, q2{q2}, p{p}, vx{vx}, vy{vy} {}
-    PositionState() = default;
-    real_t q1;   ///< Orientation q1 component (/).
-    real_t q2;   ///< Orientation q2 component (/).
-    Position p;  ///< Position (x,y) in meters.
-    real_t vx;   ///< X velocity (m/s).
-    real_t vy;   ///< Y velocity (m/s).
-};
-
-/**
- * Integral of the error of the global position of the drone.
- */
-struct PositionIntegralWindup {
-    PositionIntegralWindup(real_t x, real_t y) : x{x}, y{y} {}
-    PositionIntegralWindup() = default;
-    real_t x;  ///< X position (m).
-    real_t y;  ///< Y position (m).
-};
-
-/**
- * Reference quaternion components q1 and q2 that will be sent to the
- * attitude controller.
- */
-struct PositionControlSignal {
-    PositionControlSignal(real_t q1ref, real_t q2ref)
-        : q1ref{q1ref}, q2ref{q2ref} {}
-    PositionControlSignal() = default;
-    real_t q1ref;  ///< Reference orientation q1 component (/).
-    real_t q2ref;  ///< Reference orientation q2 component (/).
-};
+const float Y_MIN = Y_MIN_BLOCKS * BLOCKS_TO_METERS;
 
 struct PositionStateBlind {
-    PositionStateBlind(Position p, real_t vx, real_t vy)
-        : p{p}, vx{vx}, vy{vy} {}
+    PositionStateBlind(Position p, HorizontalVelocity v) : p{p}, v{v} {}
     PositionStateBlind() = default;
-    Position p;  ///< Position (x,y) in meters.
-    real_t vx;   ///< X velocity (m/s).
-    real_t vy;   ///< Y velocity (m/s).
+    Position p;            ///< Position (x,y) in meters.
+    HorizontalVelocity v;  ///< Horizontal velocity in m/s.
 };
 
 struct PositionControlSignalBlind {
-    PositionControlSignalBlind(real_t q1, real_t q2) : q1{q1}, q2{q2} {}
+    PositionControlSignalBlind(Vec2f q12) : q12{q12} {}
     PositionControlSignalBlind() = default;
-    real_t q1;
-    real_t q2;
+    Vec2f q12;  ///< Reference quaternion components q1 and q2 for attitude
 };
 
 /**
@@ -102,7 +71,7 @@ struct PositionControlSignalBlind {
  * 
  * @return  the distance between the two given positions.
  */
-real_t dist(Position position1, Position position2);
+float dist(Position position1, Position position2);
 
 /**
  * Calculates the square of the distance the two given positions in meters.
@@ -114,7 +83,7 @@ real_t dist(Position position1, Position position2);
  * 
  * @return  the square of distance between the two given positions.
  */
-real_t distsq(Position position1, Position position2);
+float distsq(Position position1, Position position2);
 
 /**
  * Class to control the position of the drone. The first part is an observer to
@@ -131,13 +100,10 @@ class PositionController {
 
   private:
     /**
-     * Estimate of the state of the drone's position, consisting six components.
-     * The first two floats are the quaternion components q1 and q2. The next
-     * two floats represent the drone's global position, measured in meters.
-     * Finally, two floats represent the horizontal velocity of the drone
-     * in m/s.
+     * Reference quaternion components q1 and q2 that will be sent to the
+     * attitude controller.
      */
-    PositionState stateEstimate;
+    PositionControlSignal controlSignal;
 
     /**
      * Integral of the error of the global position of the drone.
@@ -145,19 +111,25 @@ class PositionController {
     PositionIntegralWindup integralWindup;
 
     /**
-     * Reference quaternion components q1 and q2 that will be sent to the
-     * attitude controller.
+     * Time that the last measurement from the Image Processing team was
+     * received (see Time.hpp).
      */
-    PositionControlSignal controlSignal;
+    float lastMeasurementTime = 0.0;
+
+    /** Position measurement from IMP (or accelerometer data). */
+    PositionMeasurement measurement;
 
     /** Reference position (x,y), which is stored to pass on to the logger. */
     PositionReference reference;
 
     /**
-     * Time that the last measurement from the Image Processing team was
-     * received (see Time.hpp).
+     * Estimate of the state of the drone's position, consisting six components.
+     * The first two floats are the quaternion components q1 and q2. The next
+     * two floats represent the drone's global position, measured in meters.
+     * Finally, two floats represent the horizontal velocity of the drone
+     * in m/s.
      */
-    real_t lastMeasurementTime;
+    PositionState stateEstimate;
 
   public:
     /**
@@ -219,6 +191,10 @@ class PositionController {
      *          Integral windup from the last cycle.
      * @param   reference
      *          Reference position to track.
+     * @param   stateEstimate
+     *          Estimate of the current state, determined this cycle.
+     * @param   droneConfiguration
+     *          Configuration of the drone.
      * 
      * @return  The current integral windup.
      */
@@ -234,13 +210,16 @@ class PositionController {
      *          Integral windup from the last cycle.
      * @param   reference
      *          Reference position to track.
+     * @param   stateEstimate
+     *          Estimate of the current state, determined this cycle.
+     * @param   droneConfiguration
+     *          Configuration of the drone.
      * 
      * @return  The current integral windup.
      */
-    static PositionIntegralWindup
-    codegenIntegralWindupBlind(PositionIntegralWindup integralWindup,
-                          PositionReference reference,
-                          PositionState stateEstimate, int droneConfiguration);
+    static PositionIntegralWindup codegenIntegralWindupBlind(
+        PositionIntegralWindup integralWindup, PositionReference reference,
+        PositionState stateEstimate, int droneConfiguration);
 
     /**
      * Calculate the current position estimate using the code generator. Because
@@ -265,7 +244,7 @@ class PositionController {
      */
     static PositionState codegenCurrentStateEstimate(
         PositionState stateEstimate, PositionMeasurement measurement,
-        Quaternion orientation, real_t timeElapsed, int droneConfiguration);
+        Quaternion orientation, float timeElapsed, int droneConfiguration);
 
     /**
      * Calculate the current position estimate using the code generator. This
@@ -279,43 +258,59 @@ class PositionController {
      * @param   controlSignalBlind
      *          Struct containing the quaternion components q1 and q2 of the
      *          drone's orientation estimate.
+     * @param   orientation
+     *          Current orientation of the drone.
      */
     static PositionState codegenCurrentStateEstimateBlind(
         PositionStateBlind stateEstimateBlind,
-        PositionControlSignalBlind controlSignalBlind);
+        PositionControlSignalBlind controlSignalBlind, Quaternion orientation);
 
-    /**
-     * Shift the position controller's estimate of the position by the given
-     * correction.
-     * 
-     * @param   correctionX
-     *          Correction to be added to the x-coordinate of the estimate of
-     *          the position controller.
-     * @param   correctionY
-     *          Correction to be added to the y-coordinate of the estimate of
-     *          the position controller.
-     */
-    void correctPosition(real_t correctionX, real_t correctionY);
-
-    /**
-     * Get the position controller's control signal.
-     */
+    /** Get the position controller's control signal. */
     PositionControlSignal getControlSignal() { return this->controlSignal; }
 
-    /**
-     * Get the position controller's reference position.
-     */
+    /** Get the position controller's integral windup. */
+    PositionIntegralWindup getIntegralWindup() { return this->integralWindup; }
+
+    /** Get the position controller's last measurement time. */
+    float getLastMeasurementTime() { return this->lastMeasurementTime; }
+
+    /** Get the position controller's measurement. */
+    PositionMeasurement getMeasurement() { return this->measurement; }
+
+    /** Get the position controller's reference. */
+    PositionReference getReference() { return this->reference; }
+
+    /** Get the position controller's reference position. */
     Position getReferencePosition() { return this->reference.p; }
 
-    /**
-     * Get the position controller's state estimate.
-     */
+    /** Get the position controller's state estimate. */
     PositionState getStateEstimate() { return this->stateEstimate; }
 
     /**
      * Reset the position controller.
+     * 
+     * @param   currentPosition
+     *          Current position of the drone.
      */
-    void init();
+    void init(Position currentPosition);
+
+    /**
+     * Correct the position controller's estimate with the given position. The
+     * position component of the estimate will jump to the correct square.
+     * 
+     * @param   correctPosition
+     *          Correct position, read from the QR code, in blocks.
+     */
+    void correctPositionEstimateBlocks(Position correctPosition);
+
+    /**
+     * Correct the position controller's estimate with the given position. The
+     * position component of the estimate will jump to the correct square.
+     * 
+     * @param   correctPosition
+     *          Correct position, read from the QR code, in blocks.
+     */
+    void correctPositionEstimateBlocks(VisionPosition correctPosition);
 
     /**
      * Update the position controller with the given reference position. This
@@ -327,11 +322,27 @@ class PositionController {
      *
      * @return  The control signal to be sent to the attitude controller. The
      *          result only contains the quaternion components q1 and q2. The
-     *          last component q3 should be determined by the anti-yaw-drift`
+     *          last component q3 should be determined by the anti-yaw-drift
      *          controller and from that the full quaternion should be
      *          constructed.
      */
     PositionControlSignal updateControlSignal(PositionReference reference);
+
+    /**
+     * Update the blind position controller with the given reference position.
+     * This function should be called at the IMU's frequency during the blind
+     * stages of takeoff and landing.
+     * 
+     * @param   reference
+     *          The reference position to track.
+     *
+     * @return  The control signal to be sent to the attitude controller. The
+     *          result only contains the quaternion components q1 and q2. The
+     *          last component q3 should be determined by the anti-yaw-drift
+     *          controller and from that the full quaternion should be
+     *          constructed.
+     */
+    PositionControlSignal updateControlSignalBlind(PositionReference reference);
 
     /**
      * Update the position observer with the given measurement position and the

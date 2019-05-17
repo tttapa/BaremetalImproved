@@ -8,42 +8,43 @@
  * The largest reference quaternion component that can be sent to the attitude
  * control system is 0.0436.
  */
-static constexpr real_t REFERENCE_QUATERNION_CLAMP = 0.0436;
+static constexpr float REFERENCE_QUATERNION_CLAMP = 0.0436;
 
-real_t dist(Position position1, Position position2) {
-    return std::sqrt(distsq(position1, position2));
-}
+float dist(Position a, Position b) { return Vec2f::norm(b - a); }
 
-real_t distsq(Position position1, Position position2) {
-    real_t dx = position2.x - position1.x;
-    real_t dy = position2.y - position1.y;
-    return dx * dx + dy * dy;
-}
+float distsq(Position a, Position b) { return Vec2f::normsq(b - a); }
 
 void PositionController::clampControlSignal() {
-    if (this->controlSignal.q1ref > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q1ref = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q1ref < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q1ref = -REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q2ref > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q2ref = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q2ref < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q2ref = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12.x > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12.x = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12.x < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12.x = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12.y > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12.y = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.q12.y < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.q12.y = -REFERENCE_QUATERNION_CLAMP;
 }
 
-void PositionController::correctPosition(real_t correctionX,
-                                         real_t correctionY) {
-    this->stateEstimate.p.x += correctionX;
-    this->stateEstimate.p.y += correctionY;
-}
-
-void PositionController::init() {
+void PositionController::init(Position currentPosition) {
 
     /* Reset the position controller. */
-    this->stateEstimate       = {};
+    this->stateEstimate       = {{}, currentPosition, {}};
     this->integralWindup      = {};
     this->controlSignal       = {};
-    this->lastMeasurementTime = 0.0;
+    this->lastMeasurementTime = getTime();
+}
+
+void PositionController::correctPositionEstimateBlocks(
+    Position correctPosition) {
+    Position deltaBlocks = correctPosition - stateEstimate.p * METERS_TO_BLOCKS;
+    Position offsetBlocks = deltaBlocks.round();
+    this->stateEstimate.p = stateEstimate.p + offsetBlocks * BLOCKS_TO_METERS;
+}
+
+void PositionController::correctPositionEstimateBlocks(
+    VisionPosition correctPosition) {
+    correctPositionEstimateBlocks(
+        Position{correctPosition.x, correctPosition.y});
 }
 
 PositionControlSignal
@@ -94,6 +95,10 @@ PositionController::updateControlSignalBlind(PositionReference reference) {
 
 void PositionController::updateObserver(Quaternion orientation,
                                         PositionMeasurement measurement) {
+
+    /* Save measurement for logger. */
+    this->measurement = measurement;
+
     /* Calculate the current state estimate. */
     this->stateEstimate = PositionController::codegenCurrentStateEstimate(
         this->stateEstimate, measurement, orientation,
@@ -106,14 +111,15 @@ void PositionController::updateObserver(Quaternion orientation,
 
 void PositionController::updateObserverBlind(Quaternion orientation) {
 
-    PositionStateBlind stateBlind = {
-        this->stateEstimate.p,
-        this->stateEstimate.vx,
-        this->stateEstimate.vy,
-    };
-    PositionControlSignalBlind controlSignalBlind = {orientation[1],
-                                                     orientation[2]};
+    PositionStateBlind stateBlind = {this->stateEstimate.p,
+                                     this->stateEstimate.v};
 
-    this->stateEstimate =
-        codegenCurrentStateEstimateBlind(stateBlind, controlSignalBlind);
+    PositionControlSignalBlind controlSignalBlind =
+        PositionControlSignalBlind{Vec2f{
+            orientation.x,
+            orientation.y,
+        }};
+
+    this->stateEstimate = codegenCurrentStateEstimateBlind(
+        stateBlind, controlSignalBlind, orientation);
 }

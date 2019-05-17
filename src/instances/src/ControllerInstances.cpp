@@ -14,7 +14,7 @@ AutonomousController autonomousController;
 
 void initControllerInstances() {
     attitudeController.init();
-    altitudeController.init();
-    positionController.init();
+    altitudeController.init(0.0);
+    positionController.init({});
     autonomousController.initGround({});
 }

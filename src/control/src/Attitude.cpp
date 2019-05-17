@@ -3,6 +3,7 @@
 /* Includes from src. */
 #include <MiscInstances.hpp>  ///< ConfigurationManager instance
 #include <RCValues.hpp>
+#include <MathFunctions.hpp>
 
 /* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
@@ -12,7 +13,7 @@
  * The largest control signal that can be sent to the "yaw torque motor" is
  * 0.10.
  */
-static constexpr real_t YAW_SIGNAL_CLAMP = 0.10;
+static constexpr float YAW_SIGNAL_CLAMP = 0.10;
 
 /**
  * The most the drone can tilt is 0.1745 rad (10 deg). If the hardware constants
@@ -20,16 +21,16 @@ static constexpr real_t YAW_SIGNAL_CLAMP = 0.10;
  * (pitch) will be 10 degrees when the pilot pushes the tilt stick completely to
  * the right (downwards).
  */
-static constexpr real_t MAXIMUM_REFERENCE_TILT = 0.1745;
+static constexpr float MAXIMUM_REFERENCE_TILT = 0.1745;
 
 /** The maximum speed of the reference yaw is 0.80 rad/s. */
-static constexpr real_t RC_REFERENCE_YAW_MAX_SPEED = 0.80;
+static constexpr float RC_REFERENCE_YAW_MAX_SPEED = 0.80;
 
 /** The threshold to start decreasing the reference yaw is -0.05. */
-static constexpr real_t RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
+static constexpr float RC_REFERENCE_YAW_LOWER_THRESHOLD = -0.05;
 
 /** The threshold to start increasing the reference yaw is +0.05. */
-static constexpr real_t RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
+static constexpr float RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 #pragma endregion
 
 MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
@@ -45,7 +46,7 @@ MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
     };
 }
 
-void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {
+void AttitudeController::calculateJumpedQuaternions(float yawJumpRads) {
     this->stateEstimate.q = EulerAngles::eul2quat(
         {this->orientationEuler.yaw + yawJumpRads, this->orientationEuler.pitch,
          this->orientationEuler.roll});
@@ -54,12 +55,12 @@ void AttitudeController::calculateJumpedQuaternions(real_t yawJumpRads) {
          this->referenceEuler.roll});
 }
 
-void AttitudeController::clampControlSignal(real_t commonThrust) {
+void AttitudeController::clampControlSignal(float commonThrust) {
 
     /* Load values from the attitude controller. */
-    real_t ux = this->controlSignal.ux;
-    real_t uy = this->controlSignal.uy;
-    real_t uz = this->controlSignal.uz;
+    float ux = this->controlSignal.uxyz.x;
+    float uy = this->controlSignal.uxyz.y;
+    float uz = this->controlSignal.uxyz.z;
 
     /* Clamp the yaw torque motor separately to ensure ux, uy compensation. */
     if (uz > YAW_SIGNAL_CLAMP)
@@ -69,16 +70,16 @@ void AttitudeController::clampControlSignal(real_t commonThrust) {
 
     /* Clamp ux, uy, uz such that all motor PWM duty cycles are in [0,1]. */
     // TODO: divide by e = epsilon + 1?
-    real_t absoluteSum    = std::abs(ux) + std::abs(uy) + std::abs(uz);
-    real_t maxAbsoluteSum = std::min(commonThrust, 1 - commonThrust);
+    float absoluteSum    = std2::absf(ux) + std2::absf(uy) + std2::absf(uz);
+    float maxAbsoluteSum = std2::minf(commonThrust, 1 - commonThrust);
     if (absoluteSum > maxAbsoluteSum) {
-        real_t factor = maxAbsoluteSum / absoluteSum;
+        float factor = maxAbsoluteSum / absoluteSum;
         ux *= factor;
         uy *= factor;
         uz *= factor;
     }
 
-    this->controlSignal = AttitudeControlSignal{ux, uy, uz};
+    this->controlSignal = AttitudeControlSignal{Vec3f{ux, uy, uz}};
 }
 
 void AttitudeController::init() {
@@ -93,7 +94,7 @@ void AttitudeController::init() {
 }
 
 AttitudeControlSignal
-AttitudeController::updateControlSignal(real_t commonThrust) {
+AttitudeController::updateControlSignal(float commonThrust) {
 
     /* Calculate integral windup. */
     this->integralWindup = AttitudeController::codegenIntegralWindup(
@@ -113,7 +114,12 @@ AttitudeController::updateControlSignal(real_t commonThrust) {
 }
 
 void AttitudeController::updateObserver(AttitudeMeasurement measurement,
-                                        real_t yawJumpToSubtract) {
+                                        float yawJumpToSubtract) {
+
+    /* Save measurement for logger. */
+    this->measurement = measurement;
+
+    /* Update state estimate. */
     this->stateEstimate = AttitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());
@@ -126,18 +132,18 @@ void AttitudeController::updateObserver(AttitudeMeasurement measurement,
 void AttitudeController::updateRCReference() {
 
     /* Store RC values. */
-    real_t roll  = getRoll();
-    real_t pitch = getPitch();
-    real_t yaw   = getYaw();
+    float roll  = getRoll();
+    float pitch = getPitch();
+    float yaw   = getYaw();
 
     /* Convert RC tilt [-1.0, +1.0] to radians [-0.1745, +0.1745]. */
-    real_t rollRads  = roll * MAXIMUM_REFERENCE_TILT;
-    real_t pitchRads = pitch * MAXIMUM_REFERENCE_TILT;
-    real_t yawRads   = this->referenceEuler.yaw;
+    float rollRads  = roll * MAXIMUM_REFERENCE_TILT;
+    float pitchRads = pitch * MAXIMUM_REFERENCE_TILT;
+    float yawRads   = this->referenceEuler.yaw;
 
     /* Update the reference yaw based on the RC yaw. */
-    real_t upperZoneSize = 1.0 - RC_REFERENCE_YAW_UPPER_THRESHOLD;
-    real_t lowerZoneSize = RC_REFERENCE_YAW_LOWER_THRESHOLD - (-1.0);
+    float upperZoneSize = 1.0 - RC_REFERENCE_YAW_UPPER_THRESHOLD;
+    float lowerZoneSize = RC_REFERENCE_YAW_LOWER_THRESHOLD - (-1.0);
     if (yaw > RC_REFERENCE_YAW_UPPER_THRESHOLD)
         yawRads += (yaw - RC_REFERENCE_YAW_UPPER_THRESHOLD) / upperZoneSize *
                    RC_REFERENCE_YAW_MAX_SPEED * SECONDS_PER_TICK;

@@ -11,3 +11,6 @@ float SECONDS_PER_TICK;
  * src-vivado/sensors/IMU.cpp.
  */
 float TICKS_PER_SECOND;
+
+/** The multiple of 119 Hz at which the IMU is set. */
+float IMU_FACTOR;

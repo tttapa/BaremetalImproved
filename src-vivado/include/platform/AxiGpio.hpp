@@ -1,7 +1,7 @@
 #pragma once
 
 /* Includes from src. */
-#include <OutputTypes.hpp>  ///< LEDInstruction
+#include <LoggerStructs.hpp>  ///< LEDInstruction
 
 /**
  * Initialise AXI GPIO pins.

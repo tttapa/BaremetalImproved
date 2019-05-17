@@ -2,7 +2,7 @@
 #include <cstdint>
 
 /* Includes from src. */
-#include <SensorTypes.hpp>  ///< IMUMeasurement
+#include <LoggerStructs.hpp>  ///< IMUMeasurement
 
 /* Raw 16-bit signed data from the accelerometer. */
 struct RawAccelMeasurement {
@@ -26,9 +26,9 @@ struct RawGyroMeasurement {
 
 /**
  * Execute one step of the IMU calibration. If this step is one of the first
- * `INVALID_SAMPLES` steps, then the data will be ignored. Otherwise the
- * current gyroscope and accelerometer measurements will be added to the running
- * sum. If this step is the last step in the calibration, then the bias will be
+ * INVALID_SAMPLES steps, then the data will be ignored. Otherwise the current
+ * gyroscope and accelerometer measurements will be added to the running sum. If
+ * this step is the last step in the calibration, then the bias will be
  * calculated from this sum.
  * 
  * @return	true

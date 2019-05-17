@@ -1,5 +1,4 @@
 #include <Time.hpp>
-#include <chrono>
 
 /* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>
@@ -11,9 +10,6 @@ void incrementTickCount() { tickCount++; }
 
 uint32_t getTickCount() { return tickCount; }
 
-real_t getTime() { return SECONDS_PER_TICK * getTickCount(); }
+float getTime() { return SECONDS_PER_TICK * getTickCount(); }
 
-uint64_t getMillis() {
-    auto now = std::chrono::system_clock::now().time_since_epoch();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
-}
+uint64_t getMillis() { return (uint64_t)(getTime() * 1000.0); }

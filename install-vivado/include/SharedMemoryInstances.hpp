@@ -2,7 +2,7 @@
 
 /* Includes from src. */
 #include <BaremetalCommunicationDef.hpp>
-#include <LogEntry.h>
+#include <LogEntry.hpp>
 #include <SharedStruct.hpp>
 
 /** Instance of the test struct for shared memory. */

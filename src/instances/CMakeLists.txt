@@ -31,10 +31,10 @@ target_include_directories(instances
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(instances 
     PUBLIC 
-        misc
-        utilities
         communication
         control
+        misc
+        utilities2
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)
@@ -44,10 +44,8 @@ target_link_libraries(instances
 # endif()
 
 install(TARGETS instances
-        EXPORT instances
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT instances DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ControllerInstances.hpp

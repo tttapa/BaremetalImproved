@@ -12,22 +12,22 @@
  * The largest marginal control signal that can be sent to the "common motor"
  * is 0.08.
  */
-static constexpr real_t MARGINAL_SIGNAL_CLAMP = 0.08;
+static constexpr float MARGINAL_SIGNAL_CLAMP = 0.08;
 
 /** The maximum height at which the drone may hover is 1.75 meters. */
-static constexpr real_t MAXIMUM_REFERENCE_HEIGHT = 1.75;
+static constexpr float MAXIMUM_REFERENCE_HEIGHT = 1.75;
 
 /** The minimum height at which the drone may hover is 0.25 meters. */
-static constexpr real_t MINIMUM_REFERENCE_HEIGHT = 0.25;
+static constexpr float MINIMUM_REFERENCE_HEIGHT = 0.25;
 
 /** The maximum speed of the reference height is 0.25 m/s. */
-static constexpr real_t RC_HEIGHT_REFERENCE_MAX_SPEED = 0.25;
+static constexpr float RC_HEIGHT_REFERENCE_MAX_SPEED = 0.25;
 
-/** The threshold to start decreasing the reference height is 0.25. */
-static constexpr real_t RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.25;
+/** The threshold to start decreasing the reference height is 0.20. */
+static constexpr float RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.20;
 
-/** The threshold to start increasing the reference height is 0.75. */
-static constexpr real_t RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.75;
+/** The threshold to start increasing the reference height is 0.80. */
+static constexpr float RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.80;
 #pragma endregion
 
 void AltitudeController::clampControlSignal() {
@@ -37,13 +37,13 @@ void AltitudeController::clampControlSignal() {
         this->controlSignal.ut = -MARGINAL_SIGNAL_CLAMP;
 }
 
-void AltitudeController::init() {
+void AltitudeController::init(float correctedMeasurementHeight) {
 
     /* Reset the altitude controller. */
     this->controlSignal  = {};
     this->integralWindup = {};
-    this->stateEstimate  = {};
-    this->reference      = {};
+    this->stateEstimate  = {0.0, correctedMeasurementHeight, 0.0};
+    this->reference      = {correctedMeasurementHeight};
 }
 
 void AltitudeController::setReference(AltitudeReference reference) {
@@ -70,6 +70,11 @@ AltitudeControlSignal AltitudeController::updateControlSignal() {
 }
 
 void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
+
+    /* Save measurement for logger. */
+    this->measurement = measurement;
+
+    /* Update state estimate. */
     this->stateEstimate = AltitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());
@@ -78,11 +83,11 @@ void AltitudeController::updateObserver(AltitudeMeasurement measurement) {
 void AltitudeController::updateRCReference() {
 
     /* Store the RC throttle. */
-    real_t throttle = getThrottle();
+    float throttle = getThrottle();
 
     /* Try increasing/decreasing the reference height. */
-    real_t upperZoneSize = 1.0 - RC_REFERENCE_HEIGHT_UPPER_THRESHOLD;
-    real_t lowerZoneSize = RC_REFERENCE_HEIGHT_LOWER_THRESHOLD;
+    float upperZoneSize = 1.0 - RC_REFERENCE_HEIGHT_UPPER_THRESHOLD;
+    float lowerZoneSize = RC_REFERENCE_HEIGHT_LOWER_THRESHOLD;
     if (throttle > RC_REFERENCE_HEIGHT_UPPER_THRESHOLD)
         this->reference.z += (throttle - RC_REFERENCE_HEIGHT_UPPER_THRESHOLD) /
                              upperZoneSize * RC_HEIGHT_REFERENCE_MAX_SPEED /

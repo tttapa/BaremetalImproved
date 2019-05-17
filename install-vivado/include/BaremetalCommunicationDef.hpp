@@ -1,9 +1,10 @@
 #pragma once
 
-#include <LogEntry.h>
+#include <LogEntry.hpp>
 #include <SharedStruct.hpp>
 #include <cassert>
 #include <cmath>  // NAN
+#include <float.h>
 #include <ostream>
 
 /**
@@ -24,60 +25,8 @@ enum class QRFSMState : int32_t {
     QR_UNKNOWN = 5,
     /// The Cryptography team could not decode the image sent to them.
     ERROR = -1,
-};
-
-/**
- * Struct containing the four different flight modes. First, the drone begins in
- * the UNINITIALIZED flight mode. After the first cycle, the drone will enter
- * the current flight mode, as specified by the RC. In MANUAL_MODE, the pilot
- * has full control over the drone's orientation and the common thrust. In
- * ALTITUDE_HOLD_MODE, the pilot still has control over the drone's orientation,
- * but the altitude controller takes over the common thrust in order to keep the
- * drone at a constant height. Finally, in AUTONOMOUS_MODE, the pilot has no
- * control over the attitude or altitude of the drone. The drone will navigate
- * autonomously to successive QR codes and land at its final code. As a safety
- * precaution, if the pilot sets the throttle to zero during the autonomous
- * flight, the drone will land at its current location.
- */
-enum class FlightMode : int32_t {
-
-    /**
-     * The drone is in its first clock cycle and has not yet entered a flight
-     * mode.
-     */
-    UNINITIALIZED = 0,
-
-    /**
-     * The drone is in "manual mode". The pilot has control over the drone's
-     * orientation and the common thrust.
-     */
-    MANUAL = 1,
-
-    /**
-     * The drone is in "altitude-hold mode". The pilot has control over drone's
-     * orientation, but the altitude controller takes over the common thrust in
-     * order to keep the drone at a constant altitude.
-     */
-    ALTITUDE_HOLD = 2,
-
-    /**
-     * The drone is in "autonomous mode". The pilot has no control over the
-     * attitude or altitude of the drone. If the drone is grounded when entering
-     * this flight mode, then it will take off as soon as the pilot raises the
-     * throttle above the predetermined threshold (see Autonomous.hpp). If the
-     * drone was already airborne when entering this flight mode, then this step
-     * will be skipped. Then, the drone will loiter at its current position for
-     * a predetermined time (see Autonomous.hpp). After that, it will navigate
-     * autonomously to successive QR codes and finally land at its final code.
-     * As a safety precaution, if the pilot sets the throttle to zero during the
-     * autonomous flight, the drone will land at its current location.
-     */
-    AUTONOMOUS = 3,
-};
-
-enum WPTMode {
-    OFF = 0,  ///< Wireless Power Transfer is turned off.
-    ON  = 1,  ///< Wireless Power Transfer is turned on.
+    /// There is no QR code in the camera frame
+    NO_QR = -2,
 };
 
 struct TestStruct : SharedStruct<TestStruct> {
@@ -90,22 +39,22 @@ struct TestStruct : SharedStruct<TestStruct> {
 /**
  * @brief   A struct for x and y coordinates of vision/QR positions.
  */
-struct Position {
-    float x = 100.0, y = 100.0; // TODO: was NaN
+struct VisionPosition {
+    float x = NAN, y = NAN;
     explicit operator bool() const volatile {
         return !(std::isnan(x) || std::isnan(y));
     }
-    Position() = default;
-    Position(float x, float y) : x{x}, y{y} {}
-    Position(const volatile Position &p) : x{p.x}, y{p.y} {}
-    Position(const Position &p) : x{p.x}, y{p.y} {}
-    void operator=(const Position &p) volatile {
+    VisionPosition() = default;
+    VisionPosition(float x, float y) : x{x}, y{y} {}
+    VisionPosition(const volatile VisionPosition &p) : x{p.x}, y{p.y} {}
+    VisionPosition(const VisionPosition &p) : x{p.x}, y{p.y} {}
+    void operator=(const VisionPosition &p) volatile {
         this->x = p.x;
         this->y = p.y;
     }
 };
 
-inline std::ostream &operator<<(std::ostream &os, Position pos) {
+inline std::ostream &operator<<(std::ostream &os, VisionPosition pos) {
     return os << "(" << pos.x << ", " << pos.y << ")";
 }
 
@@ -113,8 +62,10 @@ inline std::ostream &operator<<(std::ostream &os, Position pos) {
  * @brief   The data format sent from Vision to ANC.
  */
 struct VisionData {
-    Position position;
-    double yawAngle;
+    VisionData() = default;
+    VisionPosition position = {};
+    double yawAngle = 0.0;
+    // float sideLen;
 };
 
 /**
@@ -130,7 +81,8 @@ using VisionCommStruct =
 struct QRCommStruct : SharedStruct<QRCommStruct> {
   private:
     mutable QRFSMState qrState = QRFSMState::IDLE;
-    Position target;
+    VisionPosition target;
+    VisionPosition current;
 
   public:
     constexpr static uintptr_t address = VisionCommStruct::nextFreeAddress();
@@ -143,7 +95,7 @@ struct QRCommStruct : SharedStruct<QRCommStruct> {
      */
     QRFSMState getQRState() const volatile { return qrState; }
 
-#ifndef BAREMETAL
+    //#ifndef BAREMETAL
     /**
      * @brief   Set the new target position, and change the state to NEW_TARGET.
      * 
@@ -155,7 +107,7 @@ struct QRCommStruct : SharedStruct<QRCommStruct> {
      *          Baremetal has not yet finished reading the previous target 
      *          position.
      */
-    void setTargetPosition(Position target) volatile {
+    void setTargetPosition(VisionPosition target) volatile {
         checkInitialized();
         if (getQRState() == QRFSMState::NEW_TARGET)
             throw std::runtime_error("Error: illegal setTargetPosition call: "
@@ -166,6 +118,19 @@ struct QRCommStruct : SharedStruct<QRCommStruct> {
     /// @see    setTargetPosition(Position)
     void setTargetPosition(float x, float y) volatile {
         setTargetPosition({x, y});
+    }
+
+    /**
+     * @brief   Set the position of the current QR code.
+     */
+    void setCurrentPosition(VisionPosition current) volatile {
+        if (getQRState() == QRFSMState::NEW_TARGET ||
+            getQRState() == QRFSMState::LAND ||
+            getQRState() == QRFSMState::QR_UNKNOWN)
+            throw std::runtime_error("Error: illegal setCurrentPosition call: "
+                                     "Baremetal not yet done reading");
+        checkInitialized();
+        this->current = current;
     }
 
     /**
@@ -214,7 +179,7 @@ struct QRCommStruct : SharedStruct<QRCommStruct> {
         checkInitialized();
         qrState = QRFSMState::LAND;
     }
-#else
+    //#else
     /**
      * @brief   Get the new target position, and change the state to IDLE.
      * 
@@ -225,14 +190,34 @@ struct QRCommStruct : SharedStruct<QRCommStruct> {
      * @throws  std::logic_error
      *          No new target is available.
      */
-    Position getTargetPosition() const volatile {
+    VisionPosition getTargetPosition() const volatile {
         checkInitialized();
         if (getQRState() != QRFSMState::NEW_TARGET)
             throw std::logic_error("Error: illegal getTargetPosition call: "
                                    "No new target available");
-        Position target = this->target;
+        VisionPosition target = this->target;
         qrState         = QRFSMState::IDLE;
         return target;
+    }
+
+    /**
+     * @brief   Get the position of the current QR code.
+     * 
+     * @return  The position of the current QR code.
+     * 
+     * @throws  std::runtime_error
+     *          The communication struct is not initialized yet.
+     * @throws  std::logic_error
+     *          No current position is available.
+     */
+    VisionPosition getCurrentPosition() const volatile {
+        checkInitialized();
+        if (getQRState() != QRFSMState::NEW_TARGET &&
+            getQRState() != QRFSMState::LAND &&
+            getQRState() != QRFSMState::QR_UNKNOWN)
+            throw std::logic_error("Error: illegal getTargetPosition call: "
+                                   "No current position available");
+        return this->current;
     }
 
     /**
@@ -262,7 +247,7 @@ struct QRCommStruct : SharedStruct<QRCommStruct> {
     }
 
     // TODO: should I check all FSM transitions?
-#endif
+    //#endif
 };
 
 /**

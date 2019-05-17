@@ -29,7 +29,7 @@ target_include_directories(time
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(time 
     PUBLIC 
-        utilities
+        real_t
     PRIVATE
         src-vivado
 )
@@ -39,10 +39,8 @@ target_link_libraries(time
 # add_subdirectory(test) 
 
 install(TARGETS time
-        EXPORT time
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT time DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/Time.hpp

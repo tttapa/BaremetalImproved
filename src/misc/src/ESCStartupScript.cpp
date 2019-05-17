@@ -11,7 +11,7 @@ void ESCStartupScript::init(bool enabled) {
     this->startupActive  = false;
 }
 
-real_t ESCStartupScript::update(real_t commonThrust) {
+float ESCStartupScript::update(float commonThrust) {
 
     /* If the script is disabled, bypass this script. */
     if (!this->enabled)
@@ -44,7 +44,7 @@ real_t ESCStartupScript::update(real_t commonThrust) {
         escsRunning   = true;
 
         /* Start gradual thrust change from the current common thrust. */
-        gtcManager.start(STARTUP_COMMON_THRUST);
+        // gtcManager.start(STARTUP_COMMON_THRUST);
     }
 
     /* Shutdown script active? */
