@@ -603,7 +603,9 @@ void mainOperation() {
                                flightMode == FlightMode::AUTONOMOUS,
                                wptMode == WPTMode::ON};
     logEntry.wptMode          = wptMode;
-    logEntry.yawMeasurement   = yawMeasurement;
+    logEntry.sensorHeightMeasurment = correctedSonarMeasurement;
+    logEntry.sensorPositionMeasurement = correctedPositionMeasurement;
+    logEntry.sensorYawMeasurement   = yawMeasurement;
 
     /* Output log data if logger is done writing. */
     if (loggerComm->isDoneReading())
