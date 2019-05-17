@@ -87,7 +87,7 @@ struct Quaternion {
         Vec3f cross     = {v.y, -v.x, 0};
         float crossNorm = cross.norm();
         cross.x /= crossNorm;
-        cross.y /= crossNorm;`
+        cross.y /= crossNorm;
 
         /* Calculate the angle ϑ. */
         float angle = asin(crossNorm / v.norm());
