@@ -117,15 +117,10 @@ void PositionController::updateObserver(Quaternion orientation,
 
 void PositionController::updateObserverBlind(Quaternion orientation) {
 
-    PositionStateBlind stateBlind = {this->stateEstimate.p,
-                                     this->stateEstimate.v};
-
-    PositionControlSignalBlind controlSignalBlind =
-        PositionControlSignalBlind{Vec2f{
-            orientation.x,
-            orientation.y,
-        }};
-
+    /* Update state estimate. */
     this->stateEstimate = codegenCurrentStateEstimateBlind(
-        stateBlind, controlSignalBlind, orientation);
+        this->stateEstimate, this->controlSignal, orientation);
+
+    /* Store the measurement time. */
+    this->lastMeasurementTime = getTime();
 }

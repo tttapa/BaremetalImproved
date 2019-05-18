@@ -17,7 +17,7 @@ function [ result_prediction_r, result_innovation_r, result_x_hat ] = GenerateAt
 %           'vector__u' and 'vector__y'.
 %
 
-% Round matrices
+% Ignore very small values
 L = round(s.att.kal.L, 8);
 
 % Create syms

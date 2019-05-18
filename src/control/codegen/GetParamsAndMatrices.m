@@ -154,21 +154,34 @@ s.pos.Ba = [s.pos.lambda,       0;
             0,                  0];
 s.pos.Ca = [eye(4),zeros(4, 2)];
 s.pos.Da = zeros(4, 2);
+
+% Position system @ IMP frequency
 continuousSys = ss(s.pos.Aa, s.pos.Ba, s.pos.Ca, s.pos.Da);
 discreteSys = c2d(continuousSys, s.pos.Ts, method);
-
 s.pos.Ad = discreteSys.A;
 s.pos.Bd = discreteSys.B;
 s.pos.Cd = discreteSys.C;
 s.pos.Dd = discreteSys.D;
 
-% LQR with integral action
+% Position system @ IMU frequency
+s.posBlind.Aa = s.pos.Aa;
+s.posBlind.Ba = s.pos.Ba;
+s.posBlind.Ca = [eye(2), zeros(2, 4)];
+s.posBlind.Da = zeros(2, 2);
+continuousSys = ss(s.posBlind.Aa, s.posBlind.Ba, s.posBlind.Ca, s.posBlind.Da);
+discreteSys = c2d(continuousSys, s.att.Ts, method);
+s.posBlind.Ad = discreteSys.A;
+s.posBlind.Bd = discreteSys.B;
+s.posBlind.Cd = discreteSys.C;
+s.posBlind.Dd = discreteSys.D;
+
+
+% LQR with integral action @ IMP frequency
 s.pos.lqr.W = [ s.pos.Ad - eye(6), s.pos.Bd;
                 s.pos.Cd,          s.pos.Dd ];
 s.pos.lqr.OI = [zeros(6, 4);
                   eye(4)  ];
 s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
-
 % TODO: choose best LQR from configurations
 s.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
 s.pos.lqr.R = 1.5*200.0*eye(2);
@@ -177,50 +190,12 @@ s.pos.lqi.max_integral = 20;        % ~ 10-15 seconds for full windup without pr
 s.pos.lqi.I = diag([0,0]); %0.001*[0,-1;1,0];     % Max integral action = 0.001*20 = 0.02
 s.pos.lqi.K = [s.pos.lqr.K, s.pos.lqi.I];
 
-
-%% Position (blind)
-
-% Linear system (reduced)
-s.posBlind.Ts = s.att.Ts;
-s.posBlind.Aa = [0, 0, 1, 0;
-                 0, 0, 0, 1;
-                 0, 0, 0, 0;
-                 0, 0, 0, 0];
-s.posBlind.Ba = [0, 0;
-                 0, 0;
-                 0, 2*p.g;
-                 -2*p.g, 0];
-s.posBlind.Ca = [];
-s.posBlind.Da = [];
-continuousSys = ss(s.posBlind.Aa, s.posBlind.Ba, s.posBlind.Ca, s.posBlind.Da);
-discreteSys = c2d(continuousSys, s.posBlind.Ts, method);
-s.posBlind.Ad = discreteSys.A;
-s.posBlind.Bd = discreteSys.B;
-s.posBlind.Cd = discreteSys.C;
-s.posBlind.Dd = discreteSys.D;
-
-% Linear system (full)
-continuousSys = ss(s.pos.Aa, s.pos.Ba, s.pos.Ca, s.pos.Da);
-discreteSys = c2d(continuousSys, s.posBlind.Ts, method);
-s.posBlind.Adfull = discreteSys.A;
-s.posBlind.Bdfull = discreteSys.B;
-s.posBlind.Cdfull = discreteSys.C;
-s.posBlind.Ddfull = discreteSys.D;
-
-% LQR with integral action
-s.posBlind.lqr.W = [ s.posBlind.Adfull - eye(6), s.posBlind.Bdfull;
-                     s.posBlind.Cdfull,          s.posBlind.Ddfull ];
-s.posBlind.lqr.OI = [zeros(6, 4);
-                     eye(4)  ];
-s.posBlind.lqr.G = s.posBlind.lqr.W \ s.posBlind.lqr.OI;
-
-% TODO: choose best LQR from configurations
+% LQR with integral action @ IMU frequency
 s.posBlind.lqr.Q = s.pos.lqr.Q;
 s.posBlind.lqr.R = s.pos.lqr.R;
-s.posBlind.lqr.K = -dlqr(s.posBlind.Adfull, s.posBlind.Bdfull, ...
-                         s.posBlind.lqr.Q,  s.posBlind.lqr.R);
-s.posBlind.lqi.I = s.pos.lqi.I;
+s.posBlind.lqr.K = -dlqr(s.posBlind.Ad, s.posBlind.Bd, s.posBlind.lqr.Q, s.posBlind.lqr.R);
 s.posBlind.lqi.max_integral = s.pos.lqi.max_integral;
+s.posBlind.lqi.I = s.pos.lqi.I;
 s.posBlind.lqi.K = [s.posBlind.lqr.K, s.posBlind.lqi.I];
 
 end

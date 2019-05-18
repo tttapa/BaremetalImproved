@@ -293,27 +293,12 @@ if strcmp(controllerName, 'Position')
         end
     end
     
-    if strcmp(struct, 'x_hat_blind_copy')
-       if element == 1
-           string = 'stateEstimateBlindCopy.p.x';
-       end
-       if element == 2
-           string = 'stateEstimateBlindCopy.p.y';
-       end
-       if element == 3
-           string = 'stateEstimateBlindCopy.v.x';
-       end
-       if element == 4
-           string = 'stateEstimateBlindCopy.v.y';
-       end
-    end
-    
     if strcmp(struct, 'u')
         if element == 1
-            string = 'controlSignalBlind.q12.x';
+            string = 'controlSignal.q12.x';
         end
         if element == 2
-            string = 'controlSignalBlind.q12.y';
+            string = 'controlSignal.q12.y';
         end
     end
      

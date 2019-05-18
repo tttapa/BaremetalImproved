@@ -14,7 +14,7 @@ function [ result_u, result_y_int_increment ] = GenerateAttitudeController(s)
 %           syms 'vector__ref' and 'vector__x_hat'.
 %
 
-% Round matrices
+% Ignore very small values
 G = round(s.att.lqr.G, 8);
 K = round(s.att.lqi.K, 8);
     

@@ -185,20 +185,13 @@ PositionState PositionController::codegenCurrentStateEstimate(
  *          edit it in the template.
  */
 PositionState PositionController::codegenCurrentStateEstimateBlind(
-    PositionStateBlind stateEstimateBlind,
-    PositionControlSignalBlind controlSignalBlind, Quaternion orientation) {
+    PositionState stateEstimate, PositionControlSignal controlSignal, Quaternion orientation) {
 
-    PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
-
-    stateEstimateBlind.p.x = $xBlind0;
-    stateEstimateBlind.p.y = $xBlind1;
-    stateEstimateBlind.v.x = $xBlind2;
-    stateEstimateBlind.v.y = $xBlind3;
-
-    PositionState stateEstimate = {};
-    stateEstimate.q.x           = orientation.x;
-    stateEstimate.q.y           = orientation.y;
-    stateEstimate.p             = stateEstimateBlind.p;
-    stateEstimate.v             = stateEstimateBlind.v;
+    stateEstimate.q.x = orientation.x;
+    stateEstimate.q.y = orientation.y;
+    stateEstimate.p.x = $xBlind0;
+    stateEstimate.p.y = $xBlind1;
+    stateEstimate.v.x = $xBlind2;
+    stateEstimate.v.y = $xBlind3;
     return stateEstimate;
 }
