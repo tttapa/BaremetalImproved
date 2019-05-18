@@ -148,8 +148,8 @@ static constexpr float TAKEOFF_THROTTLE_RESET = 0.03;
 #pragma endregion
 
 bool isValidSearchTarget(Position position) {
-    return position.x >= X_MIN && position.x <= X_MAX &&
-           position.y >= Y_MIN && position.y <= Y_MAX;
+    return position.x >= X_MIN && position.x <= X_MAX && position.y >= Y_MIN &&
+           position.y <= Y_MAX;
 }
 
 float AutonomousController::getElapsedTime() {
@@ -161,8 +161,8 @@ Position AutonomousController::getNextSearchTarget() {
     float y = this->nextTarget.y;
 
     /* Spiral outward until we reach the next tile to check. */
-    float dx          = 1.0 * BLOCKS_TO_METERS;
-    float dy          = 0.0 * BLOCKS_TO_METERS;
+    float dx           = 1.0 * BLOCKS_TO_METERS;
+    float dy           = 0.0 * BLOCKS_TO_METERS;
     int tilesUntilTurn = 0;
     int nextTurnIndex  = 1;
     for (int i = 0; i < this->qrTilesSearched; i++) {
@@ -198,7 +198,7 @@ void AutonomousController::setNextTargetBlocks(Position targetBlocks) {
 
 void AutonomousController::startNavigating(Position nextTarget) {
     setNextTarget(nextTarget);
-    float d             = dist(this->previousTarget, this->nextTarget);
+    float d              = dist(this->previousTarget, this->nextTarget);
     this->navigationTime = d / NAVIGATION_SPEED;
     setAutonomousState(NAVIGATING);
 }
@@ -356,13 +356,13 @@ void AutonomousController::updateQRFSM_NewTarget() {
 
     /* Correct the drone's position if it got lost during navigation. */
     VisionPosition qrPosition = qrComm->getCurrentPosition();
-    if(qrPosition)
+    if (qrPosition)
         positionController.correctPositionEstimateBlocks(qrPosition);
 
     /* Switch autonomous FSM to NAVIGATING, and set the target to the position
        of the next QR code sent by the Cryptography team. */
     VisionPosition target = qrComm->getTargetPosition();
-    if(target)
+    if (target)
         startNavigatingBlocks(qrComm->getTargetPosition());
 
     /* Land or loiter indefinitely if the given target is NaN. */
@@ -382,7 +382,7 @@ void AutonomousController::updateQRFSM_Land() {
 
     /* Correct the drone's position if it got lost during navigation. */
     VisionPosition qrPosition = qrComm->getCurrentPosition();
-    if(qrPosition)
+    if (qrPosition)
         positionController.correctPositionEstimateBlocks(qrPosition);
 
     /* Switch the autonomous FSM to LANDING if landing is enabled. */
@@ -404,11 +404,11 @@ void AutonomousController::updateQRFSM_QRUnknown() {
 
     /* Correct the drone's position if it got lost during navigation. */
     VisionPosition qrPosition = qrComm->getCurrentPosition();
-    if(qrPosition)
+    if (qrPosition)
         positionController.correctPositionEstimateBlocks(qrPosition);
 
     // TODO: what do we do with unknown QR data?
-    
+
     /* Switch the autonomous FSM to LANDING if landing is enabled. */
     if (isLandingEnabled())
         setAutonomousState(LANDING);
@@ -514,7 +514,7 @@ void AutonomousController::updateQRFSM_Error() {
 AutonomousOutput AutonomousController::updateAutonomousFSM_IdleGround() {
 
     /* Reset the takeoff throttle if it's lowered enough. */
-    if(getThrottle() <= TAKEOFF_THROTTLE_RESET)
+    if (getThrottle() <= TAKEOFF_THROTTLE_RESET)
         this->isTakeoffThrottleReset = true;
 
     /* Switch to WPT when the RC WPT mode turns on. */
@@ -523,7 +523,7 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_IdleGround() {
 
     /* Switch to PRE_TAKEOFF when the RC throttle is raised high enough. */
     else if (this->isTakeoffThrottleReset &&
-            getThrottle() >= TAKEOFF_THROTTLE) {
+             getThrottle() >= TAKEOFF_THROTTLE) {
         this->isTakeoffThrottleReset = false;
         setAutonomousState(PRE_TAKEOFF);
     }
@@ -548,13 +548,14 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_PreTakeoff() {
     /* Switch to TAKEOFF if the timer expires and the test mode dictates that we
        should take off after pre-takeoff. */
     if (getElapsedTime() > PRE_TAKEOFF_DURATION &&
-        shouldTakeOffAfterPreTakeoff())
+        (shouldTakeOffAfterPreTakeoff() && getThrottle() > LANDING_THROTTLE))
         setAutonomousState(TAKEOFF);
 
     /* Switch back to IDLE if the timer expires and the test mode dictates that
        we should not take off after pre-takeoff. */
     else if (getElapsedTime() > PRE_TAKEOFF_DURATION &&
-             !shouldTakeOffAfterPreTakeoff())
+             !(shouldTakeOffAfterPreTakeoff() &&
+               getThrottle() > LANDING_THROTTLE))
         setAutonomousState(IDLE_GROUND);
 
     /* Otherwise, stay in PRE_TAKEOFF. */
@@ -741,7 +742,7 @@ AutonomousController::updateAutonomousFSM_Navigating(Position currentPosition) {
 
     /* Otherwise, stay in NAVIGATING. Interpolate the reference point between
        the last target and the next target during this time. */
-    float factor          = getElapsedTime() / this->navigationTime;
+    float factor           = getElapsedTime() / this->navigationTime;
     Position delta         = (nextTarget - previousTarget) * factor;
     Position interpolation = previousTarget + delta;
 

@@ -48,19 +48,6 @@ const float Y_MAX = Y_MAX_BLOCKS * BLOCKS_TO_METERS;
 /** Lowest valid y-coordinate. */
 const float Y_MIN = Y_MIN_BLOCKS * BLOCKS_TO_METERS;
 
-struct PositionStateBlind {
-    PositionStateBlind(Position p, HorizontalVelocity v) : p{p}, v{v} {}
-    PositionStateBlind() = default;
-    Position p;            ///< Position (x,y) in meters.
-    HorizontalVelocity v;  ///< Horizontal velocity in m/s.
-};
-
-struct PositionControlSignalBlind {
-    PositionControlSignalBlind(Vec2f q12) : q12{q12} {}
-    PositionControlSignalBlind() = default;
-    Vec2f q12;  ///< Reference quaternion components q1 and q2 for attitude
-};
-
 /**
  * Calculates the distance the two given positions in meters.
  * 
@@ -252,18 +239,18 @@ class PositionController {
      * stage of landing when the drone is too close to the ground to measure
      * the position.
      * 
-     * @param   stateEstimateBlind
-     *          Last four components of the position controller's state
-     *          estimate, namely x, y, vx and vy.
-     * @param   controlSignalBlind
+     * @param   stateEstimate
+     *          Last estimate of the position state.
+     * @param   controlSignal
      *          Struct containing the quaternion components q1 and q2 of the
      *          drone's orientation estimate.
      * @param   orientation
      *          Current orientation of the drone.
      */
-    static PositionState codegenCurrentStateEstimateBlind(
-        PositionStateBlind stateEstimateBlind,
-        PositionControlSignalBlind controlSignalBlind, Quaternion orientation);
+    static PositionState
+    codegenCurrentStateEstimateBlind(PositionState stateEstimate,
+                                     PositionControlSignal controlSignal,
+                                     Quaternion orientation);
 
     /** Get the position controller's control signal. */
     PositionControlSignal getControlSignal() { return this->controlSignal; }
