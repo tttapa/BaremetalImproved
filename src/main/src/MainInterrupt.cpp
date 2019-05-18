@@ -569,8 +569,8 @@ void mainOperation() {
        [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
        passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
        versa. */
-    float yawJump =
-        calculateYawJump(attitudeController.getOrientationEuler().yaw);
+    float yawJump = 0;
+        //calculateYawJump(attitudeController.getOrientationEuler().yaw);
     attitudeController.calculateJumpedQuaternions(yawJump);
 
     /* Calculate the torque motor signals. The attitude controller's reference
