@@ -1,7 +1,7 @@
+#include <MathFunctions.hpp>
 #include <Position.hpp>
 #include <math.h>   /* fabs, copysign */
 #include <string.h> /* memcpy */
-#include <MathFunctions.hpp>
 
 /**
  * If the drone's velocity changes by more than 0.30 m/s between measurements,
@@ -148,8 +148,13 @@ PositionState PositionController::codegenCurrentStateEstimate(
     Quaternion orientation, float timeElapsed, int droneConfiguration) {
 
     /* Implement jump rejection to preserve a decent drone velocity. */
-    HorizontalVelocity v0    = stateEstimate.v;
-    HorizontalVelocity v1    = (measurement.p - stateEstimate.p) / timeElapsed;
+    HorizontalVelocity v0 = stateEstimate.v;
+    HorizontalVelocity v1;
+    if (timeElapsed > 0)
+        v1 = (measurement.p - stateEstimate.p) / timeElapsed;
+    else
+        v1 = v0;
+
     HorizontalVelocity absdV = (v1 - v0).abs();
     HorizontalVelocity dAbsV = v1.abs() - v0.abs();
 
