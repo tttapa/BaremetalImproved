@@ -124,8 +124,8 @@ void mainOperation() {
 
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
-    Position positionMeasurementBlocks, positionMeasurement,
-        correctedPositionMeasurement, globalPositionEstimate;
+    Position positionMeasurementBlocks, positionMeasurement, globalPositionEstimate;
+    static Position correctedPositionMeasurement = {0.0, 0.0};
     static float yawMeasurement = 0.0;
     bool hasNewIMPMeasurement   = false;
     if (visionComm->isDoneWriting()) {
@@ -326,6 +326,11 @@ void mainOperation() {
 
 #pragma region Manual mode
 
+        //=============================== DEBUG ==============================//
+        //if(getThrottle() < 0.03)
+        //    positionController.init({0.0, 0.0});
+        //positionController.updateObserverBlind(attitudeController.getOrientationQuat());
+
         //=========================== MISCELLANEOUS ==========================//
 
         /* Check whether the drone should be armed or disarmed. This should
@@ -455,6 +460,8 @@ void mainOperation() {
         globalPositionEstimate = getGlobalPositionEstimate(
             correctedPositionMeasurement, positionController.getStateEstimate(),
             getTime() - positionController.getLastMeasurementTime());
+        // TODO: debugging
+        // globalPositionEstimate = correctedPositionMeasurement;
 
         /* Update autonomous controller using most recent position. */
         autoOutput = autonomousController.update(globalPositionEstimate,
@@ -465,7 +472,7 @@ void mainOperation() {
 
         /* Update position observer? */
         if (autoOutput.updatePositionObserver) {
-            if (autoOutput.trustIMPForPosition) { /* Blind @ IMU frequency */
+            if (!autoOutput.trustIMPForPosition) { /* Blind @ IMU frequency */
                 positionController.updateObserverBlind(
                     attitudeController.getOrientationQuat());
             } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */

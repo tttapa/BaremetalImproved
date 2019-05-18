@@ -355,12 +355,24 @@ void AutonomousController::updateQRFSM_Idle() {
 void AutonomousController::updateQRFSM_NewTarget() {
 
     /* Correct the drone's position if it got lost during navigation. */
-    positionController.correctPositionEstimateBlocks(
-        qrComm->getCurrentPosition());
+    VisionPosition qrPosition = qrComm->getCurrentPosition();
+    if(qrPosition)
+        positionController.correctPositionEstimateBlocks(qrPosition);
 
     /* Switch autonomous FSM to NAVIGATING, and set the target to the position
        of the next QR code sent by the Cryptography team. */
-    startNavigatingBlocks(qrComm->getTargetPosition());
+    VisionPosition target = qrComm->getTargetPosition();
+    if(target)
+        startNavigatingBlocks(qrComm->getTargetPosition());
+
+    /* Land or loiter indefinitely if the given target is NaN. */
+    else if (isLandingEnabled()) {
+        setAutonomousState(LANDING);
+        setNextTarget(positionController.getStateEstimate().p);
+    } else {
+        setAutonomousState(LOITERING);
+        shouldLoiterIndefinitely = true;
+    }
 
     /* Switch to QR_IDLE. */
     qrComm->setQRStateIdle();
@@ -369,8 +381,9 @@ void AutonomousController::updateQRFSM_NewTarget() {
 void AutonomousController::updateQRFSM_Land() {
 
     /* Correct the drone's position if it got lost during navigation. */
-    positionController.correctPositionEstimateBlocks(
-        qrComm->getCurrentPosition());
+    VisionPosition qrPosition = qrComm->getCurrentPosition();
+    if(qrPosition)
+        positionController.correctPositionEstimateBlocks(qrPosition);
 
     /* Switch the autonomous FSM to LANDING if landing is enabled. */
     if (isLandingEnabled())
@@ -390,10 +403,22 @@ void AutonomousController::updateQRFSM_Land() {
 void AutonomousController::updateQRFSM_QRUnknown() {
 
     /* Correct the drone's position if it got lost during navigation. */
-    positionController.correctPositionEstimateBlocks(
-        qrComm->getCurrentPosition());
+    VisionPosition qrPosition = qrComm->getCurrentPosition();
+    if(qrPosition)
+        positionController.correctPositionEstimateBlocks(qrPosition);
 
     // TODO: what do we do with unknown QR data?
+    
+    /* Switch the autonomous FSM to LANDING if landing is enabled. */
+    if (isLandingEnabled())
+        setAutonomousState(LANDING);
+
+    /* Switch the autonomous FSM to LOITERING indefinitely is landing is
+       disabled. */
+    else {
+        setAutonomousState(LOITERING);
+        shouldLoiterIndefinitely = true;
+    }
 
     /* Switch to QR_IDLE. */
     qrComm->setQRStateIdle();

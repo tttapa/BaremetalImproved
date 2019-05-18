@@ -6,8 +6,9 @@ namespace std2 {
     inline float minf(float a, float b) { return !(b<a)?a:b; }
     inline float maxf(float a, float b) { return (b<a)?a:b; }
     inline float absf(float f) { return (float)fabs(f);}
-    inline int round(float f) { return static_cast<int>(f + 0.5); }
-    inline float roundf(float f) { return static_cast<float>(round(f)); }
+    //inline int round(float f) { return static_cast<int>(f + 0.5); }
+    //inline float roundf(float f) { return static_cast<float>(round(f)); }
+    inline float roundf(float f) { return (float)round(f); }
     inline float cosf(float f) {return (float)cos(f);}
     inline float acosf(float f) {return (float)acos(f);}
     inline float sinf(float f) {return (float)sin(f);}

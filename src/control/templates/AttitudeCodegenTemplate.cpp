@@ -2,8 +2,7 @@
 #include <MathFunctions.hpp>
 #include <Square.hpp>
 
-#define SQ(value) ((value) * (value))
-#define QUAT_0(value) ((value).q.w = std2::sqrtf(1.0 - sq((value).q.x) - sq((value).q.y) - sq((value).q.z)))
+#define QUAT_0_SQ(value) (1.0 - sq((value).q.x) - sq((value).q.y) - sq((value).q.z))
 
 /*
  * @note    This is an automatically generated function. Do not edit it here,
@@ -174,12 +173,29 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             innovation = {};
             break;
     }
-    QUAT_0(prediction);
-    QUAT_0(innovation);
-    stateEstimate.q.w = $x0;
-    stateEstimate.q.x = $x1;
-    stateEstimate.q.y = $x2;
-    stateEstimate.q.z = $x3;
+
+    /* Check for valid quaternion (not NaN). */
+    float q0_prediction2 = QUAT_0_SQ(prediction);
+    float q0_innovation2 = QUAT_0_SQ(innovation);
+    if(q0_prediction2 >= 0.0 && q0_prediction2 <= 1.1 && //
+       q0_innovation2 >= 0.0 && q0_innovation2 <= 1.1) {
+        prediction.q.w = std2::sqrtf(q0_prediction2);
+        innovation.q.w = std2::sqrtf(q0_innovation2);
+        stateEstimate.q.w = $x0;
+        stateEstimate.q.x = $x1;
+        stateEstimate.q.y = $x2;
+        stateEstimate.q.z = $x3;
+    }
+    
+    /* Use measurement if prediction or innovation has NaN q0. */
+    else {
+        stateEstimate.q.w = measurement.q.w;
+        stateEstimate.q.x = measurement.q.x;
+        stateEstimate.q.y = measurement.q.y;
+        stateEstimate.q.z = measurement.q.z;
+    }
+
+    /* Compute the rest of the components. */
     stateEstimate.w.x = $x4;
     stateEstimate.w.y = $x5;
     stateEstimate.w.z = $x6;
