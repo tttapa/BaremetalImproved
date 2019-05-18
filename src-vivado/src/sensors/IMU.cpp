@@ -311,7 +311,7 @@ bool initIMU() {
     /* Initialize calibration variables. */
     calibrationStepCounter = 0;
     gyroBias               = {};
-    accelBiasQuat          = Quaternion::unit();
+    accelBiasQuat          = Quaternion::identity();
     accelBiasNorm          = 1;
     for (int i = 0; i < 3; i++) {
         gyroRawSum[i]  = 0;
