@@ -120,7 +120,7 @@ void mainOperation() {
     bool shouldUpdateAltitudeObserver = hasNewSonarMeasurement;
     float sonarMeasurement            = getFilteredSonarMeasurement();
     float correctedSonarMeasurement   = getCorrectedHeight(
-        sonarMeasurement, attitudeController.getOrientationQuat());
+        sonarMeasurement, attitudeController.getStateEstimate().q);
 
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
@@ -137,7 +137,7 @@ void mainOperation() {
             yawMeasurement      = visionData.yawAngle;
             correctedPositionMeasurement =
                 getCorrectedPosition(positionMeasurement, sonarMeasurement,
-                                     attitudeController.getOrientationQuat());
+                                     attitudeController.getStateEstimate().q);
             hasNewIMPMeasurement = true;
         }
     }
@@ -329,7 +329,7 @@ void mainOperation() {
         //=============================== DEBUG ==============================//
         //if(getThrottle() < 0.03)
         //    positionController.init({0.0, 0.0});
-        //positionController.updateObserverBlind(attitudeController.getOrientationQuat());
+        //positionController.updateObserverBlind(attitudeController.getStateEstimate().q);
 
         //=========================== MISCELLANEOUS ==========================//
 
@@ -474,10 +474,10 @@ void mainOperation() {
         if (autoOutput.updatePositionObserver) {
             if (!autoOutput.trustIMPForPosition) { /* Blind @ IMU frequency */
                 positionController.updateObserverBlind(
-                    attitudeController.getOrientationQuat());
+                    attitudeController.getStateEstimate().q);
             } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
                 positionController.updateObserver(
-                    attitudeController.getOrientationQuat(),
+                    attitudeController.getStateEstimate().q,
                     globalPositionEstimate);
             }
         }
@@ -525,19 +525,6 @@ void mainOperation() {
                control signal about the equilibrium. */
         attitudeController.setReference(calculatePositionControllerOutput(
             yawMeasurement, 0.0, q12ref.q12.x, q12ref.q12.y));
-        /*
-
-        Quaternion quatInputBias = EulerAngles::eul2quat({
-            0.0,
-            biasManager.getPitchBias(),
-            biasManager.getRollBias(),
-        });
-        float q1                = q12ref.q12.x;
-        float q2                = q12ref.q12.y;
-        float q0                = 1.0 - std2::sqrtf(q1 * q1 + q2 * q2);
-        Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
-        attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
-        */
 
 #pragma endregion
     }
@@ -655,6 +642,73 @@ float calculateYawJump(float yaw) {
     /* Return the yaw jump. */
     return modYaw - yaw;
 }
+
+//********************************************************//
+//*** Calculate dyaw_quat using x_hat and max_yaw_rads ***//
+//*** ... returns dyaw in radians                      ***//
+//********************************************************//
+Quaternion calculateDYawQuat(const Quaternion& orientationEstimate) {
+	
+    /* Convert orientation estimate to EulerAngles. */
+    EulerAngles eul = EulerAngles::quat2eul(orientationEstimate);
+    
+    /* Return the 
+	
+	// If yaw in [-max_yaw_rads,+max_yaw_rads], set dyaw to unit quaternion and return 0.
+	if(eulYPR[0] >= -max_yaw_rads && eulYPR[0] <= max_yaw_rads) {
+		dyaw->w = 1.0;
+		dyaw->x = 0.0;
+		dyaw->y = 0.0;
+		dyaw->z = 0.0;
+		return 0.0;
+	} else {
+		
+		float dyawRads;
+		float newYaw;
+		float d;
+		float w;
+		float s;
+		Quat32 newYawQuat;
+		Quat32 oldYawQuat;
+		
+		// Calculate dyawRads
+		if(eulYPR[0] > 0) {
+			dyawRads = -2.0*max_yaw_rads;
+		} else {
+			dyawRads = 2.0*max_yaw_rads;
+		}
+		
+		// Calculate new yaw
+		newYaw = eulYPR[0] + dyawRads;
+		
+		// Build the quaternion with the new yaw
+		d = eulYPR[2]*eulYPR[2] + eulYPR[1]*eulYPR[1] + newYaw*newYaw;
+		w = cosf(sqrt(d)/2);
+		if(d==0) s=0;
+		else s = sinf(sqrt(d)/2)/sqrt(d);
+		
+		newYawQuat.w = w;
+		newYawQuat.x = eulYPR[2]*s;
+		newYawQuat.y = eulYPR[1]*s;
+		newYawQuat.z = newYaw*s;
+		
+		// Build the quaternion with the old yaw
+		oldYawQuat.w = x_hat[0];
+		oldYawQuat.x = x_hat[1];
+		oldYawQuat.y = x_hat[2];
+		oldYawQuat.z = x_hat[3];
+		
+		// Calculate the difference between the new quaternion and the old one
+		// Store it in the paramter dyaw
+		quat32_difference(dyaw, &newYawQuat, &oldYawQuat);
+		
+		// Return dyawRads
+		return dyawRads;
+		
+	}
+	
+}
+
 
 AttitudeReference calculatePositionControllerOutput(float yawMeasurement,
                                                     float yawRef,

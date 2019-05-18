@@ -118,13 +118,13 @@ void BiasManager::updatePitchBias(float referencePitchRads,
 void BiasManager::updateThrustBias(float commonThrust, FlightMode flightMode) {
 
     float weight1 = THRUST_BIAS_WEIGHT_MANUAL / IMU_FACTOR;
-    //float weight2 = THRUST_BIAS_WEIGHT_ALTITUDE_HOLD / IMU_FACTOR;
+    float weight2 = THRUST_BIAS_WEIGHT_ALTITUDE_HOLD / IMU_FACTOR;
 
     if (flightMode == FlightMode::MANUAL) {
         this->thrustBias += weight1 * (commonThrust - this->thrustBias);
 
     } else if (flightMode == FlightMode::ALTITUDE_HOLD ||
                flightMode == FlightMode::AUTONOMOUS) {
-        this->thrustBias += 0; //weight2 * (commonThrust - this->thrustBias);
+        this->thrustBias += weight2 * (commonThrust - this->thrustBias);
     }
 }
