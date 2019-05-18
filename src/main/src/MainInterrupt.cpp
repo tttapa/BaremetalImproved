@@ -568,8 +568,8 @@ void mainOperation() {
 #pragma endregion
 
     /* Set attitude reference. */
-    float x                  = std2::tanf(rollRef);
-    float y                  = std2::tanf(pitchRef);
+    float x                  = std2::tanf(pitchRef);
+    float y                  = -std2::tanf(rollRef);
     float z                  = 1.0;
     Vec3f v                  = Vec3f{x, y, z};
     Quaternion rollPitchQuat = -Quaternion::fromDirection(v);

@@ -142,6 +142,7 @@ void AttitudeController::init() {
     this->integralWindup = {};
     this->controlSignal  = {};
     this->reference      = {};
+    this->rcReferenceYaw = 0.0;
 }
 
 AttitudeControlSignal
