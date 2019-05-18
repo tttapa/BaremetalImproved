@@ -40,13 +40,13 @@ s.att.lqr.W  = [ s.att.Ad - eye(9), s.att.Bd;
 s.att.lqr.OI = [ zeros(9, 6); eye(6)];
 s.att.lqr.G = s.att.lqr.W \ s.att.lqr.OI;
 
-s.att.lqr.Q = diag([0.5*139.6245112700232,0.5*139.6245112700232,0.5*15.2811761590895,...
-    1.1505204155597211,1.1505204155597211,0.1209919487616804,...
-    9.976475759487083e-08,9.976475759487083e-08,9.976475759487083e-09]);
+s.att.lqr.Q = diag([0.5*15.2811761590895,0.5*139.6245112700232,0.5*139.6245112700232,...
+    0.1209919487616804,1.1505204155597211,1.1505204155597211,...
+    9.976475759487083e-09,9.976475759487083e-08,9.976475759487083e-08,]);
 s.att.lqr.R = 24.0*diag([1,1,1]);
 s.att.lqr.K = -dlqr(s.att.Ad, s.att.Bd, s.att.lqr.Q, s.att.lqr.R);
 s.att.lqi.max_integral = 0.25;      % ~ 5-10 seconds for full windup without propellors
-s.att.lqi.I = diag([0,0,0]); %diag([0.1, 0.1, 0]);  % Max integral action = 0.1*0.25 = 0.025
+s.att.lqi.I = diag([0,0,0]); %diag([0, 0.1, 0.1]);  % Max integral action = 0.1*0.25 = 0.025
 s.att.lqi.K = [s.att.lqr.K, s.att.lqi.I];
 
 % Kalman:

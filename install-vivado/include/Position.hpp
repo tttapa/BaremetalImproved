@@ -48,19 +48,6 @@ const float Y_MAX = Y_MAX_BLOCKS * BLOCKS_TO_METERS;
 /** Lowest valid y-coordinate. */
 const float Y_MIN = Y_MIN_BLOCKS * BLOCKS_TO_METERS;
 
-struct PositionStateBlind {
-    PositionStateBlind(Position p, HorizontalVelocity v) : p{p}, v{v} {}
-    PositionStateBlind() = default;
-    Position p;            ///< Position (x,y) in meters.
-    HorizontalVelocity v;  ///< Horizontal velocity in m/s.
-};
-
-struct PositionControlSignalBlind {
-    PositionControlSignalBlind(Vec2f q12) : q12{q12} {}
-    PositionControlSignalBlind() = default;
-    Vec2f q12;  ///< Reference quaternion components q1 and q2 for attitude
-};
-
 /**
  * Calculates the distance the two given positions in meters.
  * 
@@ -244,7 +231,7 @@ class PositionController {
      */
     static PositionState codegenCurrentStateEstimate(
         PositionState stateEstimate, PositionMeasurement measurement,
-        Quaternion orientation, float timeElapsed, int droneConfiguration);
+        EulerAngles orientation, float timeElapsed, int droneConfiguration);
 
     /**
      * Calculate the current position estimate using the code generator. This
@@ -252,18 +239,16 @@ class PositionController {
      * stage of landing when the drone is too close to the ground to measure
      * the position.
      * 
-     * @param   stateEstimateBlind
-     *          Last four components of the position controller's state
-     *          estimate, namely x, y, vx and vy.
-     * @param   controlSignalBlind
-     *          Struct containing the quaternion components q1 and q2 of the
-     *          drone's orientation estimate.
+     * @param   stateEstimate
+     *          Last estimate of the position controller's state.
+     * @param   controlSignal
+                Control signal sent the attitude controller during the last
+                clock cycle (@ IMU frequency).
      * @param   orientation
      *          Current orientation of the drone.
      */
     static PositionState codegenCurrentStateEstimateBlind(
-        PositionStateBlind stateEstimateBlind,
-        PositionControlSignalBlind controlSignalBlind, Quaternion orientation);
+        PositionState stateEstimate, PositionControlSignal controlSignal, EulerAngles orientation);
 
     /** Get the position controller's control signal. */
     PositionControlSignal getControlSignal() { return this->controlSignal; }
@@ -358,7 +343,7 @@ class PositionController {
      * @param   measurement
      *          New position measurement from the Image Processing team.
      */
-    void updateObserver(Quaternion orientation,
+    void updateObserver(EulerAngles orientation,
                         PositionMeasurement measurement);
 
     /**
@@ -367,5 +352,5 @@ class PositionController {
      * @param   orientation
      *          Current orientation of the drone.
      */
-    void updateObserverBlind(Quaternion orientation);
+    void updateObserverBlind(EulerAngles orientation);
 };

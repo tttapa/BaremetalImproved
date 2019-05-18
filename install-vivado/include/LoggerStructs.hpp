@@ -1,5 +1,6 @@
 #pragma once
 
+#include <EulerAngles.hpp>
 #include <Quaternion.hpp>
 #include <stdint.h>
 
@@ -156,66 +157,67 @@ struct AltitudeState {
 
 // This is an automatically generated struct, edit it in the code generator
 /**
- * PWM control signals sent to the 'torque motors', consisting of a Vec3f. Each
+ * PWM control signals sent to the 'torque motors', consisting of EulerAngles. Each
  * component will be sent to a different 'torque motor'.
  */
 struct AttitudeControlSignal {
     AttitudeControlSignal() = default;
-    AttitudeControlSignal(Vec3f uxyz) : uxyz{uxyz} {}
+    AttitudeControlSignal(EulerAngles uEul) : uEul{uEul} {}
     
     /**
-     * Signal sent to the 'torque motors'.
+     * Signal sent to the yaw, pitch and roll 'torque motors'.
      */
-    Vec3f uxyz = {0.0, 0.0, 0.0};
+    EulerAngles uEul = {0.0, 0.0, 0.0};
 };
 
 // This is an automatically generated struct, edit it in the code generator
 /**
  * Integral of the error of the quaternion components q1, q2 and q3, represented
- * by a Vec3f.
+ * by EulerAngles.
  */
 struct AttitudeIntegralWindup {
     AttitudeIntegralWindup() = default;
-    AttitudeIntegralWindup(Vec3f q123) : q123{q123} {}
+    AttitudeIntegralWindup(EulerAngles eul) : eul{eul} {}
     
     /**
-     * Integral of the error of the quaternion components q1 q2 and q3.
+     * Integral of the error of the yaw, pitch and roll angles in radians.
      */
-    Vec3f q123 = {0.0, 0.0, 0.0};
+    EulerAngles eul = {0.0, 0.0, 0.0};
 };
 
 // This is an automatically generated struct, edit it in the code generator
 /**
- * Measurement from the IMU, consisting of a quaternion for the drone's
+ * Measurement from the IMU, consisting of EulerAngles for the drone's
  * orientation and a Vec3f for the drone's angular velocity, measured in rad/s.
  */
 struct AttitudeMeasurement {
     AttitudeMeasurement() = default;
-    AttitudeMeasurement(Quaternion q, Vec3f w) : q{q}, w{w} {}
+    AttitudeMeasurement(EulerAngles eul, EulerAngles wEul) : eul{eul}, wEul{wEul} {}
     
     /**
-     * Measurement orientation from the IMU.
+     * Measurement orientation from the AHRS (EulerAngles).
      */
-    Quaternion q = Quaternion::unit();
+    EulerAngles eul = EulerAngles::quat2eul(Quaternion::unit());
 
     /**
-     * Measurement angular velocity from the IMU.
+     * Measurement angular velocity from the IMU in rad/s.
      */
-    Vec3f w = {0.0, 0.0, 0.0};
+    EulerAngles wEul = EulerAngles{0.0, 0.0, 0.0};
+
 };
 
 // This is an automatically generated struct, edit it in the code generator
 /**
- * Reference orientation to track, represented by a quaternion.
+ * Reference orientation to track, represented by EulerAngles.
  */
 struct AttitudeReference {
     AttitudeReference() = default;
-    AttitudeReference(Quaternion q) : q{q} {}
+    AttitudeReference(EulerAngles eul) : eul{eul} {}
     
     /**
      * Reference orientation.
      */
-    Quaternion q = Quaternion::unit();
+    EulerAngles eul = EulerAngles::quat2eul(Quaternion::unit());
 };
 
 // This is an automatically generated struct, edit it in the code generator
@@ -226,22 +228,22 @@ struct AttitudeReference {
  */
 struct AttitudeState {
     AttitudeState() = default;
-    AttitudeState(Quaternion q, Vec3f w, Vec3f n) : q{q}, w{w}, n{n} {}
+    AttitudeState(EulerAngles eul, EulerAngles wEul, EulerAngles nEul) : eul{eul}, wEul{wEul}, nEul{nEul} {}
     
     /**
-     * The orientation of the drone.
+     * The orientation of the drone as EulerAngles.
      */
-    Quaternion q = Quaternion::unit();
+    EulerAngles eul = EulerAngles::quat2eul(Quaternion::unit());
 
     /**
-     * The angular velocity of the drone in rad/s.
+     * The angular velocity of the drone in rad/s (change of EulerAngles).
      */
-    Vec3f w = {0.0, 0.0, 0.0};
+    EulerAngles wEul = {0.0, 0.0, 0.0};
 
     /**
-     * The angular velocity of the 'torque motors' in rad/s.
+     * The angular velocity of the 'torque motors' in rad/s (change of EulerAngles).
      */
-    Vec3f n = {0.0, 0.0, 0.0};
+    EulerAngles nEul = {0.0, 0.0, 0.0};
 };
 
 // This is an automatically generated struct, edit it in the code generator
@@ -251,12 +253,12 @@ struct AttitudeState {
  */
 struct PositionControlSignal {
     PositionControlSignal() = default;
-    PositionControlSignal(Vec2f q12) : q12{q12} {}
+    PositionControlSignal(Vec2f pitchRollRef) : pitchRollRef{pitchRollRef} {}
     
     /**
-     * Reference orientation, q1 and q2 components.
+     * Reference pitch and roll in radians.
      */
-    Vec2f q12 = {0.0, 0.0};
+    Vec2f pitchRollRef = {0.0, 0.0};
 };
 
 // This is an automatically generated struct, edit it in the code generator
@@ -338,7 +340,7 @@ struct PositionState {
  */
 struct AutonomousOutput {
     AutonomousOutput() = default;
-    AutonomousOutput(bool useAltitudeController, AltitudeReference referenceHeight, AltitudeControlSignal commonThrust, bool updateAltitudeObserver, bool usePositionController, PositionReference referencePosition, PositionControlSignal q12ref, bool updatePositionObserver, bool trustIMPForPosition) : useAltitudeController{useAltitudeController}, referenceHeight{referenceHeight}, commonThrust{commonThrust}, updateAltitudeObserver{updateAltitudeObserver}, usePositionController{usePositionController}, referencePosition{referencePosition}, q12ref{q12ref}, updatePositionObserver{updatePositionObserver}, trustIMPForPosition{trustIMPForPosition} {}
+    AutonomousOutput(bool useAltitudeController, AltitudeReference referenceHeight, AltitudeControlSignal commonThrust, bool updateAltitudeObserver, bool usePositionController, PositionReference referencePosition, PositionControlSignal uPos, bool updatePositionObserver, bool trustIMPForPosition) : useAltitudeController{useAltitudeController}, referenceHeight{referenceHeight}, commonThrust{commonThrust}, updateAltitudeObserver{updateAltitudeObserver}, usePositionController{usePositionController}, referencePosition{referencePosition}, uPos{uPos}, updatePositionObserver{updatePositionObserver}, trustIMPForPosition{trustIMPForPosition} {}
     
     /**
      * Whether the altitude controller should be used. If this is false, then
@@ -381,7 +383,7 @@ struct AutonomousOutput {
      * Control signal to send to the attitude controller, if the position
      * controller is bypassed.
      */
-    PositionControlSignal q12ref = {};
+    PositionControlSignal uPos = {};
 
     /**
      * Whether the position observer should be updated.
