@@ -4,8 +4,8 @@
 
 /* Vector with two components, x and y, represented by floats. */
 struct Vec2f {
-    float x;
-    float y;
+    float x = 0.0;
+    float y = 0.0;
 
     Vec2f(float x, float y) : x{x}, y{y} {}
     Vec2f() = default;
@@ -39,9 +39,9 @@ struct Vec2f {
 
 /* Vector with three components, x, y and z, represented by floats. */
 struct Vec3f {
-    float x;
-    float y;
-    float z;
+    float x = 0.0;
+    float y = 0.0;
+    float z = 0.0;
 
     Vec3f(float x, float y, float z) : x{x}, y{y}, z{z} {}
     Vec3f() = default;

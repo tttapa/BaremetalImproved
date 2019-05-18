@@ -118,8 +118,8 @@ void mainOperation() {
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement       = readSonar();
     bool shouldUpdateAltitudeObserver = hasNewSonarMeasurement;
-    float sonarMeasurement           = getFilteredSonarMeasurement();
-    float correctedSonarMeasurement  = getCorrectedHeight(
+    float sonarMeasurement            = getFilteredSonarMeasurement();
+    float correctedSonarMeasurement   = getCorrectedHeight(
         sonarMeasurement, attitudeController.getOrientationQuat());
 
     /* Read IMP measurement from shared memory and correct it using the sonar
@@ -127,17 +127,19 @@ void mainOperation() {
     Position positionMeasurementBlocks, positionMeasurement,
         correctedPositionMeasurement, globalPositionEstimate;
     static float yawMeasurement = 0.0;
-    bool hasNewIMPMeasurement    = false;
+    bool hasNewIMPMeasurement   = false;
     if (visionComm->isDoneWriting()) {
-        hasNewIMPMeasurement          = true;
-        VisionData visionData         = visionComm->read();
-        VisionPosition visionPosition = visionData.position;
-        positionMeasurementBlocks     = {visionPosition.x, visionPosition.y};
-        positionMeasurement = positionMeasurementBlocks * BLOCKS_TO_METERS;
-        yawMeasurement      = visionData.yawAngle;
-        correctedPositionMeasurement =
-            getCorrectedPosition(positionMeasurement, sonarMeasurement,
-                                 attitudeController.getOrientationQuat());
+        VisionData visionData = visionComm->read();
+        if (visionData.position && !std::isnan(visionData.yawAngle)) {
+            VisionPosition visionPosition = visionData.position;
+            positionMeasurementBlocks = {visionPosition.x, visionPosition.y};
+            positionMeasurement = positionMeasurementBlocks * BLOCKS_TO_METERS;
+            yawMeasurement      = visionData.yawAngle;
+            correctedPositionMeasurement =
+                getCorrectedPosition(positionMeasurement, sonarMeasurement,
+                                     attitudeController.getOrientationQuat());
+            hasNewIMPMeasurement = true;
+        }
     }
 #pragma endregion
 
@@ -439,7 +441,8 @@ void mainOperation() {
                 positionController.init(correctedPositionMeasurement);
             } else {
                 // TODO: autonomous controller inits in the middle
-                Position centerBlocks = Position{X_CENTER_BLOCKS, Y_CENTER_BLOCKS};
+                Position centerBlocks =
+                    Position{X_CENTER_BLOCKS, Y_CENTER_BLOCKS};
                 Position startingPosition = centerBlocks * BLOCKS_TO_METERS;
                 autonomousController.initGround(startingPosition);
                 positionController.init(startingPosition);
@@ -508,11 +511,8 @@ void mainOperation() {
         /* Set the attitude controller's reference orientation. We should
                add the input bias in order to center the position controller's
                control signal about the equilibrium. */
-        attitudeController.setReference(
-            calculatePositionControllerOutput(yawMeasurement,
-                                              0.0,
-                                              q12ref.q12.x,
-                                              q12ref.q12.y));
+        attitudeController.setReference(calculatePositionControllerOutput(
+            yawMeasurement, 0.0, q12ref.q12.x, q12ref.q12.y));
         /*
 
         Quaternion quatInputBias = EulerAngles::eul2quat({
@@ -651,27 +651,22 @@ AttitudeReference calculatePositionControllerOutput(float yawMeasurement,
 
     /* The given pitch / roll references are accurate if yaw is zero, so
        transform them given the measurement yaw. */
-    float cosYaw = std2::cosf(yawMeasurement);
-    float sinYaw = std2::sinf(yawMeasurement);
-    float transformedPitch = pitchRef*cosYaw + rollRef *sinYaw;
-    float transformedRoll  = rollRef *cosYaw - pitchRef*sinYaw;
+    float cosYaw           = std2::cosf(yawMeasurement);
+    float sinYaw           = std2::sinf(yawMeasurement);
+    float transformedPitch = pitchRef * cosYaw + rollRef * sinYaw;
+    float transformedRoll  = rollRef * cosYaw - pitchRef * sinYaw;
 
     /* Convert to quaternions to do input bias correctly. */
-    EulerAngles eulInputBias = EulerAngles{0.0,
-                                           biasManager.getPitchBias(),
-                                           biasManager.getRollBias()};
+    EulerAngles eulInputBias =
+        EulerAngles{0.0, biasManager.getPitchBias(), biasManager.getRollBias()};
     Quaternion quatInputBias = EulerAngles::eul2quat(eulInputBias);
 
-    EulerAngles eulMarginal = EulerAngles{yawRef,
-                                          transformedPitch,
-                                          transformedRoll};
+    EulerAngles eulMarginal =
+        EulerAngles{yawRef, transformedPitch, transformedRoll};
     Quaternion quatMarginal = EulerAngles::eul2quat(eulMarginal);
 
     /* Superpose marginal action on bias. */
     return AttitudeReference{quatInputBias + quatMarginal};
-
 }
-
-
 
 #pragma endregion
