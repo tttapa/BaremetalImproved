@@ -149,7 +149,9 @@ void eagleSetupIPC(void) {
     // [4] 0 → Execute Never off
     // [3:2] 00 → CB → non-cacheable
     // [1:0] 10 → 1 MiB "sections"
-    eagleSetTLBAttributes(0xFFFF0000, 0b0'0'100'11'0'1111'0'00'10);
+    eagleSetTLBAttributes(0xFFFF0000, 0b1'0'100'11'0'1111'1'00'10);
+    // TODO: original TLB attributes
+    // eagleSetTLBAttributes(0xFFFF0000, 0b0'0'100'11'0'1111'0'00'10);
 }
 
 

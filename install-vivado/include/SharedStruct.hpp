@@ -33,8 +33,10 @@ struct SharedStruct {
     }
     /// Initialize the data structure at its default address. (Baremetal only)
     static volatile T *init() {
-        //static_assert(T::address >= SHARED_MEM_START_ADDRESS);
-        //static_assert(T::address <= SHARED_MEM_LAST_ADDRESS - sizeof(T));
+        static_assert(T::address >= SHARED_MEM_START_ADDRESS, 
+                      "Error: address not inside of shared memory region");
+        static_assert(T::address <= SHARED_MEM_LAST_ADDRESS - sizeof(T),
+                      "Error: address not inside of shared memory region");
         return new ((void *) T::address) T();
     }
 #endif
@@ -115,39 +117,6 @@ struct AccessControlledSharedStruct
      * @brief   Write data to the communication struct.
      * 
      * @param   data
-     *          The data to send.
-     */
-     /*
-    write(const T &data) volatile {
-        this->checkInitialized();
-        if (isDoneReading()) {
-            const_cast<T &>(this->data) = data;
-            doneReading                 = false;
-        }
-    }
-    */
-
-    /**
-     * @brief   Read data from the communication struct.
-     * 
-     * @return  The data from shared memory. 
-     */
-     /*
-    read() const volatile {
-        this->checkInitialized();
-        if (isDoneWriting()) {
-            T tmp       = const_cast<const T &>(data);
-            doneReading = true;
-            return tmp;
-        }
-        return NULL;
-    }
-    */
-
-    /**
-     * @brief   Write data to the communication struct.
-     * 
-     * @param   data
      *          The data to send. 
      * @throws  std::runtime_error
      *          If the data has not yet been initialized by Baremetal.
@@ -155,7 +124,7 @@ struct AccessControlledSharedStruct
      *          If the other party is not yet done reading.
      */
     template <class R = void>
-    typename std::enable_if<std::is_same<Dir, WDir>::value, R>::type  //
+    typename std::enable_if_t<std::is_same<Dir, WDir>::value, R>  //
     // void  //
     write(const T &data) volatile {
         this->checkInitialized();
@@ -178,7 +147,7 @@ struct AccessControlledSharedStruct
      *          If the other party is not yet done writing.
      */
     template <class R = T>
-    typename std::enable_if<!std::is_same<Dir, WDir>::value, R>::type  //
+    typename std::enable_if_t<!std::is_same<Dir, WDir>::value, R>  //
     // T  //
     read() const volatile {
         this->checkInitialized();
@@ -191,7 +160,6 @@ struct AccessControlledSharedStruct
         doneReading = true;
         return tmp;
     }
-
 
     /// Check if the other party is done reading
     bool isDoneReading() const volatile { return doneReading; }

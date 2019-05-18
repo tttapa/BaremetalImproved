@@ -18,6 +18,7 @@ set(CMAKE_NO_SYSTEM_FROM_IMPORTED TRUE)
 
 add_subdirectory(control)
 add_subdirectory(instances)
+add_subdirectory(logger)
 add_subdirectory(main)
 add_subdirectory(misc)
 add_subdirectory(shared)

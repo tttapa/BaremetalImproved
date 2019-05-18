@@ -1,7 +1,5 @@
 # Create library target and specify the implementation files to compile.
-add_library(shared
-    src/GetLogData.cpp
-)
+add_library(shared INTERFACE)
 
 # Set target include directories 
 #   These are the folders where the compiler will search for included header 
@@ -12,11 +10,9 @@ add_library(shared
 #   to compile the implementation files of the library, users of the library
 #   should not include them.
 target_include_directories(shared
-    PUBLIC
+    INTERFACE
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 # Tell CMake to compile this library with C++17 features enabled
@@ -28,11 +24,8 @@ target_include_directories(shared
 #   Libraries that are used in the public header files should be public,
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(shared 
-    PUBLIC
+    INTERFACE
         utilities2
-    PRIVATE
-        instances
-        misc
 )
 
 # if(NOT CMAKE_CROSSCOMPILING)
@@ -42,17 +35,14 @@ target_link_libraries(shared
 # endif()
 
 install(TARGETS shared
-        ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-
-
 
 set (_resolvedFiles "")
 set (_files
     ${CMAKE_CURRENT_SOURCE_DIR}/include/BaremetalCommunicationDef.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/GetLogData.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/LogEntry.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/LoggerStructs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/real_t.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/SharedStruct.hpp
 )
 

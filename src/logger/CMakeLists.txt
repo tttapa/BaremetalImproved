@@ -34,10 +34,8 @@ target_link_libraries(logger
 )
 
 install(TARGETS logger
-        EXPORT logger
         ARCHIVE DESTINATION lib
         INCLUDES DESTINATION include)
-install(EXPORT logger DESTINATION lib)
 install(
 FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/GetLogData.hpp

@@ -76,6 +76,9 @@ class AutonomousController {
     /** Time that the autonomous controller entered its current state. */
     float autonomousStateStartTime = 0.0;
 
+    /** Whether the takeoff throttle is reset after takeoff. */
+    bool isTakeoffThrottleReset = false;
+
     /** Estimated time to navigate from previous target to next target. */
     float navigationTime = 0.0;
 

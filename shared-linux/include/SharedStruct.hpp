@@ -86,14 +86,6 @@ struct Linux2Baremetal {
     constexpr static const char *reader = "Baremetal";
 };
 
-#if __cplusplus < 201703L
-namespace std {
-template< class T, class U >
-inline constexpr bool is_same_v = is_same<T, U>::value;
-}
-#endif
-
-
 /**
  * @brief   A struct that adds access control to a communication struct.
  *          It ensures that data can only flow in the specified direction,
@@ -132,7 +124,7 @@ struct AccessControlledSharedStruct
      *          If the other party is not yet done reading.
      */
     template <class R = void>
-    typename std::enable_if_t<std::is_same_v<Dir, WDir>, R>  //
+    typename std::enable_if_t<std::is_same<Dir, WDir>::value, R>  //
     // void  //
     write(const T &data) volatile {
         this->checkInitialized();
@@ -155,7 +147,7 @@ struct AccessControlledSharedStruct
      *          If the other party is not yet done writing.
      */
     template <class R = T>
-    typename std::enable_if_t<!std::is_same_v<Dir, WDir>, R>  //
+    typename std::enable_if_t<!std::is_same<Dir, WDir>::value, R>  //
     // T  //
     read() const volatile {
         this->checkInitialized();
