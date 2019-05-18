@@ -34,6 +34,11 @@ void initAHRS(IMUMeasurement imu) {
 
 void resetAHRSOrientation() { orientation = {}; }
 
+void setYaw(float yawRads) {
+    orientationEuler.yaw = yawRads;
+    orientation = EulerAngles::eul2quat(orientationEuler);
+}
+
 Quaternion updateAHRS(IMUMeasurement imu) {
 
     /* Calculate next orientation using Madgwick. */

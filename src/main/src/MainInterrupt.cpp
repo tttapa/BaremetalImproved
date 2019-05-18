@@ -508,6 +508,13 @@ void mainOperation() {
         /* Set the attitude controller's reference orientation. We should
                add the input bias in order to center the position controller's
                control signal about the equilibrium. */
+        attitudeController.setReference(
+            calculatePositionControllerOutput(yawMeasurement,
+                                              0.0,
+                                              q12ref.q12.x,
+                                              q12ref.q12.y));
+        /*
+
         Quaternion quatInputBias = EulerAngles::eul2quat({
             0.0,
             biasManager.getPitchBias(),
@@ -518,6 +525,7 @@ void mainOperation() {
         float q0                = 1.0 - std2::sqrtf(q1 * q1 + q2 * q2);
         Quaternion quatQ12Ref    = Quaternion(q0, q1, q2, 0);
         attitudeController.setReferenceEuler(quatInputBias + quatQ12Ref);
+        */
 
 #pragma endregion
     }
@@ -635,5 +643,35 @@ float calculateYawJump(float yaw) {
     /* Return the yaw jump. */
     return modYaw - yaw;
 }
+
+AttitudeReference calculatePositionControllerOutput(float yawMeasurement,
+                                                    float yawRef,
+                                                    float pitchRef,
+                                                    float rollRef) {
+
+    /* The given pitch / roll references are accurate if yaw is zero, so
+       transform them given the measurement yaw. */
+    float cosYaw = std2::cosf(yawMeasurement);
+    float sinYaw = std2::sinf(yawMeasurement);
+    float transformedPitch = pitchRef*cosYaw + rollRef *sinYaw;
+    float transformedRoll  = rollRef *cosYaw - pitchRef*sinYaw;
+
+    /* Convert to quaternions to do input bias correctly. */
+    EulerAngles eulInputBias = EulerAngles{0.0,
+                                           biasManager.getPitchBias(),
+                                           biasManager.getRollBias()};
+    Quaternion quatInputBias = EulerAngles::eul2quat(eulInputBias);
+
+    EulerAngles eulMarginal = EulerAngles{yawRef,
+                                          transformedPitch,
+                                          transformedRoll};
+    Quaternion quatMarginal = EulerAngles::eul2quat(eulMarginal);
+
+    /* Superpose marginal action on bias. */
+    return AttitudeReference{quatInputBias + quatMarginal};
+
+}
+
+
 
 #pragma endregion

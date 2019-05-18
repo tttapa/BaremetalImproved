@@ -215,6 +215,9 @@ class AttitudeController {
         this->orientationEuler = orientationEuler;
     }
 
+    /** Set the attitude controller's reference. */
+    void setReference(AttitudeReference reference) { this->reference = reference; }
+
     /**
      * Set the attitude controller's EulerAngles reference orientation to the
      * given EulerAngles. This is used to keep track of the reference yaw, which

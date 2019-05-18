@@ -30,6 +30,8 @@ Quaternion getAHRSJumpedOrientation(float yawJumpToAdd);
  */
 void initAHRS(IMUMeasurement imu);
 
+void setYaw(float yawRads);
+
 /**
  * Update the Attitude and Heading Reference System using the new IMU measurement.
  * 

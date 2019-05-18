@@ -35,7 +35,7 @@ struct Vec2f {
     float normsq() { return normsq(*this); }
     float norm() { return norm(*this); }
     Vec2f round() { return round(*this); }
-};
+} __attribute__((packed));
 
 /* Vector with three components, x, y and z, represented by floats. */
 struct Vec3f {
@@ -70,4 +70,4 @@ struct Vec3f {
     float normsq() { return normsq(*this); }
     float norm() { return norm(*this); }
     Vec3f round() { return round(*this); }
-};
+} __attribute__((packed));

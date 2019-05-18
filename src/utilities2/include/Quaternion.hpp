@@ -98,4 +98,4 @@ struct Quaternion {
                           std2::sinf(angle / 2.0) * cross.y,
                           0.0};
     }
-};
+} __attribute__((packed));
