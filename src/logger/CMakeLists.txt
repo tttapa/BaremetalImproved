@@ -27,7 +27,7 @@ target_include_directories(logger
 target_link_libraries(logger
     PUBLIC 
         logentry
-    PRIVATE 
+    PRIVATE
         instances 
         misc
         time
