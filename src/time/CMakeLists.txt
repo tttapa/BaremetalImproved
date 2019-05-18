@@ -28,8 +28,6 @@ target_include_directories(time
 #   Libraries that are used in the public header files should be public,
 #   libraries that are only used in the implementation files should be private.
 target_link_libraries(time 
-    PUBLIC 
-        real_t
     PRIVATE
         src-vivado
 )
