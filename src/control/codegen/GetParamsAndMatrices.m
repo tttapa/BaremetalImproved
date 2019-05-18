@@ -25,8 +25,8 @@ s.att.Aa = [ zeros(3), eye(3)  , zeros(3);
              zeros(3), zeros(3), p.gamma_n;
              zeros(3), zeros(3), -p.k2*eye(3) ];
 s.att.Ba = [ zeros(3); p.gamma_u; p.k2 * p.k1 * eye(3) ];
-s.att.Ca = [ eye(3); zeros(3, 6) ];
-s.att.Da = zeros(6,3);
+s.att.Ca = [ eye(3), zeros(3, 6) ];
+s.att.Da = zeros(3,3);
 continuousSys = ss(s.att.Aa, s.att.Ba, s.att.Ca, s.att.Da);
 discreteSys = c2d(continuousSys, s.att.Ts, method);
 s.att.Ad = discreteSys.A;
@@ -40,11 +40,11 @@ s.att.lqr.W  = [ s.att.Ad - eye(9), s.att.Bd;
 s.att.lqr.OI = [ zeros(9, 3); eye(3)];
 s.att.lqr.G = s.att.lqr.W \ s.att.lqr.OI;
 
-s.att.lqr.Q = diag([139.6245112700232/2.0,139.6245112700232/2.0,15.2811761590895/2.0,...
+s.att.lqr.Q = diag([0.5*139.6245112700232,0.5*139.6245112700232,0.5*15.2811761590895,...
     1.1505204155597211,1.1505204155597211,0.1209919487616804,...
     9.976475759487083e-08,9.976475759487083e-08,9.976475759487083e-09]);
 s.att.lqr.R = 24.0*diag([1,1,1]);
-s.att.lqr.K = -dlqr(s.att.Ad_r, s.att.Bd_r, s.att.lqr.Q, s.att.lqr.R);
+s.att.lqr.K = -dlqr(s.att.Ad, s.att.Bd, s.att.lqr.Q, s.att.lqr.R);
 s.att.lqi.max_integral = 0.25;      % ~ 5-10 seconds for full windup without propellors
 s.att.lqi.I = diag([0,0,0]); %diag([0.1, 0.1, 0]);  % Max integral action = 0.1*0.25 = 0.025
 s.att.lqi.K = [s.att.lqr.K, s.att.lqi.I];
@@ -144,21 +144,34 @@ s.pos.Ba = [s.pos.lambda,       0;
             0,                  0];
 s.pos.Ca = [eye(4),zeros(4, 2)];
 s.pos.Da = zeros(4, 2);
+
+% Position system @ IMP frequency
 continuousSys = ss(s.pos.Aa, s.pos.Ba, s.pos.Ca, s.pos.Da);
 discreteSys = c2d(continuousSys, s.pos.Ts, method);
-
 s.pos.Ad = discreteSys.A;
 s.pos.Bd = discreteSys.B;
 s.pos.Cd = discreteSys.C;
 s.pos.Dd = discreteSys.D;
 
-% LQR with integral action
+% Position system @ IMU frequency
+s.posBlind.Aa = s.pos.Aa;
+s.posBlind.Ba = s.pos.Ba;
+s.posBlind.Ca = [eye(2), zeros(2, 4)];
+s.posBlind.Da = zeros(2, 2);
+continuousSys = ss(s.posBlind.Aa, s.posBlind.Ba, s.posBlind.Ca, s.posBlind.Da);
+discreteSys = c2d(continuousSys, s.att.Ts, method);
+s.posBlind.Ad = discreteSys.A;
+s.posBlind.Bd = discreteSys.B;
+s.posBlind.Cd = discreteSys.C;
+s.posBlind.Dd = discreteSys.D;
+
+
+% LQR with integral action @ IMP frequency
 s.pos.lqr.W = [ s.pos.Ad - eye(6), s.pos.Bd;
                 s.pos.Cd,          s.pos.Dd ];
 s.pos.lqr.OI = [zeros(6, 4);
                   eye(4)  ];
 s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
-
 % TODO: choose best LQR from configurations
 s.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
 s.pos.lqr.R = 1.5*200.0*eye(2);
@@ -167,50 +180,27 @@ s.pos.lqi.max_integral = 20;        % ~ 10-15 seconds for full windup without pr
 s.pos.lqi.I = diag([0,0]); %0.001*[0,-1;1,0];     % Max integral action = 0.001*20 = 0.02
 s.pos.lqi.K = [s.pos.lqr.K, s.pos.lqi.I];
 
-
-%% Position (blind)
-
-% Linear system (reduced)
-s.posBlind.Ts = s.att.Ts;
-s.posBlind.Aa = [0, 0, 1, 0;
-                 0, 0, 0, 1;
-                 0, 0, 0, 0;
-                 0, 0, 0, 0];
-s.posBlind.Ba = [0, 0;
-                 0, 0;
-                 0, 2*p.g;
-                 -2*p.g, 0];
-s.posBlind.Ca = [];
-s.posBlind.Da = [];
-continuousSys = ss(s.posBlind.Aa, s.posBlind.Ba, s.posBlind.Ca, s.posBlind.Da);
-discreteSys = c2d(continuousSys, s.posBlind.Ts, method);
-s.posBlind.Ad = discreteSys.A;
-s.posBlind.Bd = discreteSys.B;
-s.posBlind.Cd = discreteSys.C;
-s.posBlind.Dd = discreteSys.D;
-
-% Linear system (full)
-continuousSys = ss(s.pos.Aa, s.pos.Ba, s.pos.Ca, s.pos.Da);
-discreteSys = c2d(continuousSys, s.posBlind.Ts, method);
-s.posBlind.Adfull = discreteSys.A;
-s.posBlind.Bdfull = discreteSys.B;
-s.posBlind.Cdfull = discreteSys.C;
-s.posBlind.Ddfull = discreteSys.D;
-
-% LQR with integral action
-s.posBlind.lqr.W = [ s.posBlind.Adfull - eye(6), s.posBlind.Bdfull;
-                     s.posBlind.Cdfull,          s.posBlind.Ddfull ];
-s.posBlind.lqr.OI = [zeros(6, 4);
-                     eye(4)  ];
-s.posBlind.lqr.G = s.posBlind.lqr.W \ s.posBlind.lqr.OI;
-
-% TODO: choose best LQR from configurations
+% LQR with integral action @ IMU frequency
 s.posBlind.lqr.Q = s.pos.lqr.Q;
 s.posBlind.lqr.R = s.pos.lqr.R;
-s.posBlind.lqr.K = -dlqr(s.posBlind.Adfull, s.posBlind.Bdfull, ...
-                         s.posBlind.lqr.Q,  s.posBlind.lqr.R);
-s.posBlind.lqi.I = s.pos.lqi.I;
+s.posBlind.lqr.K = -dlqr(s.posBlind.Ad, s.posBlind.Bd, s.posBlind.lqr.Q, s.posBlind.lqr.R);
 s.posBlind.lqi.max_integral = s.pos.lqi.max_integral;
+s.posBlind.lqi.I = s.pos.lqi.I;
 s.posBlind.lqi.K = [s.posBlind.lqr.K, s.posBlind.lqi.I];
+
+% TODO: altitude tuning
+% Kalman @ IMP frequency
+% x_k+1   = A x_k + B u_k + G w_k
+%   G_kal = [ eye(6), B ]
+%   w_k   = [ dx_k
+%             du_k ]
+s.pos.kal.varDynX = [ 0.1, 0.1, 0.01, 0.01, 0.5, 0.5 ];
+s.pos.kal.varDynU = [ 0.001, 0.001 ];
+s.pos.kal.Q = [ s.pos.kal.varDynX, s.pos.kal.varDynU ];
+s.pos.kal.G = [ eye(6), s.pos.Bd ];
+s.pos.kal.R = [ 0.0001, 0.0001, 0.25, 0.25 ];
+s.pos.kal.L = dlqe(s.pos.Ad, s.pos.kal.G, s.pos.Cd, diag(s.pos.kal.Q), diag(s.pos.kal.R));
+
+% State prediction Ax + Bu @ IMU frequency!
 
 end

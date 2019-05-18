@@ -14,8 +14,7 @@ function [ result_u, result_y_int_increment ] = GenerateAltitudeController(s)
 %           syms 'vector__ref' and 'vector__x_hat'.
 %
 
-% TODO: should round?
-% Round matrices
+% Ignore very small values
 G = round(s.alt.lqr.G, 8);
 K = round(s.alt.lqi.K, 8);
 

@@ -84,10 +84,8 @@ for k = 1:length(configs)
     integralWindupElements = symbolicVectorExpressionToStrings('Attitude', integralWindup); % Integral increment
 
     % Attitude observer
-    [prediction, innovation, stateEstimate] = GenerateAttitudeObserver(s);
-    predictionElements = symbolicVectorExpressionToStrings('Attitude', prediction); % Prediction (reduced)
-    innovationElements = symbolicVectorExpressionToStrings('Attitude', innovation); % Innovation (reduced)
-    stateEstimateElements = symbolicVectorExpressionToStrings('Attitude', stateEstimate); % New stateEstimate (full)
+    [stateEstimate] = GenerateAttitudeObserver(s);
+    stateEstimateElements = symbolicVectorExpressionToStrings('Attitude', stateEstimate); % New stateEstimate
 
     for i = 1:length(controlSignalElements)
         tag = strcat('$c', num2str(k), '$u', num2str(i - 1));
@@ -97,16 +95,8 @@ for k = 1:length(configs)
         tag = strcat('$int', num2str(i - 1));
         template = replace(template, tag, integralWindupElements(i));
     end
-    for i = 1:length(predictionElements)
-        tag = strcat('$c', num2str(k), '$p', num2str(i - 0));
-        template = replace(template, tag, predictionElements(i)); % reduced
-    end
-    for i = 1:length(innovationElements)
-        tag = strcat('$c', num2str(k), '$i', num2str(i - 0));
-        template = replace(template, tag, innovationElements(i)); % reduced
-    end
     for i = 1:length(stateEstimateElements)
-        tag = strcat('$x', num2str(i - 1));
+        tag = strcat('$c', num2str(k), '$x', num2str(i - 1));
         template = replace(template, tag, stateEstimateElements(i));
     end
     tag = strcat('$c', num2str(k), '$maxWindup');

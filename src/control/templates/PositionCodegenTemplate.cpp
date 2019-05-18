@@ -27,20 +27,20 @@ PositionControlSignal PositionController::codegenControlSignal(
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q12.x = $c1$u0;
-            controlSignal.q12.y = $c1$u1;
+            controlSignal.pitchRollRef.x = $c1$u0;
+            controlSignal.pitchRollRef.y = $c1$u1;
             break;
         case 2:
-            controlSignal.q12.x = $c2$u0;
-            controlSignal.q12.y = $c2$u1;
+            controlSignal.pitchRollRef.x = $c2$u0;
+            controlSignal.pitchRollRef.y = $c2$u1;
             break;
         case 3:
-            controlSignal.q12.x = $c3$u0;
-            controlSignal.q12.y = $c3$u1;
+            controlSignal.pitchRollRef.x = $c3$u0;
+            controlSignal.pitchRollRef.y = $c3$u1;
             break;
         case 4:
-            controlSignal.q12.x = $c4$u0;
-            controlSignal.q12.y = $c4$u1;
+            controlSignal.pitchRollRef.x = $c4$u0;
+            controlSignal.pitchRollRef.y = $c4$u1;
             break;
         default: controlSignal = {};
     }
@@ -60,20 +60,20 @@ PositionControlSignal PositionController::codegenControlSignalBlind(
     PositionControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.q12.x = $c1$uBlind0;
-            controlSignal.q12.y = $c1$uBlind1;
+            controlSignal.pitchRollRef.x = $c1$uBlind0;
+            controlSignal.pitchRollRef.y = $c1$uBlind1;
             break;
         case 2:
-            controlSignal.q12.x = $c2$uBlind0;
-            controlSignal.q12.y = $c2$uBlind1;
+            controlSignal.pitchRollRef.x = $c2$uBlind0;
+            controlSignal.pitchRollRef.y = $c2$uBlind1;
             break;
         case 3:
-            controlSignal.q12.x = $c3$uBlind0;
-            controlSignal.q12.y = $c3$uBlind1;
+            controlSignal.pitchRollRef.x = $c3$uBlind0;
+            controlSignal.pitchRollRef.y = $c3$uBlind1;
             break;
         case 4:
-            controlSignal.q12.x = $c4$uBlind0;
-            controlSignal.q12.y = $c4$uBlind1;
+            controlSignal.pitchRollRef.x = $c4$uBlind0;
+            controlSignal.pitchRollRef.y = $c4$uBlind1;
             break;
         default: controlSignal = {};
     }
@@ -145,7 +145,7 @@ PositionIntegralWindup PositionController::codegenIntegralWindupBlind(
  */
 PositionState PositionController::codegenCurrentStateEstimate(
     PositionState stateEstimate, PositionMeasurement measurement,
-    Quaternion orientation, float timeElapsed, int droneConfiguration) {
+    EulerAngles orientation, float timeElapsed, int droneConfiguration) {
 
     /* Implement jump rejection to preserve a decent drone velocity. */
     HorizontalVelocity v0    = stateEstimate.v;
@@ -164,8 +164,8 @@ PositionState PositionController::codegenCurrentStateEstimate(
         stateEstimate.v.y = v1.y;
 
     /* Set orientation and position. */
-    stateEstimate.q.x = orientation.x;
-    stateEstimate.q.y = orientation.y;
+    stateEstimate.q.x = orientation.pitch;
+    stateEstimate.q.y = orientation.roll;
     stateEstimate.p.x = measurement.p.x;
     stateEstimate.p.y = measurement.p.y;
 
@@ -180,20 +180,17 @@ PositionState PositionController::codegenCurrentStateEstimate(
  *          edit it in the template.
  */
 PositionState PositionController::codegenCurrentStateEstimateBlind(
-    PositionStateBlind stateEstimateBlind,
-    PositionControlSignalBlind controlSignalBlind, Quaternion orientation) {
+    PositionState stateEstimate, PositionControlSignal controlSignal,
+    EulerAngles orientation) {
 
-    PositionStateBlind stateEstimateBlindCopy = stateEstimateBlind;
+    float px = $xBlind0;
+    float py = $xBlind1;
+    float vx = $xBlind2;
+    float vy = $xBlind3;
 
-    stateEstimateBlind.p.x = $xBlind0;
-    stateEstimateBlind.p.y = $xBlind1;
-    stateEstimateBlind.v.x = $xBlind2;
-    stateEstimateBlind.v.y = $xBlind3;
-
-    PositionState stateEstimate = {};
-    stateEstimate.q.x           = orientation.x;
-    stateEstimate.q.y           = orientation.y;
-    stateEstimate.p             = stateEstimateBlind.p;
-    stateEstimate.v             = stateEstimateBlind.v;
+    stateEstimate.q.x = orientation.pitch;
+    stateEstimate.q.y = orientation.roll;
+    stateEstimate.p   = Position{px, py};
+    stateEstimate.v   = HorizontalVelocity{vx, vy};
     return stateEstimate;
 }

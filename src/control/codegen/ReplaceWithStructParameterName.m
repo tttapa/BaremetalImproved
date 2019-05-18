@@ -47,79 +47,79 @@ if strcmp(controllerName, 'Attitude')
     
     if strcmp(struct,'y_int')
         if element == 1
-            string = 'integralWindup.yaw';
+            string = 'integralWindup.eul.yaw';
         end
         if element == 2
-            string = 'integralWindup.pitch';
+            string = 'integralWindup.eul.pitch';
         end
         if element == 3
-            string = 'integralWindup.roll';
+            string = 'integralWindup.eul.roll';
         end
     end
     
     if strcmp(struct, 'x_hat')
         if element == 1
-           string = 'stateEstimate.yaw';
+           string = 'stateEstimate.eul.yaw';
         end
         if element == 2
-           string = 'stateEstimate.pitch';
+           string = 'stateEstimate.eul.pitch';
         end
         if element == 3
-           string = 'stateEstimate.roll';
+           string = 'stateEstimate.eul.roll';
         end
         if element == 4
-           string = 'stateEstimate.wyaw';
+           string = 'stateEstimate.wEul.yaw';
         end
         if element == 5
-           string = 'stateEstimate.wpitch';
+           string = 'stateEstimate.wEul.pitch';
         end
         if element == 6
-           string = 'stateEstimate.wroll';
+           string = 'stateEstimate.wEul.roll';
         end
         if element == 7
-           string = 'stateEstimate.nyaw';
+           string = 'stateEstimate.nEul.yaw';
         end
         if element == 8
-           string = 'stateEstimate.npitch';
+           string = 'stateEstimate.nEul.pitch';
         end
         if element == 9
-           string = 'stateEstimate.nroll';
+           string = 'stateEstimate.nEul.roll';
         end
     end
     
     if strcmp(struct, 'ref')
        if element == 1
-           string = 'reference.yaw';
+           string = 'reference.eul.yaw';
        end
        if element == 2
-           string = 'reference.pitch';
+           string = 'reference.eul.pitch';
        end
        if element == 3
-           string = 'reference.roll';
+           string = 'reference.eul.roll';
        end
     end
     
     if strcmp(struct, 'u') 
        if element == 1
-           string = 'controlSignal.uyaw';
+           string = 'controlSignal.uEul.yaw';
        end
        if element == 2
-           string = 'controlSignal.upitch';
+           string = 'controlSignal.uEul.pitch';
        end
        if element == 3
-           string = 'controlSignal.uroll';
+           string = 'controlSignal.uEul.roll';
        end
     end
     
     if strcmp(struct, 'y')
        if element == 1 
-          string = 'measurement.yaw';
+          string = 'measurement.eul.yaw';
        end
        if element == 2 
-          string = 'measurement.pitch';
+          string = 'measurement.eul.pitch';
        end
        if element == 3 
-          string = 'measurement.roll';
+          string = 'measurement.eul.roll';
        end
     end
 end
@@ -209,27 +209,12 @@ if strcmp(controllerName, 'Position')
         end
     end
     
-    if strcmp(struct, 'x_hat_blind_copy')
-       if element == 1
-           string = 'stateEstimateBlindCopy.p.x';
-       end
-       if element == 2
-           string = 'stateEstimateBlindCopy.p.y';
-       end
-       if element == 3
-           string = 'stateEstimateBlindCopy.v.x';
-       end
-       if element == 4
-           string = 'stateEstimateBlindCopy.v.y';
-       end
-    end
-    
     if strcmp(struct, 'u')
         if element == 1
-            string = 'controlSignalBlind.q12.x';
+            string = 'controlSignal.pitchRollRef.x';
         end
         if element == 2
-            string = 'controlSignalBlind.q12.y';
+            string = 'controlSignal.pitchRollRef.y';
         end
     end
      

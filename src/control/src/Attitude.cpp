@@ -34,10 +34,10 @@ static constexpr float RC_REFERENCE_YAW_UPPER_THRESHOLD = 0.05;
 #pragma endregion
 
 MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
-                                            real_t commonThrust) {
-    real_t ux = controlSignal.pitch;
-    real_t uy = controlSignal.roll;
-    real_t uz = controlSignal.yaw;
+                                            float commonThrust) {
+    float ux = controlSignal.uEul.pitch;
+    float uy = controlSignal.uEul.roll;
+    float uz = controlSignal.uEul.yaw;
     return MotorSignals{
         commonThrust + ux + uy - uz,
         commonThrust + ux - uy + uz,
@@ -46,51 +46,41 @@ MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
     };
 }
 
-void AttitudeController::calculateJumpedQuaternions(float yawJumpRads) {
-    this->stateEstimate.q = EulerAngles::eul2quat(
-        {this->orientationEuler.yaw + yawJumpRads, this->orientationEuler.pitch,
-         this->orientationEuler.roll});
-    this->reference.q = EulerAngles::eul2quat(
-        {this->referenceEuler.yaw + yawJumpRads, this->referenceEuler.pitch,
-         this->referenceEuler.roll});
-}
-
 void AttitudeController::clampControlSignal(float commonThrust) {
 
     /* Load values from the attitude controller. */
-    float ux = this->controlSignal.uxyz.x;
-    float uy = this->controlSignal.uxyz.y;
-    float uz = this->controlSignal.uxyz.z;
+    float uYaw = this->controlSignal.uEul.yaw;
+    float uPitch = this->controlSignal.uEul.pitch;
+    float uRoll = this->controlSignal.uEul.roll;
 
     /* Clamp the yaw torque motor separately to ensure ux, uy compensation. */
-    if (uz > YAW_SIGNAL_CLAMP)
-        uz = YAW_SIGNAL_CLAMP;
-    if (uz < -YAW_SIGNAL_CLAMP)
-        uz = -YAW_SIGNAL_CLAMP;
+    if (uYaw > YAW_SIGNAL_CLAMP)
+        uYaw = YAW_SIGNAL_CLAMP;
+    if (uYaw < -YAW_SIGNAL_CLAMP)
+        uYaw = -YAW_SIGNAL_CLAMP;
 
-    /* Clamp ux, uy, uz such that all motor PWM duty cycles are in [0,1]. */
+    /* Clamp uEul such that all motor PWM duty cycles are in [0,1]. */
     // TODO: divide by e = epsilon + 1?
-    float absoluteSum    = std2::absf(ux) + std2::absf(uy) + std2::absf(uz);
+    float absoluteSum    = std2::absf(uYaw) + std2::absf(uPitch) + std2::absf(uRoll);
     float maxAbsoluteSum = std2::minf(commonThrust, 1 - commonThrust);
     if (absoluteSum > maxAbsoluteSum) {
         float factor = maxAbsoluteSum / absoluteSum;
-        ux *= factor;
-        uy *= factor;
-        uz *= factor;
+        uYaw   *= factor;
+        uPitch *= factor;
+        uRoll  *= factor;
     }
 
-    this->controlSignal = AttitudeControlSignal{Vec3f{ux, uy, uz}};
+    this->controlSignal = AttitudeControlSignal{EulerAngles{uYaw, uPitch, uRoll}};
 }
 
 void AttitudeController::init() {
 
     /* Reset the attitude controller. */
-    this->stateEstimate    = {};
-    this->orientationEuler = {};
-    this->integralWindup   = {};
-    this->controlSignal    = {};
-    this->reference        = {};
-    this->referenceEuler   = {};
+    this->controlSignal  = {};
+    this->integralWindup = {};
+    this->measurement    = {};
+    this->reference      = {};
+    this->stateEstimate  = {};
 }
 
 AttitudeControlSignal
@@ -113,8 +103,7 @@ AttitudeController::updateControlSignal(float commonThrust) {
     return this->controlSignal;
 }
 
-void AttitudeController::updateObserver(AttitudeMeasurement measurement,
-                                        float yawJumpToSubtract) {
+void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
 
     /* Save measurement for logger. */
     this->measurement = measurement;
@@ -123,10 +112,6 @@ void AttitudeController::updateObserver(AttitudeMeasurement measurement,
     this->stateEstimate = AttitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());
-
-    /* Update the EulerAngles representation as well! */
-    this->orientationEuler = EulerAngles::quat2eul(this->stateEstimate.q);
-    this->orientationEuler.yaw -= yawJumpToSubtract;
 }
 
 void AttitudeController::updateRCReference() {
@@ -139,7 +124,7 @@ void AttitudeController::updateRCReference() {
     /* Convert RC tilt [-1.0, +1.0] to radians [-0.1745, +0.1745]. */
     float rollRads  = roll * MAXIMUM_REFERENCE_TILT;
     float pitchRads = pitch * MAXIMUM_REFERENCE_TILT;
-    float yawRads   = this->referenceEuler.yaw;
+    float yawRads   = this->reference.eul.yaw;
 
     /* Update the reference yaw based on the RC yaw. */
     float upperZoneSize = 1.0 - RC_REFERENCE_YAW_UPPER_THRESHOLD;
@@ -152,5 +137,5 @@ void AttitudeController::updateRCReference() {
                    RC_REFERENCE_YAW_MAX_SPEED * SECONDS_PER_TICK;
 
     /* Store the EulerAngles reference orientation. */
-    this->referenceEuler = EulerAngles{yawRads, pitchRads, rollRads};
+    this->reference = AttitudeReference{EulerAngles{yawRads, pitchRads, rollRads}};
 }

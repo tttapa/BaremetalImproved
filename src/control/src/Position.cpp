@@ -15,14 +15,14 @@ float dist(Position a, Position b) { return Vec2f::norm(b - a); }
 float distsq(Position a, Position b) { return Vec2f::normsq(b - a); }
 
 void PositionController::clampControlSignal() {
-    if (this->controlSignal.q12.x > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q12.x = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q12.x < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q12.x = -REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q12.y > REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q12.y = REFERENCE_QUATERNION_CLAMP;
-    if (this->controlSignal.q12.y < -REFERENCE_QUATERNION_CLAMP)
-        this->controlSignal.q12.y = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.pitchRollRef.x > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.pitchRollRef.x = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.pitchRollRef.x < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.pitchRollRef.x = -REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.pitchRollRef.y > REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.pitchRollRef.y = REFERENCE_QUATERNION_CLAMP;
+    if (this->controlSignal.pitchRollRef.y < -REFERENCE_QUATERNION_CLAMP)
+        this->controlSignal.pitchRollRef.y = -REFERENCE_QUATERNION_CLAMP;
 }
 
 void PositionController::init(Position currentPosition) {
@@ -93,7 +93,7 @@ PositionController::updateControlSignalBlind(PositionReference reference) {
     return this->controlSignal;
 }
 
-void PositionController::updateObserver(Quaternion orientation,
+void PositionController::updateObserver(EulerAngles orientation,
                                         PositionMeasurement measurement) {
 
     /* Save measurement for logger. */
@@ -109,17 +109,12 @@ void PositionController::updateObserver(Quaternion orientation,
     this->lastMeasurementTime = getTime();
 }
 
-void PositionController::updateObserverBlind(Quaternion orientation) {
+void PositionController::updateObserverBlind(EulerAngles orientation) {
 
-    PositionStateBlind stateBlind = {this->stateEstimate.p,
-                                     this->stateEstimate.v};
-
-    PositionControlSignalBlind controlSignalBlind =
-        PositionControlSignalBlind{Vec2f{
-            orientation.x,
-            orientation.y,
-        }};
-
+    /* Update state estimate. */
     this->stateEstimate = codegenCurrentStateEstimateBlind(
-        stateBlind, controlSignalBlind, orientation);
+        this->stateEstimate, this->controlSignal, orientation);
+
+    /* Store the measurement time. */
+    this->lastMeasurementTime = getTime();
 }

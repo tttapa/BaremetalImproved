@@ -1,4 +1,5 @@
 #pragma once
+#include <LoggerStructs.hpp>
 
 /** Whether an interrupt is currently running. */
 extern volatile bool isInterruptRunning;
@@ -10,7 +11,7 @@ extern volatile bool isInterruptRunning;
  */
 
 // TODO: comments
-float calculateYawJump(float yaw);
+AttitudeReference calculatePositionControllerOutput(float yawMeasurement, float yawRef, float pitchRef, float rollRef);
 
 void mainOperation();
 

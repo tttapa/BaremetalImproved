@@ -11,7 +11,7 @@ function [ result_x_hat ] = GenerateAttitudeObserver(s)
 %           'vector__u' and 'vector__y'.
 %
 
-% Round matrices
+% Ignore very small values
 L = round(s.att.kal.L, 8);
 
 % Create syms
@@ -20,9 +20,9 @@ u     = sym('vector__u',     [3,  1], 'real');
 y     = sym('vector__y',     [3,  1], 'real');
 
 % Calculate estimate
-prediction   = s.att.Ad * x_hat + a.att.Bd * u; % A * x + B * u
+prediction   = s.att.Ad * x_hat + s.att.Bd * u; % A * x + B * u
 diff         = y - s.att.Cd * x_hat;
 innovation   = L * diff;
-result_x_hat = predication + innovation;
+result_x_hat = prediction + innovation;
 
 end

@@ -13,24 +13,24 @@ AttitudeControlSignal AttitudeController::codegenControlSignal(
     AttitudeControlSignal controlSignal;
     switch (droneConfiguration) {
         case 1:
-            controlSignal.uxyz.x = $c1$u0;
-            controlSignal.uxyz.y = $c1$u1;
-            controlSignal.uxyz.z = $c1$u2;
+            controlSignal.uEul.yaw   = $c1$u0;
+            controlSignal.uEul.pitch = $c1$u1;
+            controlSignal.uEul.roll  = $c1$u2;
             break;
         case 2:
-            controlSignal.uxyz.x = $c2$u0;
-            controlSignal.uxyz.y = $c2$u1;
-            controlSignal.uxyz.z = $c2$u2;
+            controlSignal.uEul.yaw   = $c2$u0;
+            controlSignal.uEul.pitch = $c2$u1;
+            controlSignal.uEul.roll  = $c2$u2;
             break;
         case 3:
-            controlSignal.uxyz.x = $c3$u0;
-            controlSignal.uxyz.y = $c3$u1;
-            controlSignal.uxyz.z = $c3$u2;
+            controlSignal.uEul.yaw   = $c3$u0;
+            controlSignal.uEul.pitch = $c3$u1;
+            controlSignal.uEul.roll  = $c3$u2;
             break;
         case 4:
-            controlSignal.uxyz.x = $c4$u0;
-            controlSignal.uxyz.y = $c4$u1;
-            controlSignal.uxyz.z = $c4$u2;
+            controlSignal.uEul.yaw   = $c4$u0;
+            controlSignal.uEul.pitch = $c4$u1;
+            controlSignal.uEul.roll  = $c4$u2;
             break;
         default: controlSignal = {};
     }
@@ -57,18 +57,18 @@ AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
     }
 
     /* Update integral windup. */
-    integralWindup.q123.x += $int0;
-    integralWindup.q123.y += $int1;
-    integralWindup.q123.z += $int2;
-    if (std2::absf(integralWindup.q123.x) > maxIntegralWindup)
-        integralWindup.q123.x =
-            copysign(maxIntegralWindup, integralWindup.q123.x);
-    if (std2::absf(integralWindup.q123.y) > maxIntegralWindup)
-        integralWindup.q123.y =
-            copysign(maxIntegralWindup, integralWindup.q123.y);
-    if (std2::absf(integralWindup.q123.z) > maxIntegralWindup)
-        integralWindup.q123.z =
-            copysign(maxIntegralWindup, integralWindup.q123.z);
+    integralWindup.eul.yaw += $int0;
+    integralWindup.eul.pitch += $int1;
+    integralWindup.eul.roll += $int2;
+    if (std2::absf(integralWindup.eul.yaw) > maxIntegralWindup)
+        integralWindup.eul.yaw =
+            copysign(maxIntegralWindup, integralWindup.eul.yaw);
+    if (std2::absf(integralWindup.eul.pitch) > maxIntegralWindup)
+        integralWindup.eul.pitch =
+            copysign(maxIntegralWindup, integralWindup.eul.pitch);
+    if (std2::absf(integralWindup.eul.roll) > maxIntegralWindup)
+        integralWindup.eul.roll =
+            copysign(maxIntegralWindup, integralWindup.eul.roll);
 
     return integralWindup;
 }
@@ -84,48 +84,48 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
     /* Calculate next state using Kalman Filter based on drone configuration. */
     switch (droneConfiguration) {
         case 1:
-            stateEstimate.yaw    = $c1$x0;
-            stateEstimate.pitch  = $c1$x1;
-            stateEstimate.roll   = $c1$x2;
-            stateEstimate.wyaw   = $c1$x3;
-            stateEstimate.wpitch = $c1$x4;
-            stateEstimate.wroll  = $c1$x5;
-            stateEstimate.nyaw   = $c1$x6;
-            stateEstimate.npitch = $c1$x7;
-            stateEstimate.nroll  = $c1$x8;
+            stateEstimate.eul.yaw    = $c1$x0;
+            stateEstimate.eul.pitch  = $c1$x1;
+            stateEstimate.eul.roll   = $c1$x2;
+            stateEstimate.wEul.yaw   = $c1$x3;
+            stateEstimate.wEul.pitch = $c1$x4;
+            stateEstimate.wEul.roll  = $c1$x5;
+            stateEstimate.nEul.yaw   = $c1$x6;
+            stateEstimate.nEul.pitch = $c1$x7;
+            stateEstimate.nEul.roll  = $c1$x8;
             break;
         case 2:
-            stateEstimate.yaw    = $c2$x0;
-            stateEstimate.pitch  = $c2$x1;
-            stateEstimate.roll   = $c2$x2;
-            stateEstimate.wyaw   = $c2$x3;
-            stateEstimate.wpitch = $c2$x4;
-            stateEstimate.wroll  = $c2$x5;
-            stateEstimate.nyaw   = $c2$x6;
-            stateEstimate.npitch = $c2$x7;
-            stateEstimate.nroll  = $c2$x8;
+            stateEstimate.eul.yaw    = $c2$x0;
+            stateEstimate.eul.pitch  = $c2$x1;
+            stateEstimate.eul.roll   = $c2$x2;
+            stateEstimate.wEul.yaw   = $c2$x3;
+            stateEstimate.wEul.pitch = $c2$x4;
+            stateEstimate.wEul.roll  = $c2$x5;
+            stateEstimate.nEul.yaw   = $c2$x6;
+            stateEstimate.nEul.pitch = $c2$x7;
+            stateEstimate.nEul.roll  = $c2$x8;
             break;
         case 3:
-            stateEstimate.yaw    = $c3$x0;
-            stateEstimate.pitch  = $c3$x1;
-            stateEstimate.roll   = $c3$x2;
-            stateEstimate.wyaw   = $c3$x3;
-            stateEstimate.wpitch = $c3$x4;
-            stateEstimate.wroll  = $c3$x5;
-            stateEstimate.nyaw   = $c3$x6;
-            stateEstimate.npitch = $c3$x7;
-            stateEstimate.nroll  = $c3$x8;
+            stateEstimate.eul.yaw    = $c3$x0;
+            stateEstimate.eul.pitch  = $c3$x1;
+            stateEstimate.eul.roll   = $c3$x2;
+            stateEstimate.wEul.yaw   = $c3$x3;
+            stateEstimate.wEul.pitch = $c3$x4;
+            stateEstimate.wEul.roll  = $c3$x5;
+            stateEstimate.nEul.yaw   = $c3$x6;
+            stateEstimate.nEul.pitch = $c3$x7;
+            stateEstimate.nEul.roll  = $c3$x8;
             break;
         case 4:
-            stateEstimate.yaw    = $c4$x0;
-            stateEstimate.pitch  = $c4$x1;
-            stateEstimate.roll   = $c4$x2;
-            stateEstimate.wyaw   = $c4$x3;
-            stateEstimate.wpitch = $c4$x4;
-            stateEstimate.wroll  = $c4$x5;
-            stateEstimate.nyaw   = $c4$x6;
-            stateEstimate.npitch = $c4$x7;
-            stateEstimate.nroll  = $c4$x8;
+            stateEstimate.eul.yaw    = $c4$x0;
+            stateEstimate.eul.pitch  = $c4$x1;
+            stateEstimate.eul.roll   = $c4$x2;
+            stateEstimate.wEul.yaw   = $c4$x3;
+            stateEstimate.wEul.pitch = $c4$x4;
+            stateEstimate.wEul.roll  = $c4$x5;
+            stateEstimate.nEul.yaw   = $c4$x6;
+            stateEstimate.nEul.pitch = $c4$x7;
+            stateEstimate.nEul.roll  = $c4$x8;
             break;
         default:
             stateEstimate = {};

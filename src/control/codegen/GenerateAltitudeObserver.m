@@ -11,7 +11,7 @@ function [ result_x_hat ] = GenerateAltitudeObserver(s)
 %           'vector__x_hat_copy', 'vector__u' and 'vector__y'.
 %
 
-% Round matrices
+% Ignore very small values
 L = round(s.alt.kal.L, 8);
 
 % Create syms

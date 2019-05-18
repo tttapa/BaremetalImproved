@@ -14,26 +14,19 @@ Quaternion getAHRSOrientationQuat();
 void resetAHRSOrientation();
 
 /**
- * Add the given yaw to the Euler representation of the AHRS's orientation, then
- * return the quaternion representation of that orientation.
- * 
- * @param   yawJumpToAdd
- *          Radians to add to the Euler representation of the orientation.
- * 
- * @return  The quaternion representation of the orientation rotated by the
- *          given yaw "jump".
- */
-Quaternion getAHRSJumpedOrientation(float yawJumpToAdd);
-
-/**
  * Initialize the Attitude and Heading Reference System using the initial IMU measurement.
  */
 void initAHRS(IMUMeasurement imu);
+
+// TODO: comments
+void setYaw(float yawRads);
 
 /**
  * Update the Attitude and Heading Reference System using the new IMU measurement.
  * 
  * @param   imu
  *          New IMU measurement.
+ *
+ * @return  New orientation estimate as EulerAngles.
  */
-Quaternion updateAHRS(IMUMeasurement imu);
+EulerAngles updateAHRS(IMUMeasurement imu);

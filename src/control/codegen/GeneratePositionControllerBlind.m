@@ -14,8 +14,7 @@ function [ result_u, result_y_int_increment ] = GeneratePositionControllerBlind(
 %           syms 'vector__ref' and 'vector__x_hat'.
 %
 
-% Round matrices
-G = round(s.posBlind.lqr.G, 8);
+% Ignore very small values
 K = round(s.posBlind.lqi.K, 8);
 
 % Create syms
@@ -25,15 +24,14 @@ x_hat = sym('vector__x_hat', [6, 1], 'real');
 y_int = sym('vector__y_int', [2, 1], 'real');
 
 % Calculate equilibrium
-eq = G * r;
-x_eq = eq(1:6); 
-u_eq = eq(7:end); 
+x_eq = [r; 0; 0];
+u_eq = [0; 0];
 
 % Calculate error
 x_err = x_hat - x_eq;
-y = s.posBlind.Cdfull * x_hat;
-y_err = r(3:4) - y(3:4);
-result_y_int_increment = y_err * s.posBlind.Ts;
+y = s.posBlind.Cd * x_hat;
+y_err = r(3:4) - y;
+result_y_int_increment = y_err * s.att.Ts;
 err = [ x_err; y_int ];
 
 % Calculate output
