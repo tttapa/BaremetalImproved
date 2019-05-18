@@ -499,14 +499,19 @@ void mainOperation() {
 
         /* Use position controller. */
         if (autoOutput.usePositionController) {
-            if (!autoOutput.trustIMPForPosition) { /* Blind @ IMU frequency */
-                q12ref = positionController.updateControlSignalBlind(
-                    autoOutput.referencePosition);
-
-            } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
+            
+            /* Normal @ IMP frequency */
+            if (autoOutput.trustIMPForPosition && hasNewIMPMeasurement) {
                 q12ref = positionController.updateControlSignal(
                     autoOutput.referencePosition);
             }
+
+            /* Blind @ IMU frequency */
+            else if (!autoOutput.trustIMPForPosition) { 
+                q12ref = positionController.updateControlSignalBlind(
+                    autoOutput.referencePosition);
+            }
+
             /* Normal position controller should hold its previous control
                signal while IMP has not sent a new measurement. */
         }
