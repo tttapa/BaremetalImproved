@@ -105,7 +105,7 @@ Vec3f getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
                           float biasNorm) {
     /* Accelerometer measurements with bias removed in g. */
     Vec3f correctedAccel = (biasQuat).rotate(Vec3f{
-        -calcAccel(raw.axInt),
+        +calcAccel(raw.axInt),
         +calcAccel(raw.ayInt),
         -calcAccel(raw.azInt),
     });
@@ -124,9 +124,9 @@ Vec3f getAccelMeasurement(RawAccelMeasurement raw, Quaternion biasQuat,
 Vec3f getGyroMeasurement(RawGyroMeasurement raw, GyroMeasurement bias) {
 
     /* Gyroscope measurements with bias removed in rad/s. */
-    float gx = -(calcGyro(raw.gxInt) - bias.g.x);
+    float gx = +(calcGyro(raw.gxInt) - bias.g.x);
     float gy = +(calcGyro(raw.gyInt) - bias.g.y);
-    float gz = -(calcGyro(raw.gzInt) - bias.g.z);
+    float gz = +(calcGyro(raw.gzInt) - bias.g.z);
 
     /* Return measurement. */
     return {gx, gy, gz};
@@ -229,7 +229,7 @@ bool calibrateIMUStep() {
 
         /* Calculate accelerometer bias quaternion. */
         Vec3f accelBiasAverage = {
-            -calcAccel(accelRawSum[0] * factor),
+            +calcAccel(accelRawSum[0] * factor),
             +calcAccel(accelRawSum[1] * factor),
             -calcAccel(accelRawSum[2] * factor),
         };
