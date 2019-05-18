@@ -1,6 +1,7 @@
 #include <GetLogData.hpp>
 
 #include <ControllerInstances.hpp>
+#include <Matrix.hpp>
 #include <MiscInstances.hpp>
 #include <RCValues.hpp>
 #include <Time.hpp>
