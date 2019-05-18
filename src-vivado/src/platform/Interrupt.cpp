@@ -32,6 +32,9 @@ static XScuGic InterruptController;
 /* Instance of the IIC driver. */
 static XIicPs Iic0;
 
+bool volatile throttling = false;
+bool volatile doInterrupt = false;
+
 /**
  *
  * This function is the handler which is used when the Gyro generates an
@@ -43,8 +46,8 @@ static XIicPs Iic0;
  */
 void int_gyr(void *InstancePtr) {
     (void) InstancePtr;
-    /* update the FSM */
-    updateFSM();
+    throttling = doInterrupt;
+    doInterrupt = true;
 }
 
 /**

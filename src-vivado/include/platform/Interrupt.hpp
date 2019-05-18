@@ -1,5 +1,8 @@
 #pragma once
 
+extern volatile bool throttling;
+extern volatile bool doInterrupt;
+
 /**
  * Set up the interrupt system (master, IIC).
  *

@@ -22,6 +22,7 @@
 #include <sensors/IMU.hpp>
 #include <sensors/RC.hpp>
 #include <sensors/Sonar.hpp>
+#include <platform/Interrupt.hpp>
 #pragma endregion
 
 /** Whether an interrupt is currently running. */
@@ -70,7 +71,7 @@ void updateFSM() {
     writeValueToTestPin(true);
 
     /* Update LEDs. */
-    writeToLEDs(isInterruptRunning, armedManager.isArmed(),
+    writeToLEDs(throttling, armedManager.isArmed(),
                 flightMode == FlightMode::AUTONOMOUS, wptMode == WPTMode::ON);
 
     /* Set isInterruptRunning to true, mainLoop will set it to false. */
