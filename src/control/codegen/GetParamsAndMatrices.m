@@ -25,8 +25,8 @@ s.att.Aa = [ zeros(3), eye(3)  , zeros(3);
              zeros(3), zeros(3), p.gamma_n;
              zeros(3), zeros(3), -p.k2*eye(3) ];
 s.att.Ba = [ zeros(3); p.gamma_u; p.k2 * p.k1 * eye(3) ];
-s.att.Ca = [ eye(3), zeros(3, 6) ];
-s.att.Da = zeros(3,3);
+s.att.Ca = [ eye(6), zeros(6, 3) ];
+s.att.Da = zeros(6,3);
 continuousSys = ss(s.att.Aa, s.att.Ba, s.att.Ca, s.att.Da);
 discreteSys = c2d(continuousSys, s.att.Ts, method);
 s.att.Ad = discreteSys.A;
@@ -37,7 +37,7 @@ s.att.Dd = discreteSys.D;
 % LQR with integral action
 s.att.lqr.W  = [ s.att.Ad - eye(9), s.att.Bd;
                  s.att.Cd,          s.att.Dd ];
-s.att.lqr.OI = [ zeros(9, 3); eye(3)];
+s.att.lqr.OI = [ zeros(9, 6); eye(6)];
 s.att.lqr.G = s.att.lqr.W \ s.att.lqr.OI;
 
 s.att.lqr.Q = diag([0.5*139.6245112700232,0.5*139.6245112700232,0.5*15.2811761590895,...
@@ -58,7 +58,7 @@ s.att.kal.varDynX = 10 * ones(1, 9);
 s.att.kal.varDynU = 0.1 * ones(1, 3);
 s.att.kal.Q = [ s.att.kal.varDynX, s.att.kal.varDynU ];
 s.att.kal.G = [ eye(9), s.att.Bd ];
-s.att.kal.R = 0.05 * ones(1, 3);
+s.att.kal.R = [ 0.05, 0.05, 0.05, 1, 1, 1 ];
 s.att.kal.L = dlqe(s.att.Ad, s.att.kal.G, s.att.Cd, diag(s.att.kal.Q), diag(s.att.kal.R));
 
 

@@ -1,6 +1,24 @@
 #include <Attitude.hpp>
 #include <MathFunctions.hpp>
 
+/* Definition of pi. */
+const float PI = 3.14159265358979323846;
+
+/*
+ * @brief   Calculate the difference between two angles in [-PI, PI].
+ *
+ * @note    This is an automatically generated function. Do not edit it here,
+ *          edit it in the template, or in the MATLAB code generator.
+ */
+float angleDifference(float a, float b) {
+    float diff = b - a;
+    while(diff < -PI)
+        diff += 2*PI;
+    while(diff > PI)
+        diff -= 2*PI;
+    return diff;
+}
+
 /*
  * @note    This is an automatically generated function. Do not edit it here,
  *          edit it in the template, or in the MATLAB code generator.
@@ -8,6 +26,12 @@
 AttitudeControlSignal AttitudeController::codegenControlSignal(
     AttitudeState stateEstimate, AttitudeReference reference,
     AttitudeIntegralWindup integralWindup, int droneConfiguration) {
+
+    /* Calculate the angle difference, avoiding weird phenomena about the ± PI
+       border. */
+    float dYaw = angleDifference(reference.eul.yaw, stateEstimate.eul.yaw);
+    float dPitch = angleDifference(reference.eul.pitch, stateEstimate.eul.pitch);
+    float dRoll = angleDifference(reference.eul.roll, stateEstimate.eul.roll);
 
     /* Calculate control signal based on drone configuration. */
     AttitudeControlSignal controlSignal;
@@ -57,6 +81,9 @@ AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
     }
 
     /* Update integral windup. */
+    float dYaw = angleDifference(reference.eul.yaw, stateEstimate.eul.yaw);
+    float dPitch = angleDifference(reference.eul.pitch, stateEstimate.eul.pitch);
+    float dRoll = angleDifference(reference.eul.roll, stateEstimate.eul.roll);
     integralWindup.eul.yaw += $int0;
     integralWindup.eul.pitch += $int1;
     integralWindup.eul.roll += $int2;
@@ -80,6 +107,18 @@ AttitudeIntegralWindup AttitudeController::codegenIntegralWindup(
 AttitudeState AttitudeController::codegenNextStateEstimate(
     AttitudeState stateEstimate, AttitudeControlSignal controlSignal,
     AttitudeMeasurement measurement, int droneConfiguration) {
+
+    /* Shift the measurement to [orientation-PI, orientation+PI] to avoid any
+       phenomena when the two orientations are separated by the ± PI border. */
+    float dYaw = angleDifference(stateEstimate.eul.yaw, measurement.eul.yaw);
+    float dPitch = angleDifference(stateEstimate.eul.pitch, measurement.eul.pitch);
+    float dRoll = angleDifference(stateEstimate.eul.roll, measurement.eul.roll);
+    AttitudeMeasurement shiftedMeasurement = AttitudeMeasurement {
+        EulerAngles{stateEstimate.eul.yaw + dYaw,
+                    stateEstimate.eul.pitch + dPitch,
+                    stateEstimate.eul.roll + dRoll},
+        measurement.wEul
+    };
 
     /* Calculate next state using Kalman Filter based on drone configuration. */
     switch (droneConfiguration) {
@@ -131,5 +170,13 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
             stateEstimate = {};
             break;
     }
+
+    /* Map the resulting estimate to [-PI, +PI]. */
+    while(stateEstimate.eul.yaw < -PI) stateEstimate.eul.yaw += 2*PI;
+    while(stateEstimate.eul.yaw > PI) stateEstimate.eul.yaw -= 2*PI;
+    while(stateEstimate.eul.pitch < -PI) stateEstimate.eul.pitch += 2*PI;
+    while(stateEstimate.eul.pitch > PI) stateEstimate.eul.pitch -= 2*PI;
+    while(stateEstimate.eul.roll < -PI) stateEstimate.eul.roll += 2*PI;
+    while(stateEstimate.eul.roll > PI) stateEstimate.eul.roll -= 2*PI;
     return stateEstimate;
 }

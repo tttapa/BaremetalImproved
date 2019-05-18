@@ -19,9 +19,12 @@ G = round(s.att.lqr.G, 8);
 K = round(s.att.lqi.K, 8);
     
 % Create syms
-r     = sym('vector__ref',   [3, 1], 'real');
-x_hat = sym('vector__x_hat', [9, 1], 'real');
-y_int = sym('vector__y_int', [3, 1], 'real');
+r           = sym('vector__ref',    [3, 1], 'real');
+r           = [r; zeros(3, 1)];
+x_hat       = sym('vector__x_hat',  [9, 1], 'real');
+x_angleDiff = sym('vector__x_diff', [3, 1], 'real');
+y_angleDiff = sym('vector__y_diff', [3, 1], 'real');
+y_int       = sym('vector__y_int',  [3, 1], 'real');
 
 % Calculate equilibrium
 eq = G * r;
@@ -29,10 +32,8 @@ x_eq = eq(1:9);
 u_eq = eq(10:end);
 
 % Calculate error
-x_diff = x_hat - x_eq;
-y = s.att.Cd * x_hat;
-y_err = r - y;
-result_y_int_increment = y_err * s.att.Ts;
+x_diff = [x_angleDiff; x_hat(4:9) - x_eq(4:9)];
+result_y_int_increment = y_angleDiff * s.att.Ts;
 err = [ x_diff; y_int ];
 
 % Calculate output

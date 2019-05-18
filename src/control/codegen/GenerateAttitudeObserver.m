@@ -16,8 +16,8 @@ L = round(s.att.kal.L, 8);
 
 % Create syms
 x_hat = sym('vector__x_hat', [9, 1], 'real');
-u     = sym('vector__u',     [3,  1], 'real');
-y     = sym('vector__y',     [3,  1], 'real');
+u     = sym('vector__u',     [3, 1], 'real');
+y     = sym('vector__y',     [6, 1], 'real');
 
 % Calculate estimate
 prediction   = s.att.Ad * x_hat + s.att.Bd * u; % A * x + B * u

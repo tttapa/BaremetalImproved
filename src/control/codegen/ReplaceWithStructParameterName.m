@@ -98,6 +98,30 @@ if strcmp(controllerName, 'Attitude')
            string = 'reference.eul.roll';
        end
     end
+
+    if strcmp(struct, 'x_diff')
+       if element == 1
+           string = 'dYaw';
+       end
+       if element == 2
+           string = 'dPitch';
+       end
+       if element == 3
+           string = 'dRoll';
+       end
+    end
+
+    if strcmp(struct, 'y_diff')
+       if element == 1
+           string = 'dYaw';
+       end
+       if element == 2
+           string = 'dPitch';
+       end
+       if element == 3
+           string = 'dRoll';
+       end
+    end
     
     if strcmp(struct, 'u') 
        if element == 1
@@ -113,13 +137,22 @@ if strcmp(controllerName, 'Attitude')
     
     if strcmp(struct, 'y')
        if element == 1 
-          string = 'measurement.eul.yaw';
+          string = 'shiftedMeasurement.eul.yaw';
        end
        if element == 2 
-          string = 'measurement.eul.pitch';
+          string = 'shiftedMeasurement.eul.pitch';
        end
        if element == 3 
-          string = 'measurement.eul.roll';
+          string = 'shiftedMeasurement.eul.roll';
+       end
+       if element == 4
+          string = 'shiftedMeasurement.wEul.yaw';
+       end
+       if element == 5
+          string = 'shiftedMeasurement.wEul.pitch';
+       end
+       if element == 6
+          string = 'shiftedMeasurement.wEul.roll';
        end
     end
 end
