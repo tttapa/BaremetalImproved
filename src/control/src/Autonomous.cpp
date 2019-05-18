@@ -139,6 +139,12 @@ static constexpr float TAKEOFF_DURATION = 2.0;
  * will take off if the throttle value exceeds 0.50.
  */
 static constexpr float TAKEOFF_THROTTLE = 0.50;
+
+/**
+ * If the autonomous controller has taken off (or started pre-takeoff), then the
+ * drone cannot take off again until the throttle goes below 0.03.
+ */
+static constexpr float TAKEOFF_THROTTLE_RESET = 0.03;
 #pragma endregion
 
 bool isValidSearchTarget(Position position) {
@@ -298,18 +304,22 @@ void AutonomousController::updateQRFSM() {
 void AutonomousController::initAir(Position currentPosition,
                                    AltitudeReference referenceHeight) {
     setAutonomousState(LOITERING);
+    this->isTakeoffThrottleReset   = false;
     this->shouldLoiterIndefinitely = shouldLoiterIndefinitelyWithInitAir();
     this->previousTarget           = currentPosition;
     this->nextTarget               = currentPosition;
     this->referenceHeight          = referenceHeight;
     this->qrErrorCount             = 0;
+    this->qrTilesSearched          = 0;
 }
 
 void AutonomousController::initGround(Position currentPosition) {
     setAutonomousState(IDLE_GROUND);
-    this->previousTarget = currentPosition;
-    this->nextTarget     = currentPosition;
-    this->qrErrorCount   = 0;
+    this->isTakeoffThrottleReset = true;
+    this->previousTarget         = currentPosition;
+    this->nextTarget             = currentPosition;
+    this->qrErrorCount           = 0;
+    this->qrTilesSearched        = 0;
 }
 
 AutonomousOutput AutonomousController::update(Position currentPosition,
@@ -478,13 +488,20 @@ void AutonomousController::updateQRFSM_Error() {
 
 AutonomousOutput AutonomousController::updateAutonomousFSM_IdleGround() {
 
+    /* Reset the takeoff throttle if it's lowered enough. */
+    if(getThrottle() <= TAKEOFF_THROTTLE_RESET)
+        this->isTakeoffThrottleReset = true;
+
     /* Switch to WPT when the RC WPT mode turns on. */
     if (getWPTMode() == WPTMode::ON)
         setAutonomousState(WPT);
 
     /* Switch to PRE_TAKEOFF when the RC throttle is raised high enough. */
-    else if (getThrottle() > TAKEOFF_THROTTLE)
+    else if (this->isTakeoffThrottleReset &&
+            getThrottle() >= TAKEOFF_THROTTLE) {
+        this->isTakeoffThrottleReset = false;
         setAutonomousState(PRE_TAKEOFF);
+    }
 
     /* Otherwise, stay in IDLE_GROUND. */
     output = AutonomousOutput{
