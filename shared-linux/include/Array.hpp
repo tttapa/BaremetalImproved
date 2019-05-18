@@ -253,7 +253,7 @@ struct __attribute__((packed)) Array {
 // Rounding
 template <class T>
 MATRIX_CONSTEXPR T round(T t, size_t digits) {
-    return round(t * std::pow(10, digits)) / std::pow(10, digits);
+    return std::round(t * std::pow(10, digits)) / std::pow(10, digits);
 }
 template <class T, size_t N>
 MATRIX_CONSTEXPR Array<T, N> round(Array<T, N> a, size_t digits) {

@@ -4,7 +4,6 @@
 #include <SharedStruct.hpp>
 #include <cassert>
 #include <cmath>  // NAN
-#include <float.h>
 #include <ostream>
 
 /**
@@ -48,6 +47,8 @@ struct VisionPosition {
     VisionPosition(float x, float y) : x{x}, y{y} {}
     VisionPosition(const volatile VisionPosition &p) : x{p.x}, y{p.y} {}
     VisionPosition(const VisionPosition &p) : x{p.x}, y{p.y} {}
+    VisionPosition(const ColVector<2> &p)
+        : x((real_t) p[0]), y((real_t) p[1]) {}
     void operator=(const VisionPosition &p) volatile {
         this->x = p.x;
         this->y = p.y;
@@ -62,9 +63,8 @@ inline std::ostream &operator<<(std::ostream &os, VisionPosition pos) {
  * @brief   The data format sent from Vision to ANC.
  */
 struct VisionData {
-    VisionData() = default;
-    VisionPosition position = {};
-    double yawAngle = 0.0;
+    VisionPosition position;
+    double yawAngle;
     // float sideLen;
 };
 
