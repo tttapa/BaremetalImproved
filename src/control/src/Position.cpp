@@ -6,9 +6,15 @@
 
 /**
  * The largest reference quaternion component that can be sent to the attitude
- * control system is 0.0436.
+ * control system is:
+ *  1°: 0.0087
+ *  2°: 0.0175
+ *  3°: 0.0262
+ *  4°: 0.0349
+ *  5°: 0.0436
+ *  6°: 0.0523  
  */
-static constexpr float REFERENCE_QUATERNION_CLAMP = 0.0436;
+static constexpr float REFERENCE_QUATERNION_CLAMP = 0.0262;
 
 float dist(Position a, Position b) { return Vec2f::norm(b - a); }
 
