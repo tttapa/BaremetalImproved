@@ -5,6 +5,7 @@
 /* Includes from src. */
 #include <ControllerInstances.hpp>
 #include <GetLogData.hpp>
+#include <EulerAngles.hpp>
 #include <LogEntry.hpp>
 #include <LoggerStructs.hpp>
 #include <MiscInstances.hpp>
@@ -167,7 +168,9 @@ void mainOperation() {
      * 
      * =========================================================================
      */
-    EulerAngles refEul;  // TODO: should this be like uc or upateAttitudeEuler?
+    static float yawRef;
+    static float pitchRef;
+    static float rollRef;
     static float uc;
 
     /**
@@ -357,7 +360,9 @@ void mainOperation() {
         //======================= REFERENCE ORIENTATION ======================//
 
         /* Update the attitude controller's reference using the RC. */
-        attitudeController.updateRCReference();
+        yawRef = attitudeController.updateRCYawRads();
+        pitchRef = attitudeController.getRCPitchRads();
+        rollRef = attitudeController.getRCRollRads();
 
 #pragma endregion
     }
@@ -404,7 +409,9 @@ void mainOperation() {
         //======================= REFERENCE ORIENTATION ======================//
 
         /* Update the attitude controller's reference using the RC. */
-        attitudeController.updateRCReference();
+        yawRef = attitudeController.updateRCYawRads();
+        pitchRef = attitudeController.getRCPitchRads();
+        rollRef = attitudeController.getRCRollRads();
 
 #pragma endregion
     }
@@ -520,11 +527,14 @@ void mainOperation() {
         else
             q12ref = autoOutput.q12ref;
 
-        /* Set the attitude controller's reference orientation. We should
-               add the input bias in order to center the position controller's
-               control signal about the equilibrium. */
-        attitudeController.setReference(calculatePositionControllerOutput(
-            yawMeasurement, 0.0, q12ref.q12.x, q12ref.q12.y));
+        /* Transform the q12 given the yaw measurement (it is correct if the)
+           yaw measurement is zero, but if for example the yaw measurement is
+           90 degrees, then q1ref and q2ref should flip. */
+        PositionControlSignal transformedQ12 = transformPositionControlSignal(q12ref, yawMeasurement);
+         // Rad ~ 2*quat
+        pitchRef = biasManager.getPitchBias() + 2.0 * transformedQ12.q12.x; 
+        rollRef = biasManager.getRollBias() + 2.0 * transformedQ12.q12.y;
+        yawRef = 0.0;
 
 #pragma endregion
     }
@@ -557,13 +567,23 @@ void mainOperation() {
 
 #pragma endregion
 
+    /* Set attitude reference. */
+    float x                  = std2::tanf(rollRef);
+    float y                  = std2::tanf(pitchRef);
+    float z                  = 1.0;
+    Vec3f v                  = Vec3f{x, y, z};
+    Quaternion rollPitchQuat = -Quaternion::fromDirection(v);
+    Quaternion yawQuat = EulerAngles::eul2quat(EulerAngles{yawRef, 0.0, 0.0});
+    attitudeController.setReference({yawQuat + rollPitchQuat});
+
     /* Keep the attitude controller's state estimate near the identity
        quaternion to ensure the stability of the control system. Whenever the
        yaw passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
        versa. */
-    float yawJump =
-        calculateYawJump(attitudeController.getOrientationEuler().yaw);
-    attitudeController.calculateJumpedQuaternions(yawJump);
+    static float yawJump = 0;
+    yawJump += attitudeController.calculateYawJump();
+    Quaternion diffQuat = attitudeController.calculateDiffQuat();
+    Quaternion measurementOrientation = updateAHRSDiffQuat(diffQuat);
 
     /* Calculate the torque motor signals. The attitude controller's reference
        orientation has already been updated in the code above. */
@@ -575,9 +595,7 @@ void mainOperation() {
         outputMotorPWM(motorSignals);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
-    Quaternion jumpedAhrsQuat = getAHRSJumpedOrientation(yawJump);
-    attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gyro.g},
-                                      yawJump);
+    attitudeController.updateObserver({measurementOrientation, imuMeasurement.gyro.g});
     if (shouldUpdateAltitudeObserver)
         altitudeController.updateObserver(correctedSonarMeasurement);
 
@@ -591,10 +609,8 @@ void mainOperation() {
     // TODO: kill if the drone tilts too far? (droneControllersActivated flag)
 
     /* Update input biases. */
-    biasManager.updatePitchBias(attitudeController.getReferenceEuler().pitch,
-                                flightMode);
-    biasManager.updateRollBias(attitudeController.getReferenceEuler().roll,
-                               flightMode);
+    biasManager.updatePitchBias(pitchRef, flightMode, autonomousController.getAutonomousState());
+    biasManager.updateRollBias(rollRef, flightMode, autonomousController.getAutonomousState());
     biasManager.updateThrustBias(uc, flightMode);
 #pragma endregion
 
@@ -624,115 +640,16 @@ void mainOperation() {
 }
 
 #pragma region Helper functions
-float calculateYawJump(float yaw) {
-
-    /* Whenever the yaw passes 10 degrees (0.1745 rad), it will jump to -10
-       degrees and vice versa. */
-    static constexpr float MAX_RADS = 0.1745;
-
-    /* The size of the interval is 2*MAX_YAW. */
-    float size = 2 * MAX_RADS;
-
-    /* Inner mod gives [0, 2*MAX_RADS) for positive numbers and (-2*MAX_RADS,0]
-       for negative numbers. Adding MAX_RADS and modding by 2*MAX_RADS ensures
-       that yaw+MAX_RADS maps to [0, 2*MAX_RADS). Subtracting MAX_RADS maps
-       yaw to [-MAX_RADS, +MAX_RADS]. */
-    float modYaw = fmod(fmod(yaw + MAX_RADS, size) + size, size) - MAX_RADS;
-
-    /* Return the yaw jump. */
-    return modYaw - yaw;
-}
-
-//********************************************************//
-//*** Calculate dyaw_quat using x_hat and max_yaw_rads ***//
-//*** ... returns dyaw in radians                      ***//
-//********************************************************//
-Quaternion calculateDYawQuat(const Quaternion& orientationEstimate) {
-	
-    /* Convert orientation estimate to EulerAngles. */
-    EulerAngles eul = EulerAngles::quat2eul(orientationEstimate);
-    
-    /* Return the 
-	
-	// If yaw in [-max_yaw_rads,+max_yaw_rads], set dyaw to unit quaternion and return 0.
-	if(eulYPR[0] >= -max_yaw_rads && eulYPR[0] <= max_yaw_rads) {
-		dyaw->w = 1.0;
-		dyaw->x = 0.0;
-		dyaw->y = 0.0;
-		dyaw->z = 0.0;
-		return 0.0;
-	} else {
-		
-		float dyawRads;
-		float newYaw;
-		float d;
-		float w;
-		float s;
-		Quat32 newYawQuat;
-		Quat32 oldYawQuat;
-		
-		// Calculate dyawRads
-		if(eulYPR[0] > 0) {
-			dyawRads = -2.0*max_yaw_rads;
-		} else {
-			dyawRads = 2.0*max_yaw_rads;
-		}
-		
-		// Calculate new yaw
-		newYaw = eulYPR[0] + dyawRads;
-		
-		// Build the quaternion with the new yaw
-		d = eulYPR[2]*eulYPR[2] + eulYPR[1]*eulYPR[1] + newYaw*newYaw;
-		w = cosf(sqrt(d)/2);
-		if(d==0) s=0;
-		else s = sinf(sqrt(d)/2)/sqrt(d);
-		
-		newYawQuat.w = w;
-		newYawQuat.x = eulYPR[2]*s;
-		newYawQuat.y = eulYPR[1]*s;
-		newYawQuat.z = newYaw*s;
-		
-		// Build the quaternion with the old yaw
-		oldYawQuat.w = x_hat[0];
-		oldYawQuat.x = x_hat[1];
-		oldYawQuat.y = x_hat[2];
-		oldYawQuat.z = x_hat[3];
-		
-		// Calculate the difference between the new quaternion and the old one
-		// Store it in the paramter dyaw
-		quat32_difference(dyaw, &newYawQuat, &oldYawQuat);
-		
-		// Return dyawRads
-		return dyawRads;
-		
-	}
-	
-}
-
-
-AttitudeReference calculatePositionControllerOutput(float yawMeasurement,
-                                                    float yawRef,
-                                                    float pitchRef,
-                                                    float rollRef) {
+PositionControlSignal transformPositionControlSignal(PositionControlSignal u,
+                                                     float yawMeasurement) {
 
     /* The given pitch / roll references are accurate if yaw is zero, so
        transform them given the measurement yaw. */
     float cosYaw           = std2::cosf(yawMeasurement);
     float sinYaw           = std2::sinf(yawMeasurement);
-    float transformedPitch = pitchRef * cosYaw + rollRef * sinYaw;
-    float transformedRoll  = rollRef * cosYaw - pitchRef * sinYaw;
-
-    /* Convert to quaternions to do input bias correctly. */
-    EulerAngles eulInputBias =
-        EulerAngles{0.0, biasManager.getPitchBias(), biasManager.getRollBias()};
-    Quaternion quatInputBias = EulerAngles::eul2quat(eulInputBias);
-
-    EulerAngles eulMarginal =
-        EulerAngles{yawRef, transformedPitch, transformedRoll};
-    Quaternion quatMarginal = EulerAngles::eul2quat(eulMarginal);
-
-    /* Superpose marginal action on bias. */
-    return AttitudeReference{quatInputBias + quatMarginal};
+    float transformedQ1 = u.q12.x * cosYaw + u.q12.y * sinYaw;
+    float transformedQ2 = u.q12.y * cosYaw - u.q12.x * sinYaw;
+    return PositionControlSignal{Vec2f{transformedQ1, transformedQ2}};
 }
 
 #pragma endregion

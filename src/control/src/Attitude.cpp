@@ -1,14 +1,21 @@
 #include <Attitude.hpp>
 
 /* Includes from src. */
+#include <EulerAngles.hpp>
+#include <MathFunctions.hpp>
 #include <MiscInstances.hpp>  ///< ConfigurationManager instance
 #include <RCValues.hpp>
-#include <MathFunctions.hpp>
 
 /* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
 
 #pragma region Constants
+/**
+ * Whenever the yaw passes 10 degrees (0.1745 rad), it will jump to -10 degrees
+ * and vice versa.
+ */
+static constexpr float MAX_YAW_RADS = 0.1745;
+
 /**
  * The largest control signal that can be sent to the "yaw torque motor" is
  * 0.10.
@@ -44,13 +51,51 @@ MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
                         commonThrust - ux - uy - uz};
 }
 
-void AttitudeController::calculateJumpedQuaternions(float yawJumpRads) {
-    this->stateEstimate.q = EulerAngles::eul2quat(
-        {this->orientationEuler.yaw + yawJumpRads, this->orientationEuler.pitch,
-         this->orientationEuler.roll});
-    this->reference.q = EulerAngles::eul2quat(
-        {this->referenceEuler.yaw + yawJumpRads, this->referenceEuler.pitch,
-         this->referenceEuler.roll});
+float AttitudeController::calculateYawJump() {
+    float yaw    = EulerAngles::quat2eul(this->stateEstimate.q).yaw;
+    float result = 0;
+    while (yaw > MAX_YAW_RADS) {
+        yaw -= 2 * MAX_YAW_RADS;
+        result -= 2 * MAX_YAW_RADS;
+    }
+    while (yaw < -MAX_YAW_RADS) {
+        yaw += 2 * MAX_YAW_RADS;
+        result += 2 * MAX_YAW_RADS;
+    }
+    return result;
+}
+
+Quaternion AttitudeController::calculateDiffQuat() {
+
+    /* Convert orientation estimate to EulerAngles. */
+    EulerAngles eul = EulerAngles::quat2eul(this->stateEstimate.q);
+
+    /* If the yaw is in [-MAX_YAW, +MAX_YAW], return the identity quaternion. */
+    if (eul.yaw >= -MAX_YAW_RADS && eul.yaw <= -MAX_YAW_RADS)
+        return Quaternion::identity();
+
+    /* Otherwise, calculate the quaternion used to rotate the given orientation
+       estimate to one where the yaw is in the interval [-MAX_YAW, +MAX_YAW]. */
+    while (eul.yaw > MAX_YAW_RADS) {
+        eul.yaw -= 2 * MAX_YAW_RADS;
+        this->rcReferenceYaw -= 2 * MAX_YAW_RADS;
+    }
+    while (eul.yaw < -MAX_YAW_RADS) {
+        eul.yaw += 2 * MAX_YAW_RADS;
+        this->rcReferenceYaw += 2 * MAX_YAW_RADS;
+    }
+
+    Quaternion diffQuat = EulerAngles::eul2quat(eul) - this->stateEstimate.q;
+
+    /* Rotate the state estimate and the reference by this quaternion. The AHRS
+       will also be rotated by it. This way we'll keep the orientation estimate
+       near the identity quaternion, but the controller will still be
+       accurate. */
+    this->stateEstimate.q = diffQuat + this->stateEstimate.q;
+    this->reference.q     = diffQuat + this->reference.q;
+
+    /* Return diffQuat, so the AHRS can update its orientation too. */
+    return diffQuat;
 }
 
 void AttitudeController::clampControlSignal(float commonThrust) {
@@ -80,15 +125,23 @@ void AttitudeController::clampControlSignal(float commonThrust) {
     this->controlSignal = AttitudeControlSignal{Vec3f{ux, uy, uz}};
 }
 
+float AttitudeController::getRCPitchRads() {
+    /* Convert RC pitch [-1.0, +1.0] to radians [-0.1745, +0.1745]. */
+    return getPitch() * MAXIMUM_REFERENCE_TILT;
+}
+
+float AttitudeController::getRCRollRads() {
+    /* Convert RC roll [-1.0, +1.0] to radians [-0.1745, +0.1745]. */
+    return getRoll() * MAXIMUM_REFERENCE_TILT;
+}
+
 void AttitudeController::init() {
 
     /* Reset the attitude controller. */
-    this->stateEstimate    = {};
-    this->orientationEuler = {};
-    this->integralWindup   = {};
-    this->controlSignal    = {};
-    this->reference        = {};
-    this->referenceEuler   = {};
+    this->stateEstimate  = {};
+    this->integralWindup = {};
+    this->controlSignal  = {};
+    this->reference      = {};
 }
 
 AttitudeControlSignal
@@ -111,8 +164,7 @@ AttitudeController::updateControlSignal(float commonThrust) {
     return this->controlSignal;
 }
 
-void AttitudeController::updateObserver(AttitudeMeasurement measurement,
-                                        float yawJumpToSubtract) {
+void AttitudeController::updateObserver(AttitudeMeasurement measurement) {
 
     /* Save measurement for logger. */
     this->measurement = measurement;
@@ -121,23 +173,15 @@ void AttitudeController::updateObserver(AttitudeMeasurement measurement,
     this->stateEstimate = AttitudeController::codegenNextStateEstimate(
         this->stateEstimate, this->controlSignal, measurement,
         configManager.getControllerConfiguration());
-
-    /* Update the EulerAngles representation as well! */
-    this->orientationEuler = EulerAngles::quat2eul(this->stateEstimate.q);
-    this->orientationEuler.yaw -= yawJumpToSubtract;
 }
 
-void AttitudeController::updateRCReference() {
+float AttitudeController::updateRCYawRads() {
 
     /* Store RC values. */
-    float roll  = getRoll();
-    float pitch = getPitch();
-    float yaw   = getYaw();
+    float yaw = getYaw();
 
     /* Convert RC tilt [-1.0, +1.0] to radians [-0.1745, +0.1745]. */
-    float rollRads  = roll * MAXIMUM_REFERENCE_TILT;
-    float pitchRads = pitch * MAXIMUM_REFERENCE_TILT;
-    float yawRads   = this->referenceEuler.yaw;
+    float yawRads = this->rcReferenceYaw;
 
     /* Update the reference yaw based on the RC yaw. */
     float upperZoneSize = 1.0 - RC_REFERENCE_YAW_UPPER_THRESHOLD;
@@ -149,6 +193,9 @@ void AttitudeController::updateRCReference() {
         yawRads -= (RC_REFERENCE_YAW_LOWER_THRESHOLD - yaw) / lowerZoneSize *
                    RC_REFERENCE_YAW_MAX_SPEED * SECONDS_PER_TICK;
 
-    /* Store the EulerAngles reference orientation. */
-    this->referenceEuler = EulerAngles{yawRads, pitchRads, rollRads};
+    /* Update the reference. */
+    this->rcReferenceYaw = yawRads;
+    return this->rcReferenceYaw;
+
+
 }

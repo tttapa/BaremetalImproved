@@ -8,7 +8,7 @@ struct EulerAngles {
     float roll;   ///< X"
 
     /** Convert a quaternion to Euler angles. */
-    EulerAngles(Quaternion q = Quaternion::unit()) : EulerAngles{quat2eul(q)} {}
+    EulerAngles(Quaternion q = Quaternion::identity()) : EulerAngles{quat2eul(q)} {}
     EulerAngles(float yaw, float pitch, float roll)
         : yaw{yaw}, pitch{pitch}, roll{roll} {}
 

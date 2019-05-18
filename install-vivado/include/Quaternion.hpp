@@ -11,7 +11,7 @@ struct Quaternion {
     float y;
     float z;
 
-    Quaternion() : Quaternion{unit()} {}
+    Quaternion() : Quaternion{identity()} {}
     Quaternion(float w, float x, float y, float z) : w{w}, x{x}, y{y}, z{z} {}
 
     static Quaternion conjugate(const Quaternion &q) {
@@ -62,13 +62,13 @@ struct Quaternion {
         };
     }
 
-    static Quaternion unit() { return Quaternion{1, 0, 0, 0}; }
+    static Quaternion identity() { return Quaternion{1, 0, 0, 0}; }
 
     /**
      * Calculate the quaternion that would result in the given in vector, if it
      * were to used to rotate the vector (0 0 1).
      */
-    static Quaternion fromDirection(Vec3f &v) {
+    static Quaternion fromDirection(Vec3f v) {
         /*
     	 * q = cos(ϑ / 2) + sin(ϑ / 2)·(x·i + y·j + z·k)
     	 * where (x y z) is a unit vector representing the axis about which
@@ -81,7 +81,7 @@ struct Quaternion {
         /* First check the edge case v ~ (0 0 1). */
         float eps = FLT_EPSILON;
         if (std2::absf(v.x) <= eps && std2::absf(v.y) <= eps)
-            return Quaternion::unit();
+            return Quaternion::identity();
 
         /* Calculate the cross product and its norm. */
         Vec3f cross     = {v.y, -v.x, 0};

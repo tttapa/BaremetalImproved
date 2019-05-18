@@ -137,7 +137,7 @@ class AltitudeController {
 
     /**
      * Update the altitude controller with the altitude controller's reference
-     * height. Use updateRCReference() to update the reference heigth based on
+     * height. Use updateRCReference() to update the reference height based on
      * the RC throttle and setReference() to set it directly.  This function
      * should only be called when there is a new measurement from the sonar.
      * 

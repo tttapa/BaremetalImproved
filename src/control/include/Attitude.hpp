@@ -43,6 +43,9 @@ class AttitudeController {
     /** Reference orientation to track. */
     AttitudeReference reference;
 
+    /** Keep track of the reference yaw sent by the RC. */
+    float rcReferenceYaw = 0.0;
+
     /**
      * Estimate of the state of the drone's attitude, consisting of the drone's
      * orientation (1 quaternion), angular velocity in rad/s (3 components: wx,
@@ -53,17 +56,28 @@ class AttitudeController {
 
   public:
     /**
-     * Using the given yaw jump, calculate the quaternion representation of the
-     * drone's orientation and the reference orientation. Then store these in
-     * the state estimate and in the controller's reference. This "yaw jumping"
-     * is used to keep the state estimate's orientation near the identity
-     * quaternion in order to ensure the control system's stability.
+     * Calculate the yaw jump needed to keep the orientation estimate's yaw
+     * (EulerAngles representation) in the interval [-10 deg, +10 deg].
      * 
-     * @param   yawJumpRads
-     *          Radians to add to the EulerAngles representation of the drone's
-     *          orientation and the reference orientation.
+     * @return  The yaw jump to keep the orientation estimate's yaw in the
+     *          interval [-10 deg, +10 deg].
      */
-    void calculateJumpedQuaternions(float yawJumpRads);
+    float calculateYawJump();
+
+    /**
+     * Calculate the quaternion needed to rotate the orientation estimate to
+     * a quaternion where its yaw (EulerAngles representation) is in the
+     * interval [-10 deg, +10 deg]. Then the attitude controller's orientation
+     * estimate and reference orientation will be multiplied by this difference
+     * quaternion.
+     * 
+     * Afterwards, the AHRS should also update its orientation by multiplying by
+     * the resulting quaternion from the left side.
+     * 
+     * @return  The difference quaternion used to keep the orientation estimate
+     *          near the identity quaternion.
+     */
+    Quaternion calculateDiffQuat();
 
     /**
      * Clamp the current attitude control signal such that the corrections are
@@ -144,6 +158,12 @@ class AttitudeController {
     /** Get the attitude controller's measurement. */
     AttitudeMeasurement getMeasurement() { return this->measurement; }
 
+    /** Get the RC reference pitch in radians. */
+    float getRCPitchRads();
+
+    /** Get the RC reference roll in radians. */
+    float getRCRollRads();
+
     /** Get the attitude controller's reference. */
     AttitudeReference getReference() { return this->reference; }
 
@@ -180,11 +200,8 @@ class AttitudeController {
      * 
      * @param   measurement
      *          New measurement from the IMU.
-     * @param   yawJumpToSubtract
-     *          Yaw jump calculated in the beginning of the clock cycle.
      */
-    void updateObserver(AttitudeMeasurement measurement,
-                        float yawJumpToSubtract);
+    void updateObserver(AttitudeMeasurement measurement);
 
     /**
      * Update the attitude controller's reference orientation using the RC
@@ -195,6 +212,8 @@ class AttitudeController {
      * change. If the value of the RC yaw exceeds +5% (goes below -5%), then the
      * reference yaw will increase (decrease). The maximum increase (decrease)
      * speed is reached when the value of the RC yaw reaches +50% (-50%).
+     * 
+     * @return  The new yaw reference in radians.
      */
-    void updateRCReference();
+    float updateRCYawRads();
 };

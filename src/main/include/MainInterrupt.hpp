@@ -11,9 +11,8 @@ extern volatile bool isInterruptRunning;
  */
 
 // TODO: comments
-float calculateYawJump(float yaw);
-
-AttitudeReference calculatePositionControllerOutput(float yawMeasurement, float yawRef, float pitchRef, float rollRef);
+PositionControlSignal transformPositionControlSignal(PositionControlSignal q12,
+                                                     float yawMeasurement);
 
 void mainOperation();
 
