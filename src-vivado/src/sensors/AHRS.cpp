@@ -9,7 +9,7 @@
 /** Orientation of the drone, updated by Madgwick's algorithm. */
 static Quaternion orientation;
 
-EulerAngles getAHRSOrientationEuler() { return EulerAngles::quat2eul(orientationEuler) }; }
+EulerAngles getAHRSOrientationEuler() { return EulerAngles::quat2eul(orientation); }
 
 Quaternion getAHRSOrientationQuat() { return orientation; }
 
