@@ -195,7 +195,7 @@ struct __attribute__((packed)) AttitudeMeasurement {
     /**
      * Measurement orientation from the IMU.
      */
-    Quaternion q = Quaternion::unit();
+    Quaternion q = Quaternion::identity();
 
     /**
      * Measurement angular velocity from the IMU.
@@ -214,7 +214,7 @@ struct __attribute__((packed)) AttitudeReference {
     /**
      * Reference orientation.
      */
-    Quaternion q = Quaternion::unit();
+    Quaternion q = Quaternion::identity();
 };
 
 // This is an automatically generated struct, edit it in the code generator
@@ -230,7 +230,7 @@ struct __attribute__((packed)) AttitudeState {
     /**
      * The orientation of the drone.
      */
-    Quaternion q = Quaternion::unit();
+    Quaternion q = Quaternion::identity();
 
     /**
      * The angular velocity of the drone in rad/s.

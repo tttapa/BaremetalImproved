@@ -73,8 +73,8 @@ class AttitudeController {
      * Using the given yaw jump, calculate the quaternion representation of the
      * drone's orientation and the reference orientation. Then store these in
      * the state estimate and in the controller's reference. This "yaw jumping"
-     * is used to keep the state estimate's orientation near the unit quaternion
-     * [1;0;0;0] in order to ensure the control system's stability.
+     * is used to keep the state estimate's orientation near the identity
+     * quaternion in order to ensure the control system's stability.
      * 
      * @param   yawJumpRads
      *          Radians to add to the EulerAngles representation of the drone's
@@ -164,7 +164,7 @@ class AttitudeController {
     /**
      * Returns the quaternion of the attitude controller's estimate of the
      * drone's orientation. This value is "jumped" in order to keep the estimate
-     * near the unit quaternion [1;0;0;0].
+     * near the identity quaternion.
      */
     Quaternion getOrientationQuat() { return this->stateEstimate.q; }
 
@@ -180,8 +180,8 @@ class AttitudeController {
 
     /**
      * Returns the quaternion representation of the reference orientation. This
-     * value is "jumped" in order to keep the estimate near the unit quaternion
-     * [1;0;0;0].
+     * value is "jumped" in order to keep the estimate near the identity
+     * quaternion.
      */
     Quaternion getReferenceQuat() { return this->reference.q; }
 

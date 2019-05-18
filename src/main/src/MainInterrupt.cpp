@@ -551,9 +551,9 @@ void mainOperation() {
 
 #pragma endregion
 
-    /* Keep the attitude controller's state estimate near the unit quaternion
-       [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
-       passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
+    /* Keep the attitude controller's state estimate near the identity
+       quaternion to ensure the stability of the control system. Whenever the
+       yaw passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
        versa. */
     real_t yawJump =
         calculateYawJump(attitudeController.getOrientationEuler().yaw);
