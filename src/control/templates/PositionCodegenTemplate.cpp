@@ -187,8 +187,8 @@ PositionState PositionController::codegenCurrentStateEstimate(
 PositionState PositionController::codegenCurrentStateEstimateBlind(
     PositionState stateEstimate, PositionControlSignal controlSignal, Quaternion orientation) {
 
-    stateEstimate.q.x = orientation.x;
-    stateEstimate.q.y = orientation.y;
+    stateEstimate.q.x = orientation.x - 0.5 * getRollBias();
+    stateEstimate.q.y = orientation.y - 0.5 * getPitchBias();
     stateEstimate.p.x = $xBlind0;
     stateEstimate.p.y = $xBlind1;
     stateEstimate.v.x = $xBlind2;
