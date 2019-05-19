@@ -363,7 +363,7 @@ void AutonomousController::updateQRFSM_NewTarget() {
        of the next QR code sent by the Cryptography team. */
     VisionPosition target = qrComm->getTargetPosition();
     if (target)
-        startNavigatingBlocks(qrComm->getTargetPosition());
+        startNavigatingBlocks(target);
 
     /* Land or loiter indefinitely if the given target is NaN. */
     else if (isLandingEnabled()) {
