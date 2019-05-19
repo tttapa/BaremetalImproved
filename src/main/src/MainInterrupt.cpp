@@ -491,11 +491,11 @@ void mainOperation() {
 
         //=========================== COMMON THRUST ==========================//
 
-        if (autoOutput.useAltitudeController) {
+        if (autoOutput.useAltitudeController && hasNewSonarMeasurement) {
             altitudeController.setReference(autoOutput.referenceHeight);
             uc = biasManager.getThrustBias() +
                  altitudeController.updateControlSignal().ut;
-        } else {
+        } else if (!autoOutput.useAltitudeController) {
             uc = autoOutput.commonThrust.ut;
         }
 
