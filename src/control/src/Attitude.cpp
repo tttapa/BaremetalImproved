@@ -11,9 +11,9 @@
 #pragma region Constants
 /**
  * The largest control signal that can be sent to the "yaw torque motor" is
- * 0.10.
+ * 0.08.
  */
-static constexpr float YAW_SIGNAL_CLAMP = 0.10;
+static constexpr float YAW_SIGNAL_CLAMP = 0.08;
 
 /**
  * The most the drone can tilt is 0.1745 rad (10 deg). If the hardware constants

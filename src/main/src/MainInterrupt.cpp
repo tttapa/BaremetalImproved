@@ -113,7 +113,7 @@ void mainOperation() {
 
     /* Read IMU measurement and update the AHRS. */
     IMUMeasurement imuMeasurement = readIMU();
-    Quaternion qxyzabc = updateAHRS(imuMeasurement);
+    updateAHRS(imuMeasurement);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement       = readSonar();
@@ -569,8 +569,7 @@ void mainOperation() {
        [1;0;0;0] to ensure the stability of the control system. Whenever the yaw
        passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
        versa. */
-    float yawJump = 0;
-        //calculateYawJump(attitudeController.getOrientationEuler().yaw);
+    float yawJump = calculateYawJump(attitudeController.getOrientationEuler().yaw);
     attitudeController.calculateJumpedQuaternions(yawJump);
 
     /* Calculate the torque motor signals. The attitude controller's reference
@@ -583,8 +582,8 @@ void mainOperation() {
         outputMotorPWM(motorSignals);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
-    //Quaternion jumpedAhrsQuat = getAHRSJumpedOrientation(yawJump);
-    attitudeController.updateObserver({qxyzabc, imuMeasurement.gyro.g},
+    Quaternion jumpedAhrsQuat = getAHRSJumpedOrientation(yawJump);
+    attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gyro.g},
                                       yawJump);
     if (shouldUpdateAltitudeObserver)
         altitudeController.updateObserver(correctedSonarMeasurement);
