@@ -74,15 +74,22 @@ Quaternion AttitudeController::calculateDiffQuat() {
     if (eul.yaw >= -MAX_YAW_RADS && eul.yaw <= -MAX_YAW_RADS)
         return Quaternion::identity();
 
+    /* Definition of pi. */
+    const float PI = 3.14159265358979323846;
+
     /* Otherwise, calculate the quaternion used to rotate the given orientation
        estimate to one where the yaw is in the interval [-MAX_YAW, +MAX_YAW]. */
     while (eul.yaw > MAX_YAW_RADS) {
         eul.yaw -= 2 * MAX_YAW_RADS;
         this->rcReferenceYaw -= 2 * MAX_YAW_RADS;
+        if(this->rcReferenceYaw < -PI)
+            this->rcReferenceYaw += 2*PI;
     }
     while (eul.yaw < -MAX_YAW_RADS) {
         eul.yaw += 2 * MAX_YAW_RADS;
         this->rcReferenceYaw += 2 * MAX_YAW_RADS;
+        if(this->rcReferenceYaw > PI)
+            this->rcReferenceYaw -= 2*PI;
     }
 
     Quaternion diffQuat = EulerAngles::eul2quat(eul) - this->stateEstimate.q;
