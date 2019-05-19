@@ -125,8 +125,19 @@ int getIMUFactor(IMUFrequency frequency) {
     switch (frequency) {
         case FREQ_119_HZ: return 1;
         case FREQ_238_HZ: return 2;
+        case FREQ_476_HZ: return 4;
+        case FREQ_952_HZ: return 8;
+    }
+    return 0.0;
+}
+
+int getIMUShiftFactor(IMUFrequency frequency) {
+    switch (frequency) {
+        case FREQ_119_HZ: return 1;
+        case FREQ_238_HZ: return 2;
         case FREQ_476_HZ: return 3;
         case FREQ_952_HZ: return 4;
     }
     return 0.0;
 }
+

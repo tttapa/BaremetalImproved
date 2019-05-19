@@ -43,7 +43,7 @@ static WPTMode wptMode = WPTMode::OFF;
  * to happen, then there would be no room for the attitude controller to make
  * adjustments.
  */
-const float MAX_THROTTLE = 0.80;
+const float MAX_THROTTLE = 0.85;
 
 /**
  * If the throttle goes below 0.05, no thrust will be sent to the motors. In

@@ -180,7 +180,7 @@ RawGyroMeasurement readGyro() {
 bool calibrateIMUStep() {
 
     /* Calculate LED shift factor and calibration samples. */
-    int shiftFactor         = getIMUFactor(IMU_FREQUENCY);
+    int shiftFactor         = getIMUShiftFactor(IMU_FREQUENCY);
     IMU_FACTOR              = (float) getIMUFactor(IMU_FREQUENCY);
     int CALIBRATION_SAMPLES = getIMUValue(IMU_FREQUENCY) * CALIBRATION_TIME;
 

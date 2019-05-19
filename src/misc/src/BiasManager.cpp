@@ -17,14 +17,14 @@ static constexpr float AUTONOMOUS_HOVERING_THRUST_THRESHOLD = 0.30;
  * ALTITUDE_HOLD flight modes. This base weight is for an IMU frequency of 119
  * Hz and will be adjusted for the actual IMU frequency.
  */
-static constexpr float ROTATION_BIAS_WEIGHT_PILOT = 0.001;
+static constexpr float ROTATION_BIAS_WEIGHT_PILOT = 0.005;
 
 /**
  * Weight used in the exponential filters for the roll and pitch biases when
  * the drone is loitering in the AUTONOMOUS flight mode. This base weight is for
  * an IMU frequency of 119 Hz and will be adjusted for the actual IMU frequency.
  */
-static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.0005;
+static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.001;
 
 /**
  * Weight used in the exponential filters for the roll and pitch biases when
@@ -32,7 +32,7 @@ static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.0005;
  * for an IMU frequency of 119 Hz and will be adjusted for the actual IMU
  * frequency.
  */
-static constexpr float ROTATION_BIAS_WEIGHT_NAVIGATING = 0.00005;
+static constexpr float ROTATION_BIAS_WEIGHT_NAVIGATING = 0.0002;
 
 /**
  * Weight used in the exponential filters for the thrust bias when the drone
@@ -47,7 +47,7 @@ static constexpr float THRUST_BIAS_WEIGHT_MANUAL = 0.01;
  * the AUTONOMOUS flight mode. This base weight is for an IMU frequency of 119
  * Hz and will be adjusted for the actual IMU frequency.
  */
-static constexpr float THRUST_BIAS_WEIGHT_ALTITUDE_HOLD = 0.0001;
+static constexpr float THRUST_BIAS_WEIGHT_ALTITUDE_HOLD = 0.0004;
 #pragma endregion
 
 void BiasManager::init() {
