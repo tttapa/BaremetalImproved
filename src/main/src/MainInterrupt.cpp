@@ -532,7 +532,7 @@ void mainOperation() {
          // Rad ~ 2*quat
         pitchRef = biasManager.getPitchBias() + 2.0 * transformedQ12.q12.x; 
         rollRef = biasManager.getRollBias() + 2.0 * transformedQ12.q12.y;
-        yawRef = 0.0;
+        yawRef = attitudeController.updateRCYawRads();
 
 #pragma endregion
     }
