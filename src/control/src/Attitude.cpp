@@ -151,4 +151,5 @@ void AttitudeController::updateRCReference() {
 
     /* Store the EulerAngles reference orientation. */
     this->referenceEuler = EulerAngles{yawRads, pitchRads, rollRads};
+    this->reference = EulerAngles::eul2quat(this->referenceEuler);
 }
