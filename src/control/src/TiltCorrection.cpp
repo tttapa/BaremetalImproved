@@ -30,7 +30,7 @@ Position getGlobalPositionEstimate(Position correctedPositionMeasurement,
                                    PositionState lastPositionEstimate,
                                    float Ts) {
     Position expected = lastPositionEstimate.p + lastPositionEstimate.v * Ts;
-    Position delta    = expected - correctedPositionMeasurement.p;
+    Position delta    = expected - correctedPositionMeasurement;
 
     /* Calculate offset to be added to the given (x,y) using the expected
        location. E.g. expected (0, 0), measured (0.7, -1.1) should return an
