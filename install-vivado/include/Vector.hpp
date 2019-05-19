@@ -22,6 +22,7 @@ struct Vec2f {
     inline Vec2f operator/(const float rhs) const {
         return Vec2f{this->x / rhs, this->y / rhs};
     }
+    inline Vec2f operator-() const { return Vec2f{-this->x, -this->y}; }
 
     static Vec2f abs(const Vec2f &v) {
         return Vec2f{std2::absf(v.x), std2::absf(v.y)};
@@ -58,6 +59,7 @@ struct Vec3f {
     inline Vec3f operator/(const float rhs) const {
         return Vec3f{this->x / rhs, this->y / rhs, this->z / rhs};
     }
+    inline Vec3f operator-() const { return Vec3f{-this->x, -this->y, -this->z}; }
     static Vec3f abs(const Vec3f &v) {
         return Vec3f{std2::absf(v.x), std2::absf(v.y), std2::absf(v.z)};
     }
@@ -66,8 +68,8 @@ struct Vec3f {
     static Vec3f round(const Vec3f &v) {
         return Vec3f{std2::roundf(v.x), std2::roundf(v.y), std2::roundf(v.z)};
     }
-    Vec3f abs() { return abs(*this); }
-    float normsq() { return normsq(*this); }
-    float norm() { return norm(*this); }
-    Vec3f round() { return round(*this); }
+    Vec3f abs() const { return abs(*this); }
+    float normsq() const { return normsq(*this); }
+    float norm() const { return norm(*this); }
+    Vec3f round() const { return round(*this); }
 } __attribute__((packed));
