@@ -99,9 +99,9 @@ static constexpr int MAX_QR_SEARCH_COUNT = 49;
 
 /**
  * When the drone is navigating in autonomous mode, the reference will travel at
- * a speed of 0.5 m/s.
+ * a speed of 0.18 m/s.
  */
-static constexpr float NAVIGATION_SPEED = 0.5;
+static constexpr float NAVIGATION_SPEED = 0.18;
 
 /** The pre-takeoff stage lasts 6.0 seconds. */
 static constexpr float PRE_TAKEOFF_DURATION = 6.0;
