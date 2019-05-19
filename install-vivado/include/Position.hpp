@@ -13,7 +13,7 @@ using Position = Vec2f;
 using HorizontalVelocity = Vec2f;
 
 /** Blocks to meters. */
-const float BLOCKS_TO_METERS = 0.30;
+const float BLOCKS_TO_METERS = 0.32;
 
 /** Meters to blocks. */
 const float METERS_TO_BLOCKS = 1.0 / BLOCKS_TO_METERS;
