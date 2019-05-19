@@ -113,7 +113,7 @@ void mainOperation() {
 
     /* Read IMU measurement and update the AHRS. */
     IMUMeasurement imuMeasurement = readIMU();
-    updateAHRS(imuMeasurement);
+    Quaternion qxyzabc = updateAHRS(imuMeasurement);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement       = readSonar();
@@ -583,8 +583,8 @@ void mainOperation() {
         outputMotorPWM(motorSignals);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
-    Quaternion jumpedAhrsQuat = getAHRSJumpedOrientation(yawJump);
-    attitudeController.updateObserver({jumpedAhrsQuat, imuMeasurement.gyro.g},
+    //Quaternion jumpedAhrsQuat = getAHRSJumpedOrientation(yawJump);
+    attitudeController.updateObserver({qxyzabc, imuMeasurement.gyro.g},
                                       yawJump);
     if (shouldUpdateAltitudeObserver)
         altitudeController.updateObserver(correctedSonarMeasurement);

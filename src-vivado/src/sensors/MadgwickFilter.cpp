@@ -1,5 +1,6 @@
 #include "MadgwickFilter.hpp"
 #include <PublicHardwareConstants.hpp>	///< TICKS_PER_SECOND
+#include <stdio.h>
 
 // TODO: block comment
 //=====================================================================================================
@@ -32,6 +33,8 @@ volatile float beta = betaDef;  // 2 * proportional gain (Kp)
 
 float invSqrt(float x);
 
+static int i = 0;
+
 //====================================================================================================
 // Functions
 
@@ -41,16 +44,25 @@ float invSqrt(float x);
 Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
     
 
+
 	float recipNorm;
 	float s0, s1, s2, s3;
 	float qDot1, qDot2, qDot3, qDot4;
 	float _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2 ,_8q1, _8q2, q0q0, q1q1, q2q2, q3q3;
 
 	// Rate of change of quaternion from gyroscope
-	qDot1 = 0.5f * (-orientation.x * imu.gyro.g.x - orientation.y * imu.gyro.g.y - orientation.z * imu.gyro.g.z);
-	qDot2 = 0.5f * (orientation.w * imu.gyro.g.x + orientation.y * imu.gyro.g.z - orientation.z * imu.gyro.g.y);
-	qDot3 = 0.5f * (orientation.w * imu.gyro.g.y - orientation.x * imu.gyro.g.z + orientation.z * imu.gyro.g.x);
-	qDot4 = 0.5f * (orientation.w * imu.gyro.g.z + orientation.x * imu.gyro.g.y - orientation.y * imu.gyro.g.x);
+	qDot1 = 0;// 0.5f * (-orientation.x * imu.gyro.g.x - orientation.y * imu.gyro.g.y - orientation.z * imu.gyro.g.z);
+	qDot2 = 0;// 0.5f * (orientation.w * imu.gyro.g.x + orientation.y * imu.gyro.g.z - orientation.z * imu.gyro.g.y);
+	qDot3 = 0;// 0.5f * (orientation.w * imu.gyro.g.y - orientation.x * imu.gyro.g.z + orientation.z * imu.gyro.g.x);
+	qDot4 = 0;//0.5f * (orientation.w * imu.gyro.g.z + orientation.x * imu.gyro.g.y - orientation.y * imu.gyro.g.x);
+
+	i++;
+	if(i == 1500) {
+		printf("1000* w     = %d, x     = %d, y     = %d, z     = %d\r\n", (int)(orientation.w*1000), (int)(orientation.x*1000), (int)(orientation.y*1000), (int)(orientation.z*1000));
+		printf("1000* qdot1 = %d, qdot2 = %d, qdot3 = %d, qdot4 = %d\r\n", (int)(qDot1*1000), (int)(qDot2*1000), (int)(qDot3*1000), (int)(qDot4*1000));
+		i = 0;
+	}
+
 
 	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
 	if(!((imu.accel.a.x == 0.0f) && (imu.accel.a.y == 0.0f) && (imu.accel.a.z == 0.0f))) {
@@ -109,6 +121,7 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 	orientation.z *= recipNorm;
 
 	return orientation;
+
 }
 
 #pragma GCC diagnostic push
