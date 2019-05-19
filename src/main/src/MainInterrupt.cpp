@@ -530,8 +530,8 @@ void mainOperation() {
            90 degrees, then q1ref and q2ref should flip. */
         PositionControlSignal transformedQ12 = q12ref;// transformPositionControlSignal(q12ref, yawMeasurement);
          // Rad ~ 2*quat
-        pitchRef = biasManager.getPitchBias() + 2.0 * transformedQ12.q12.x; 
-        rollRef = biasManager.getRollBias() + 2.0 * transformedQ12.q12.y;
+        pitchRef = biasManager.getPitchBias() + 2.0 * transformedQ12.q12.y;     // TODO: model uses q2 = y = pitch
+        rollRef = biasManager.getRollBias() + 2.0 * transformedQ12.q12.x;       // TODO: model uses q1 = x = roll
         yawRef = attitudeController.updateRCYawRads();
 
 #pragma endregion
