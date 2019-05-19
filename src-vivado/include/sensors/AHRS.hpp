@@ -25,17 +25,3 @@ void initAHRS(IMUMeasurement imu);
  * @return  The update AHRS orientation measurement.
  */
 Quaternion updateAHRS(IMUMeasurement imu);
-
-/**
- * Multiply the AHRS's orientation by the given difference quaternion (on the
- * left side). This function is used to keep the attitude controller's
- * orientation estimate near the identity quaternion.
- * 
- * @param   diffQuat
- *          The quaternion that multiplied on the left side of the attitude
- *          controller's orientation estimate in order to keep it near the
- *          identity quaternion.
- * 
- * @return  The jumped AHRS orientation measurement.
- */
-Quaternion updateAHRSDiffQuat(Quaternion diffQuat);

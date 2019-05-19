@@ -55,29 +55,6 @@ class AttitudeController {
     AttitudeState stateEstimate;
 
   public:
-    /**
-     * Calculate the yaw jump needed to keep the orientation estimate's yaw
-     * (EulerAngles representation) in the interval [-10 deg, +10 deg].
-     * 
-     * @return  The yaw jump to keep the orientation estimate's yaw in the
-     *          interval [-10 deg, +10 deg].
-     */
-    float calculateYawJump();
-
-    /**
-     * Calculate the quaternion needed to rotate the orientation estimate to
-     * a quaternion where its yaw (EulerAngles representation) is in the
-     * interval [-10 deg, +10 deg]. Then the attitude controller's orientation
-     * estimate and reference orientation will be multiplied by this difference
-     * quaternion.
-     * 
-     * Afterwards, the AHRS should also update its orientation by multiplying by
-     * the resulting quaternion from the left side.
-     * 
-     * @return  The difference quaternion used to keep the orientation estimate
-     *          near the identity quaternion.
-     */
-    Quaternion calculateDiffQuat();
 
     /**
      * Clamp the current attitude control signal such that the corrections are

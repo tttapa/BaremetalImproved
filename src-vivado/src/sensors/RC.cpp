@@ -261,7 +261,7 @@ RCInput readRC() {
     float throttle        = rescale(clamp(getRCValue(THROTTLE_ADDR)));
     float pitch           = -rescaleMid(clampMid(getRCValue(PITCH_ADDR)));
     float roll            = -rescaleMid(clampMid(getRCValue(ROLL_ADDR)));
-    float yaw             = -rescaleMid(clampMid(getRCValue(YAW_ADDR)));
+    float yaw             = +rescaleMid(clampMid(getRCValue(YAW_ADDR)));
     float tuner           = rescaleMid(clampMid(getRCValue(TUNER_ADDR)));
     float flightModeValue = clamp(getRCValue(FLIGHT_MODE_ADDR));
     float wptValue        = clamp(getRCValue(WPT_MODE_ADDR));

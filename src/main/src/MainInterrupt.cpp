@@ -114,7 +114,7 @@ void mainOperation() {
 
     /* Read IMU measurement and update the AHRS. */
     IMUMeasurement imuMeasurement = readIMU();
-    updateAHRS(imuMeasurement);
+    Quaternion ahrsMeasurement = updateAHRS(imuMeasurement);
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement       = readSonar();
@@ -576,14 +576,6 @@ void mainOperation() {
     Quaternion yawQuat = EulerAngles::eul2quat(EulerAngles{yawRef, 0.0, 0.0});
     attitudeController.setReference({yawQuat + rollPitchQuat});
 
-    /* Keep the attitude controller's state estimate near the identity
-       quaternion to ensure the stability of the control system. Whenever the
-       yaw passes 10 degrees (0.1745 rad), it will jump to -10 degrees and vice
-       versa. */
-    static float yawJump = 0;
-    yawJump += attitudeController.calculateYawJump();
-    Quaternion diffQuat = attitudeController.calculateDiffQuat();
-    Quaternion measurementOrientation = updateAHRSDiffQuat(diffQuat);
 
     /* Calculate the torque motor signals. The attitude controller's reference
        orientation has already been updated in the code above. */
@@ -595,7 +587,7 @@ void mainOperation() {
         outputMotorPWM(motorSignals);
 
     /* Update the Kalman Filters (the position controller doesn't use one). */
-    attitudeController.updateObserver({measurementOrientation, imuMeasurement.gyro.g});
+    attitudeController.updateObserver({ahrsMeasurement, imuMeasurement.gyro.g});
     if (shouldUpdateAltitudeObserver)
         altitudeController.updateObserver(correctedSonarMeasurement);
 
@@ -628,6 +620,7 @@ void mainOperation() {
     logEntry.sensorHeightMeasurement   = correctedSonarMeasurement;
     logEntry.sensorPositionMeasurement = correctedPositionMeasurement;
     logEntry.sensorYawMeasurement      = yawMeasurement;
+    logEntry.motorSignals = motorSignals;
 
     /* Output log data if logger is done writing. */
     if (loggerComm->isDoneReading())

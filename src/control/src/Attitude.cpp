@@ -10,11 +10,6 @@
 #include <PublicHardwareConstants.hpp>  ///< SECONDS_PER_TICK
 
 #pragma region Constants
-/**
- * Whenever the yaw passes 10 degrees (0.1745 rad), it will jump to -10 degrees
- * and vice versa.
- */
-static constexpr float MAX_YAW_RADS = 0.1745;
 
 /**
  * The largest control signal that can be sent to the "yaw torque motor" is
@@ -45,65 +40,12 @@ MotorSignals transformAttitudeControlSignal(AttitudeControlSignal controlSignal,
     float ux = controlSignal.uxyz.x;
     float uy = controlSignal.uxyz.y;
     float uz = controlSignal.uxyz.z;
-    return MotorSignals{commonThrust + ux + uy - uz,  //
-                        commonThrust + ux - uy + uz,  //
-                        commonThrust - ux + uy + uz,  //
-                        commonThrust - ux - uy - uz};
+    return MotorSignals{commonThrust + ux + uy + uz,  //
+                        commonThrust + ux - uy - uz,  //
+                        commonThrust - ux + uy - uz,  //
+                        commonThrust - ux - uy + uz};
 }
 
-float AttitudeController::calculateYawJump() {
-    float yaw    = EulerAngles::quat2eul(this->stateEstimate.q).yaw;
-    float result = 0;
-    while (yaw > MAX_YAW_RADS) {
-        yaw -= 2 * MAX_YAW_RADS;
-        result -= 2 * MAX_YAW_RADS;
-    }
-    while (yaw < -MAX_YAW_RADS) {
-        yaw += 2 * MAX_YAW_RADS;
-        result += 2 * MAX_YAW_RADS;
-    }
-    return result;
-}
-
-Quaternion AttitudeController::calculateDiffQuat() {
-
-    /* Convert orientation estimate to EulerAngles. */
-    EulerAngles eul = EulerAngles::quat2eul(this->stateEstimate.q);
-
-    /* If the yaw is in [-MAX_YAW, +MAX_YAW], return the identity quaternion. */
-    if (eul.yaw >= -MAX_YAW_RADS && eul.yaw <= -MAX_YAW_RADS)
-        return Quaternion::identity();
-
-    /* Definition of pi. */
-    const float PI = 3.14159265358979323846;
-
-    /* Otherwise, calculate the quaternion used to rotate the given orientation
-       estimate to one where the yaw is in the interval [-MAX_YAW, +MAX_YAW]. */
-    while (eul.yaw > MAX_YAW_RADS) {
-        eul.yaw -= 2 * MAX_YAW_RADS;
-        this->rcReferenceYaw -= 2 * MAX_YAW_RADS;
-        if(this->rcReferenceYaw < -PI)
-            this->rcReferenceYaw += 2*PI;
-    }
-    while (eul.yaw < -MAX_YAW_RADS) {
-        eul.yaw += 2 * MAX_YAW_RADS;
-        this->rcReferenceYaw += 2 * MAX_YAW_RADS;
-        if(this->rcReferenceYaw > PI)
-            this->rcReferenceYaw -= 2*PI;
-    }
-
-    Quaternion diffQuat = EulerAngles::eul2quat(eul) - this->stateEstimate.q;
-
-    /* Rotate the state estimate and the reference by this quaternion. The AHRS
-       will also be rotated by it. This way we'll keep the orientation estimate
-       near the identity quaternion, but the controller will still be
-       accurate. */
-    this->stateEstimate.q = diffQuat + this->stateEstimate.q;
-    this->reference.q     = diffQuat + this->reference.q;
-
-    /* Return diffQuat, so the AHRS can update its orientation too. */
-    return diffQuat;
-}
 
 void AttitudeController::clampControlSignal(float commonThrust) {
 

@@ -177,7 +177,7 @@ AttitudeState AttitudeController::codegenNextStateEstimate(
     /* Check for valid quaternion (not NaN). */
     float q0_prediction2 = QUAT_0_SQ(prediction);
     float q0_innovation2 = QUAT_0_SQ(innovation);
-    if(q0_prediction2 >= 0.0 && q0_prediction2 <= 1.1 && //
+    if(false && q0_prediction2 >= 0.0 && q0_prediction2 <= 1.1 && //
        q0_innovation2 >= 0.0 && q0_innovation2 <= 1.1) {
         prediction.q.w = std2::sqrtf(q0_prediction2);
         innovation.q.w = std2::sqrtf(q0_innovation2);

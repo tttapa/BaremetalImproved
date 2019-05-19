@@ -28,8 +28,3 @@ Quaternion updateAHRS(IMUMeasurement imu) {
     /* Return the orientation. */
     return orientation;
 }
-
-Quaternion updateAHRSDiffQuat(Quaternion diffQuat) {
-    orientation = diffQuat + orientation;
-    return orientation;
-}
