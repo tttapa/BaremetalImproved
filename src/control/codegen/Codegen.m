@@ -28,7 +28,7 @@ s1 = s;
 s1.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
 s1.pos.lqr.R = 1.5*200.0*eye(2);
 s1.pos.lqr.K = -dlqr(s1.pos.Ad, s1.pos.Bd, s1.pos.lqr.Q, s1.pos.lqr.R);
-s1.pos.lqi.I = 0.001*[0,-1;1,0];
+s1.pos.lqi.I = 0*[0,-1;1,0]; %0.001*[0,-1;1,0];
 s1.pos.lqi.max_integral = 10;
 s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 
@@ -36,9 +36,9 @@ s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 % Configuration 2
 s2 = s;
 s2.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s2.pos.lqr.R = 1.5*350.0*eye(2);
+s2.pos.lqr.R = 2.5*350.0*eye(2);
 s2.pos.lqr.K = -dlqr(s2.pos.Ad, s2.pos.Bd, s2.pos.lqr.Q, s2.pos.lqr.R);
-s2.pos.lqi.I = 0.001*[0,-1;1,0];
+s2.pos.lqi.I = 0*[0,-1;1,0]; %0.001*[0,-1;1,0];
 s2.pos.lqi.max_integral = 10;
 s2.pos.lqi.K = [s2.pos.lqr.K, s2.pos.lqi.I];
 
@@ -46,9 +46,9 @@ s2.pos.lqi.K = [s2.pos.lqr.K, s2.pos.lqi.I];
 % Configuration 3
 s3 = s;
 s3.pos.lqr.Q = diag([1.0,1.0,0.3,0.3,0.001,0.001]);
-s3.pos.lqr.R = 1.5*15.0*eye(2);
+s3.pos.lqr.R = 2.5*15.0*eye(2);
 s3.pos.lqr.K = -dlqr(s3.pos.Ad, s3.pos.Bd, s3.pos.lqr.Q, s3.pos.lqr.R);
-s3.pos.lqi.I = 0.01 * [0, -1; 1, 0];
+s3.pos.lqi.I = 0*[0,-1;1,0]; %0.01 * [0, -1; 1, 0];
 s3.pos.lqi.max_integral = 10;
 s3.pos.lqi.K = [s3.pos.lqr.K, s3.pos.lqi.I];
 
@@ -56,9 +56,9 @@ s3.pos.lqi.K = [s3.pos.lqr.K, s3.pos.lqi.I];
 % Configuration 4
 s4 = s;
 s4.pos.lqr.Q = diag([0.01,0.01,0.3,0.3,0.001,0.001]);
-s4.pos.lqr.R = 1.5*30.0*eye(2);
+s4.pos.lqr.R = 2.5*30.0*eye(2);
 s4.pos.lqr.K = -dlqr(s4.pos.Ad, s4.pos.Bd, s4.pos.lqr.Q, s4.pos.lqr.R);
-s4.pos.lqi.I = 0.01 * [0, -1; 1, 0];
+s4.pos.lqi.I = 0*[0,-1;1,0]; %0.01 * [0, -1; 1, 0];
 s4.pos.lqi.max_integral = 10;
 s4.pos.lqi.K = [s4.pos.lqr.K, s4.pos.lqi.I];
 
