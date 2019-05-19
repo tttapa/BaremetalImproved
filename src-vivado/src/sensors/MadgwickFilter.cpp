@@ -33,7 +33,6 @@ volatile float beta = betaDef;  // 2 * proportional gain (Kp)
 
 float invSqrt(float x);
 
-static int i = 0;
 
 //====================================================================================================
 // Functions
