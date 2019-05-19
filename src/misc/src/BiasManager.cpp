@@ -70,22 +70,17 @@ void BiasManager::updateRollBias(float referenceRollRads,
                                  FlightMode flightMode,
                                  AutonomousState autonomousState) {
 
-    float weight1 = ROTATION_BIAS_WEIGHT_PILOT / IMU_FACTOR;
-    float weight2 = ROTATION_BIAS_WEIGHT_LOITERING / IMU_FACTOR;
-    float weight3 = ROTATION_BIAS_WEIGHT_NAVIGATING / IMU_FACTOR;
-
-    if (flightMode == FlightMode::MANUAL ||
-        flightMode == FlightMode::ALTITUDE_HOLD) {
-        this->rollBias += weight1 * (referenceRollRads);
-
-    } else if (flightMode == FlightMode::AUTONOMOUS) {
-
-        if (autonomousState == AutonomousState::LOITERING) {
-            this->rollBias += weight2 * (referenceRollRads - this->rollBias);
-        } else {
-            this->rollBias += weight3 * (referenceRollRads - this->rollBias);
-        }
+    float weight = 0.0;
+    if (flightMode == FlightMode::MANUAL || flightMode == FlightMode::ALTITUDE_HOLD) {
+        weight = ROTATION_BIAS_WEIGHT_PILOT / IMU_FACTOR;
+    else if (flightMode == FlightMode::AUTONOMOUS) {
+        if (autonomousState == AutonomousState::LOITERING)
+            weight = ROTATION_BIAS_WEIGHT_LOITERING / IMU_FACTOR;
+        else
+            weight = ROTATION_BIAS_WEIGHT_NAVIGATING / IMU_FACTOR;
     }
+
+    this->rollBias += weight * (referenceRollRads - this->rollBias);
 }
 
 void BiasManager::updatePitchBias(float referencePitchRads,
@@ -97,34 +92,27 @@ void BiasManager::updatePitchBias(float referencePitchRads,
                                   FlightMode flightMode,
                                   AutonomousState autonomousState) {
 
-    float weight1 = ROTATION_BIAS_WEIGHT_PILOT / IMU_FACTOR;
-    float weight2 = ROTATION_BIAS_WEIGHT_LOITERING / IMU_FACTOR;
-    float weight3 = ROTATION_BIAS_WEIGHT_NAVIGATING / IMU_FACTOR;
-
-    if (flightMode == FlightMode::MANUAL ||
-        flightMode == FlightMode::ALTITUDE_HOLD) {
-        this->pitchBias += weight1 * (referencePitchRads);
-
-    } else if (flightMode == FlightMode::AUTONOMOUS) {
-
-        if (autonomousState == AutonomousState::LOITERING) {
-            this->pitchBias += weight2 * (referencePitchRads - this->pitchBias);
-        } else {
-            this->pitchBias += weight3 * (referencePitchRads - this->pitchBias);
-        }
+    float weight = 0.0;
+    if (flightMode == FlightMode::MANUAL || flightMode == FlightMode::ALTITUDE_HOLD) {
+        weight = ROTATION_BIAS_WEIGHT_PILOT / IMU_FACTOR;
+    else if (flightMode == FlightMode::AUTONOMOUS) {
+        if (autonomousState == AutonomousState::LOITERING)
+            weight = ROTATION_BIAS_WEIGHT_LOITERING / IMU_FACTOR;
+        else
+            weight = ROTATION_BIAS_WEIGHT_NAVIGATING / IMU_FACTOR;
     }
+
+    this->pitchBias += weight * (referenceRollRads - this->pitchBias);
 }
 
 void BiasManager::updateThrustBias(float commonThrust, FlightMode flightMode) {
 
-    float weight1 = THRUST_BIAS_WEIGHT_MANUAL / IMU_FACTOR;
-    float weight2 = THRUST_BIAS_WEIGHT_ALTITUDE_HOLD / IMU_FACTOR;
+    float weight = 0.0;
+    if(flightMode == FlightMode::MANUAL)
+        weight = THRUST_BIAS_WEIGHT_MANUAL / IMU_FACTOR;
+    else if(flightMode == FlightMode::ALTITUDE_HOLD || flightMode == FlightMode::AUTONOMOUS)
+        weight = THRUST_BIAS_WEIGHT_ALTITUDE_HOLD / IMU_FACTOR;
 
-    if (flightMode == FlightMode::MANUAL) {
-        this->thrustBias += weight1 * (commonThrust - this->thrustBias);
+    this->thrustBias += weight * (commonThrust - this->thrustBias);
 
-    } else if (flightMode == FlightMode::ALTITUDE_HOLD ||
-               flightMode == FlightMode::AUTONOMOUS) {
-        this->thrustBias += weight2 * (commonThrust - this->thrustBias);
-    }
 }

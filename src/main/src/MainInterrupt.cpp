@@ -465,29 +465,27 @@ void mainOperation() {
 
         //=========================== MISCELLANEOUS ==========================//
 
-        /* Calculate global position estimate. */
-        globalPositionEstimate = getGlobalPositionEstimate(
-            correctedPositionMeasurement, positionController.getStateEstimate(),
-            getTime() - positionController.getLastMeasurementTime());
-        // TODO: debugging
-        // globalPositionEstimate = correctedPositionMeasurement;
-
         /* Update autonomous controller using most recent position. */
-        autoOutput = autonomousController.update(globalPositionEstimate,
-                                                 correctedSonarMeasurement);
+        autoOutput = autonomousController.update(positionController.getStateEstimate().p, altitudeController.getStateEstimate().z);
+
+        /* Calculate global position estimate. */
+        globalPositionEstimate = getGlobalPositionEstimate(correctedPositionMeasurement, positionController.getStateEstimate(),
+                                                           getTime() - positionController.getLastMeasurementTime());
 
         /* Update altitude observer? */
         shouldUpdateAltitudeObserver = autoOutput.updateAltitudeObserver;
 
         /* Update position observer? */
         if (autoOutput.updatePositionObserver) {
-            if (!autoOutput.trustIMPForPosition) { /* Blind @ IMU frequency */
-                positionController.updateObserverBlind(
-                    attitudeController.getStateEstimate().q);
-            } else if (hasNewIMPMeasurement) { /* Normal @ IMP frequency */
-                positionController.updateObserver(
-                    attitudeController.getStateEstimate().q,
-                    globalPositionEstimate);
+
+            /* Normal @ IMP frequency */
+            if (autoOutput.trustIMPForPosition && hasNewIMPMeasurement) { 
+                positionController.updateObserver(attitudeController.getStateEstimate().q, globalPositionEstimate);
+            }
+
+            /* Blind @ IMU frequency */
+            else if (!autoOutput.trustIMPForPosition) { 
+                positionController.updateObserverBlind(attitudeController.getStateEstimate().q);
             }
         }
 
@@ -511,14 +509,12 @@ void mainOperation() {
             
             /* Normal @ IMP frequency */
             if (autoOutput.trustIMPForPosition && hasNewIMPMeasurement) {
-                q12ref = positionController.updateControlSignal(
-                    autoOutput.referencePosition);
+                q12ref = positionController.updateControlSignal(autoOutput.referencePosition);
             }
 
             /* Blind @ IMU frequency */
             else if (!autoOutput.trustIMPForPosition) { 
-                q12ref = positionController.updateControlSignalBlind(
-                    autoOutput.referencePosition);
+                q12ref = positionController.updateControlSignalBlind(autoOutput.referencePosition);
             }
 
             /* Normal position controller should hold its previous control
@@ -532,7 +528,7 @@ void mainOperation() {
         /* Transform the q12 given the yaw measurement (it is correct if the)
            yaw measurement is zero, but if for example the yaw measurement is
            90 degrees, then q1ref and q2ref should flip. */
-        PositionControlSignal transformedQ12 = transformPositionControlSignal(q12ref, yawMeasurement);
+        PositionControlSignal transformedQ12 = q12ref;// transformPositionControlSignal(q12ref, yawMeasurement);
          // Rad ~ 2*quat
         pitchRef = biasManager.getPitchBias() + 2.0 * transformedQ12.q12.x; 
         rollRef = biasManager.getRollBias() + 2.0 * transformedQ12.q12.y;

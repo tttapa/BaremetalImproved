@@ -30,11 +30,11 @@ Position getGlobalPositionEstimate(Position correctedPositionMeasurement,
                                    PositionState lastPositionEstimate,
                                    float Ts) {
     Position expected = lastPositionEstimate.p + lastPositionEstimate.v * Ts;
-    Position delta    = expected - lastPositionEstimate.p;
+    Position delta    = expected - correctedPositionMeasurement.p;
 
     /* Calculate offset to be added to the given (x,y) using the expected
-       location. E.g. expected (0, 0), measured (0.7, -1.1) should return
-       an offset of (-2, +3) blocks thus a position of (0.1, -0.2). */
+       location. E.g. expected (0, 0), measured (0.7, -1.1) should return an
+       offset of (-2, +4) blocks thus a position of (0.1, 0.1). */
     Position offsetBlocks = (delta * METERS_TO_BLOCKS).round();
     return correctedPositionMeasurement + offsetBlocks * BLOCKS_TO_METERS;
 }
