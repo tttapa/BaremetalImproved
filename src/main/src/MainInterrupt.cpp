@@ -473,7 +473,7 @@ void mainOperation() {
                                                            getTime() - positionController.getLastMeasurementTime());
 
         /* Update altitude observer? */
-        shouldUpdateAltitudeObserver = autoOutput.updateAltitudeObserver;
+        shouldUpdateAltitudeObserver = hasNewSonarMeasurement && autoOutput.updateAltitudeObserver;
 
         /* Update position observer? */
         if (autoOutput.updatePositionObserver) {
