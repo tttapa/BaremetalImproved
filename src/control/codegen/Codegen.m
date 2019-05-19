@@ -58,6 +58,7 @@ s3.pos.lqi.K = [s3.pos.lqr.K, s3.pos.lqi.I];
 
 % Configuration 4
 s4 = s;
+%s4.pos.lqr.Q = diag([0.01,0.01,0.3,0.3,0.001,0.001]);
 s4.pos.lqr.Q = diag([1e-8,1e-8,0.3,0.3,0.001,0.001]);
 s4.pos.lqr.R = 2.5*30.0*eye(2);
 s4.pos.lqr.K = -dlqr(s4.pos.Ad, s4.pos.Bd, s4.pos.lqr.Q, s4.pos.lqr.R);
