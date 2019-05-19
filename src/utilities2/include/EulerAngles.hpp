@@ -16,12 +16,12 @@ struct EulerAngles {
      * Convert a quaternion to Euler angles.
      */
     static EulerAngles quat2eul(const Quaternion &q) {
-        const float y = std2::atan2f(2.0 * (q.w * q.x + q.y * q.z),
+        const float phi = std2::atan2f(2.0 * (q.w * q.x + q.y * q.z),
                                1.0 - 2.0 * (q.x * q.x + q.y * q.y));
-        const float p = std2::asinf( 2.0 * (q.w * q.y - q.z * q.x));
-        const float r = std2::atan2f(2.0 * (q.w * q.z + q.x * q.y),
+        const float theta = std2::asinf( 2.0 * (q.w * q.y - q.z * q.x));
+        const float psi = std2::atan2f(2.0 * (q.w * q.z + q.x * q.y),
                                1.0 - 2.0 * (q.y * q.y + q.z * q.z));
-        return EulerAngles{y, p, r};
+        return EulerAngles{psi, theta, phi};
     }
 
     /** 

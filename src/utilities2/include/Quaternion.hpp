@@ -68,7 +68,7 @@ struct Quaternion {
      * Calculate the quaternion that would result in the given in vector, if it
      * were to used to rotate the vector (0 0 1).
      */
-    static Quaternion fromDirection(Vec3f v) {
+    static Quaternion fromDirection(const Vec3f &v) {
         /*
     	 * q = cos(ϑ / 2) + sin(ϑ / 2)·(x·i + y·j + z·k)
     	 * where (x y z) is a unit vector representing the axis about which

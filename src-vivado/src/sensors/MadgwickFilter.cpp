@@ -1,5 +1,6 @@
 #include "MadgwickFilter.hpp"
 #include <PublicHardwareConstants.hpp>	///< TICKS_PER_SECOND
+#include <stdio.h>
 
 // TODO: block comment
 //=====================================================================================================
@@ -32,6 +33,8 @@ volatile float beta = betaDef;  // 2 * proportional gain (Kp)
 
 float invSqrt(float x);
 
+static int i = 0;
+
 //====================================================================================================
 // Functions
 
@@ -40,8 +43,7 @@ float invSqrt(float x);
 
 Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
     
-    /* Flip az for implementation of Madgwick. */
-    imu.accel.a.z = -imu.accel.a.z;
+
 
 	float recipNorm;
 	float s0, s1, s2, s3;
@@ -111,6 +113,7 @@ Quaternion MadgwickAHRSUpdate(Quaternion orientation, IMUMeasurement imu) {
 	orientation.z *= recipNorm;
 
 	return orientation;
+
 }
 
 #pragma GCC diagnostic push

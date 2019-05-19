@@ -105,7 +105,7 @@ s.alt.lqr.G = s.alt.lqr.W \ s.alt.lqr.OI;
 % TODO: altitude tuning
 % Best LQR from 2nd try simulations
 s.alt.lqr.Q = diag([1e-6, 0.8, 0.5]);
-s.alt.lqr.R = diag([5*30]);
+s.alt.lqr.R = diag([30]);
 s.alt.lqr.K = -dlqr(s.alt.Ad, s.alt.Bd, s.alt.lqr.Q, s.alt.lqr.R);
 s.alt.lqi.max_integral = 8;         % ~ 5-10 seconds for full windup without propellors
 s.alt.lqi.I = 0.004;                % Max integral action = 0.004*8 = 0.032
