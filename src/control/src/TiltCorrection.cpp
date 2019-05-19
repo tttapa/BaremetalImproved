@@ -34,7 +34,7 @@ Position getGlobalPositionEstimate(Position correctedPositionMeasurement,
 
     /* Calculate offset to be added to the given (x,y) using the expected
        location. E.g. expected (0, 0), measured (0.7, -1.1) should return
-       (-0.6, +0.9). */
+       an offset of (-2, +3) blocks thus a position of (0.1, -0.2). */
     Position offsetBlocks = (delta * METERS_TO_BLOCKS).round();
     return correctedPositionMeasurement + offsetBlocks * BLOCKS_TO_METERS;
 }

@@ -286,6 +286,8 @@ void mainOperation() {
     /* First, set the actual flight mode based on which tests are allowed to
        be run. */
     flightMode = getFlightMode();
+    if (previousFlightMode == FlightMode::ALTITUDE_HOLD && flightMode == FlightMode::AUTONOMOUS && !canStartAutonomousMode())
+        flightMode = FlightMode::ALTITUDE_HOLD;
     if (flightMode == FlightMode::AUTONOMOUS && !isAutonomousModeEnabled())
         flightMode = FlightMode::ALTITUDE_HOLD;
     if (flightMode == FlightMode::ALTITUDE_HOLD && !isAltitudeHoldModeEnabled())
