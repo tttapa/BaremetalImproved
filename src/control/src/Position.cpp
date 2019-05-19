@@ -6,7 +6,7 @@
 
 /**
  * The largest reference quaternion component that can be sent to the attitude
- * control system is:
+ * control system is 3 degrees:
  *  1°: 0.0087
  *  2°: 0.0175
  *  3°: 0.0262
