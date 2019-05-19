@@ -65,8 +65,8 @@ AltitudeController::codegenNextStateEstimate(AltitudeState stateEstimate,
                                              int droneConfiguration) {
 
     /* Trust model if the sonar returns 0 as height. */
-    if (measurement.z < 0.01)
-        measurement.z = stateEstimate.z;
+    //if (measurement.z < 0.01)
+    //    measurement.z = stateEstimate.z;
 
     /* Calculate next state using Kalman Filter based on drone configuration. */
     AltitudeState stateEstimateCopy = stateEstimate;
