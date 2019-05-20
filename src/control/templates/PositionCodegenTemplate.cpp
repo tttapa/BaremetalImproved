@@ -159,20 +159,35 @@ PositionState PositionController::codegenCurrentStateEstimate(
     HorizontalVelocity dAbsV = v1.abs() - v0.abs();
 
     /* Jump rejection on x-velocity. */
+    float xFactor = 0;
+    float newVx = stateEstimate.v.x;
     if ((dAbsV.x <= 0 && absdV.x < V_THRESHOLD_TOWARDS) ||  //
-        (dAbsV.x >= 0 && absdV.x < V_THRESHOLD_AWAY))
-        stateEstimate.v.x = v1.x;
+        (dAbsV.x >= 0 && absdV.x < V_THRESHOLD_AWAY)) {
+        newVx = v1.x;
+        xFactor = 0.6;
+
+    }
 
     /* Jump rejection on y-velocity. */
+    float yFactor = 0;
+    float newVy = stateEstimate.v.y;
     if ((dAbsV.y <= 0 && absdV.y < V_THRESHOLD_TOWARDS) ||  //
-        (dAbsV.y >= 0 && absdV.y < V_THRESHOLD_AWAY))
-        stateEstimate.v.y = v1.y;
+        (dAbsV.y >= 0 && absdV.y < V_THRESHOLD_AWAY)) {
+        newVy = v1.y;
+        yFactor = 0.6;
+    }
+
+    /* Velocity EMA. */
+    float vFactor = 0.6;
+    stateEstimate.v.x = vFactor * stateEstimate.v.x + (1-vFactor) * newVx;
+    stateEstimate.v.y = vFactor * stateEstimate.v.y + (1-vFactor) * newVy;
+
 
     /* Set orientation and position. */
     stateEstimate.q.x = orientation.x - 0.5 * getRollBias();
     stateEstimate.q.y = orientation.y - 0.5 * getPitchBias();
-    stateEstimate.p.x = measurement.p.x;
-    stateEstimate.p.y = measurement.p.y;
+    stateEstimate.p.x = xFactor * stateEstimate.p.x + (1-xFactor)*measurement.p.x;
+    stateEstimate.p.y = yFactor * stateEstimate.p.y + (1-yFactor)*measurement.p.y;
 
     /* Drone configuration unused. */
     (void) droneConfiguration;
