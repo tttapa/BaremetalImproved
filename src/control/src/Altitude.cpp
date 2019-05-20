@@ -21,13 +21,13 @@ static constexpr float MAXIMUM_REFERENCE_HEIGHT = 1.75;
 static constexpr float MINIMUM_REFERENCE_HEIGHT = 0.25;
 
 /** The maximum speed of the reference height is 0.25 m/s. */
-static constexpr float RC_HEIGHT_REFERENCE_MAX_SPEED = 0.25;
+static constexpr float RC_HEIGHT_REFERENCE_MAX_SPEED = 0.05;
 
 /** The threshold to start decreasing the reference height is 0.20. */
-static constexpr float RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.20;
+static constexpr float RC_REFERENCE_HEIGHT_LOWER_THRESHOLD = 0.15;
 
 /** The threshold to start increasing the reference height is 0.80. */
-static constexpr float RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.80;
+static constexpr float RC_REFERENCE_HEIGHT_UPPER_THRESHOLD = 0.85;
 #pragma endregion
 
 void AltitudeController::clampControlSignal() {

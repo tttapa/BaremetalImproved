@@ -101,7 +101,7 @@ static constexpr int MAX_QR_SEARCH_COUNT = 49;
  * When the drone is navigating in autonomous mode, the reference will travel at
  * a speed of 0.18 m/s.
  */
-static constexpr float NAVIGATION_SPEED = 0.18;
+static constexpr float NAVIGATION_SPEED = 0.15;
 
 /** The pre-takeoff stage lasts 6.0 seconds. */
 static constexpr float PRE_TAKEOFF_DURATION = 6.0;
@@ -306,8 +306,12 @@ void AutonomousController::initAir(Position currentPosition,
     setAutonomousState(LOITERING);
     this->isTakeoffThrottleReset   = false;
     this->shouldLoiterIndefinitely = shouldLoiterIndefinitelyWithInitAir();
-    this->previousTarget           = currentPosition;
-    this->nextTarget               = currentPosition;
+    Position p = currentPosition;
+    if(getTestMode() == TestMode::DEMO) {
+        p = (currentPosition * METERS_TO_BLOCKS).round() * BLOCKS_TO_METERS;
+    }
+    this->previousTarget           = p;
+    this->nextTarget               = p;
     this->referenceHeight          = referenceHeight;
     this->qrErrorCount             = 0;
     this->qrTilesSearched          = 0;
@@ -463,7 +467,7 @@ void AutonomousController::updateQRFSM_Error() {
 
     /* Increase the reference height a bit if we've failed 3 times. */
     if (qrErrorCount == 1 * MAX_QR_ERROR_COUNT) {
-        referenceHeight.z = REFERENCE_HEIGHT + REFERENCE_HEIGHT_ADJUSTMENT;
+        referenceHeight.z += REFERENCE_HEIGHT_ADJUSTMENT;
         autonomousStateStartTime = getTime(); /* Reset convergence timer. */
         qrComm->setQRStateIdle();
         return;
@@ -471,7 +475,7 @@ void AutonomousController::updateQRFSM_Error() {
 
     /* Decrease the reference height a bit if we've failed 6 times. */
     if (qrErrorCount == 2 * MAX_QR_ERROR_COUNT) {
-        referenceHeight.z = REFERENCE_HEIGHT + REFERENCE_HEIGHT_ADJUSTMENT;
+        referenceHeight.z -= REFERENCE_HEIGHT_ADJUSTMENT;
         autonomousStateStartTime = getTime(); /* Reset convergence timer. */
         qrComm->setQRStateIdle();
         return;
@@ -479,7 +483,7 @@ void AutonomousController::updateQRFSM_Error() {
 
     /* Reset the reference height if we've failed 9 times. */
     if (qrErrorCount == 3 * MAX_QR_ERROR_COUNT) {
-        referenceHeight.z        = REFERENCE_HEIGHT;
+        referenceHeight.z        -= REFERENCE_HEIGHT_ADJUSTMENT;
         autonomousStateStartTime = getTime(); /* Reset convergence timer. */
         qrComm->setQRStateIdle();
         return;
