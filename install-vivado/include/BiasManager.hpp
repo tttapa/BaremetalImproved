@@ -21,6 +21,8 @@ class BiasManager {
      * leaves ALTITUDE-HOLD mode.
      */
     float autonomousHoveringThrust = 0.0;
+    float autonomousHoveringRollBias = 0.0;
+    float autonomousHoveringPitchBias = 0.0;
 
     /**
      * Bias to be added to the RC roll. In steady state, this will evolve to
@@ -55,6 +57,16 @@ class BiasManager {
      */
     float getAutonomousHoveringThrust() { return autonomousHoveringThrust; }
 
+    /**
+     * Get the hovering roll bias for autonomous controller.
+     */
+    float getAutonomousHoveringRollBias() { return autonomousHoveringRollBias; }
+
+    /**
+     * Get the hovering pitch bias for autonomous controller.
+     */
+    float getAutonomousHoveringPitchBias() { return autonomousHoveringPitchBias; }
+
     /** Get the current bias to be added to the RC roll. */
     float getRollBias() { return rollBias; }
 
@@ -81,6 +93,9 @@ class BiasManager {
      *          New hovering thrust.
      */
     void setAutonomousHoveringThrust(float hoveringThrust);
+    void setAutonomousHoveringRollBias(float rollBias) { this->autonomousHoveringRollBias = rollBias;}
+    void setAutonomousHoveringPitchBias(float pitchBias) { this->autonomousHoveringPitchBias = pitchBias; }
+    
 
     /**
      * Set the thrust bias. This should only be used after the blind stage of
@@ -88,6 +103,12 @@ class BiasManager {
      */
     void setThrustBias(float hoveringThrust) {
         this->thrustBias = hoveringThrust;
+    }
+        void setRollBias(float rollBias) {
+        this->rollBias = rollBias;
+    }
+        void setPitchBias(float pitchBias) {
+        this->pitchBias = pitchBias;
     }
 
     /**

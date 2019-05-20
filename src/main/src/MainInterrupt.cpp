@@ -296,8 +296,11 @@ void mainOperation() {
     /* If we've just exited ALTITUDE-HOLD mode, set the autonomous controller's
        hovering thrust (only has effect if hovering thrust is >= 0.30, see
        BiasManager.hpp). */
-    if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
+    if (previousFlightMode == FlightMode::ALTITUDE_HOLD) {
         biasManager.setAutonomousHoveringThrust(biasManager.getThrustBias());
+        biasManager.setAutonomousHoveringPitchBias(biasManager.getPitchBias());
+        biasManager.setAutonomousHoveringRollBias(biasManager.getRollBias());
+    }
 
     /* Also, set the actual WPT mode based on the current state of the drone.
        WPT can be turned on from MANUAL mode (zero thrust) or from AUTONOMOUS
@@ -454,6 +457,8 @@ void mainOperation() {
                                              correctedSonarMeasurement);
                 positionController.init(correctedPositionMeasurement);
             } else {
+                biasManager.setRollBias(biasManager.getAutonomousHoveringRollBias());
+                biasManager.setPitchBias(biasManager.getAutonomousHoveringPitchBias());
                 // TODO: autonomous controller inits in the middle
                 Position centerBlocks =
                     Position{X_CENTER_BLOCKS, Y_CENTER_BLOCKS};
@@ -484,7 +489,7 @@ void mainOperation() {
             }
 
             /* Blind @ IMU frequency */
-            else if (!autoOutput.trustIMPForPosition) { 
+            else if (!autoOutput.trustIMPForPosition && false) { 
                 positionController.updateObserverBlind(attitudeController.getStateEstimate().q);
             }
         }
@@ -513,7 +518,7 @@ void mainOperation() {
             }
 
             /* Blind @ IMU frequency */
-            else if (!autoOutput.trustIMPForPosition) { 
+            else if (!autoOutput.trustIMPForPosition && false) { 
                 q12ref = positionController.updateControlSignalBlind(autoOutput.referencePosition);
             }
 
