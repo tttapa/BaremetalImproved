@@ -38,20 +38,20 @@ static constexpr float CONVERGENCE_DURATION = 1.0;
  * The blind stage of the landing, meaning the sonar is not accurate anymore,
  * lasts 2.5 seconds.
  */
-static constexpr float LANDING_BLIND_DURATION = 2.5;
+static constexpr float LANDING_BLIND_DURATION = 1.0;
 
 /**
  * During the blind stage of the landing, meaning the sonar is not accurate
  * anymore, a marginal signal of 1% below the hovering signal will be sent to
  * the "common motor".
  */
-static constexpr float LANDING_BLIND_MARGINAL_THRUST = -0.01;
+static constexpr float LANDING_BLIND_MARGINAL_THRUST = -0.025;
 
 /**
  * In the first stage of the landing procedure, when the sonar is accurate, the
- * reference height will decrease until it hits 0.25 meters.
+ * reference height will decrease until it hits 0.20 meters.
  */
-static constexpr float LANDING_LOWEST_REFERENCE_HEIGHT = 0.25;
+static constexpr float LANDING_LOWEST_REFERENCE_HEIGHT = 0.20;
 ;
 
 /**
@@ -796,11 +796,11 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
                     //...bypass with the actual hovering thrust minus a percent
             {biasManager.getThrustBias() + LANDING_BLIND_MARGINAL_THRUST},
             false,       // ✖ Don't update altitude observer
-            true,        // ✔ Use position controller
-            nextTarget,  //...with current reference position
-            {},          //   /
-            true,        // ✔ Update position controller
-            false,       //...trusting accelerometer
+            false,       // ✖ Don't use position controller
+            {},          //...with current reference position
+            {{0.0, 0.0}},//...bypass with upright orientation
+            false,       // ✖ Don't update position controller
+            false,       //   /
         };
     }
     return output;
