@@ -38,7 +38,7 @@ s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 % Configuration 2
 s2 = s;
 %s2.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s2.pos.lqr.Q = diag([1e-8, 1e-8, 0.9, 0.9, 0.015, 0.015]);
+s2.pos.lqr.Q = diag([1e-8, 1e-8, 0.5, 0.5, 0.015, 0.015]);
 %s2.pos.lqr.Q = diag([1e-8, 1e-8, 0.7, 0.7, 0.005, 0.005]);
 s2.pos.lqr.R = 2.5*350.0*eye(2);
 s2.pos.lqr.K = -dlqr(s2.pos.Ad, s2.pos.Bd, s2.pos.lqr.Q, s2.pos.lqr.R);
