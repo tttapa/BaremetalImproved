@@ -302,6 +302,7 @@ void mainOperation() {
     /* Set the test mode: rtune left is TEST_LANDING, rtune right is
        TEST_QR_WALKING, WPT off is TEST_DEMO. */
     if(getThrottle() <= MIN_THROTTLE) {
+        TestMode lastTestMode = getTestMode();
         if(getWPTMode() == WPTMode::ON) {
             if(getTuner() < 0)
                 setTestMode(TEST_LANDING);
@@ -309,6 +310,17 @@ void mainOperation() {
                 setTestMode(TEST_QR_WALKING);
         } else {
             setTestMode(DEMO);
+        }
+        TestMode newTestMode = getTestMode();
+        if(newTestMode != lastTestMode) {
+            printf("SWITCHING TO TEST MODE: ");
+            if(newTestMode == TestMode::TEST_LANDING)
+                printf("LANDING")
+            if(newTestMode == TestMode::TEST_QR_WALKING)
+                printf("QR WALKING")
+            if(newTestMode == TestMode::DEMO)
+                printf("DEMO")
+            printf("\r\n");
         }
     }
 
