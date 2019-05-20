@@ -1,5 +1,6 @@
 #include <MathFunctions.hpp>
 #include <Position.hpp>
+#include <MiscInstances.hpp>
 #include <math.h>   /* fabs, copysign */
 #include <string.h> /* memcpy */
 
@@ -184,10 +185,11 @@ PositionState PositionController::codegenCurrentStateEstimate(
 
 
     /* Set orientation and position. */
-    stateEstimate.q.x = orientation.x - 0.5 * getRollBias();
-    stateEstimate.q.y = orientation.y - 0.5 * getPitchBias();
+    stateEstimate.q.x = orientation.x - 0.5 * biasManager.getRollBias();
+    stateEstimate.q.y = orientation.y - 0.5 * biasManager.getPitchBias();
     stateEstimate.p.x = xFactor * stateEstimate.p.x + (1-xFactor)*measurement.p.x;
     stateEstimate.p.y = yFactor * stateEstimate.p.y + (1-yFactor)*measurement.p.y;
+
 
     /* Drone configuration unused. */
     (void) droneConfiguration;
