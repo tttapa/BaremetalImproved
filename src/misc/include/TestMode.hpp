@@ -98,6 +98,8 @@ enum TestMode {
 /** Get the drone's test mode. */
 TestMode getTestMode();
 
+void setTestMode(TestMode testMode);
+
 /** Get whether switching to altitude mode is enabled. */
 bool canStartAltitudeHoldMode();
 

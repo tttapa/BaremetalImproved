@@ -299,17 +299,32 @@ void mainOperation() {
     if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
         biasManager.setAutonomousHoveringThrust(biasManager.getThrustBias());
 
+    /* Set the test mode: rtune left is TEST_LANDING, rtune right is
+       TEST_QR_WALKING, WPT off is TEST_DEMO. */
+    if(getThrottle() <= MIN_THROTTLE) {
+        if(getWPTMode() == WPTMode::ON) {
+            if(getTuner() < 0)
+                setTestMode(TEST_LANDING);
+            else
+                setTestMode(TEST_QR_WALKING);
+        } else {
+            setTestMode(DEMO);
+        }
+    }
+
     /* Also, set the actual WPT mode based on the current state of the drone.
        WPT can be turned on from MANUAL mode (zero thrust) or from AUTONOMOUS
        mode if the drone is grounded.*/
-    bool wptManualMode =
-        (flightMode == FlightMode::MANUAL && getThrottle() <= MIN_THROTTLE);
-    bool wptAutonomousMode = (flightMode == FlightMode::AUTONOMOUS &&
-                              autonomousController.getAutonomousState() == WPT);
-    if (getWPTMode() == WPTMode::ON && (wptManualMode || wptAutonomousMode))
-        wptMode = WPTMode::ON;
-    else
-        wptMode = WPTMode::OFF;
+    //bool wptManualMode =
+    //    (flightMode == FlightMode::MANUAL && getThrottle() <= MIN_THROTTLE);
+    //bool wptAutonomousMode = (flightMode == FlightMode::AUTONOMOUS &&
+    //                          autonomousController.getAutonomousState() == WPT);
+    //if (getWPTMode() == WPTMode::ON && (wptManualMode || wptAutonomousMode))
+    //    wptMode = WPTMode::ON;
+    //else
+    //    wptMode = WPTMode::OFF;
+    wptMode = WPTMode::OFF;
+
 
     /**
      * =========================================================================

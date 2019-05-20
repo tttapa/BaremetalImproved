@@ -2,7 +2,7 @@
 #include <TestMode.hpp>
 
 /** Current test mode is MANUAL. */
-static const TestMode TEST_MODE = TestMode::TEST_LANDING;
+static TestMode TEST_MODE = TestMode::TEST_LANDING;
 
 /** The drone will cycle through 7 targets during the TEST_NAVIGATION mode. */
 static constexpr int NUM_NAVIGATION_TARGETS = 7;
@@ -26,6 +26,8 @@ static constexpr float THRUST_BIAS_THRESHOLD = 0.30;
 
 /** Get the drone's test mode. */
 TestMode getTestMode() { return TEST_MODE; }
+
+void setTestMode(TestMode testMode) {TEST_MODE = testMode;}
 
 /** Get whether switching to altitude mode is enabled. */
 bool canStartAltitudeHoldMode() { return isAltitudeHoldModeEnabled(); }
