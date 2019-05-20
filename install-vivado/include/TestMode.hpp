@@ -111,7 +111,7 @@ bool canStartAutonomousModeAir();
 bool canStartAutonomousModeGround();
 
 /** Get the next navigation target during TEST_NAVIGATION mode. */
-Position getNextNavigationTestTarget();
+Position getNextNavigationTestTarget(Position startingPosition);
 
 /** Get whether switching to altitude mode is enabled. */
 bool isAltitudeHoldModeEnabled();
