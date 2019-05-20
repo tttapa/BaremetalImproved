@@ -303,14 +303,10 @@ void mainOperation() {
        TEST_QR_WALKING, WPT off is TEST_DEMO. */
     if(getThrottle() <= MIN_THROTTLE) {
         TestMode lastTestMode = getTestMode();
-        if(getWPTMode() == WPTMode::ON) {
-            if(getTuner() < 0)
-                setTestMode(TEST_LANDING);
-            else
-                setTestMode(TEST_QR_WALKING);
-        } else {
-            setTestMode(DEMO);
-        }
+        if(getTuner() < 0)
+            setTestMode(TEST_LANDING);
+        else
+            setTestMode(TEST_QR_WALKING);
         TestMode newTestMode = getTestMode();
         if(newTestMode != lastTestMode) {
             std::cout << "SWITCHING TO TEST MODE: ";
