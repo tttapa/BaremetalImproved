@@ -302,14 +302,10 @@ void mainOperation() {
     /* Set the test mode: rtune left is TEST_LANDING, rtune right is
        TEST_QR_WALKING, WPT off is TEST_DEMO. */
     if(getThrottle() <= MIN_THROTTLE) {
-        if(getWPTMode() == WPTMode::ON) {
-            if(getTuner() < 0)
-                setTestMode(TEST_LANDING);
-            else
-                setTestMode(TEST_QR_WALKING);
-        } else {
-            setTestMode(DEMO);
-        }
+        if(getTuner() < 0)
+            setTestMode(TEST_LANDING);
+        else
+            setTestMode(TEST_QR_WALKING);
     }
 
     /* Also, set the actual WPT mode based on the current state of the drone.
