@@ -67,7 +67,7 @@ s4.pos.lqi.max_integral = 10;
 s4.pos.lqi.K = [s4.pos.lqr.K, s4.pos.lqi.I];
 
 % Save the configurations
-configs = [s1, s2, s3, s4];
+configs = [s2, s2, s2, s2];
 
 
 %% Attitude
