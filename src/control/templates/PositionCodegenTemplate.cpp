@@ -148,42 +148,69 @@ PositionState PositionController::codegenCurrentStateEstimate(
     PositionState stateEstimate, PositionMeasurement measurement,
     Quaternion orientation, float timeElapsed, int droneConfiguration) {
 
-    /* Implement jump rejection to preserve a decent drone velocity. */
-    HorizontalVelocity v0 = stateEstimate.v;
-    HorizontalVelocity v1;
-    if (timeElapsed > 0)
-        v1 = (measurement.p - stateEstimate.p) / timeElapsed;
-    else
-        v1 = v0;
-
-    HorizontalVelocity absdV = (v1 - v0).abs();
-    HorizontalVelocity dAbsV = v1.abs() - v0.abs();
-
-    /* Jump rejection on x-velocity. */
-    float newVx = stateEstimate.v.x;
-    if ((dAbsV.x <= 0 && absdV.x < V_THRESHOLD_TOWARDS) ||  //
-        (dAbsV.x >= 0 && absdV.x < V_THRESHOLD_AWAY)) {
-        newVx = v1.x;
+    /* Bad measurement rejection. */
+    bool ignoreMeasurement = false;
+    float threshold = 0.07;
+    if(std2::absf(measurement.p.x - stateEstimate.p.x) > threshold ||
+       std2::absf(measurement.p.y - stateEstimate.p.y) > threshold) {
+           ignoreMeasurement = true;
     }
 
-    /* Jump rejection on y-velocity. */
-    float newVy = stateEstimate.v.y;
-    if ((dAbsV.y <= 0 && absdV.y < V_THRESHOLD_TOWARDS) ||  //
-        (dAbsV.y >= 0 && absdV.y < V_THRESHOLD_AWAY)) {
-        newVy = v1.y;
-    }
-
-    /* Velocity EMA. */
-    float vFactor = 0.2;
-    stateEstimate.v.x = vFactor * stateEstimate.v.x + (1-vFactor) * newVx;
-    stateEstimate.v.y = vFactor * stateEstimate.v.y + (1-vFactor) * newVy;
-
-
-    /* Set orientation and position. */
+    /* Set orientation. */
     stateEstimate.q.x = orientation.x - 0.5 * biasManager.getRollBias();
     stateEstimate.q.y = orientation.y - 0.5 * biasManager.getPitchBias();
-    stateEstimate.p.x = measurement.p.x;
-    stateEstimate.p.y = measurement.p.y;
+
+    /* Set position / velocity if measurement is good. */
+    if(!ignoreMeasurement) {
+        stateEstimate.p = measurement.p;
+        stateEstimate.v = (measurement.p - stateEstimate.p) / timeElapsed;
+    }
+
+    // /* Implement jump rejection to preserve a decent drone velocity. */
+    // HorizontalVelocity v0 = stateEstimate.v;
+    // HorizontalVelocity v1;
+
+    // /* Set orientation and position (ignore if position jumps). */
+    // stateEstimate.q.x = orientation.x - 0.5 * biasManager.getRollBias();
+    // stateEstimate.q.y = orientation.y - 0.5 * biasManager.getPitchBias();
+
+    // if(!xIgnoreVelocity)
+    //     stateEstimate.p.x = measurement.p.x;
+    // if(!yIgnoreVelocity)
+    //     stateEstimate.p.y = measurement.p.y;
+
+
+    // if (timeElapsed > 0)
+    //     v1 = (measurement.p - stateEstimate.p) / timeElapsed;
+    // else
+    //     v1 = v0;
+
+    // HorizontalVelocity absdV = (v1 - v0).abs();
+    // HorizontalVelocity dAbsV = v1.abs() - v0.abs();
+
+    // /* Jump rejection on x-velocity. */
+    // bool xIgnoreVelocity = true;
+    // if ((dAbsV.x <= 0 && absdV.x < V_THRESHOLD_TOWARDS) ||  //
+    //     (dAbsV.x >= 0 && absdV.x < V_THRESHOLD_AWAY)) {
+    //     stateEstimate.v.x = v1.x;
+    //     xIgnoreVelocity = false;
+    // }
+
+    // /* Jump rejection on y-velocity. */
+    // bool yIgnoreVelocity = true;
+    // if ((dAbsV.y <= 0 && absdV.y < V_THRESHOLD_TOWARDS) ||  //
+    //     (dAbsV.y >= 0 && absdV.y < V_THRESHOLD_AWAY)) {
+    //     stateEstimate.v.y = v1.y;
+    //     yIgnoreVelocity = false;
+    // }
+
+    // /* Set orientation and position (ignore if position jumps). */
+    // stateEstimate.q.x = orientation.x - 0.5 * biasManager.getRollBias();
+    // stateEstimate.q.y = orientation.y - 0.5 * biasManager.getPitchBias();
+    // if(!xIgnoreVelocity)
+    //     stateEstimate.p.x = measurement.p.x;
+    // if(!yIgnoreVelocity)
+    //     stateEstimate.p.y = measurement.p.y;
 
 
     /* Drone configuration unused. */
