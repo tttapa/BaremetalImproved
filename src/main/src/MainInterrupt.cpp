@@ -313,14 +313,14 @@ void mainOperation() {
         }
         TestMode newTestMode = getTestMode();
         if(newTestMode != lastTestMode) {
-            printf("SWITCHING TO TEST MODE: ");
+            std::cout << "SWITCHING TO TEST MODE: ";
             if(newTestMode == TestMode::TEST_LANDING)
-                printf("LANDING")
+                std::cout << "LANDING";
             if(newTestMode == TestMode::TEST_QR_WALKING)
-                printf("QR WALKING")
+                std::cout << "QR WALKING";
             if(newTestMode == TestMode::DEMO)
-                printf("DEMO")
-            printf("\r\n");
+                std::cout << "DEMO";
+            std::cout << std::endl;
         }
     }
 
