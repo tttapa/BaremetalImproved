@@ -88,6 +88,9 @@ class AutonomousController {
     /** Previous target position. */
     Position previousTarget;
 
+    /** Starting position with initialization. */
+    Position startingPosition;
+
     /** Most recent output of the autonomous controller. */
     AutonomousOutput output;
 

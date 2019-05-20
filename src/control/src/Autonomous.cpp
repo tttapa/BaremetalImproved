@@ -308,6 +308,7 @@ void AutonomousController::initAir(Position currentPosition,
     this->shouldLoiterIndefinitely = shouldLoiterIndefinitelyWithInitAir();
     this->previousTarget           = currentPosition;
     this->nextTarget               = currentPosition;
+    this->startingPosition         = currentPosition;
     this->referenceHeight          = referenceHeight;
     this->qrErrorCount             = 0;
     this->qrTilesSearched          = 0;
@@ -318,6 +319,7 @@ void AutonomousController::initGround(Position currentPosition) {
     this->isTakeoffThrottleReset = true;
     this->previousTarget         = currentPosition;
     this->nextTarget             = currentPosition;
+    this->startingPosition       = currentPosition;
     this->qrErrorCount           = 0;
     this->qrTilesSearched        = 0;
 }
@@ -341,7 +343,7 @@ void AutonomousController::updateQRFSM_Idle() {
        TEST_NAVIGATION mode. */
     if (getElapsedTime() > CONVERGENCE_DURATION &&
         isNavigationEnabledTestTargets())
-        startNavigatingBlocks(getNextNavigationTestTarget());
+        startNavigatingBlocks(getNextNavigationTestTarget(this->startingPosition));
 
     /* Set this FSM to QR_READ_REQUEST if the convergence timer expires and
        we're allowed to navigate with QR codes. */

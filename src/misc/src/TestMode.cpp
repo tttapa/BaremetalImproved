@@ -2,7 +2,7 @@
 #include <TestMode.hpp>
 
 /** Current test mode is MANUAL. */
-static const TestMode TEST_MODE = TestMode::TEST_LOITERING;
+static const TestMode TEST_MODE = TestMode::TEST_NAVIGATION;
 
 /** The drone will cycle through 7 targets during the TEST_NAVIGATION mode. */
 static constexpr int NUM_NAVIGATION_TARGETS = 7;
@@ -48,11 +48,11 @@ bool canStartAutonomousModeGround() {
 }
 
 /** Get the next navigation target during TEST_NAVIGATION mode. */
-Position getNextNavigationTestTarget() {
+Position getNextNavigationTestTarget(Position startingPosition) {
     navigationTargetIndex++;
     if (navigationTargetIndex == NUM_NAVIGATION_TARGETS)
         navigationTargetIndex = 0;
-    return NAVIGATION_TARGETS[navigationTargetIndex];
+    return startingPosition * METERS_TO_BLOCKS + NAVIGATION_TARGETS[navigationTargetIndex];
 }
 
 /** Get whether switching to altitude mode is enabled. */
