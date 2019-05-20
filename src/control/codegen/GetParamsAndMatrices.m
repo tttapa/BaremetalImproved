@@ -135,7 +135,8 @@ s.alt.kal.L = dlqe(s.alt.Ad, s.alt.kal.G, s.alt.Cd, diag(s.alt.kal.Q), diag(s.al
 %
 
 % Linear system
-s.pos.lambda = 7; % TODO: lambda = 3.5 should be good enough for LQR I think
+%s.pos.lambda = 7; % TODO: lambda = 3.5 should be good enough for LQR I think
+s.pos.lambda = 3.5;
 s.pos.fs = 55.0; % TODO: position average FPS?
 s.pos.Ts = 1.0 / s.pos.fs;
 
