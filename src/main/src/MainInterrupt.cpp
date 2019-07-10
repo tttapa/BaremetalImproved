@@ -301,12 +301,14 @@ void mainOperation() {
 
     /* Set the test mode: rtune left is TEST_LANDING, rtune right is
        TEST_QR_WALKING, WPT off is TEST_DEMO. */
+    /* TODO: during demo we used the tuner to set the test mode.
     if(getThrottle() <= MIN_THROTTLE) {
         if(getTuner() < 0)
             setTestMode(TEST_LANDING);
         else
             setTestMode(TEST_QR_WALKING);
     }
+    */
 
     /* Also, set the actual WPT mode based on the current state of the drone.
        WPT can be turned on from MANUAL mode (zero thrust) or from AUTONOMOUS
@@ -480,8 +482,12 @@ void mainOperation() {
         autoOutput = autonomousController.update(positionController.getStateEstimate().p, altitudeController.getStateEstimate().z);
 
         /* Calculate global position estimate. */
+        // TODO: global position estimate?
+        /*
         globalPositionEstimate = getGlobalPositionEstimate(correctedPositionMeasurement, positionController.getStateEstimate(),
                                                            getTime() - positionController.getLastMeasurementTime());
+        */
+        globalPositionEstimate = correctedPositionMeasurement;
 
         /* Update altitude observer? */
         shouldUpdateAltitudeObserver = hasNewSonarMeasurement && autoOutput.updateAltitudeObserver;

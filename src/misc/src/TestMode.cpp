@@ -2,7 +2,7 @@
 #include <TestMode.hpp>
 
 /** Current test mode is MANUAL. */
-static TestMode TEST_MODE = TestMode::TEST_LANDING;
+static TestMode TEST_MODE = TestMode::TEST_LOITERING;
 
 /** The drone will cycle through 7 targets during the TEST_NAVIGATION mode. */
 static constexpr int NUM_NAVIGATION_TARGETS = 7;
