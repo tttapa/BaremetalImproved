@@ -118,6 +118,9 @@ class PositionController {
      */
     PositionState stateEstimate;
 
+    /** TODO: this is a summer addition to filter the velocity better. */
+    Position posFilt;
+
   public:
     /**
      * Clamp the current position control signal in [-0.0436,+0.0436].
@@ -229,7 +232,7 @@ class PositionController {
      * 
      * @return  The estimate of the current position state.
      */
-    static PositionState codegenCurrentStateEstimate(
+    PositionState codegenCurrentStateEstimate(
         PositionState stateEstimate, PositionMeasurement measurement,
         Quaternion orientation, float timeElapsed, int droneConfiguration);
 
@@ -272,6 +275,12 @@ class PositionController {
 
     /** Get the position controller's state estimate. */
     PositionState getStateEstimate() { return this->stateEstimate; }
+
+    /** TODO: this is a summer addition to filter the velocity better. */
+    Position getPosFilt() { return this->posFilt; }
+
+    /** TODO: this is a summer addition to filter the velocity better. */
+    void setPosFilt(Position posFilt) { this->posFilt = posFilt; }
 
     /**
      * Reset the position controller.

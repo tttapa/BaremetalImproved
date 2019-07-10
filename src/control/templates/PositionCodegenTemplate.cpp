@@ -1,6 +1,6 @@
 #include <MathFunctions.hpp>
-#include <Position.hpp>
 #include <MiscInstances.hpp>
+#include <Position.hpp>
 #include <math.h>   /* fabs, copysign */
 #include <string.h> /* memcpy */
 
@@ -148,32 +148,45 @@ PositionState PositionController::codegenCurrentStateEstimate(
     PositionState stateEstimate, PositionMeasurement measurement,
     Quaternion orientation, float timeElapsed, int droneConfiguration) {
 
-    /* Implement jump rejection to preserve a decent drone velocity. */
-    HorizontalVelocity v0 = stateEstimate.v;
-    HorizontalVelocity v1;
-    if (timeElapsed > 0)
-        v1 = (measurement.p - stateEstimate.p) / timeElapsed;
-    else
-        v1 = v0;
+    //    DEMO CODE!!! Very bad observer for velocity
+    //
+    //    /* Implement jump rejection to preserve a decent drone velocity. */
+    //    HorizontalVelocity v0 = stateEstimate.v;
+    //    HorizontalVelocity v1;
+    //    if (timeElapsed > 0)
+    //        v1 = (measurement.p - stateEstimate.p) / timeElapsed;
+    //    else
+    //        v1 = v0;
+    //
+    //    HorizontalVelocity absdV = (v1 - v0).abs();
+    //    HorizontalVelocity dAbsV = v1.abs() - v0.abs();
+    //
+    //    /* Jump rejection on x-velocity. */
+    //    if ((dAbsV.x <= 0 && absdV.x < V_THRESHOLD_TOWARDS) ||  //
+    //        (dAbsV.x >= 0 && absdV.x < V_THRESHOLD_AWAY))
+    //        stateEstimate.v.x = v1.x;
+    //
+    //    /* Jump rejection on y-velocity. */
+    //    if ((dAbsV.y <= 0 && absdV.y < V_THRESHOLD_TOWARDS) ||  //
+    //        (dAbsV.y >= 0 && absdV.y < V_THRESHOLD_AWAY))
+    //        stateEstimate.v.y = v1.y;
+    //
 
-    HorizontalVelocity absdV = (v1 - v0).abs();
-    HorizontalVelocity dAbsV = v1.abs() - v0.abs();
-
-    /* Jump rejection on x-velocity. */
-    if ((dAbsV.x <= 0 && absdV.x < V_THRESHOLD_TOWARDS) ||  //
-        (dAbsV.x >= 0 && absdV.x < V_THRESHOLD_AWAY))
-        stateEstimate.v.x = v1.x;
-
-    /* Jump rejection on y-velocity. */
-    if ((dAbsV.y <= 0 && absdV.y < V_THRESHOLD_TOWARDS) ||  //
-        (dAbsV.y >= 0 && absdV.y < V_THRESHOLD_AWAY))
-        stateEstimate.v.y = v1.y;
+    /* Filter velocity. */
+    float alpha1     = 0.2;
+    Position posFilt = measurement.p * alpha1 + PositionController::getPosFilt() * (1 - alpha1);
+    float alpha2     = 0.2;
+    HorizontalVelocity vFromPosFilt = (posFilt - PositionController::getPosFilt()) / timeElapsed;
+    stateEstimate.v = vFromPosFilt * alpha2 + stateEstimate.v * (1 - alpha2);
 
     /* Set orientation and position. */
     stateEstimate.q.x = orientation.x - 0.5 * biasManager.getRollBias();
     stateEstimate.q.y = orientation.y - 0.5 * biasManager.getPitchBias();
     stateEstimate.p.x = measurement.p.x;
     stateEstimate.p.y = measurement.p.y;
+
+    /* Set last filtered measurement. */
+    PositionController::setPosFilt(posFilt);
 
     /* Drone configuration unused. */
     (void) droneConfiguration;
@@ -186,10 +199,11 @@ PositionState PositionController::codegenCurrentStateEstimate(
  *          edit it in the template.
  */
 PositionState PositionController::codegenCurrentStateEstimateBlind(
-    PositionState stateEstimate, PositionControlSignal controlSignal, Quaternion orientation) {
+    PositionState stateEstimate, PositionControlSignal controlSignal,
+    Quaternion orientation) {
 
-    stateEstimate.q.x = orientation.x;// - 0.5 * getRollBias();
-    stateEstimate.q.y = orientation.y;// - 0.5 * getPitchBias();
+    stateEstimate.q.x = orientation.x;  // - 0.5 * getRollBias();
+    stateEstimate.q.y = orientation.y;  // - 0.5 * getPitchBias();
     stateEstimate.p.x = $xBlind0;
     stateEstimate.p.y = $xBlind1;
     stateEstimate.v.x = $xBlind2;
