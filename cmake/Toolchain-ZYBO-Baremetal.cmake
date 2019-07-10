@@ -6,8 +6,8 @@ SET(CMAKE_SYSTEM_NAME          Generic)
 SET(CMAKE_SYSTEM_PROCESSOR     ARM)
 
 # Specify the cross compiler
-SET(CMAKE_C_COMPILER   arm-none-eabi-gcc)
-SET(CMAKE_CXX_COMPILER arm-none-eabi-g++)
+SET(CMAKE_C_COMPILER   arm-eabi-gcc)
+SET(CMAKE_CXX_COMPILER arm-eabi-g++)
 
 # Search for programs in the build host directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
