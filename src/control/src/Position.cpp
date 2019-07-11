@@ -38,6 +38,7 @@ void PositionController::init(Position currentPosition) {
     this->integralWindup      = {};
     this->controlSignal       = {};
     this->lastMeasurementTime = getTime();
+    this->posFilt = currentPosition;
 }
 
 void PositionController::correctPositionEstimateBlocks(

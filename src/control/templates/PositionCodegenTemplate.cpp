@@ -172,10 +172,20 @@ PositionState PositionController::codegenCurrentStateEstimate(
     //        stateEstimate.v.y = v1.y;
     //
 
+    // Test 1: it loiters within a 3x3 grid, except if it jumps a square...
+    //         I'm guessing it's because velocity lags too much, so we're
+    //         increasing the alphas
+    //
+    //         Another problem was that the EMA (posFilt) is not initialized at
+    //         start, so the first control action is crazy large. We'll let the
+    //         second EMA (stateEstimate.v) be initialized to zero.
+    //float alpha1     = 0.2;
+    //float alpha2     = 0.2;
+
     /* Filter velocity. */
-    float alpha1     = 0.2;
+    float alpha1 = 0.4;
+    float alpha2 = 0.6;
     Position posFilt = measurement.p * alpha1 + PositionController::getPosFilt() * (1 - alpha1);
-    float alpha2     = 0.2;
     HorizontalVelocity vFromPosFilt = (posFilt - PositionController::getPosFilt()) / timeElapsed;
     stateEstimate.v = vFromPosFilt * alpha2 + stateEstimate.v * (1 - alpha2);
 
