@@ -486,6 +486,21 @@ void mainOperation() {
             }
         }
 
+        ////***** SUMMER EDIT: change config using right stick *****//
+        //int previousConfig = configManager.getControllerConfiguration();
+        //int currentConfig = previousConfig;
+        //if(getPitch() < 0 && getRoll() > 0)
+        //    currentConfig = 1;
+        //else if(getPitch() > 0 && getRoll() > 0)
+        //    currentConfig = 2;
+        //else if(getPitch() < 0 && getRoll() < 0)
+        //    currentConfig = 3;
+        //else if(getPitch() > 0 && getRoll() < 0)
+        //    currentConfig = 4;
+        //configManager.setConfiguration(currentConfig);
+        //if(previousConfig != currentConfig)
+        //    buzzerManager.addConfigurationBeeps(currentConfig);
+
         //=========================== MISCELLANEOUS ==========================//
 
         /* Update autonomous controller using most recent position. */

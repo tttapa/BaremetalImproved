@@ -75,6 +75,11 @@ class ConfigurationManager {
      */
     void previousConfiguration();
 
+    //// Set the current configuration
+    //void setConfiguration(int config) {
+    //    this->controllerConfiguration = config;
+    //}
+
     /**
      * Update the controller configuration based on the value of the RC tuner
      * knob. The configuration can be changed if the common thrust is near zero.
