@@ -24,6 +24,11 @@ float getFilteredSonarMeasurement();
 float getFilteredSonarMeasurementAccurate();
 
 /**
+ * Returns the latest unfiltered sonar measurement.
+ */
+float getUnfilteredSonarMeasurement();
+
+/**
  * Initialise the median filter of the sonar.
  */
 void initSonar();

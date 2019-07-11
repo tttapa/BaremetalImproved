@@ -123,6 +123,11 @@ void mainOperation() {
     float correctedSonarMeasurement   = getCorrectedHeight(
         sonarMeasurement, attitudeController.getStateEstimate().q);
 
+    //***** SUMMER EDIT: unfiltered sonar measurement *****//
+    float rawSonarMeasurement = getUnfilteredSonarMeasurement();
+    float correctedRawSonarMeasurement = getCorrectedHeight(rawSonarMeasurement,
+        attitudeController.getStateEstimate().q);
+
     /* Read IMP measurement from shared memory and correct it using the sonar
        measurement and the drone's orientation. */
     Position positionMeasurementBlocks, positionMeasurement, globalPositionEstimate;
@@ -416,6 +421,11 @@ void mainOperation() {
 
         //=========================== COMMON THRUST ==========================//
 
+        //***** SUMMER EDIT: KF/LQR order swapped *****//
+        if(shouldUpdateAltitudeObserver) {
+            altitudeController.updateObserver(correctedSonarMeasurement);
+        }
+
         /* Update the altitude controller's signal at sonar frequency. */
         if (hasNewSonarMeasurement)
             uc = biasManager.getThrustBias() +
@@ -508,6 +518,11 @@ void mainOperation() {
 
         //=========================== COMMON THRUST ==========================//
 
+        //***** SUMMER EDIT: KF/LQR order swapped *****//
+        if(shouldUpdateAltitudeObserver) {
+            altitudeController.updateObserver(correctedSonarMeasurement);
+        }
+
         if (autoOutput.useAltitudeController && hasNewSonarMeasurement) {
             altitudeController.setReference(autoOutput.referenceHeight);
             uc = biasManager.getThrustBias() +
@@ -591,6 +606,8 @@ void mainOperation() {
     Quaternion yawQuat = EulerAngles::eul2quat(EulerAngles{yawRef, 0.0, 0.0});
     attitudeController.setReference({yawQuat + rollPitchQuat});
 
+    //***** SUMMER EDIT: KF/LQR order swapped *****//
+    attitudeController.updateObserver({ahrsMeasurement, imuMeasurement.gyro.g});
 
     /* Calculate the torque motor signals. The attitude controller's reference
        orientation has already been updated in the code above. */
@@ -601,10 +618,11 @@ void mainOperation() {
     if (armedManager.isArmed())
         outputMotorPWM(motorSignals);
 
-    /* Update the Kalman Filters (the position controller doesn't use one). */
-    attitudeController.updateObserver({ahrsMeasurement, imuMeasurement.gyro.g});
-    if (shouldUpdateAltitudeObserver)
-        altitudeController.updateObserver(correctedSonarMeasurement);
+    //***** SUMMER EDIT: KF/LQR order swapped *****//
+    // /* Update the Kalman Filters (the position controller doesn't use one). */
+    // attitudeController.updateObserver({ahrsMeasurement, imuMeasurement.gyro.g});
+    // if (shouldUpdateAltitudeObserver)
+    //     altitudeController.updateObserver(correctedSonarMeasurement);
 
 #pragma region Updates
     /* Update the controller configuration if the common thrust is near zero. */
@@ -632,7 +650,10 @@ void mainOperation() {
                                flightMode == FlightMode::AUTONOMOUS,
                                wptMode == WPTMode::ON};
     logEntry.wptMode          = wptMode;
-    logEntry.sensorHeightMeasurement   = correctedSonarMeasurement;
+
+    //***** SUMMER EDIT: print unfiltered sonar measurement *****//
+    // logEntry.sensorHeightMeasurement   = correctedSonarMeasurement;
+    logEntry.sensorHeightMeasurement   = correctedRawSonarMeasurement;
     logEntry.sensorPositionMeasurement = correctedPositionMeasurement;
     logEntry.sensorYawMeasurement      = yawMeasurement;
     logEntry.motorSignals = motorSignals;

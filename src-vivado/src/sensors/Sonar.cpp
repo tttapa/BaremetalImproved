@@ -60,16 +60,17 @@ bool isSonarInitialized = false;
  */
 int jumpCounter = 0;
 
+/** Latest raw sonar value. */
+static float newSonarRaw;
+
+/**
+ * Previous raw sonar value, initialize to -1 when function is first
+ * called.
+ */
+static float oldSonarRaw = -1;
+
 bool readSonar() {
 
-    /** Latest raw sonar value. */
-    static float newSonarRaw;
-
-    /**
-     * Previous raw sonar value, initialize to -1 when function is first
-     * called.
-     */
-    static float oldSonarRaw = -1;
 
     /* Check if there is a new measurement available. */
     newSonarRaw = (float) Xil_In32((uintptr_t) SONAR_ADDR) /
@@ -110,6 +111,8 @@ float getFilteredSonarMeasurement() { return filteredSonarMeasurement; }
 float getFilteredSonarMeasurementAccurate() {
     return getMedian(measurements, MAX_MF_LENGTH, MAX_MF_LENGTH);
 }
+
+float getUnfilteredSonarMeasurement() { return newSonarRaw; }
 
 void initSonar() {
     /* Initialize the sonar. Fill the sonar measurement buffer with the current
