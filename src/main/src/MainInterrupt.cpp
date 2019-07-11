@@ -655,7 +655,7 @@ void mainOperation() {
     // logEntry.sensorHeightMeasurement   = correctedSonarMeasurement;
     (void) correctedRawSonarMeasurement;
     logEntry.sensorHeightMeasurement   = rawSonarMeasurement;
-    logEntry.sensorPositionMeasurement = correctedPositionMeasurement;
+    logEntry.sensorPositionMeasurement = positionMeasurement;
     logEntry.sensorYawMeasurement      = yawMeasurement;
     logEntry.motorSignals = motorSignals;
 
