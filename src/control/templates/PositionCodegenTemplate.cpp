@@ -3,6 +3,7 @@
 #include <Position.hpp>
 #include <math.h>   /* fabs, copysign */
 #include <string.h> /* memcpy */
+#include <limits>
 
 /**
  * If the drone's velocity changes by more than 0.30 m/s between measurements,
@@ -147,6 +148,9 @@ PositionIntegralWindup PositionController::codegenIntegralWindupBlind(
 PositionState PositionController::codegenCurrentStateEstimate(
     PositionState stateEstimate, PositionMeasurement measurement,
     Quaternion orientation, float timeElapsed, int droneConfiguration) {
+
+    if(timeElapsed < std::numeric_limits<float>::epsilon() * 10)
+        return stateEstimate;
 
     //    DEMO CODE!!! Very bad observer for velocity
     //
