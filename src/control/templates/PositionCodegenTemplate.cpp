@@ -185,21 +185,35 @@ PositionState PositionController::codegenCurrentStateEstimate(
     // Test 2: loitering improved with adjusted alphas, we're gonna test
     //         different lambdas and see which one works the best
 
+    // Test 3: see blog
+
+    // Test 4: after removing the bias, there seems to be a very large difference
+    //         between the reference and the settling position. Also I want to
+    //         remove bad position measurements from the velocity observer.
+
+    /* First calculate whether the position measurement should be removed from
+       the velocity observer. */
+    const float threshold = 0.08;
+    Position diff = measurement.p - PositionController::getPosFilt();
+    bool rejected = fabs(diff.x) > threshold || fabs(diff.y) > threshold;
+
     /* Filter velocity. */
-    float alpha1 = 0.4;
-    float alpha2 = 0.6;
-    Position posFilt = measurement.p * alpha1 + PositionController::getPosFilt() * (1 - alpha1);
-    HorizontalVelocity vFromPosFilt = (posFilt - PositionController::getPosFilt()) / timeElapsed;
-    stateEstimate.v = vFromPosFilt * alpha2 + stateEstimate.v * (1 - alpha2);
+    if(!rejected) {
+        float alpha1 = 0.4;
+        float alpha2 = 0.6;
+        Position posFilt = measurement.p * alpha1 + PositionController::getPosFilt() * (1 - alpha1);
+        HorizontalVelocity vFromPosFilt = (posFilt - PositionController::getPosFilt()) / timeElapsed;
+        stateEstimate.v = vFromPosFilt * alpha2 + stateEstimate.v * (1 - alpha2);
+
+        /* Set last filtered measurement. */
+        PositionController::setPosFilt(posFilt);
+    }
 
     /* Set orientation and position. */
     stateEstimate.q.x = orientation.x - 0.5 * biasManager.getRollBias();
     stateEstimate.q.y = orientation.y - 0.5 * biasManager.getPitchBias();
     stateEstimate.p.x = measurement.p.x;
     stateEstimate.p.y = measurement.p.y;
-
-    /* Set last filtered measurement. */
-    PositionController::setPosFilt(posFilt);
 
     /* Drone configuration unused. */
     (void) droneConfiguration;
