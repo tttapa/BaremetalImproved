@@ -29,17 +29,20 @@ const int MF_BUFFER_SIZE_SMALL = 5;
  */
 const int MAX_MF_LENGTH = 15;
 
+//***** SUMMER EDIT: jump rejection @ 15cm, 5 outliers *****//
 /** 
  * Maximum amount of subsequent iterations where the peak filter is allowed to
  * discard a measurement. 
  */
-const int MAX_JUMP_COUNT = 3;
+//const int MAX_JUMP_COUNT = 3;
+const int MAX_JUMP_COUNT = 5;
 
 /** 
  * Maximum amount of meters the height can change in 1 iteration 
  * (after applying median filter). 
  */
-const float MAX_JUMP = 0.5;
+//const float MAX_JUMP = 0.5;
+const float MAX_JUMP = 0.15;
 
 /** Frequency of the sonar measurements. */
 const float FREQUENCY = SONAR_FREQUENCY;
@@ -69,6 +72,9 @@ static float newSonarRaw;
  */
 static float oldSonarRaw = -1;
 
+//***** SUMMER EDIT: ema to smooth out measurements instead of median filter *****//
+static float sonarEMAState;
+
 bool readSonar() {
 
 
@@ -84,20 +90,31 @@ bool readSonar() {
     /* On initialization, fill the buffer with the measured value. */
     if (!isSonarInitialized) {
         initMF(measurements, MAX_MF_LENGTH, newSonarRaw);
+
+        //***** SUMMER EDIT: replace median with EMA *****//
+        sonarEMAState = newSonarRaw;
+
         isSonarInitialized = true;
     } else {
         addMFMeasurement(measurements, MAX_MF_LENGTH, newSonarRaw);
+
+        //***** SUMMER EDIT: replace median with EMA *****//
+        float alpha = 0.3;
+        sonarEMAState = alpha * newSonarRaw + (1 - alpha) * sonarEMAState;
     }
 
-    /* Get the median of the last 5 measurements (less latency than taking the
-       median of the entire buffer). */
-    newSonarRaw = getMedian(measurements, MAX_MF_LENGTH, MF_BUFFER_SIZE_SMALL);
+    //***** SUMMER EDIT: replace median with EMA to smooth out measurements *****//
+    // /* Get the median of the last 5 measurements (less latency than taking the
+    //    median of the entire buffer). */
+    // newSonarRaw = getMedian(measurements, MAX_MF_LENGTH, MF_BUFFER_SIZE_SMALL);
+    newSonarRaw = sonarEMAState;    // TODO: rename this newSonarFiltered
 
     /* Apply peak filter (only if filteredSonarMeasurement is not zero). */
     float diff = fabs(newSonarRaw - filteredSonarMeasurement);
     if (diff > MAX_JUMP && jumpCounter < MAX_JUMP_COUNT) {
         jumpCounter++;
         // TODO: if there's a big jump, should we still say there's a new meas?
+        //       YES, this keeps a constant measurement frequency
     } else {
         filteredSonarMeasurement = newSonarRaw;
         jumpCounter              = 0;
