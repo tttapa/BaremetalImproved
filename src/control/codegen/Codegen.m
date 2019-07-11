@@ -75,7 +75,7 @@ method = 'zoh';
 
 % Configuration 1
 s1 = s;
-s1.pos.lambda = 1;
+s1.pos.lambda = 6;
 s1.pos.fs = 50.0; % TODO: position average FPS?
 s1.pos.Ts = 1.0 / s1.pos.fs;
 
@@ -113,7 +113,7 @@ s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 % Configuration 2
 s2 = s;
 
-s2.pos.lambda = 4; % TODO: lambda = 3.5 should be good enough for LQR I think
+s2.pos.lambda = 9; % TODO: lambda = 3.5 should be good enough for LQR I think
 s2.pos.fs = 50.0; % TODO: position average FPS?
 s2.pos.Ts = 1.0 / s2.pos.fs;
 
@@ -151,7 +151,7 @@ s2.pos.lqi.K = [s2.pos.lqr.K, s2.pos.lqi.I];
 % Configuration 3
 s3 = s;
 
-s3.pos.lambda = 10; % TODO: lambda = 3.5 should be good enough for LQR I think
+s3.pos.lambda = 12; % TODO: lambda = 3.5 should be good enough for LQR I think
 s3.pos.fs = 50.0; % TODO: position average FPS?
 s3.pos.Ts = 1.0 / s3.pos.fs;
 
@@ -189,7 +189,7 @@ s3.pos.lqi.K = [s3.pos.lqr.K, s3.pos.lqi.I];
 % Configuration 4
 s4 = s;
 
-s4.pos.lambda = 20; % TODO: lambda = 3.5 should be good enough for LQR I think
+s4.pos.lambda = 15; % TODO: lambda = 3.5 should be good enough for LQR I think
 s4.pos.fs = 50.0; % TODO: position average FPS?
 s4.pos.Ts = 1.0 / s4.pos.fs;
 

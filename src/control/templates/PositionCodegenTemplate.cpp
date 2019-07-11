@@ -182,6 +182,9 @@ PositionState PositionController::codegenCurrentStateEstimate(
     //float alpha1     = 0.2;
     //float alpha2     = 0.2;
 
+    // Test 2: loitering improved with adjusted alphas, we're gonna test
+    //         different lambdas and see which one works the best
+
     /* Filter velocity. */
     float alpha1 = 0.4;
     float alpha2 = 0.6;
