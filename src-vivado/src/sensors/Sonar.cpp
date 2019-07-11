@@ -77,7 +77,6 @@ static float sonarEMAState;
 
 bool readSonar() {
 
-
     /* Check if there is a new measurement available. */
     newSonarRaw = (float) Xil_In32((uintptr_t) SONAR_ADDR) /
                   (CLOCK_FREQUENCY * PWM_TO_HEIGHT);
@@ -87,38 +86,32 @@ bool readSonar() {
     /* Save the new measurement. */
     oldSonarRaw = newSonarRaw;
 
-    /* On initialization, fill the buffer with the measured value. */
+    //***** SUMMER EDIT: this is reworked so median is replaced by EMA
+    //                   and peak filter comes first. *****//
+
+    /* On initialization, set EMA to initial measurement. */
     if (!isSonarInitialized) {
-        initMF(measurements, MAX_MF_LENGTH, newSonarRaw);
-
-        //***** SUMMER EDIT: replace median with EMA *****//
         sonarEMAState = newSonarRaw;
-
         isSonarInitialized = true;
-    } else {
-        addMFMeasurement(measurements, MAX_MF_LENGTH, newSonarRaw);
+    }
 
-        //***** SUMMER EDIT: replace median with EMA *****//
+    /* Apply peak filter. */
+    float diff = fabs(newSonarRaw - sonarEMAState);
+    if (diff > MAX_JUMP && jumpCounter < MAX_JUMP_COUNT) {
+        jumpCounter++;
+        /* Don't update sonarEMAState. */
+        // TODO: if there's a big jump, should we still say there's a new meas?
+        //       YES, this keeps a constant measurement frequency
+    } else {
+    	jumpCounter = 0;
+
+    	/* Apply EMA. */
         float alpha = 0.3;
         sonarEMAState = alpha * newSonarRaw + (1 - alpha) * sonarEMAState;
     }
 
-    //***** SUMMER EDIT: replace median with EMA to smooth out measurements *****//
-    // /* Get the median of the last 5 measurements (less latency than taking the
-    //    median of the entire buffer). */
-    // newSonarRaw = getMedian(measurements, MAX_MF_LENGTH, MF_BUFFER_SIZE_SMALL);
-    newSonarRaw = sonarEMAState;    // TODO: rename this newSonarFiltered
-
-    /* Apply peak filter (only if filteredSonarMeasurement is not zero). */
-    float diff = fabs(newSonarRaw - filteredSonarMeasurement);
-    if (diff > MAX_JUMP && jumpCounter < MAX_JUMP_COUNT) {
-        jumpCounter++;
-        // TODO: if there's a big jump, should we still say there's a new meas?
-        //       YES, this keeps a constant measurement frequency
-    } else {
-        filteredSonarMeasurement = newSonarRaw;
-        jumpCounter              = 0;
-    }
+    /* sonarEMAState is filtered sonar measurement. TODO: use pieter's class */
+    filteredSonarMeasurement = sonarEMAState;
 
     return true;
 }
