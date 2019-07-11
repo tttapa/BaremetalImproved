@@ -653,7 +653,8 @@ void mainOperation() {
 
     //***** SUMMER EDIT: print unfiltered sonar measurement *****//
     // logEntry.sensorHeightMeasurement   = correctedSonarMeasurement;
-    logEntry.sensorHeightMeasurement   = correctedRawSonarMeasurement;
+    (void) correctedRawSonarMeasurement;
+    logEntry.sensorHeightMeasurement   = rawSonarMeasurement;
     logEntry.sensorPositionMeasurement = correctedPositionMeasurement;
     logEntry.sensorYawMeasurement      = yawMeasurement;
     logEntry.motorSignals = motorSignals;
