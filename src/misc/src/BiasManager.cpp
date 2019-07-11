@@ -24,7 +24,9 @@ static constexpr float ROTATION_BIAS_WEIGHT_PILOT = 0.005;
  * the drone is loitering in the AUTONOMOUS flight mode. This base weight is for
  * an IMU frequency of 119 Hz and will be adjusted for the actual IMU frequency.
  */
-static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.001;
+// TODO: turn this back on, but lower! Maybe 0.0005
+//static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.001;
+static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.0f;
 
 /**
  * Weight used in the exponential filters for the roll and pitch biases when
@@ -32,7 +34,9 @@ static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.001;
  * for an IMU frequency of 119 Hz and will be adjusted for the actual IMU
  * frequency.
  */
-static constexpr float ROTATION_BIAS_WEIGHT_NAVIGATING = 0.0002;
+// TODO: should this be zero or non-zero? I think it should be zero
+//static constexpr float ROTATION_BIAS_WEIGHT_NAVIGATING = 0.0002;
+static constexpr float ROTATION_BIAS_WEIGHT_NAVIGATING = 0.0f;
 
 /**
  * Weight used in the exponential filters for the thrust bias when the drone
