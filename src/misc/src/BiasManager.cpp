@@ -51,7 +51,7 @@ static constexpr float THRUST_BIAS_WEIGHT_MANUAL = 0.01;
  * the AUTONOMOUS flight mode. This base weight is for an IMU frequency of 119
  * Hz and will be adjusted for the actual IMU frequency.
  */
-static constexpr float THRUST_BIAS_WEIGHT_ALTITUDE_HOLD = 0.0004;
+static constexpr float THRUST_BIAS_WEIGHT_ALTITUDE_HOLD = 0.0005;
 #pragma endregion
 
 void BiasManager::init() {
