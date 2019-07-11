@@ -32,6 +32,7 @@ void setTestMode(TestMode testMode) {TEST_MODE = testMode;}
 /** Get whether switching to altitude mode is enabled. */
 bool canStartAltitudeHoldMode() { return isAltitudeHoldModeEnabled(); }
 
+//***** SUMMER EDIT: this is buggy! only allowing air autonomous now *****//
 /** Get whether switching to autonomous mode is enabled. */
 bool canStartAutonomousMode() {
     return canStartAutonomousModeAir() || canStartAutonomousModeGround();
@@ -39,14 +40,16 @@ bool canStartAutonomousMode() {
 
 /** Get whether switching to autonomous mode from the air is enabled. */
 bool canStartAutonomousModeAir() {
-    return isAutonomousAirEnabled() &&
-           biasManager.getThrustBias() >= THRUST_BIAS_THRESHOLD;
+    return true;
+//    return isAutonomousAirEnabled() &&
+//           biasManager.getThrustBias() >= THRUST_BIAS_THRESHOLD;
 }
 
 /** Get whether switching to autonomous mode from the ground is enabled. */
 bool canStartAutonomousModeGround() {
-    return isAutonomousGroundEnabled() &&
-           biasManager.getThrustBias() < THRUST_BIAS_THRESHOLD;
+    return false;
+//    return isAutonomousGroundEnabled() &&
+//           biasManager.getThrustBias() < THRUST_BIAS_THRESHOLD;
 }
 
 /** Get the next navigation target during TEST_NAVIGATION mode. */
