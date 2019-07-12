@@ -75,36 +75,8 @@ method = 'zoh';
 
 % Configuration 1
 s1 = s;
-s1.pos.lambda = 6;
-s1.pos.fs = 50.0; % TODO: position average FPS?
-s1.pos.Ts = 1.0 / s1.pos.fs;
-
-s1.pos.Aa = [-s1.pos.lambda,      0,         0, 0, 0, 0;
-            0,            -s1.pos.lambda,   0, 0, 0, 0;
-            0,                  0,         0, 0, 1, 0;
-            0,                  0,         0, 0, 0, 1;
-            0,                2*p.g,       0, 0, 0, 0;
-            -2*p.g,             0,         0, 0, 0, 0];
-        
-s1.pos.Ba = [s1.pos.lambda,       0;
-            0,            s1.pos.lambda;
-            0,                  0;
-            0,                  0;
-            0,                  0;
-            0,                  0];
-s1.pos.Ca = [eye(4),zeros(4, 2)];
-s1.pos.Da = zeros(4, 2);
-
-% Position system @ IMP frequency
-continuousSys = ss(s1.pos.Aa, s1.pos.Ba, s1.pos.Ca, s1.pos.Da);
-discreteSys = c2d(continuousSys, s1.pos.Ts, method);
-s1.pos.Ad = discreteSys.A;
-s1.pos.Bd = discreteSys.B;
-s1.pos.Cd = discreteSys.C;
-s1.pos.Dd = discreteSys.D;
-
-s1.pos.lqr.Q = diag([1e-8, 1e-8, 0.9, 0.9, 0.015, 0.015]);
-s1.pos.lqr.R = 2.5*350.0*eye(2);
+s1.pos.lqr.Q = diag([1e-8, 1e-8, 0.9*4.0*1.5, 0.9*4.0*1.5, 0.003*1.5, 0.003*1.5]);
+s1.pos.lqr.R = 2.0*875.0*eye(2);
 s1.pos.lqr.K = -dlqr(s1.pos.Ad, s1.pos.Bd, s1.pos.lqr.Q, s1.pos.lqr.R);
 s1.pos.lqi.I = 0*[0,-1;1,0]; %0.001*[0,-1;1,0];
 s1.pos.lqi.max_integral = 10;
@@ -112,37 +84,8 @@ s1.pos.lqi.K = [s1.pos.lqr.K, s1.pos.lqi.I];
 
 % Configuration 2
 s2 = s;
-
-s2.pos.lambda = 9; % TODO: lambda = 3.5 should be good enough for LQR I think
-s2.pos.fs = 50.0; % TODO: position average FPS?
-s2.pos.Ts = 1.0 / s2.pos.fs;
-
-s2.pos.Aa = [-s2.pos.lambda,      0,         0, 0, 0, 0;
-            0,            -s2.pos.lambda,   0, 0, 0, 0;
-            0,                  0,         0, 0, 1, 0;
-            0,                  0,         0, 0, 0, 1;
-            0,                2*p.g,       0, 0, 0, 0;
-            -2*p.g,             0,         0, 0, 0, 0];
-        
-s2.pos.Ba = [s2.pos.lambda,       0;
-            0,            s2.pos.lambda;
-            0,                  0;
-            0,                  0;
-            0,                  0;
-            0,                  0];
-s2.pos.Ca = [eye(4),zeros(4, 2)];
-s2.pos.Da = zeros(4, 2);
-
-% Position system @ IMP frequency
-continuousSys = ss(s2.pos.Aa, s2.pos.Ba, s2.pos.Ca, s2.pos.Da);
-discreteSys = c2d(continuousSys, s2.pos.Ts, method);
-s2.pos.Ad = discreteSys.A;
-s2.pos.Bd = discreteSys.B;
-s2.pos.Cd = discreteSys.C;
-s2.pos.Dd = discreteSys.D;
-
-s2.pos.lqr.Q = diag([1e-8, 1e-8, 0.9, 0.9, 0.015, 0.015]);
-s2.pos.lqr.R = 2.5*350.0*eye(2);
+s2.pos.lqr.Q = diag([1e-8, 1e-8, 0.9*4.0*1.5, 0.9*4.0*1.5, 0.003*1.5, 0.003*1.5]);
+s2.pos.lqr.R = 2.0*875.0*eye(2);
 s2.pos.lqr.K = -dlqr(s2.pos.Ad, s2.pos.Bd, s2.pos.lqr.Q, s2.pos.lqr.R);
 s2.pos.lqi.I = 0*[0,-1;1,0]; %0.001*[0,-1;1,0];
 s2.pos.lqi.max_integral = 10;
@@ -150,37 +93,8 @@ s2.pos.lqi.K = [s2.pos.lqr.K, s2.pos.lqi.I];
 
 % Configuration 3
 s3 = s;
-
-s3.pos.lambda = 12; % TODO: lambda = 3.5 should be good enough for LQR I think
-s3.pos.fs = 50.0; % TODO: position average FPS?
-s3.pos.Ts = 1.0 / s3.pos.fs;
-
-s3.pos.Aa = [-s3.pos.lambda,      0,         0, 0, 0, 0;
-            0,            -s3.pos.lambda,   0, 0, 0, 0;
-            0,                  0,         0, 0, 1, 0;
-            0,                  0,         0, 0, 0, 1;
-            0,                2*p.g,       0, 0, 0, 0;
-            -2*p.g,             0,         0, 0, 0, 0];
-        
-s3.pos.Ba = [s3.pos.lambda,       0;
-            0,            s3.pos.lambda;
-            0,                  0;
-            0,                  0;
-            0,                  0;
-            0,                  0];
-s3.pos.Ca = [eye(4),zeros(4, 2)];
-s3.pos.Da = zeros(4, 2);
-
-% Position system @ IMP frequency
-continuousSys = ss(s3.pos.Aa, s3.pos.Ba, s3.pos.Ca, s3.pos.Da);
-discreteSys = c2d(continuousSys, s3.pos.Ts, method);
-s3.pos.Ad = discreteSys.A;
-s3.pos.Bd = discreteSys.B;
-s3.pos.Cd = discreteSys.C;
-s3.pos.Dd = discreteSys.D;
-
-s3.pos.lqr.Q = diag([1e-8, 1e-8, 0.9, 0.9, 0.015, 0.015]);
-s3.pos.lqr.R = 2.5*350.0*eye(2);
+s3.pos.lqr.Q = diag([1e-8, 1e-8, 0.9*4.0*1.5, 0.9*4.0*1.5, 0.003*1.5, 0.003*1.5]);
+s3.pos.lqr.R = 2.0*875.0*eye(2);
 s3.pos.lqr.K = -dlqr(s3.pos.Ad, s3.pos.Bd, s3.pos.lqr.Q, s3.pos.lqr.R);
 s3.pos.lqi.I = 0*[0,-1;1,0]; %0.001*[0,-1;1,0];
 s3.pos.lqi.max_integral = 10;
@@ -188,37 +102,8 @@ s3.pos.lqi.K = [s3.pos.lqr.K, s3.pos.lqi.I];
 
 % Configuration 4
 s4 = s;
-
-s4.pos.lambda = 15; % TODO: lambda = 3.5 should be good enough for LQR I think
-s4.pos.fs = 50.0; % TODO: position average FPS?
-s4.pos.Ts = 1.0 / s4.pos.fs;
-
-s4.pos.Aa = [-s4.pos.lambda,      0,         0, 0, 0, 0;
-            0,            -s4.pos.lambda,   0, 0, 0, 0;
-            0,                  0,         0, 0, 1, 0;
-            0,                  0,         0, 0, 0, 1;
-            0,                2*p.g,       0, 0, 0, 0;
-            -2*p.g,             0,         0, 0, 0, 0];
-        
-s4.pos.Ba = [s4.pos.lambda,       0;
-            0,            s4.pos.lambda;
-            0,                  0;
-            0,                  0;
-            0,                  0;
-            0,                  0];
-s4.pos.Ca = [eye(4),zeros(4, 2)];
-s4.pos.Da = zeros(4, 2);
-
-% Position system @ IMP frequency
-continuousSys = ss(s4.pos.Aa, s4.pos.Ba, s4.pos.Ca, s4.pos.Da);
-discreteSys = c2d(continuousSys, s4.pos.Ts, method);
-s4.pos.Ad = discreteSys.A;
-s4.pos.Bd = discreteSys.B;
-s4.pos.Cd = discreteSys.C;
-s4.pos.Dd = discreteSys.D;
-
-s4.pos.lqr.Q = diag([1e-8, 1e-8, 0.9, 0.9, 0.015, 0.015]);
-s4.pos.lqr.R = 2.5*350.0*eye(2);
+s4.pos.lqr.Q = diag([1e-8, 1e-8, 0.9*4.0*1.5, 0.9*4.0*1.5, 0.003*1.5, 0.003*1.5]);
+s4.pos.lqr.R = 2.0*875.0*eye(2);
 s4.pos.lqr.K = -dlqr(s4.pos.Ad, s4.pos.Bd, s4.pos.lqr.Q, s4.pos.lqr.R);
 s4.pos.lqi.I = 0*[0,-1;1,0]; %0.001*[0,-1;1,0];
 s4.pos.lqi.max_integral = 10;

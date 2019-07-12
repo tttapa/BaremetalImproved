@@ -489,17 +489,31 @@ void mainOperation() {
         //***** SUMMER EDIT: change config using right stick *****//
         int previousConfig = configManager.getControllerConfiguration();
         int currentConfig = previousConfig;
-        if(getPitch() < 0 && getRoll() > 0)
+        float changeThreshold = 0.35;
+        if(getPitch() < -changeThreshold && getRoll() > changeThreshold)
             currentConfig = 1;
-        else if(getPitch() > 0 && getRoll() > 0)
+        else if(getPitch() > changeThreshold && getRoll() > changeThreshold)
             currentConfig = 2;
-        else if(getPitch() < 0 && getRoll() < 0)
-            currentConfig = 3;
-        else if(getPitch() > 0 && getRoll() < 0)
+        else if(getPitch() < -changeThreshold && getRoll() < -changeThreshold)
             currentConfig = 4;
+        else if(getPitch() > changeThreshold && getRoll() < -changeThreshold)
+            currentConfig = 3;
         configManager.setConfiguration(currentConfig);
         if(previousConfig != currentConfig)
             buzzerManager.addConfigurationBeeps(currentConfig);
+
+        ////***** SUMMER EDIT: change reference using WPT mode *****//
+        //static WPTMode previousWPT = getWPTMode();
+        //WPTMode currentWPT = getWPTMode();
+        //if(currentWPT == WPTMode::ON && previousWPT == WPTMode::OFF) {
+        //    positionController.shiftReference(Position{5.0*BLOCKS_TO_METERS, 0});
+        //    buzzerManager.addArmedBeeps();
+        //}
+        //if(currentWPT == WPTMode::OFF && previousWPT == WPTMode::ON) {
+        //    positionController.shiftReference(Position{-5.0*BLOCKS_TO_METERS, 0});
+        //    buzzerManager.addDisarmedBeeps();            
+        //}
+        //previousWPT = currentWPT;
 
         //=========================== MISCELLANEOUS ==========================//
 
@@ -556,7 +570,9 @@ void mainOperation() {
             
             /* Normal @ IMP frequency */
             if (autoOutput.trustIMPForPosition && hasNewIMPMeasurement) {
+                //***** SUMMER EDIT: flip switch, loitering. *****//
                 q12ref = positionController.updateControlSignal(autoOutput.referencePosition);
+                //q12ref = positionController.updateControlSignal(positionController.getReference().p);
             }
 
             /* Blind @ IMU frequency */

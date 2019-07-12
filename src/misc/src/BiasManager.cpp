@@ -3,6 +3,9 @@
 /* Includes from src-vivado. */
 #include <PublicHardwareConstants.hpp>
 
+//***** SUMMER EDIT: change weights with tuner knob. *****//
+#include <RCValues.hpp>
+
 #pragma region Constants
 /**
  * If the main interrupt tries to set the autonomous controller's base hovering
@@ -26,7 +29,8 @@ static constexpr float ROTATION_BIAS_WEIGHT_PILOT = 0.005;
  */
 // TODO: turn this back on, but lower! Maybe 0.0005
 //static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.001;
-static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.0f;
+//static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.0f;
+static constexpr float ROTATION_BIAS_WEIGHT_LOITERING = 0.0003f;
 
 /**
  * Weight used in the exponential filters for the roll and pitch biases when
@@ -78,10 +82,15 @@ void BiasManager::updateRollBias(float referenceRollRads,
     if (flightMode == FlightMode::MANUAL || flightMode == FlightMode::ALTITUDE_HOLD) {
         weight = ROTATION_BIAS_WEIGHT_PILOT / IMU_FACTOR;
     } else if (flightMode == FlightMode::AUTONOMOUS) {
-        if (autonomousState == AutonomousState::LOITERING)
-            weight = ROTATION_BIAS_WEIGHT_LOITERING / IMU_FACTOR;
-        else
-            weight = ROTATION_BIAS_WEIGHT_NAVIGATING / IMU_FACTOR;
+        //***** SUMMER EDIT: change weight based on tuner value. *****//
+        if(getTuner() < 0) {
+            weight = 0.0f;
+        } else {
+            if (autonomousState == AutonomousState::LOITERING)
+                weight = ROTATION_BIAS_WEIGHT_LOITERING / IMU_FACTOR;
+            else
+                weight = ROTATION_BIAS_WEIGHT_NAVIGATING / IMU_FACTOR;
+        }
     }
 
     this->rollBias += weight * (referenceRollRads - this->rollBias);
@@ -100,10 +109,15 @@ void BiasManager::updatePitchBias(float referencePitchRads,
     if (flightMode == FlightMode::MANUAL || flightMode == FlightMode::ALTITUDE_HOLD) {
         weight = ROTATION_BIAS_WEIGHT_PILOT / IMU_FACTOR;
     } else if (flightMode == FlightMode::AUTONOMOUS) {
-        if (autonomousState == AutonomousState::LOITERING)
-            weight = ROTATION_BIAS_WEIGHT_LOITERING / IMU_FACTOR;
-        else
-            weight = ROTATION_BIAS_WEIGHT_NAVIGATING / IMU_FACTOR;
+        //***** SUMMER EDIT: change weight based on tuner value. *****//
+        if(getTuner() < 0) {
+            weight = 0.0f;
+        } else {
+            if (autonomousState == AutonomousState::LOITERING)
+                weight = ROTATION_BIAS_WEIGHT_LOITERING / IMU_FACTOR;
+            else
+                weight = ROTATION_BIAS_WEIGHT_NAVIGATING / IMU_FACTOR;
+        }
     }
 
     this->pitchBias += weight * (referencePitchRads - this->pitchBias);

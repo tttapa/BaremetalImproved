@@ -29,7 +29,9 @@ LogEntry getLogData() {
 
 
     logentry.millis = getMillis();
-    logentry.tickCount = getTickCount();
+    //***** SUMMER EDIT: logging drone configuration *****//
+    //logentry.tickCount = getTickCount();
+    logentry.tickCount = configManager.getControllerConfiguration();
     logentry.pitchBias = biasManager.getPitchBias();
     logentry.rollBias = biasManager.getRollBias();
     logentry.thrustBias = biasManager.getThrustBias();

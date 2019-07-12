@@ -2,21 +2,33 @@
 #include <TestMode.hpp>
 
 /** Current test mode is MANUAL. */
-static TestMode TEST_MODE = TestMode::TEST_LOITERING;
+static TestMode TEST_MODE = TestMode::TEST_NAVIGATION;
 
-/** The drone will cycle through 7 targets during the TEST_NAVIGATION mode. */
-static constexpr int NUM_NAVIGATION_TARGETS = 7;
+// /** The drone will cycle through 7 targets during the TEST_NAVIGATION mode. */
+// static constexpr int NUM_NAVIGATION_TARGETS = 7;
+// 
+// /** Points to cycle through when during the TEST_NAVIGATION mode. */
+// static const Position NAVIGATION_TARGETS[NUM_NAVIGATION_TARGETS] = {
+//     Position{0.0, 0.0},    //
+//     Position{1.0, 0.0},    //
+//     Position{1.0, 1.0},    //
+//     Position{-1.0, 1.0},   //
+//     Position{-1.0, -1.0},  //
+//     Position{1.0, -1.0},   //
+//     Position{1.0, 0.0},    //
+// };
 
-/** Points to cycle through when during the TEST_NAVIGATION mode. */
+//***** SUMMER EDIT: cycle starting target, right t
+/** The drone will cycle through 2 targets during the TEST_NAVIGATION mode. */
+static constexpr int NUM_NAVIGATION_TARGETS = 2;
+
+// TODO: THESE ARE SHIFTS! NOT TARGETS!
+/** Shifts to cycle through when during the TEST_NAVIGATION mode. */
 static const Position NAVIGATION_TARGETS[NUM_NAVIGATION_TARGETS] = {
-    Position{0.0, 0.0},    //
-    Position{1.0, 0.0},    //
-    Position{1.0, 1.0},    //
-    Position{-1.0, 1.0},   //
-    Position{-1.0, -1.0},  //
-    Position{1.0, -1.0},   //
-    Position{1.0, 0.0},    //
+    Position{5.0*BLOCKS_TO_METERS, 0.0},    //
+    Position{-5.0*BLOCKS_TO_METERS, 0.0},
 };
+
 
 /** Current navigation target index. */
 static int navigationTargetIndex = 0;
@@ -54,10 +66,12 @@ bool canStartAutonomousModeGround() {
 
 /** Get the next navigation target during TEST_NAVIGATION mode. */
 Position getNextNavigationTestTarget() {
+    //***** SUMMER EDIT: shifts instead of targets
+    Position shift = NAVIGATION_TARGETS[navigationTargetIndex];
     navigationTargetIndex++;
     if (navigationTargetIndex == NUM_NAVIGATION_TARGETS)
         navigationTargetIndex = 0;
-    return NAVIGATION_TARGETS[navigationTargetIndex];
+    return shift;
 }
 
 /** Get whether switching to altitude mode is enabled. */

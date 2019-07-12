@@ -135,8 +135,8 @@ s.alt.kal.L = dlqe(s.alt.Ad, s.alt.kal.G, s.alt.Cd, diag(s.alt.kal.Q), diag(s.al
 %
 
 % Linear system
-s.pos.lambda = 3.5; % TODO: lambda = 3.5 should be good enough for LQR I think
-s.pos.fs = 55.0; % TODO: position average FPS?
+s.pos.lambda = 9;
+s.pos.fs = 50.0; % TODO: position average FPS?
 s.pos.Ts = 1.0 / s.pos.fs;
 
 s.pos.Aa = [-s.pos.lambda,      0,         0, 0, 0, 0;
@@ -163,6 +163,21 @@ s.pos.Bd = discreteSys.B;
 s.pos.Cd = discreteSys.C;
 s.pos.Dd = discreteSys.D;
 
+% LQR with integral action @ IMP frequency
+s.pos.lqr.W = [ s.pos.Ad - eye(6), s.pos.Bd;
+                s.pos.Cd,          s.pos.Dd ];
+s.pos.lqr.OI = [zeros(6, 4);
+                  eye(4)  ];
+s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
+
+s.pos.lqr.Q = diag([1e-8, 1e-8, 0.9, 0.9, 0.015, 0.015]);
+s.pos.lqr.R = 875.0*eye(2);
+s.pos.lqr.K = -dlqr(s.pos.Ad, s.pos.Bd, s.pos.lqr.Q, s.pos.lqr.R);
+s.pos.lqi.I = 0*[0,-1;1,0]; %0.001*[0,-1;1,0];
+s.pos.lqi.max_integral = 10;
+s.pos.lqi.K = [s.pos.lqr.K, s.pos.lqi.I];
+
+
 % Position system @ IMU frequency
 s.posBlind.Aa = s.pos.Aa;
 s.posBlind.Ba = s.pos.Ba;
@@ -174,21 +189,6 @@ s.posBlind.Ad = discreteSys.A;
 s.posBlind.Bd = discreteSys.B;
 s.posBlind.Cd = discreteSys.C;
 s.posBlind.Dd = discreteSys.D;
-
-
-% LQR with integral action @ IMP frequency
-s.pos.lqr.W = [ s.pos.Ad - eye(6), s.pos.Bd;
-                s.pos.Cd,          s.pos.Dd ];
-s.pos.lqr.OI = [zeros(6, 4);
-                  eye(4)  ];
-s.pos.lqr.G = s.pos.lqr.W \ s.pos.lqr.OI;
-% TODO: choose best LQR from configurations
-s.pos.lqr.Q = diag([3.0, 3.0, 0.9, 0.9, 0.015, 0.015]);
-s.pos.lqr.R = 1.5*200.0*eye(2);
-s.pos.lqr.K = -dlqr(s.pos.Ad, s.pos.Bd, s.pos.lqr.Q, s.pos.lqr.R);
-s.pos.lqi.max_integral = 20;        % ~ 10-15 seconds for full windup without propellors
-s.pos.lqi.I = diag([0,0]); %0.001*[0,-1;1,0];     % Max integral action = 0.001*20 = 0.02
-s.pos.lqi.K = [s.pos.lqr.K, s.pos.lqi.I];
 
 % LQR with integral action @ IMU frequency
 s.posBlind.lqr.Q = s.pos.lqr.Q;

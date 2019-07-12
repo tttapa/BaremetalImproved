@@ -20,19 +20,25 @@
  * If the drone is stays with 0.12 meters of its destination for a period of
  * time, then it will have converged on its target (horizontally).
  */
-static constexpr float CONVERGENCE_DISTANCE_HORIZONTAL = 0.12;
+//***** SUMMER EDIT: larger convergence distance. *****//
+//static constexpr float CONVERGENCE_DISTANCE_HORIZONTAL = 0.12;
+static constexpr float CONVERGENCE_DISTANCE_HORIZONTAL = 0.35;
 
 /**
  * If the drone is stays with 0.05 meters of its reference height for a period
  * of time, then it will have converged on its target (vertically).
  */
-static constexpr float CONVERGENCE_DISTANCE_VERTICAL = 0.05;
+//***** SUMMER EDIT: larger convergence distance. *****//
+//static constexpr float CONVERGENCE_DISTANCE_VERTICAL = 0.05;
+static constexpr float CONVERGENCE_DISTANCE_VERTICAL = 0.20;
 
 /**
  * If the drone is stays with a certain distance of its destination for 1
  * second, then it will have converged on its target.
  */
-static constexpr float CONVERGENCE_DURATION = 1.0;
+//***** SUMMER EDIT: longer convergence duration. *****//
+//static constexpr float CONVERGENCE_DURATION = 1.0;
+static constexpr float CONVERGENCE_DURATION = 4.0;
 
 /**
  * The blind stage of the landing, meaning the sonar is not accurate anymore,
@@ -101,7 +107,7 @@ static constexpr int MAX_QR_SEARCH_COUNT = 49;
  * When the drone is navigating in autonomous mode, the reference will travel at
  * a speed of 0.18 m/s.
  */
-static constexpr float NAVIGATION_SPEED = 0.15;
+static constexpr float NAVIGATION_SPEED = 0.25; //***** SUMMER EDIT: faster. *****//
 
 /** The pre-takeoff stage lasts 6.0 seconds. */
 static constexpr float PRE_TAKEOFF_DURATION = 6.0;
@@ -205,6 +211,10 @@ void AutonomousController::startNavigating(Position nextTarget) {
 
 void AutonomousController::startNavigatingBlocks(Position nextTargetBlocks) {
     startNavigating(nextTargetBlocks * BLOCKS_TO_METERS);
+}
+
+void AutonomousController::startNavigatingShift(Position nextShift) {
+    startNavigating(positionController.getReference().p + nextShift);
 }
 
 void AutonomousController::startNavigatingBlocks(
@@ -345,7 +355,8 @@ void AutonomousController::updateQRFSM_Idle() {
        TEST_NAVIGATION mode. */
     if (getElapsedTime() > CONVERGENCE_DURATION &&
         isNavigationEnabledTestTargets())
-        startNavigatingBlocks(getNextNavigationTestTarget());
+        startNavigatingShift(getNextNavigationTestTarget());
+        //startNavigatingBlocks(getNextNavigationTestTarget()); //***** SUMMER EDIT
 
     /* Set this FSM to QR_READ_REQUEST if the convergence timer expires and
        we're allowed to navigate with QR codes. */

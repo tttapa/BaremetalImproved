@@ -364,4 +364,9 @@ class PositionController {
      *          Current orientation of the drone.
      */
     void updateObserverBlind(Quaternion orientation);
+
+    //***** SUMMER EDIT: shift reference by given vector *****//
+    void shiftReference(Position shift) {
+        this->reference = PositionReference{this->reference.p + shift};
+    }
 };

@@ -190,6 +190,9 @@ class AutonomousController {
      */
     void startNavigatingBlocks(VisionPosition nextTargetBlocks);
 
+    //***** SUMMER EDIT: navigating left and right
+    void startNavigatingShift(Position nextShift);
+
     /**
      * Update the autonomous controller's finite state machine (FSM). The
      * resulting struct contains the following information:
