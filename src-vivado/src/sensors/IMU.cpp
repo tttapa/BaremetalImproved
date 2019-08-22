@@ -17,6 +17,7 @@
 #include "LSM9DS1Def.hpp"
 #include <PublicHardwareConstants.hpp>
 
+
 #pragma region Constants
 // TODO: sync with codegen
 /* Gyroscope and accelerometer frequencies are set to 952 Hz. */
@@ -336,6 +337,7 @@ bool initIMU() {
     return true;
 }
 
+#include <cstdio>
 IMUMeasurement readIMU() {
 
     /* Read gyroscope and convert to rad/s. */
@@ -347,6 +349,9 @@ IMUMeasurement readIMU() {
     /* Read accelerometer and convert to g. */
     RawAccelMeasurement accelRaw = readAccel();
     Vec3f accel = getAccelMeasurement(accelRaw, accelBiasQuat, accelBiasNorm);
+    
+    
+    printf("%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\r\n", accel.x, accel.y, accel.z, gyro.x, gyro.y, gyro.z);
 
     /* Return IMU measurement (gyro+accel). */
     return IMUMeasurement{GyroMeasurement{gyro}, AccelMeasurement{accel}};
