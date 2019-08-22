@@ -4,6 +4,6 @@
 void mainLoop() {
     
     isInterruptRunning = false;
-    std::cout << "m";
+    //std::cout << "m";
     
 }
