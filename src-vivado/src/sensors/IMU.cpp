@@ -4,7 +4,7 @@
 #include <Quaternion.hpp>
 
 /* Includes from src-vivado. */
-#include "../platform/IIC.hpp"
+#include <platform/IIC.hpp>
 #include <platform/AxiGpio.hpp>
 #include <platform/Interrupt.hpp>
 
@@ -194,9 +194,9 @@ RawGyroMeasurement readGyro() {
  */
 void int_gyr(void *InstancePtr) {
     (void) InstancePtr;
-    std::cout << "i";
+    //std::cout << "i";
     /* update the FSM */
-    updateFSM();
+    //updateFSM();
 }
 
 // TODO: 

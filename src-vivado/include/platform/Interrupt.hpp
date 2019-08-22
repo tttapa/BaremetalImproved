@@ -1,5 +1,7 @@
 #pragma once
 
+#include <xscugic.h>
+
 /**
  * Set up the interrupt system (master, IIC).
  *
@@ -10,3 +12,4 @@
  */
 bool initInterrupt();
 
+extern XScuGic InterruptController;
