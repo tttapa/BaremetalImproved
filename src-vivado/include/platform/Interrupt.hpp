@@ -10,12 +10,3 @@
  */
 bool initInterrupt();
 
-/**
- * Set up the IMU interrupt system.
- *
- * @return	true
- * 			If setup was successful.
- * @return	false
- * 			Otherwise.
- */
-bool initIMUInterruptSystem();

@@ -11,6 +11,7 @@
 #include <output/Motors.hpp>
 #include <output/WPT.hpp>
 #include <platform/AxiGpio.hpp>
+#include <platform/IIC.hpp>
 #include <platform/Interrupt.hpp>
 #include <platform/Platform.hpp>
 #include <sensors/IMU.hpp>
@@ -29,6 +30,8 @@ int main(void) {
     /* Initialize interrupt system. */
     if (initInterrupt() == false)
         return 1;
+
+    initIIC();
 
     /* Initialize AXI GPIOs. */
     if (initAxiGpio() == false)

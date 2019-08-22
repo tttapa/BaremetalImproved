@@ -57,6 +57,16 @@ bool calibrateIMUStep();
 bool initIMU();
 
 /**
+ * Set up the IMU interrupt system.
+ *
+ * @return	true
+ * 			If setup was successful.
+ * @return	false
+ * 			Otherwise.
+ */
+bool initIMUInterruptSystem();
+
+/**
  * Read the gyroscope measurement (rad/s) and acceleration measurement (g) from
  * the IMU.
  * 

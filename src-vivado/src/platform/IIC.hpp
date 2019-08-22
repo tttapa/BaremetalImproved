@@ -1,6 +1,9 @@
 /* Includes from Xilinx. */
 #include <xil_types.h>
 
+// TODO:
+void initIIC();
+
 /**
  * Write to one of the registers of the IMU.
  *

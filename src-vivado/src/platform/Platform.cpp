@@ -1,13 +1,13 @@
 #include <platform/Platform.hpp>
-#include <stdio.h>
+//#include <stdio.h>
 
 /* Includes from Xilinx. */
-#include "sleep.h"
-#include "stdlib.h"
-#include "xiicps.h"
+//#include "sleep.h"
+//#include "stdlib.h"
+//#include "xiicps.h"
 #include "xil_cache.h"
 #include "xil_cache_l.h"
-#include "xil_exception.h"
+//#include "xil_exception.h"
 #include "xscugic.h"
 
 // TODO: block comment
