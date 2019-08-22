@@ -34,13 +34,13 @@ const int IIC_SCLK_RATE = 400e3;
 int setupIICInterruptSystem() {
 
     /* Initialize the interrupt controller driver so that it is ready to use. */
-    //XScuGic_Config *IntcConfig;
+    XScuGic_Config *IntcConfig;
 
     /* Find the Zynq itself (INTC_DEVICE_ID == 0, which I assume is the id of
 	   the Zynq as it is added first). */
-    //IntcConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);
-    //if (NULL == IntcConfig)
-    //    return XST_FAILURE;
+    IntcConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);
+    if (NULL == IntcConfig)
+        return XST_FAILURE;
 
     /* Connect and enable the device driver handler that will be called when an
 	   interrupt for the device occurs, the handler defined above performs the

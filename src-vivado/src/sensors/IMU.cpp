@@ -213,13 +213,13 @@ void int_gyr(void *InstancePtr) {
 int setupIMUInterruptSystem() {
 
     /* Initialize the interrupt controller driver so that it is ready to use. */
-    //XScuGic_Config *IntcConfig;
+    XScuGic_Config *IntcConfig;
 
     /* Find the Zynq itself (INTC_DEVICE_ID == 0, which I assume is the id of
 	   the Zynq as it is added first). */
-    //IntcConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);
-    //if (NULL == IntcConfig)
-    //    return XST_FAILURE;
+    IntcConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);
+    if (NULL == IntcConfig)
+        return XST_FAILURE;
 
     /**
 	 * Connect and enable fast interrupt for the Gyr data ready interrupt.
