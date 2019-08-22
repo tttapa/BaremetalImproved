@@ -2,6 +2,7 @@
 
 /* Includes from src. */
 #include <Quaternion.hpp>
+#include <MainInterrupt.hpp>
 
 /* Includes from src-vivado. */
 #include <platform/IIC.hpp>
@@ -196,7 +197,7 @@ void int_gyr(void *InstancePtr) {
     (void) InstancePtr;
     //std::cout << "i";
     /* update the FSM */
-    //updateFSM();
+    updateFSM();
 }
 
 // TODO: 
