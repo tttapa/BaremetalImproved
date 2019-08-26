@@ -104,6 +104,9 @@ void updateFSM() {
     writeValueToTestPin(false);
 }
 
+#include <iostream>
+#include <iomanip>
+
 // Called by src-vivado with every IMU update after initialization/calibration
 // is complete.
 void mainOperation() {
@@ -115,6 +118,13 @@ void mainOperation() {
     /* Read IMU measurement and update the AHRS. */
     IMUMeasurement imuMeasurement = readIMU();
     Quaternion ahrsMeasurement = updateAHRS(imuMeasurement);
+
+    std::cout << std::setprecision(2) << std::fixed
+    << ahrsMeasurement.w << '\t'             //
+    << ahrsMeasurement.x << '\t'             //
+    << ahrsMeasurement.y << '\t'             //
+    << ahrsMeasurement.z << '\t'             //
+    << std::endl;
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement       = readSonar();

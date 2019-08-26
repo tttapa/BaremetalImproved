@@ -351,7 +351,7 @@ IMUMeasurement readIMU() {
     Vec3f accel = getAccelMeasurement(accelRaw, accelBiasQuat, accelBiasNorm);
     
     
-    printf("%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\r\n", accel.x, accel.y, accel.z, gyro.x, gyro.y, gyro.z);
+    // printf("%.2f\t%.2f\t%.2f\t%.2f\t%.2f\t%.2f\r\n", accel.x, accel.y, accel.z, gyro.x, gyro.y, gyro.z);
 
     /* Return IMU measurement (gyro+accel). */
     return IMUMeasurement{GyroMeasurement{gyro}, AccelMeasurement{accel}};
