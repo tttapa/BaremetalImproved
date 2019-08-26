@@ -44,7 +44,11 @@
         "strstream": "cpp",
         "typeindex": "cpp",
         "chrono": "cpp",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "bitset": "cpp",
+        "complex": "cpp",
+        "list": "cpp",
+        "cfenv": "cpp"
     },
     "files.exclude": {
         "install-vivado": false // "false" = show flolder in file explorer

@@ -119,12 +119,12 @@ void mainOperation() {
     IMUMeasurement imuMeasurement = readIMU();
     Quaternion ahrsMeasurement = updateAHRS(imuMeasurement);
 
-    std::cout << std::setprecision(2) << std::fixed
-    << ahrsMeasurement.w << '\t'             //
-    << ahrsMeasurement.x << '\t'             //
-    << ahrsMeasurement.y << '\t'             //
-    << ahrsMeasurement.z << '\t'             //
-    << std::endl;
+    // std::cout << std::setprecision(2) << std::fixed
+    // << ahrsMeasurement.w << '\t'             //
+    // << ahrsMeasurement.x << '\t'             //
+    // << ahrsMeasurement.y << '\t'             //
+    // << ahrsMeasurement.z << '\t'             //
+    // << std::endl;
 
     /* Read sonar measurement and correct it using the drone's orientation. */
     bool hasNewSonarMeasurement       = readSonar();
