@@ -231,10 +231,13 @@ class AutonomousController {
     AutonomousOutput updateAutonomousFSM_IdleGround();
     AutonomousOutput updateAutonomousFSM_PreTakeoff();
     AutonomousOutput updateAutonomousFSM_Takeoff();
-    AutonomousOutput updateAutonomousFSM_Loitering(Position currentPosition);
+    AutonomousOutput updateAutonomousFSM_Loitering(Position currentPosition,
+                                                   bool throttleLow);
     AutonomousOutput updateAutonomousFSM_Converging(Position currentPosition,
-                                                    float currentHeight);
-    AutonomousOutput updateAutonomousFSM_Navigating(Position currentPosition);
+                                                    float currentHeight,
+                                                    bool throttleLow);
+    AutonomousOutput updateAutonomousFSM_Navigating(Position currentPosition,
+                                                    bool throttleLow);
     AutonomousOutput updateAutonomousFSM_Landing();
     AutonomousOutput updateAutonomousFSM_WPT();
     AutonomousOutput updateAutonomousFSM_Error();

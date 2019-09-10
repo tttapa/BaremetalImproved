@@ -270,7 +270,7 @@ AutonomousController::updateAutonomousFSM(Position currentPosition,
      */
     bool throttleLow = false;
     static float throttleHighTime = 0;
-    static constexpr LANDING_THROTTLE_TIME = 1.0; // Throttle low for 1s
+    static constexpr float LANDING_THROTTLE_TIME = 1.0; // Throttle low for 1s
     if(getThrottle() > LANDING_THROTTLE)
         throttleHighTime = getTime();
     if(getTime() - throttleHighTime >= LANDING_THROTTLE_TIME)
