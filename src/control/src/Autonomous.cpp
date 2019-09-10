@@ -268,15 +268,26 @@ AutonomousController::updateAutonomousFSM(Position currentPosition,
      * !!! setAutonomousState().                                             !!!
      * 
      */
+    bool throttleLow = false;
+    static float throttleHighTime = 0;
+    static constexpr LANDING_THROTTLE_TIME = 1.0; // Throttle low for 1s
+    if(getThrottle() > LANDING_THROTTLE)
+        throttleHighTime = getTime();
+    if(getTime() - throttleHighTime >= LANDING_THROTTLE_TIME)
+        throttleLow = true;
+
     switch (this->autonomousState) {
         case IDLE_GROUND: return updateAutonomousFSM_IdleGround();
         case PRE_TAKEOFF: return updateAutonomousFSM_PreTakeoff();
         case TAKEOFF: return updateAutonomousFSM_Takeoff();
-        case LOITERING: return updateAutonomousFSM_Loitering(currentPosition);
+        case LOITERING: return updateAutonomousFSM_Loitering(currentPosition,
+                                                             throttleLow);
         case CONVERGING:
             return updateAutonomousFSM_Converging(currentPosition,
-                                                  currentHeight);
-        case NAVIGATING: return updateAutonomousFSM_Navigating(currentPosition);
+                                                  currentHeight,
+                                                  throttleLow);
+        case NAVIGATING: return updateAutonomousFSM_Navigating(currentPosition,
+                                                               throttleLow);
         case LANDING: return updateAutonomousFSM_Landing();
         case WPT: return updateAutonomousFSM_WPT();
         case ERROR: return updateAutonomousFSM_Error();
@@ -659,7 +670,8 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Takeoff() {
 }
 
 AutonomousOutput
-AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
+AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition,
+                                                    bool throttleLow) {
 
     /* Determine if we should leave the LOITERING state. */
     bool timerCanExpire  = !this->shouldLoiterIndefinitely;
@@ -670,7 +682,7 @@ AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
 
     /* Switch to LANDING, and land at the current position, if landing is
        enabled and the pilot lowers the throttle enough. */
-    if (isLandingEnabled() && getThrottle() <= LANDING_THROTTLE) {
+    if (isLandingEnabled() && throttleLow) {
         setAutonomousState(LANDING);
         setNextTarget(currentPosition);
     }
@@ -710,11 +722,12 @@ AutonomousController::updateAutonomousFSM_Loitering(Position currentPosition) {
 
 AutonomousOutput
 AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
-                                                     float currentHeight) {
+                                                     float currentHeight,
+                                                     bool throttleLow) {
 
     /* Switch to LANDING, and land at the current position, if landing is
        enabled and the pilot lowers the throttle enough. */
-    if (isLandingEnabled() && getThrottle() <= LANDING_THROTTLE) {
+    if (isLandingEnabled() && throttleLow) {
         setAutonomousState(LANDING);
         setNextTarget(currentPosition);
     }
@@ -764,11 +777,12 @@ AutonomousController::updateAutonomousFSM_Converging(Position currentPosition,
 }
 
 AutonomousOutput
-AutonomousController::updateAutonomousFSM_Navigating(Position currentPosition) {
+AutonomousController::updateAutonomousFSM_Navigating(Position currentPosition,
+                                                     bool throttleLow) {
 
     /* Switch to LANDING, and land at the current position, if landing is
        enabled and the pilot lowers the throttle enough. */
-    if (isLandingEnabled() && getThrottle() <= LANDING_THROTTLE) {
+    if (isLandingEnabled() && throttleLow) {
         setAutonomousState(LANDING);
         setNextTarget(currentPosition);
     }
