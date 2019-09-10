@@ -21,28 +21,31 @@
  * time, then it will have converged on its target (horizontally).
  */
 //***** SUMMER EDIT: larger convergence distance. *****//
-//static constexpr float CONVERGENCE_DISTANCE_HORIZONTAL = 0.12;
-static constexpr float CONVERGENCE_DISTANCE_HORIZONTAL = 0.35;
+//static constexpr float CONVERGENCE_DISTANCE_HORIZONTAL = 0.12;    // demo
+//static constexpr float CONVERGENCE_DISTANCE_HORIZONTAL = 0.35;    // summer
+static constexpr float CONVERGENCE_DISTANCE_HORIZONTAL = 0.18;      // summ-demo
 
 /**
  * If the drone is stays with 0.05 meters of its reference height for a period
  * of time, then it will have converged on its target (vertically).
  */
 //***** SUMMER EDIT: larger convergence distance. *****//
-//static constexpr float CONVERGENCE_DISTANCE_VERTICAL = 0.05;
-static constexpr float CONVERGENCE_DISTANCE_VERTICAL = 0.20;
+//static constexpr float CONVERGENCE_DISTANCE_VERTICAL = 0.05;      // demo
+//static constexpr float CONVERGENCE_DISTANCE_VERTICAL = 0.20;      // summer
+static constexpr float CONVERGENCE_DISTANCE_VERTICAL = 0.12;        // summ-demo
 
 /**
  * If the drone is stays with a certain distance of its destination for 1
  * second, then it will have converged on its target.
  */
 //***** SUMMER EDIT: longer convergence duration. *****//
-//static constexpr float CONVERGENCE_DURATION = 1.0;
-static constexpr float CONVERGENCE_DURATION = 4.0;
+//static constexpr float CONVERGENCE_DURATION = 1.0;                // demo
+//static constexpr float CONVERGENCE_DURATION = 4.0;                // summer
+static constexpr float CONVERGENCE_DURATION = 2.5;                  // summ-demo
 
 /**
  * The blind stage of the landing, meaning the sonar is not accurate anymore,
- * lasts 2.5 seconds.
+ * lasts 1.0 seconds.
  */
 static constexpr float LANDING_BLIND_DURATION = 1.0;
 
@@ -51,7 +54,9 @@ static constexpr float LANDING_BLIND_DURATION = 1.0;
  * anymore, a marginal signal of 1% below the hovering signal will be sent to
  * the "common motor".
  */
-static constexpr float LANDING_BLIND_MARGINAL_THRUST = -0.025;
+//static constexpr float LANDING_BLIND_MARGINAL_THRUST = -0.025;    // demo
+static constexpr float LANDING_BLIND_MARGINAL_THRUST = -0.03;       // summ-demo
+
 
 /**
  * In the first stage of the landing procedure, when the sonar is accurate, the
@@ -107,7 +112,9 @@ static constexpr int MAX_QR_SEARCH_COUNT = 49;
  * When the drone is navigating in autonomous mode, the reference will travel at
  * a speed of 0.18 m/s.
  */
-static constexpr float NAVIGATION_SPEED = 0.25; //***** SUMMER EDIT: faster. *****//
+//static constexpr float NAVIGATION_SPEED = 0.18;                   // demo
+//static constexpr float NAVIGATION_SPEED = 0.25;                   // summer
+static constexpr float NAVIGATION_SPEED = 0.25;                     // summ-demo
 
 /** The pre-takeoff stage lasts 6.0 seconds. */
 static constexpr float PRE_TAKEOFF_DURATION = 6.0;
@@ -122,7 +129,9 @@ static constexpr float REFERENCE_HEIGHT = 1.0;
  * If the QR code could not be read well, try taking images ± 0.15 meters from
  * the nominal reference height.
  */
-static constexpr float REFERENCE_HEIGHT_ADJUSTMENT = 0.15;
+//static constexpr float REFERENCE_HEIGHT_ADJUSTMENT = 0.15;        // demo
+//static constexpr float REFERENCE_HEIGHT_ADJUSTMENT = 0.15;        // summer
+static constexpr float REFERENCE_HEIGHT_ADJUSTMENT = 0.20;          // summ-demo
 
 /**
  * The blind stage of the takeoff, meaning the sonar is not yet accurate,
@@ -169,18 +178,25 @@ Position AutonomousController::getNextSearchTarget() {
     /* Spiral outward until we reach the next tile to check. */
     float dx           = 1.0 * BLOCKS_TO_METERS;
     float dy           = 0.0 * BLOCKS_TO_METERS;
-    int tilesUntilTurn = 0;
+    int tilesUntilTurn = 1;
     int nextTurnIndex  = 1;
+    int turnCounter = 0;
+
     for (int i = 0; i < this->qrTilesSearched; i++) {
-        /* Every two iterations, the turn occurs 1 tile later. */
-        if (i % 2 == 0)
-            tilesUntilTurn++;
+
         /* Update dx, dy based on the index i. */
         if (i == nextTurnIndex) {
+            float tmp = dx;
             dx = -dy;
-            dy = dx;
-            nextTurnIndex += tilesUntilTurn;
+            dy = tmp;
+            nextTurnIndex = nextTurnIndex + tilesUntilTurn;
+            
+            /* Every two turns, the turn occurs 1 tile later. */
+            if (turnCounter % 2 == 0)
+                tilesUntilTurn = tilesUntilTurn + 1;
+            turnCounter++;
         }
+
         /* Next tile. */
         x += dx;
         y += dy;
@@ -319,6 +335,7 @@ void AutonomousController::initAir(Position currentPosition,
     Position p = currentPosition;
     if(getTestMode() == TestMode::DEMO) {
         p = (currentPosition * METERS_TO_BLOCKS).round() * BLOCKS_TO_METERS;
+        referenceHeight = {REFERENCE_HEIGHT};
     }
     this->previousTarget           = p;
     this->nextTarget               = p;
@@ -492,7 +509,7 @@ void AutonomousController::updateQRFSM_Error() {
         return;
     }
 
-    /* Reset the reference height if we've failed 9 times. */
+    /* Decrease the reference height if we've failed 9 times. */
     if (qrErrorCount == 3 * MAX_QR_ERROR_COUNT) {
         referenceHeight.z        -= REFERENCE_HEIGHT_ADJUSTMENT;
         autonomousStateStartTime = getTime(); /* Reset convergence timer. */
@@ -506,20 +523,26 @@ void AutonomousController::updateQRFSM_Error() {
         return;
     }
 
-    /* Give up if we've failed 12 times. */
-    /* Switch autonomous FSM to landing if landing is enabled. */
-    if (isLandingEnabled())
-        setAutonomousState(LANDING);
+    // *** SUMMER DEMO EDIT
+    /* Search if we've failed 12 times. */
+    updateQRFSM_NoQR();
 
-    /* Switch the autonomous FSM to LOITERING indefinitely is landing is
-    disabled. */
-    else {
-        setAutonomousState(LOITERING);
-        shouldLoiterIndefinitely = true;
-    }
+    return;
 
-    /* Switch to QR_IDLE. */
-    qrComm->setQRStateIdle();
+    ///* Give up if we've failed 12 times. */
+    ///* Switch autonomous FSM to landing if landing is enabled. */
+    //if (isLandingEnabled())
+    //    setAutonomousState(LANDING);
+    //
+    ///* Switch the autonomous FSM to LOITERING indefinitely is landing is
+    //disabled. */
+    //else {
+    //    setAutonomousState(LOITERING);
+    //    shouldLoiterIndefinitely = true;
+    //}
+    //
+    ///* Switch to QR_IDLE. */
+    //qrComm->setQRStateIdle();
 }
 
 #pragma endregion

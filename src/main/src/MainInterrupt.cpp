@@ -314,6 +314,12 @@ void mainOperation() {
     if (previousFlightMode == FlightMode::ALTITUDE_HOLD)
         biasManager.setAutonomousHoveringThrust(biasManager.getThrustBias());
 
+    // *** SUMMER DEMO: set test mode
+    if(getWPTMode() == WPTMode::ON)
+        setTestMode(TestMode::DEMO);
+    else
+        setTestMode(TestMode::TEST_NAVIGATION);
+    
     /* Set the test mode: rtune left is TEST_LANDING, rtune right is
        TEST_QR_WALKING, WPT off is TEST_DEMO. */
     /* TODO: during demo we used the tuner to set the test mode.
@@ -532,11 +538,11 @@ void mainOperation() {
 
         /* Calculate global position estimate. */
         // TODO: global position estimate?
-        /*
+        // **** SUMMER DEMO:
         globalPositionEstimate = getGlobalPositionEstimate(correctedPositionMeasurement, positionController.getStateEstimate(),
                                                            getTime() - positionController.getLastMeasurementTime());
-        */
-        globalPositionEstimate = correctedPositionMeasurement;
+        // **** SUMMER:
+        //globalPositionEstimate = correctedPositionMeasurement;
 
         /* Update altitude observer? */
         shouldUpdateAltitudeObserver = hasNewSonarMeasurement && autoOutput.updateAltitudeObserver;

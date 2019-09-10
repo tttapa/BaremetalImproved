@@ -104,9 +104,11 @@ bool isAutonomousAirEnabled() {
 
 /** Get whether autonomous mode can be activated from the ground. */
 bool isAutonomousGroundEnabled() {
-    return TEST_MODE == TestMode::TEST_PRETAKEOFF ||  //
-           TEST_MODE == TestMode::TEST_TAKEOFF ||     //
-           TEST_MODE == TestMode::DEMO;
+    return false;
+    // *** SUMMER DEMO: never initialize autonomous ground
+    //return TEST_MODE == TestMode::TEST_PRETAKEOFF ||  //
+    //       TEST_MODE == TestMode::TEST_TAKEOFF ||     //
+    //       TEST_MODE == TestMode::DEMO;
 }
 
 /** Get whether the drone can switch from LOITERING to CONVERGING/NAVIGATING. */
