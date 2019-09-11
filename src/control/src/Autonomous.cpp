@@ -817,8 +817,12 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
     /* Switch to IDLE_GROUND if the reference height is low enough and the timer
        expires. */
     if (referenceHeight.z <= LANDING_LOWEST_REFERENCE_HEIGHT &&
-        getElapsedTime() > LANDING_BLIND_DURATION)
+        getElapsedTime() > LANDING_BLIND_DURATION) {
+        armedManager.disarm();
+        buzzerManager.addDisarmedBeeps();
         setAutonomousState(IDLE_GROUND);
+    }
+        
 
     /* Otherwise, stay in LANDING. */
     /* Stage 1: we can trust the sonar and IMP. Slowly lower the reference
