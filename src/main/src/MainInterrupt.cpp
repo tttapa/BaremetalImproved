@@ -665,6 +665,9 @@ void mainOperation() {
     MotorSignals motorSignals = transformAttitudeControlSignal(uxyz, uc);
     if (armedManager.isArmed())
         outputMotorPWM(motorSignals);
+    else
+        outputMotorPWM(0, 0, 0, 0);
+    
 
     //***** SUMMER EDIT: KF/LQR order swapped *****//
     // /* Update the Kalman Filters (the position controller doesn't use one). */
