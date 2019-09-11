@@ -25,6 +25,9 @@ class ArmedManager {
     float waitingStartTime = 0.0;
 
   public:
+    void arm() { this->armed = true; }
+    void disarm() { this->armed = false; }
+
     /**
      * Initialize the armed manager and set the armed status to disarmed.
      */
