@@ -257,6 +257,7 @@ class AutonomousController {
     /** Get whether the drone has landed. */
     bool getHasLanded() { return this->hasLanded; }
     float getLandingTime() { return this->landingTime; }
+    void setHasLanded(bool thebool) {this->hasLanded = thebool;}
 
     /** Get the autonomous controller's autonomous state. */
     AutonomousState getAutonomousState() { return this->autonomousState; }

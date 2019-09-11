@@ -14,6 +14,7 @@
 #include <TestMode.hpp>
 #include <TiltCorrection.hpp>
 #include <Time.hpp>
+#include <Position.hpp>
 
 /* Includes from src-vivado. */
 #include <output/Motors.hpp>
@@ -666,8 +667,12 @@ void mainOperation() {
 
 
     /** SUMMER DEMO EDIT: LANDED **/
-    if (autonomousController.getHasLanded() && getTime() - autonomousController.getLandingTime() > 2)
+    if (autonomousController.getHasLanded() && 
+        getTime() - autonomousController.getLandingTime() > 3.5) {
+        autonomousController.setHasLanded(false);
         armedManager.disarm();
+        buzzerManager.addDisarmedBeeps();
+    }
 
     if (armedManager.isArmed())
         outputMotorPWM(motorSignals);

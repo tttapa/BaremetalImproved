@@ -48,7 +48,7 @@ static constexpr float CONVERGENCE_DURATION = 2.5;                  // summ-demo
  * lasts 1.0 seconds.
  */
 //static constexpr float LANDING_BLIND_DURATION = 1.0;              // summer
-static constexpr float LANDING_BLIND_DURATION = 2.0;                // summ-demo
+static constexpr float LANDING_BLIND_DURATION = 1.0;                // summ-demo
 
 /**
  * During the blind stage of the landing, meaning the sonar is not accurate
@@ -819,11 +819,15 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
 
     /* Switch to IDLE_GROUND if the reference height is low enough and the timer
        expires. */
-    if (referenceHeight.z <= LANDING_LOWEST_REFERENCE_HEIGHT &&
-        getElapsedTime() > LANDING_BLIND_DURATION) {
-        this->hasLanded = true;
-        this->landingTime = getTime();
-        setAutonomousState(IDLE_GROUND);
+    if (referenceHeight.z <= LANDING_LOWEST_REFERENCE_HEIGHT) {
+        if(getElapsedTime() > LANDING_BLIND_DURATION) {
+            this->hasLanded = true;
+            this->landingTime = getTime();
+            gtcManager.start(biasManager.getThrustBias() + LANDING_BLIND_MARGINAL_THRUST);
+        }
+        if(getElapsedTime() > 2 * LANDING_BLIND_DURATION) {
+            setAutonomousState(IDLE_GROUND);
+        }
     }
         
 
