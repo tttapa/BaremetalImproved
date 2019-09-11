@@ -136,7 +136,8 @@ bool isNavigationEnabledTestTargets() {
 
 /** Get whether the drone is able to land. */
 bool isLandingEnabled() {
-    return TEST_MODE == TestMode::TEST_LANDING ||             //
+    return TEST_MODE == TestMode::TEST_NAVIGATION ||
+           TEST_MODE == TestMode::TEST_LANDING ||             //
            TEST_MODE == TestMode::TEST_QR_WALKING ||          //
            TEST_MODE == TestMode::TEST_QR_NAVIGATION_LOST ||  //
            TEST_MODE == TestMode::DEMO;  // Remove this if you can't land!
