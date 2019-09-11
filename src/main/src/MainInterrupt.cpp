@@ -663,6 +663,12 @@ void mainOperation() {
 
     /* Transform the motor signals and output to the motors. */
     MotorSignals motorSignals = transformAttitudeControlSignal(uxyz, uc);
+
+
+    /** SUMMER DEMO EDIT: LANDED **/
+    if (autonomousController.getHasLanded() && getTime() - autonomousController.getLandingTime() > 2)
+        armedManager.disarm();
+
     if (armedManager.isArmed())
         outputMotorPWM(motorSignals);
     else

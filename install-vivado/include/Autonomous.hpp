@@ -115,6 +115,10 @@ class AutonomousController {
      */
     bool shouldLoiterIndefinitely;
 
+    bool hasLanded;
+
+    float landingTime;
+
     /**
      * Calculates the time since the autonomous controller entered its current
      * state in seconds.
@@ -250,6 +254,10 @@ class AutonomousController {
 #pragma endregion
 
   public:
+    /** Get whether the drone has landed. */
+    bool getHasLanded() { return this->hasLanded; }
+    float getLandingTime() { return this->landingTime; }
+
     /** Get the autonomous controller's autonomous state. */
     AutonomousState getAutonomousState() { return this->autonomousState; }
 

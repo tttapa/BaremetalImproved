@@ -47,7 +47,8 @@ static constexpr float CONVERGENCE_DURATION = 2.5;                  // summ-demo
  * The blind stage of the landing, meaning the sonar is not accurate anymore,
  * lasts 1.0 seconds.
  */
-static constexpr float LANDING_BLIND_DURATION = 1.0;
+//static constexpr float LANDING_BLIND_DURATION = 1.0;              // summer
+static constexpr float LANDING_BLIND_DURATION = 2.0;                // summ-demo
 
 /**
  * During the blind stage of the landing, meaning the sonar is not accurate
@@ -353,6 +354,7 @@ void AutonomousController::initAir(Position currentPosition,
     this->referenceHeight          = referenceHeight;
     this->qrErrorCount             = 0;
     this->qrTilesSearched          = 0;
+    this->hasLanded = false;
 }
 
 void AutonomousController::initGround(Position currentPosition) {
@@ -362,6 +364,7 @@ void AutonomousController::initGround(Position currentPosition) {
     this->nextTarget             = currentPosition;
     this->qrErrorCount           = 0;
     this->qrTilesSearched        = 0;
+    this->hasLanded = false;
 }
 
 AutonomousOutput AutonomousController::update(Position currentPosition,
@@ -818,8 +821,8 @@ AutonomousOutput AutonomousController::updateAutonomousFSM_Landing() {
        expires. */
     if (referenceHeight.z <= LANDING_LOWEST_REFERENCE_HEIGHT &&
         getElapsedTime() > LANDING_BLIND_DURATION) {
-        armedManager.disarm();
-        buzzerManager.addDisarmedBeeps();
+        this->hasLanded = true;
+        this->landingTime = getTime();
         setAutonomousState(IDLE_GROUND);
     }
         
