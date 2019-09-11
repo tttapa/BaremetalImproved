@@ -563,19 +563,19 @@ void AutonomousController::updateQRFSM_Error() {
 AutonomousOutput AutonomousController::updateAutonomousFSM_IdleGround() {
 
     /* Reset the takeoff throttle if it's lowered enough. */
-    if (getThrottle() <= TAKEOFF_THROTTLE_RESET)
-        this->isTakeoffThrottleReset = true;
+//    if (getThrottle() <= TAKEOFF_THROTTLE_RESET)
+//        this->isTakeoffThrottleReset = true;
 
     /* Switch to WPT when the RC WPT mode turns on. */
-    if (getWPTMode() == WPTMode::ON)
-        setAutonomousState(WPT);
+//    if (getWPTMode() == WPTMode::ON)
+//        setAutonomousState(WPT);
 
     /* Switch to PRE_TAKEOFF when the RC throttle is raised high enough. */
-    else if (this->isTakeoffThrottleReset &&
-             getThrottle() >= TAKEOFF_THROTTLE) {
-        this->isTakeoffThrottleReset = false;
-        setAutonomousState(PRE_TAKEOFF);
-    }
+//    else if (this->isTakeoffThrottleReset &&
+//             getThrottle() >= TAKEOFF_THROTTLE) {
+//        this->isTakeoffThrottleReset = false;
+//        setAutonomousState(PRE_TAKEOFF);
+//    }
 
     /* Otherwise, stay in IDLE_GROUND. */
     output = AutonomousOutput{
