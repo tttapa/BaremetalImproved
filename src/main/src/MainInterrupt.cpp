@@ -315,10 +315,11 @@ void mainOperation() {
         biasManager.setAutonomousHoveringThrust(biasManager.getThrustBias());
 
     // *** SUMMER DEMO: set test mode
-    if(getWPTMode() == WPTMode::ON)
-        setTestMode(TestMode::DEMO);
-    else
-        setTestMode(TestMode::TEST_NAVIGATION);
+
+    //if(getWPTMode() == WPTMode::ON)
+    //    setTestMode(TestMode::DEMO);
+    //else
+    //    setTestMode(TestMode::TEST_NAVIGATION);
     
     /* Set the test mode: rtune left is TEST_LANDING, rtune right is
        TEST_QR_WALKING, WPT off is TEST_DEMO. */
