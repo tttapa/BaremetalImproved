@@ -1,3 +1,9 @@
+#include <platform/Interrupt.hpp>
 #include <MainInterrupt.hpp>
 
-void mainLoop() { isInterruptRunning = false; }
+void mainLoop() {
+    if (doInterrupt) {
+        updateFSM();
+        doInterrupt = false;
+    }
+}

@@ -22,6 +22,7 @@
 #include <sensors/IMU.hpp>
 #include <sensors/RC.hpp>
 #include <sensors/Sonar.hpp>
+#include <platform/Interrupt.hpp>
 #pragma endregion
 
 /** Whether an interrupt is currently running. */
@@ -70,7 +71,7 @@ void updateFSM() {
     writeValueToTestPin(true);
 
     /* Update LEDs. */
-    writeToLEDs(isInterruptRunning, armedManager.isArmed(),
+    writeToLEDs(throttling, armedManager.isArmed(),
                 flightMode == FlightMode::AUTONOMOUS, wptMode == WPTMode::ON);
 
     /* Set isInterruptRunning to true, mainLoop will set it to false. */
@@ -127,7 +128,7 @@ void mainOperation() {
     Position positionMeasurementBlocks, positionMeasurement,
         correctedPositionMeasurement, globalPositionEstimate;
     static real_t yawMeasurement = 0.0;
-    bool hasNewIMPMeasurement = false;
+    bool hasNewIMPMeasurement    = false;
     if (visionComm->isDoneWriting()) {
         hasNewIMPMeasurement          = true;
         VisionData visionData         = visionComm->read();
@@ -603,9 +604,9 @@ void mainOperation() {
                                flightMode == FlightMode::AUTONOMOUS,
                                wptMode == WPTMode::ON};
     logEntry.wptMode          = wptMode;
-    logEntry.sensorHeightMeasurment = correctedSonarMeasurement;
+    logEntry.sensorHeightMeasurement   = correctedSonarMeasurement;
     logEntry.sensorPositionMeasurement = correctedPositionMeasurement;
-    logEntry.sensorYawMeasurement   = yawMeasurement;
+    logEntry.sensorYawMeasurement      = yawMeasurement;
 
     /* Output log data if logger is done writing. */
     if (loggerComm->isDoneReading())
